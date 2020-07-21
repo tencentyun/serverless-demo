@@ -1,0 +1,30 @@
+component: scf
+name: ap-guangzhou_default_API_GW_Basic_Demo
+org: app
+app: API_GW_Basic_Demo
+stage: dev
+inputs:
+  name: API_GW_Basic_Demo
+  src: ./
+  description: 本示例演示 API 网关使用的基础方法，主要展示在集成响应下（通过云函数控制台创建的API网关触发器默认启用集成响应），怎样构造返回值
+  handler: apigw.main_handler
+  runtime: Php7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3
+  events:
+     - apigw: # api网关触发器
+        name: serverless
+        serviceId: # input API gateway serviceId
+        parameters:
+          protocols:
+            - http
+          description: the serverless service
+          environment: release
+          endpoints:
+            - path: /
+              method: GET
+              function:
+                isIntegratedResponse: TRUE
+

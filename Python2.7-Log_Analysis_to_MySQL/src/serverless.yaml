@@ -1,0 +1,27 @@
+component: scf
+name: ap-guangzhou_default_log_analysis
+org: app
+app: log_analysis
+stage: dev
+inputs:
+  name: log_analysis
+  src: ./
+  description: >-
+    This demo shows downloading log files from COS, using cloud function
+    analysis and writing to MySql. 本示例展示了从COS下载日志文件，使用云函数分析后写入MySql
+  handler: log_analysis.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 10
+  events:
+     - cos: # cos触发器
+        name: # input cosname.cos.region.myqcloud.com  //e.g. xxx.cos.ap-chengdu.myqcloud.com
+        parameters:
+          bucket: # input cosname.cos.region.myqcloud.com  //e.g. xxx.cos.ap-chengdu.myqcloud.com
+          filter:
+            prefix: 
+            suffix: 
+          events: cos:ObjectCreated:*
+          enable: true

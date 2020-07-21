@@ -1,0 +1,18 @@
+component: scf
+name: ap-guangzhou_default_map_function
+org: app
+app: map_function
+stage: dev
+inputs:
+  name: map_function
+  src: ./
+  description: >-
+    his is one of the MapReduce function which is map_function.
+    本示例Demo演示怎么利用COS来做MapReduce，一共需要2个函数：map_function和reduce_function，3个COS
+    Bucket：srcmr、middlestagebucket 和 destmr
+  handler: map_function.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3

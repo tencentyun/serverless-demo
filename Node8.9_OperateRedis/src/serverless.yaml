@@ -1,0 +1,15 @@
+component: scf
+name: ap-guangzhou_default_Operate_Credis
+org: app
+app: Operate_Credis
+stage: dev
+inputs:
+  name: Operate_Credis
+  src: ./
+  description: 本示例通过redis node客户端，操作credis数据库
+  handler: index.main_handler
+  runtime: Nodejs8.9
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3

@@ -1,0 +1,17 @@
+{
+  "name": "word_recognition",
+  "version": "1.0.0",
+  "description": "本示例通过配置COS触发，上传到COS的图片，然后调用腾讯云图像智能的接口，实现图片的文字识别",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "腾讯云无服务器云函数团队",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "cos-nodejs-sdk-v5": "^2.5.3",
+    "crypto": "^1.0.1",
+    "tcb-ai": "^0.1.1"
+  }
+}

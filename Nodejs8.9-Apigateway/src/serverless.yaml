@@ -1,0 +1,33 @@
+component: scf
+name: ap-guangzhou_default_API_GW_Basic_Demo
+org: app
+app: API_GW_Basic_Demo
+stage: dev
+inputs:
+  name: API_GW_Basic_Demo
+  src: ./
+  description: 本示例主要演示当配置 API 网关触发器的时候，怎样去构造返回的 json 数据结构
+  handler: index.main_handler
+  runtime: Nodejs8.9
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3
+  events:
+     - apigw: # api网关触发器
+        name: serverless
+        serviceId: # input API gateway serviceId
+        parameters:
+          protocols:
+            - http
+          description: the serverless service
+          environment: release
+          endpoints:
+            - path: /
+              method: GET
+              function:
+                isIntegratedResponse: TRUE
+
+                
+    
+  

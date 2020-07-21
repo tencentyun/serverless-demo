@@ -1,0 +1,15 @@
+component: scf
+name: ap-guangzhou_default_API_GW_Hexo_Demo
+org: app
+app: API_GW_Hexo_Demo
+stage: dev
+inputs:
+  name: API_GW_Hexo_Demo
+  src: ./
+  description: 本示例主要通过 SCF 结合 API 网关，快速实现一个基于hexo的静态站点。
+  handler: index.main_handler
+  runtime: Nodejs8.9
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3

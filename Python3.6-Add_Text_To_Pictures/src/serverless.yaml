@@ -1,0 +1,39 @@
+component: scf
+name: Add_Text_To_Pictures
+org: scf
+app: Add_Text_To_Pictures
+stage: dev
+
+inputs:
+  name: Add_Text_To_Pictures
+  src: 
+    src: ./
+  runtime: Python3.6
+  region: ap-shanghai #需要替换的字段
+  handler: index.main_handler
+  memorySize: 512
+  timeout: 60
+  role: SCF_QcsRole   #需要授权：cos bucket文件读写，cdn预热/刷新权限
+  environment:
+    variables:
+      region: #ap-shanghai  #需要替换的字段
+      target_bucket: #serverless-demo-1256608914  #需要替换的字段
+      target_path: #/invitation  #需要替换的字段
+  events:
+    # apigw触发器，post http源文件地址
+    - apigw:
+        name: serverless_days_workshop_Add_Text_To_Pictures
+        parameters:
+          protocols:
+            - http
+            - https
+          serviceName: serverless_days_workshop_Add_Text_To_Pictures
+          description: serverless_days_workshop_Add_Text_To_Pictures
+          environment: release
+          endpoints:
+            - path: /Add_Text_To_Pictures
+              method: ANY
+              enableCORS: TRUE
+              serviceTimeout: 60
+
+

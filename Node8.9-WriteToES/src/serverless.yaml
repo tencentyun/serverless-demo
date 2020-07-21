@@ -1,0 +1,15 @@
+component: scf
+name: ap-guangzhou_default_WriteToES
+org: app
+app: WriteToES
+stage: dev
+inputs:
+  name: WriteToES
+  src: ./
+  description: 本示例通过使用ElasticSearch库，实现了将随机数写入ES。可为其配置定时触发器后，定时执行
+  handler: index.main_handler
+  runtime: Nodejs8.9
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3

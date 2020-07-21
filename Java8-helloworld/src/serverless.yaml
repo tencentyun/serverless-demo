@@ -1,0 +1,15 @@
+component: scf
+name: ap-guangzhou_default_helloworld
+org: app
+app: helloworld
+stage: dev
+inputs:
+  name: helloworld
+  src: ./
+  description: helloworld blank template
+  handler: 'example.Hello::mainHandler'
+  runtime: Java8
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3
