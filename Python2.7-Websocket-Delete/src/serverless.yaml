@@ -1,0 +1,18 @@
+component: scf
+name: ap-guangzhou_default_websocket_delete
+org: app
+app: websocket_delete
+stage: dev
+inputs:
+  name: websocket_delete
+  src: ./
+  description: >-
+    This demo uses API GW and SCF to build websocket. This is delete function.
+    本示例基于 API
+    网关实现websocket功能，API网关和云函数一起构成websocket的Server端，由API网关承载和Client端的长连接。websocket一共需要3类函数承载，分别是注册函数、传输函数和清理函数，本函数为清理函数。
+  handler: websocket_delete.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3

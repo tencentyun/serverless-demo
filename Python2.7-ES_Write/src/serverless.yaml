@@ -1,0 +1,17 @@
+component: scf
+name: ap-guangzhou_default_escurator
+org: app
+app: escurator
+stage: dev
+inputs:
+  name: escurator
+  src: ./
+  description: >-
+    This demo uses ElasticSearch and timer trigger to write random number to ES.
+    本示例通过使用ElasticSearch库，实现了将随机数写入ES。可为其配置定时触发器后，定时执行
+  handler: index.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 10

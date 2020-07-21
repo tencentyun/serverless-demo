@@ -1,0 +1,15 @@
+component: scf
+name: ap-guangzhou_default_mysql_basic_demo
+org: app
+app: mysql_basic_demo
+stage: dev
+inputs:
+  name: mysql_basic_demo
+  src: ./
+  description: This demo shows how to operate mysql. 本示例展示了MySQL的基础使用方法，用户可根据实际业务配合触发器一起使用
+  handler: mysql_basic_demo.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3

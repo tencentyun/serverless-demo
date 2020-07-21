@@ -1,0 +1,15 @@
+{
+  "name": "unzip_and_upload_to_cos",
+  "version": "1.0.0",
+  "description": "本示例通过配置COS触发，上传到COS的ZIP包，使用SCF下载并本地解压，支持带密码解压，支持中文字段解压，并把解压后的文件上传到COS另一个bucket中，您还可以扩充支持RAR包的解压",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "腾讯云无服务器云函数团队",
+  "license": "ISC",
+  "dependencies": {
+    "cos-nodejs-sdk-v5": "^2.5.1",
+    "unzipper": "^0.9.4"
+  }
+}

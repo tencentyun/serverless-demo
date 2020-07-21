@@ -1,0 +1,25 @@
+component: scf
+name: ap-guangzhou_default_ES_curator_clear
+org: app
+app: ES_curator_clear
+stage: dev
+inputs:
+  name: ES_curator_clear
+  src: ./
+  description: >-
+    This demo will use timer trigger to check url list. If there are wrong
+    lists, it will send alarm by email. 本示例代码的功能是定时拨测 URL 列表中的地址，并通过邮件发送告警
+  handler: Play_Check_By_Timer.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 10
+  events: # 触发器
+    - timer: # 定时触发器
+        name: timer
+        parameters:
+          cronExpression: '0 */5 * * * * *' # 每5分钟触发一次
+          enable: true
+          argument: argument # 额外的参数
+

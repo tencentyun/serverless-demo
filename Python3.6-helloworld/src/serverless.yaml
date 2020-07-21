@@ -1,0 +1,15 @@
+component: scf
+name: ap-guangzhou_default_helloworld
+org: app
+app: helloworld
+stage: dev
+inputs:
+  name: helloworld
+  src: ./
+  description: helloworld blank template function. Helloworld空白模板函数
+  handler: index.main_handler
+  runtime: Python3.6
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3

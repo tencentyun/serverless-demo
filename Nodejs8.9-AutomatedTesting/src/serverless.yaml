@@ -1,0 +1,23 @@
+component: scf
+name: ap-guangzhou_default_dial_url_by_timer
+org: app
+app: dial_url_by_timer
+stage: dev
+inputs:
+  name: dial_url_by_timer
+  src: ./
+  description: 本示例主要演示定时拨测 URL 列表中的地址，当拨测失败时，通过邮件发送告警
+  handler: index.main_handler
+  runtime: Nodejs8.9
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 10
+  events: # 触发器
+    - timer: # 定时触发器
+        name: timer
+        parameters:
+          cronExpression: '0 */5 * * * * *' # 每5分钟触发一次
+          enable: true
+          argument: argument # 额外的参数
+

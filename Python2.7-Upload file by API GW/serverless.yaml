@@ -1,0 +1,33 @@
+component: scf
+name: ap-guangzhou_default_upload_file_to_COS_by_APIGW
+org: app
+app: upload_file_to_COS_by_APIGW
+stage: dev
+inputs:
+  name: upload_file_to_COS_by_APIGW
+  src: ./
+  description: >-
+    This demo uses API GW trigger and SCF to build WEB backend service.It can
+    upload object to SCF by API GW. 本示例使用 API
+    网关触发器和云函数快速构建web后台，实现从前端通过API上传文件到云函数，并下载文件到云函数的本地目录/tmp，然后上传到COS bucket
+  handler: upload_file_to_COS_by_APIGW.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 30
+  events:
+     - apigw: # api网关触发器
+        name: serverless
+        serviceId: # input API gateway serviceId
+        parameters:
+          protocols:
+            - http
+          description: the serverless service
+          environment: release
+          endpoints:
+            - path: /
+              method: GET
+              function:
+                isIntegratedResponse: TRUE
+

@@ -1,0 +1,15 @@
+component: scf
+name: ap-guangzhou_default_helloworld
+org: app
+app: helloworld
+stage: dev
+inputs:
+  name: helloworld
+  src: ./
+  description: helloworld 空白模板函数
+  handler: index.main_handler
+  runtime: Nodejs12.16
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3
