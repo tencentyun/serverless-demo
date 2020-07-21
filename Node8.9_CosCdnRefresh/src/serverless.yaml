@@ -1,20 +1,18 @@
 component: scf
-name: ap-guangzhou_default_log_analysis
+name: ap-guangzhou_default_Cos_Merge_File
 org: app
 app: cosdemo
 stage: dev
 inputs:
-  name: log_analysis
+  name: Cos_Merge_File
   src: ./
-  description: >-
-    This demo shows downloading log files from COS, using cloud function
-    analysis and writing to MySql. 本示例展示了从COS下载日志文件，使用云函数分析后写入MySql
-  handler: log_analysis.main_handler
-  runtime: Python2.7
+  description: 本示例使用 COS 触发器，完成CDN缓存刷新动作
+  handler: index.main_handler
+  runtime: Nodejs8.9
   namespace: default
   region: ap-guangzhou
-  memorySize: 128
-  timeout: 10
+  memorySize: 256
+  timeout: 900
   events: # 触发器
     - cos: # cos触发器
         name: ${output:${stage}:${app}:cosdemo.cosOrigin}

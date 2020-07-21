@@ -1,7 +1,7 @@
 component: scf
 name: COS_SyncData_SameRegion
-org: scf
-app: scfApp
+org: app
+app: cosdemo
 stage: test
 
 inputs:
@@ -19,16 +19,15 @@ inputs:
       target_bucket: #'function-scf-1256608914'  #需要替换的字段 
       source_bucket: #'ffmpeg-1256608914'  #需要替换的字段
       region: #ap-beijing  #需要替换的字段
-      
-  events:
-    #cos触发器配置
-    - cos:
-        name: ffmpeg-1256608914.cos.ap-beijing.myqcloud.com   #需要替换的字段
+  events: # 触发器
+    - cos: # cos触发器
+        name: ${output:${stage}:${app}:cosdemo.cosOrigin}
         parameters:
-          bucket: ffmpeg-1256608914.cos.ap-beijing.myqcloud.com   #需要替换的字段
+          bucket: ${output:${stage}:${app}:cosdemo.cosOrigin}
+          events: 'cos:ObjectCreated:*'
+          enable: true
           filter:
             prefix: copy/   #需要替换的字段，可选，配置前缀过滤
-          events: cos:ObjectCreated:*  
-          enable: true
+  
 
 

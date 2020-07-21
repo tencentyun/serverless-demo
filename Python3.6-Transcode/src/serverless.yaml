@@ -1,7 +1,7 @@
 component: scf
 name: transcode
-org: scf
-app: scf_transcode
+org: app
+app: cosdemo
 stage: dev
 
 inputs:
@@ -22,30 +22,12 @@ inputs:
       #region: ap-shanghai  #需要替换的字段
       #target_bucket: serverless-demo-1256608914  #需要替换的字段
       #target_path: /transcode  #需要替换的字段
-  events:
-    #cos触发器，上传音视频触发SCF进行处理
-    - cos:
-        name: serverless-demo-1256608914.cos.ap-shanghai.myqcloud.com   #需要替换的字段
+  events: # 触发器
+    - cos: # cos触发器
+        name: ${output:${stage}:${app}:cosdemo.cosOrigin}
         parameters:
-          bucket: serverless-demo-1256608914.cos.ap-shanghai.myqcloud.com  #需要替换的字段
-          filter:
-            prefix: source-video/   #可选，前缀过滤，需要替换的字段
-          events: cos:ObjectCreated:*
+          bucket: ${output:${stage}:${app}:cosdemo.cosOrigin}
+          events: 'cos:ObjectCreated:*'
           enable: true
-    # apigw触发器，post http源文件地址
-    - apigw:
-        name: serverless_days_workshop_transcode
-        parameters:
-          protocols:
-            - http
-            - https
-          serviceName: serverless_days_workshop_transcode
-          description: serverless_days_workshop
-          environment: release
-          endpoints:
-            - path: /transcode
-              method: ANY
-              enableCORS: TRUE
-              serviceTimeout: 300
 
 
