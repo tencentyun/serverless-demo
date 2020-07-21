@@ -1,6 +1,4 @@
-# scf-demo-repo
-
-SCF 云函数 Demo 代码库
+腾讯云 serverless 云函数 demo 库。
 
 # Demo说明
 
@@ -30,7 +28,6 @@ python
 ```
 
 node
-
 
 ```
 |-- apigw-py2          文件夹名称，也作为demo名称，最好和serverless-cloud-function-application::application::name一致。
