@@ -2,7 +2,7 @@
     "serverless-cloud-function-application": {
         "application": {
             "Chinese": {
-                "name": "CKAFKA数据转存到CKAFKA",
+                "name": "",
                 "description": "本示例会将CKAFKA的消息转存到另外一个CKAFKA TOPIC中。",
         "attention": "在使用本示例代码时需要传递相关的环境变量给函数。",
         "readme": {
@@ -51,7 +51,7 @@
         },
         "functions": {
             "name": "kafka_to_kafka_consumer", // Function name which only be in English. 函数名称，只支持英文
-            "description": "CKAFKA data backup to CKAFKA. CKAFKA数据转存到CKAFKA",
+            "description": "CKAFKA data backup to CKAFKA. ",
             "handler": "kafka_to_kafka_consumer.main_handler",
             "memorySize": 128, // Running memory. 运行配置内存
             "timeout": 300, // Running timeout. 运行超时时间

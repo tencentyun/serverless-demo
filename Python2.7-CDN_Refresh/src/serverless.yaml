@@ -1,7 +1,7 @@
 component: scf
 name: cdn_refresh
-org: scf
-app: scfApp
+org: app
+app: cosdemo
 stage: dev
 
 inputs:
@@ -17,15 +17,12 @@ inputs:
       #需要替换的字段
       url_cdn: #'https://serverless-demo-1256608914.file.myqcloud.com'
       region: #ap-shanghai
-  events:
-     - cos: # cos触发器
-        name: # input cosname.cos.region.myqcloud.com  //e.g. xxx.cos.ap-chengdu.myqcloud.com
+  events: # 触发器
+    - cos: # cos触发器
+        name: ${output:${stage}:${app}:cosdemo.cosOrigin}
         parameters:
-          bucket: # input cosname.cos.region.myqcloud.com  //e.g. xxx.cos.ap-chengdu.myqcloud.com
-          filter:
-            prefix: 
-            suffix: 
-          events: cos:ObjectCreated:*
+          bucket: ${output:${stage}:${app}:cosdemo.cosOrigin}
+          events: 'cos:ObjectCreated:*'
           enable: true
 
 

@@ -1,0 +1,19 @@
+component: scf
+name: ap-guangzhou_default_smsTest
+org: app
+app: smsTest
+stage: dev
+inputs:
+  name: smsTest
+  src: .
+  description: 提供发送短信，验证码登录服务
+  handler: index.main_handler
+  runtime: Nodejs8.9
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3
+  role: QCS_SCFExcuteRole
+  vpcConfig:
+    vpcId: vpc-f4hfwuqx
+    subnetId: subnet-nflacapg

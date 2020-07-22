@@ -1,0 +1,11 @@
+# serverless.yml
+
+org: app
+app: cosdemo
+stage: dev
+component: cos
+name: cosdemo
+
+inputs:
+  bucket: mybucket
+  region: ap-guangzhou
