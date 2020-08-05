@@ -1,0 +1,19 @@
+name: php7-qrcodewithlogo # 项目模板的名字 
+displayName:  获取数据生成二维码并结合API网关示例 # 项目模板展示在控制台的名称（中文）
+author: Tencent Cloud, Inc. # 作者的名字
+org: Tencent Cloud, Inc. # 组织名称，可选
+description:  This demo is mainly to show how to use resources, how to get values from the web users, and how to return a web or a file  # 英文描述
+description-i18n:
+  zh-cn: 本示例主要展示在SCF中对各种资源的引用方法，包括include php文件、调用上传到SCF中的非php文件、使用/tmp临时目录，同时展示了SCF中3种获取用户提交数据的方法，最后演示如何返回一个网页或文件 # 中文描述
+type: template #类型：模版
+keywords: tencent, scf, PHP7.2, API GW, API, $_POST, $_GET, path, QRcode # 关键字
+repo: https://github.com/tencentyun/serverless-demo/tree/master/Php7.2-QRcodewithLogo # 源代码
+readme: https://github.com/tencentyun/serverless-demo/tree/master/Php7.2-QRcodewithLogo/README.md # 详细的说明文件
+license: MIT # 版权声明
+src: # 描述项目中的哪些文件需要作为模板发布
+  src: ./src # 指定具体的相对目录，此目录下的文件将作为模板发布
+  exclude: #描述在指定的目录内哪些文件应该被排除
+    # 通常你希望排除
+    # 1. 包含secrets的文件
+    # 2. .git git源代码管理的相关文件
+    # 3. node_modules等第三方依赖文件

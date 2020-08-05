@@ -1,0 +1,19 @@
+name: python3-cos-syncdata-sameregion # 项目模板的名字 
+displayName:  COS同地域增量数据同步 # 项目模板展示在控制台的名称（中文）
+author: Tencent Cloud, Inc. # 作者的名字
+org: Tencent Cloud, Inc. # 组织名称，可选
+description:  This example uses COS triggers to complete the incremental data synchronization between COS and different buckets in the same region. That is, when there is a file upload on COS, it will automatically trigger the function to complete the real-time data synchronization of different buckets.  # 英文描述
+description-i18n:
+  zh-cn: 本示例使用 COS 触发器，完成COS同地域不同bucket的增量数据同步。即当COS上有文件上传时，会自动触发函数完成不同bucket的实时数据同步。 # 中文描述
+type: template #类型：模版
+keywords: tencent, scf, COS, Python3.6, SyncData # 关键字
+repo: https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-COS_SyncData_SameRegion # 源代码
+readme: https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-COS_SyncData_SameRegion/README.md # 详细的说明文件
+license: MIT # 版权声明
+src: # 描述项目中的哪些文件需要作为模板发布
+  src: ./src # 指定具体的相对目录，此目录下的文件将作为模板发布
+  exclude: #描述在指定的目录内哪些文件应该被排除
+    # 通常你希望排除
+    # 1. 包含secrets的文件
+    # 2. .git git源代码管理的相关文件
+    # 3. node_modules等第三方依赖文件

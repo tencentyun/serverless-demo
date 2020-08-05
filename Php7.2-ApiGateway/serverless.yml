@@ -1,0 +1,19 @@
+name: php7-apigateway # 项目模板的名字 
+displayName:  API 网关基础示例 # 项目模板展示在控制台的名称（中文）
+author: Tencent Cloud, Inc. # 作者的名字
+org: Tencent Cloud, Inc. # 组织名称，可选
+description:  This demo uses API GW trigger and SCF to build WEB backend service.It is mainly to show how to build return value  # 英文描述
+description-i18n:
+  zh-cn: 本示例演示 API 网关使用的基础方法，主要展示在集成响应下（通过云函数控制台创建的API网关触发器默认启用集成响应），怎样构造返回值 # 中文描述
+type: template #类型：模版
+keywords: tencent, scf, PHP7.2, API GW, API # 关键字
+repo: https://github.com/tencentyun/serverless-demo/tree/master/Php7.2-ApiGateway # 源代码
+readme: https://github.com/tencentyun/serverless-demo/tree/master/Php7.2-ApiGateway/README.md # 详细的说明文件
+license: MIT # 版权声明
+src: # 描述项目中的哪些文件需要作为模板发布
+  src: ./src # 指定具体的相对目录，此目录下的文件将作为模板发布
+  exclude: #描述在指定的目录内哪些文件应该被排除
+    # 通常你希望排除
+    # 1. 包含secrets的文件
+    # 2. .git git源代码管理的相关文件
+    # 3. node_modules等第三方依赖文件

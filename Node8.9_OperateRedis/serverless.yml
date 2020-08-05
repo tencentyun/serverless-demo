@@ -1,0 +1,19 @@
+name: node8-operateredis # 项目模板的名字 
+displayName:  操作Redis # 项目模板展示在控制台的名称（中文）
+author: Tencent Cloud, Inc. # 作者的名字
+org: Tencent Cloud, Inc. # 组织名称，可选
+description:  This function use redis node client to operate CRedis  # 英文描述
+description-i18n:
+  zh-cn: 本示例通过redis node客户端，操作credis数据库 # 中文描述
+type: template #类型：模版
+keywords: tencent, scf, CRedis, Nodejs8.9 # 关键字
+repo: https://github.com/tencentyun/serverless-demo/tree/master/Node8.9_OperateRedis # 源代码
+readme: https://github.com/tencentyun/serverless-demo/tree/master/Node8.9_OperateRedis/README.md # 详细的说明文件
+license: MIT # 版权声明
+src: # 描述项目中的哪些文件需要作为模板发布
+  src: ./src # 指定具体的相对目录，此目录下的文件将作为模板发布
+  exclude: #描述在指定的目录内哪些文件应该被排除
+    # 通常你希望排除
+    # 1. 包含secrets的文件
+    # 2. .git git源代码管理的相关文件
+    # 3. node_modules等第三方依赖文件
