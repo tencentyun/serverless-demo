@@ -73,7 +73,7 @@ CustomRuntime
 ```sh
 {
     "serverless-cloud-function-application": {
-        "Chinese"{
+        "Chinese":{
             "name": "模版中文名称",                   #请填写模版中文名称，如果是java模版，必须和jar文件的名称一致，其他语言不做限制。前台需要展示，请认真填写，名称要具有一定的意义，名称里统一剥离掉runtime。
             "description": "模版中文描述",            #模版描述，主要是介绍该模版的用途、用法、涉及到的关键技术等，用户可以通过该关键字搜索。前台需要展示，请认真填写，支持中文。
             "attention": "模版使用的注意事项，中文",    #模版使用的注意事项，在模板查看详情里展示。
@@ -81,7 +81,7 @@ CustomRuntime
                 "name": "作者"                       #作者
             },
         },
-        "English"{
+        "English":{
             "name": "DemoEnglishName",                       # This is the name of demo. If it is java demo. Please keep the same name with jar package. No restrictions for non-java demos. Please do not add runtime information in the name.
             "description": "Demo English description.",      # The description of demo. You can describe the detail function.
             "attention": "This demo has used api gw and integrated response function. So the return value should be json format based on the requirement",                                                                      #the description of precautions
