@@ -64,6 +64,7 @@ CustomRuntime
 |   |-- serverless.yaml      函数配置文件，用于控制台解析模版函数配置，必填。
 |   |-- readme.md            模版使用说明，建议填写。
 |   |-- src                  模版函数代码，函数入口文件及其他代码文件均放在该目录下。
+|       |-- bootstrap        Custom Runtime 固定的可执行引导程序文件，必填。
 |       |-- index.sh         函数入口文件，必填，入口文件后缀跟随实际运行环境。
 ```
 
