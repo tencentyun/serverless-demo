@@ -57,6 +57,16 @@ Java8
 |       |-- Java8-helloworld 函数入口文件，必填，Java8 入口文件须为 jar 包，jar 包文件名称须和模版名称一致。
 ```
 
+CustomRuntime
+```
+|-- CustomRuntime-helloworld 文件夹名称，也作为模版名称，最好和 config.json 中 serverless-cloud-function-application::English::name 一致。
+|   |-- config.json          模版配置文件，用于控制台模版详情展示，必填。
+|   |-- serverless.yaml      函数配置文件，用于控制台解析模版函数配置，必填。
+|   |-- readme.md            模版使用说明，建议填写。
+|   |-- src                  模版函数代码，函数入口文件及其他代码文件均放在该目录下。
+|       |-- index.sh         函数入口文件，必填，入口文件后缀跟随实际运行环境。
+```
+
 ## 模版配置文件 config.json 说明
 
 ```sh
