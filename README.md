@@ -1,144 +1,112 @@
-腾讯云 serverless 云函数 demo 库。
+腾讯云 Serverless 模版库。
 
-# Demo说明
+# 模版说明
 
 ## 文件组织结构
 
-golang
+Node.js
 
 ```
-|-- Go1-helloworld     文件夹名称，也作为demo名称，最好和serverless-cloud-function-application::application::name一致。
-|   |-- config.json    配置文件可以为config.json或者config.yaml 必选
-|   |-- src    
-|       |-- main           对应的入口文件 必选
-|       |-- readme.md      readme 非必选
-|       `-- license.txt    license文件 非必选
+|-- Nodejs6.10-helloworld    文件夹名称，也作为模版名称，最好和 config.json 中 serverless-cloud-function-application::English::name 一致。
+|   |-- config.json          模版配置文件，用于控制台模版详情展示，必填。
+|   |-- serverless.yaml      函数配置文件，用于控制台解析模版函数配置，必填。
+|   |-- readme.md            模版使用说明，建议填写。
+|   |-- src                  模版函数代码，函数入口文件及其他代码文件均放在该目录下。
+|       |-- index.js         函数入口文件，必填。
+|       `-- node_modules     依赖包，非必填。
 ```
 
-python
-
-
-```
-|-- apigw-py2          文件夹名称，也作为demo名称，最好和serverless-cloud-function-application::application::name一致。
-|   |-- config.json    配置文件可以为config.json或者config.yaml 必选
-|   |-- src
-|       |-- index.py       对应的入口文件 必选
-|       |-- readme.md      readme 非必选
-|       `-- license.txt    license文件 非必选
-```
-
-node
+Python
 
 ```
-|-- apigw-py2          文件夹名称，也作为demo名称，最好和serverless-cloud-function-application::application::name一致。
-|   |-- config.json    配置文件可以为config.json或者config.yaml 必选
-|   |-- src
-|       |-- index.js       对应的入口文件 必选
-|       |-- readme.md      readme 非必选
-|       `-- license.txt    license文件 非必选
-|       `-- node_modules   依赖包 非必选
+|-- Python2.7-helloworld     文件夹名称，也作为模版名称，最好和 config.json 中 serverless-cloud-function-application::English::name 一致。
+|   |-- config.json          模版配置文件，用于控制台模版详情展示，必填。
+|   |-- serverless.yaml      函数配置文件，用于控制台解析模版函数配置，必填。
+|   |-- readme.md            模版使用说明，建议填写。
+|   |-- src                  模版函数代码，函数入口文件及其他代码文件均放在该目录下。
+|       |-- index.py         函数入口文件，必填。
 ```
-注：对于java语言来说入口文件是jar包，对于golang语言来说入口文件必须是可执行文件。
 
-## 配置文件说明
+Php
+```
+|-- Php7.2-helloworld        文件夹名称，也作为模版名称，最好和 config.json 中 serverless-cloud-function-application::English::name 一致。
+|   |-- config.json          模版配置文件，用于控制台模版详情展示，必填。
+|   |-- serverless.yaml      函数配置文件，用于控制台解析模版函数配置，必填。
+|   |-- readme.md            模版使用说明，建议填写。
+|   |-- src                  模版函数代码，函数入口文件及其他代码文件均放在该目录下。
+|       |-- index.php        函数入口文件，必填。
+```
+
+Golang1
+```
+|-- Go1-helloworld           文件夹名称，也作为模版名称，最好和 config.json 中 serverless-cloud-function-application::English::name 一致。
+|   |-- config.json          模版配置文件，用于控制台模版详情展示，必填。
+|   |-- serverless.yaml      函数配置文件，用于控制台解析模版函数配置，必填。
+|   |-- readme.md            模版使用说明，建议填写。
+|   |-- src                  模版函数代码，函数入口文件及其他代码文件均放在该目录下。
+|       |-- main             函数入口文件，必填，Golang1 入口文件须为可执行文件。
+```
+
+Java8
+```
+|-- Java8-helloworld         文件夹名称，也作为模版名称，最好和 config.json 中 serverless-cloud-function-application::English::name 一致。
+|   |-- config.json          模版配置文件，用于控制台模版详情展示，必填。
+|   |-- serverless.yaml      函数配置文件，用于控制台解析模版函数配置，必填。
+|   |-- readme.md            模版使用说明，建议填写。
+|   |-- src                  模版函数代码，函数入口文件及其他代码文件均放在该目录下。
+|       |-- Java8-helloworld 函数入口文件，必填，Java8 入口文件须为 jar 包，jar 包文件名称须和模版名称一致。
+```
+
+## 模版配置文件 config.json 说明
 
 ```sh
 {
     "serverless-cloud-function-application": {
-        "application": {
-            "Chinese"{  # "Chinese"对应中文版本
-        "name": "API网关触发器基础应用",
-    # 应用名称,Chinese对应中文，如果是java demo的话，必须和jar文件的名称一致，其他语言不做限制。前台需要展示，请认真填写，名称要具有一定的意义，不支持中文，名称里统一剥离掉runtime
-        "description": "此示例使用 API 网关作为触发器，实现 http 接口，并返回 html 格式页面。",
-    # 应用描述，主要是介绍该应用的用途、用法、涉及到的关键技术等，用户可以通过该关键字搜索。前台需要展示，请认真填写，支持中文。
-        "attention": "该云函数使用了API网关触发器，并使用了集成响应功能，返回值需要构造为Json格式" ,   #demo使用的注意事项，在模板详情里展示
-        "readme": {  # readme 说明，非必选，file 或 content 二选一即可
-            "file": "readme.md",  # readme文件内容
-            "content": "此示例使用 API 网关作为触发器，实现 http 接口"  # readme内容
+        "Chinese"{
+            "name": "模版中文名称",#请填写模版中文名称，如果是java模版，必须和jar文件的名称一致，其他语言不做限制。前台需要展示，请认真填写，名称要具有一定的意义，名称里统一剥离掉runtime。
+            "description": "模版中文描述",#模版描述，主要是介绍该模版的用途、用法、涉及到的关键技术等，用户可以通过该关键字搜索。前台需要展示，请认真填写，支持中文。
+            "attention": "模版使用的注意事项，中文",#模版使用的注意事项，在模板查看详情里展示。
+            "author": {
+                "name": "作者"  #作者
+            },
         },
-        "license": {  # license 说明，非必选，file 或 content 二选一即可
-            "file": "license.txt",  # license文件内容
-            "content": "公开"  # license内容
+        "English"{
+            "name": "DemoEnglishName",# This is the name of demo. If it is java demo. Please keep the same name with jar package. No restrictions for non-java demos. Please do not add runtime information in the name.
+            "description": "Demo English description.",# The description of demo. You can describe the detail function.
+            "attention": "This demo has used api gw and integrated response function. So the return value should be json format based on the requirement",   #the description of precautions
+            "author": {
+                "name": "English Name"  # author English Name
+            },
         },
-        "author": {
-            "name": "腾讯云无服务器云函数团队"  # 作者
-        },
+        "runtime": "Python2.7",#运行环境，用户可以通过该关键字搜索，请在下述已经支持的运行环境中选择一个填入。前台需要展示，请认真填写。["Python3.6","Python2.7","Node.js12.16","Node.js10.15","Node.js8.9","Nodejs6.10","Php7.2","Php5.6","Java8","Golang1","CustomRuntime"]
+        "readme":"模版的git地址",#demo的git下载链接 是不是可以自动生成
+        "version": "1.0.0",  #版本号，通过版本号标识demo升级情况，未修改版本号会导致demo不更新至页面。
+        "tags":[
+            "Python2.7", "COS", "HTML"
+        ],#标签统一为英文，可编写多个，建议第一个标签为runtime，其他标签为触发器、场景等关键字，不同标签之间用英文逗号间隔，用户可以通过该关键字搜索。前台需要展示，请认真填写，不支持中文。
     },
-    "English"{   # "English" is for English version
-        "name": "apigw-response-proxy",
-    # This is the name of demo.If it is java demo. Please keep the same name with jar package. Non-jave demos have no limit.Please note the demo name doesn't include runtime.
-        "description": "This demo is for API GW trigger. You can all function by http interface and you will get html page",
-    # The description of demo. You can describe the detail function.
-        "attention": "This demo has used api gw and integrated response function. So the return value should be json format based on the requirement",   #the description of precautions
-        "readme": {  # "readme" is not necessary.You can only fill in the "file" or "content".
-            "file": "readme.md",  # readme file
-            "content": "This demo is for API GW trigger."  # content of readme
-        },
-        "license": {  # "license" is not necessary.You can only fill in the "file" or "content".
-            "file": "license.txt",  # license file
-            "content": "license info"  # content of license
-        },
-        "author": {
-            "name": "tencent cloud serverless team"  # author
-        },
-    },
-    "input_parameters":{
-    },    #the description of input parameters.
-    "output_parameters":{        #the description of output_parameters.
-        {
-            "isBase64Encoded": False,
-            "statusCode": 200,
-            "headers": {"Content-Type":"text/html"},
-            "body": "<html><body><h1>Heading</h1><p>Paragraph.</p></body></html>"
-        }
-    },
-    "download_address":"demo的git下载链接",  #demo的git下载链接
-    "tags":[
-            "apigw", "Python2.7", "api"  # 标签统一为英文，可编写多个，建议使用runtime、触发器、场景等关键字，用户可以通过该关键字搜索。前台需要展示，请认真填写，不支持中文
-    ],
-    "version": "1.0.1",  # 版本号，通过版本号标识 demo 升级情况，未修改版本号会导致 demo 不更新至页面
-},
-"functions": {
-    "name": "test-function",  # 函数名称，只支持英文
-    "description": "此示例使用 API 网关作为触发器，实现 http 接口，并返回 html 格式页面。" # 和"application"保持一致，可为英文或中文，前台不展示
-    "handler":"index.main_hanlder",
-# 函数入口 不支持中文，如果是一段式的话，必须和对应的二进制文件名称一致，第一段不能使用readme、license、config；如果二段式的，第一段必须是对应的入口文件名，第一段不能使用readme、license、config；三段式的话，必须是对应的handler
-    "memorySize": 128,  # 运行配置内存
-    "timeout": 3,  # 运行超时时间
-    "runtime": "Python2.7",# 运行环境，用户可以通过该关键字搜索["Python2.7", "Python3.6", "Nodejs6.10", "Java8", "LuaCDN", "NodejsCDN", "Php5", "Php7", "Nodejs8.9", "Go1"] 前台需要展示，请认真填写
-    "Environment":{
-            "DB_NAME": "mydb" # 可选，函数环境变量
-    },
-    "Events":{
-    },      # 可选，用于定义触发此函数的事件源
-    "VpcConfig":{
-    },     # 可选， 用于配置云函数访问 VPC 私有网络。
-    "codeObject": {
-        "codeFile": [  # 代码文件
-            "index.py"
-        ]
-        "CodeUri":[     # 代码下载地址，和download_address保持一致
-            ""
-        ]
-    }
-}
-}
 }
 ```
 
+## 函数配置文件 serverless.yaml 说明
+
+函数配置文件 serverless.yaml 可通过[云函数控制台](https://console.cloud.tencent.com/scf/list?rid=16&ns=default)-函数管理-函数代码页的"下载 YAML" 入口生成。
+
+serverless.yaml 全部配置规范可参考[配置文档](https://github.com/serverless-components/tencent-scf/blob/master/docs/configure.md)。
+
 函数入口 handler 写法：
-* 一段式：golang，预制内容："main"
-* 二段式：python，nodejs，PHP，预制内容："index.main_handler"
-* 三段式：java，预制内容："example.Hello::mainHandler"
+* 一段式：Golang，预置内容："main"
+* 二段式：Python，Nodejs，Php，预置内容："index.main_handler"
+* 三段式：Java，预置内容："example.Hello::mainHandler"
 
-# Demo 开发注意事项
+# 模版开发注意事项
 
-1. 需要注意代码提交时不要带有 SecretID，SecretKey 等信息。
+1. 注意代码提交时不要带有 SecretID，SecretKey 等敏感信息。
 2. 关键信息可修改为通过环境变量读取，并定义好所需配置的环境变量。
-3. Demo 描述尽量使用中文，简洁扼要的描述 Demo 的实现功能，可适用的场景，使用的方式。
-4. 每个Demo的英文名称必填且唯一,不同开发语言可以一样
+3. 模版描述尽量使用中文，简洁扼要的描述模版的实现功能，可适用的场景，使用的方式。
+4. 每个模版的英文名称必填且唯一，不同开发语言可以一样。
 
 
-## 上传到Demo库
+## 自定义模版提交到模版库
 
 请参照：https://blog.csdn.net/qq_33429968/article/details/62219783
