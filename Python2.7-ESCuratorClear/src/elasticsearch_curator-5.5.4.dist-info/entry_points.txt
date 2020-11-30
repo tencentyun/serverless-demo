@@ -1,5 +1,0 @@
-[console_scripts]
-curator = curator.cli:cli
-curator_cli = curator.curator_cli:main
-es_repo_mgr = curator.repomgrcli:repo_mgr_cli
-
