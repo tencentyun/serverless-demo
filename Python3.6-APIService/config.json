@@ -1,0 +1,27 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "API 服务",
+            "description": "本示例演示基于API网关提供博客内的文章查询和文章内容，您可以扩展函数来实现 Web 后端服务。",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云 Serverless 团队"
+            }
+        },
+        "English": {
+            "name": "APIService",
+            "description": "This demo uses API GW to provide API service. You can expand to do Web API based on this.",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud Serverless Team"
+            }
+        },
+        "runtime": "Python3.6",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-APIService",
+        "version": "1.4.0",
+        "tags": [
+            "Python3.6",
+            "Web"
+        ]
+    }
+}

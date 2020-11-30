@@ -42,7 +42,7 @@ exports.main_handler = async (event, context, callback) => {
   
     // Upload it into cos, 上传到cos
     await putCosObject(cosSdk, {
-      Bucket: `${config.appId}-${config.bucketName}`,
+      Bucket: `${config.bucketName}-${config.appId}`,
       Region: 'ap-guangzhou',
       Key: `ckafka_${Date.now()}.txt`,
       Body: fs.createReadStream(local_path)

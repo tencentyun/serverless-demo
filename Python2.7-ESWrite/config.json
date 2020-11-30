@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        Chinese: {
+            name: "ES写入函数",
+            description: "本示例通过使用ElasticSearch库，实现了将随机数写入ES。可为其配置定时触发器后，定时执行",
+            attention: "在使用本示例代码时，需要更改代码中ES服务器的地址",
+            author: {
+                name: "腾讯云无服务器云函数团队",
+            },
+        },
+        English: {
+            name: "ES_Write",
+            description: "This demo uses ElasticSearch and timer trigger to write random number to ES",
+            attention: "When you use this demo, you should change the address of ES Server",
+            author: {
+                name: "Tencent Cloud Serverless Team",
+            },
+        },
+        runtime: "Python2.7",
+        readme: "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-ESWrite",
+        version: "1.0.3",
+        tags: [
+            "elasticsearch",
+            "python2.7",
+            "timer",
+        ],
+    },
+}

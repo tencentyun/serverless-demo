@@ -1,0 +1,27 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "DOTNET 函数示例",
+            "description": "本示例展示如何在CustomRuntime类型函数中使用dotnet。",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云 Serverless 团队"
+            }
+        },
+        "English": {
+            "name": "dotnet_demo",
+            "description": "This example shows how to use dotnet in CustomRuntime type function",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud Serverless Team"
+            }
+        },
+        "runtime": "CustomRuntime",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/CustomRuntime-DotnetDemo",
+        "version": "1.0.0",
+        "tags": [
+            "CustomRuntime",
+            "dotnet"
+        ]
+    }
+}

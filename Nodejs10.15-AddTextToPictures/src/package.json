@@ -1,0 +1,16 @@
+{
+  "name": "Nodejs10.15-Add_Text_To_Pictures",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cos-nodejs-sdk-v5": "^2.6.2",
+    "sharp": "^0.25.4",
+    "text-to-svg": "^3.1.5"
+  }
+}

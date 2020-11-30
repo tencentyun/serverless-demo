@@ -1,0 +1,85 @@
+{
+  "serverless-cloud-function-application": {
+    "application":{
+      "Chinese":{
+        "name": "Ckafka 消息转储至 ES",
+        "description": "使用Ckafka+云函数+ES+Kibana，提供日志转存和清洗能力，替代Logstash，成本更低，支持功能自定义",
+        "attention": "在使用本示例代码时需要在函数配置里添加环境变量和VPC配置；环境变量：ES_Address，ES_User，ES_Password，ES_Index_KeyWord,可选填入ES_Log_IgnoreWord，ES_Index_TimeFormat",
+        "readme": {
+            "file": "",
+            "content": ""
+        },
+        "license": {
+            "file": "",
+            "content": "公开"
+        },
+        "author": {
+            "name": "腾讯云无服务器云函数团队"
+        }
+      },
+      "English":{
+        "name": "Ckafka To Elasticsearch",
+        "description": "This demo will connect Ckafca and consume message automatically. ",
+        "attention": "Please change before you use it",
+        "readme": {
+            "file": "",  // readme file
+            "content": ""  //content of readme
+        },
+        "license": {
+            "file": "",  // license file
+            "content": "Open"  //content of license
+        },
+        "author": {
+            "name": "Tencent Cloud Serverless Team"  // author
+        }
+      },
+      "input_parameters":{
+        "event":"",
+        "context":""
+      },
+      "output_parameters":{
+      },
+      "download_address":"https://github.com/tencentyun/scf-demo-repo/tree/master/Nodejs10.15-CkafkaToElasticsearch",  // Demo's git download url. demo的git下载链接
+      "tags":[
+              "Ckafka", "Nodejs10.15", "ES","Logstash"
+              // The tags only support English and can be multiple, we suggest you to use keywords such as runtime, trigger, environment and so on.
+              // 标签统一为英文，可编写多个，建议使用runtime、触发器、场景等关键字，用户可以通过该关键字搜索。前台需要展示，请认真填写，不支持中文
+      ],
+      "version": "1.9"
+      // Version number, which identifies the demo version status. 
+      // Demo will not to update to the page if the version number unmodified.
+      //版本号，通过版本号标识 demo 升级情况，未修改版本号会导致 demo 不更新至页面
+    },
+    "functions": {
+      "name": "Ckafka To Elasticsearch",  // Function name which only be in English. 函数名称，只支持英文
+      "description": "This demo will connect Ckafca and consume message automatically. The SCF will write each message to txt by each line. Then SCF will name this file by time and upload this txt to COS bucket. 本示例会根据触发器配置的最大批量消息数去触发云函数运行，云函数每次运行都会创建一个以时间戳加随机数为名字的文本文件，并把拉取到的 Ckafca 消息换行写入文本文件。最后把写好的文件上传到 COS bucket，并以小时为单位在 COS bucket 中创建文件夹。",
+      "handler":"index.main_handler",
+      "memorySize": 128,  // Running memory.  运行配置内存
+      "timeout": 30,  // Running timeout. 运行超时时间
+      "runtime": "Nodejs10.15", // Runtime which users can search demo by this keyword. 运行环境，用户可以通过该关键字搜索["Python2.7", "Python3.6", "Nodejs6.10", "Java8", "LuaCDN", "NodejsCDN", "Php5", "Php7", "Nodejs8.9", "Go1"]
+      "Environment":{
+        "ES_Address":"192.168.10.10",
+        "ES_User":"name",
+        "ES_Password":"xxxx",
+        "ES_Index_KeyWord":"Log"
+      },      // Optional, used to define environment variables. 可选，用于定义环境变量
+      "Events":{
+        "Type": "Ckafka",
+        "Name":"",
+        "Topic":"",
+        "Message":50,
+        "Enable": "true"
+      },      // Optional, used define the event source that triggers this function.  可选，用于定义触发此函数的事件源
+      "VpcConfig":{
+      },      // Optional, used configure cloud function's private network. 可选， 用于配置云函数访问 VPC 私有网络。
+      "codeObject": {
+          "codeFile": [
+              "index.js"
+          ],
+          "CodeUri":[     // Code download url which should be same as 'download_address'. 代码下载地址，和download_address保持一致
+              "https://github.com/tencentyun/scf-demo-repo/tree/master/Nodejs10.15-CkafkaToElasticsearch"
+          ]
+      }
+    }
+  }
+}

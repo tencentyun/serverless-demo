@@ -1,0 +1,29 @@
+component: scf
+name: ap-guangzhou_default_Ckafka_SCF_COS
+org: app
+app: Ckafka_SCF_COS
+stage: dev
+inputs:
+  name: Ckafka_SCF_COS
+  src: ./
+  description: >-
+    This demo will connect Ckafca and consume message automatically. The SCF
+    will write each message to txt by each line. Then SCF will name this file by
+    time and upload this txt to COS bucket.
+    本示例会根据触发器配置的最大批量消息数去触发云函数运行，云函数每次运行都会创建一个以时间戳加随机数为名字的文本文件，并把拉取到的 Ckafca
+    消息换行写入文本文件。最后把写好的文件上传到 COS bucket，并以小时为单位在 COS bucket 中创建文件夹。
+  handler: index.main_handler
+  runtime: Nodejs12.16
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 5
+  events:
+    - ckafka: # ckafka触发器
+        name: # input Ckafka  trigger name
+        parameters:
+          name: # input Ckafka Instance id        
+          topic: # input Ckafka Topic name  
+          maxMsgNum: 100
+          offset: latest
+          enable: true

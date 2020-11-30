@@ -1,0 +1,5 @@
+--- test/cases/CustomRuntime/dotnet-demo/src/obj/Release/netcoreapp3.1/index.csproj.CoreCompileInputs.cache
++++ test/cases/CustomRuntime/dotnet-demo/src/obj/Release/netcoreapp3.1/index.csproj.CoreCompileInputs.cache
+@@ -1 +1 @@
+-03a45d0b2dc843a526bc9a3ad08c074681a28895
++f5f4239188221f48a120648ab8b33486eb65d4a0

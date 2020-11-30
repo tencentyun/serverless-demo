@@ -1,0 +1,41 @@
+--- test/cases/CustomRuntime/dotnet-demo/src/obj/project.assets.json
++++ test/cases/CustomRuntime/dotnet-demo/src/obj/project.assets.json
+@@ -8,23 +8,19 @@
+     ".NETCoreApp,Version=v3.1": []
+   },
+   "packageFolders": {
+-    "/home/liaobin/.nuget/packages/": {},
+-    "/tmp/sdk/NuGetFallbackFolder": {}
++    "/home/lzang1/.nuget/packages/": {}
+   },
+   "project": {
+     "version": "1.0.0",
+     "restore": {
+-      "projectUniqueName": "/data/scf-runtime/test/cases/CustomRuntime/dotnet-demo/src/index.csproj",
++      "projectUniqueName": "/data/Source/scf/runtime/test/cases/CustomRuntime/dotnet-demo/src/index.csproj",
+       "projectName": "index",
+-      "projectPath": "/data/scf-runtime/test/cases/CustomRuntime/dotnet-demo/src/index.csproj",
+-      "packagesPath": "/home/liaobin/.nuget/packages/",
+-      "outputPath": "/data/scf-runtime/test/cases/CustomRuntime/dotnet-demo/src/obj/",
++      "projectPath": "/data/Source/scf/runtime/test/cases/CustomRuntime/dotnet-demo/src/index.csproj",
++      "packagesPath": "/home/lzang1/.nuget/packages/",
++      "outputPath": "/data/Source/scf/runtime/test/cases/CustomRuntime/dotnet-demo/src/obj/",
+       "projectStyle": "PackageReference",
+-      "fallbackFolders": [
+-        "/tmp/sdk/NuGetFallbackFolder"
+-      ],
+       "configFilePaths": [
+-        "/home/liaobin/.nuget/NuGet/NuGet.Config"
++        "/home/lzang1/.nuget/NuGet/NuGet.Config"
+       ],
+       "originalTargetFrameworks": [
+         "netcoreapp3.1"
+@@ -60,7 +56,7 @@
+             "privateAssets": "all"
+           }
+         },
+-        "runtimeIdentifierGraphPath": "/tmp/sdk/3.1.302/RuntimeIdentifierGraph.json"
++        "runtimeIdentifierGraphPath": "/home/lzang1/dotnet/sdk/3.1.300/RuntimeIdentifierGraph.json"
+       }
+     }
+   }

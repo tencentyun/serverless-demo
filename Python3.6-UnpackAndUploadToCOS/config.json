@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        Chinese: {
+            name: "文件解压缩",
+            description: "上传压缩包至COS时，可触发云函数下载压缩包并解压，并把解压后的文件上传到COS另一个targetBucket环境变量指定的存储桶中，支持如下压缩格式：ZIP, RAR, 7Z, BZIP2, GZIP, TAR, XZ",
+            attention: "该云函数需要配置COS触发器，解压后的文件总大小要<500M，另外在使用本示例代码时需要函数运行角色有读写COS的权限。需要设置如下环境变量：targetBucket-目标存储桶名称，targetPrefix-目标存储桶前缀, targetRegion-目标存储桶地域, suffix-解压的后缀",
+            author: {
+                name: "腾讯云无服务器云函数团队",
+            },
+        },
+        English: {
+            name: "unpack_to_cos",
+            description: "This demo need to config COS trigger. When archive file has been upload to COS bucket, the SCF will download it to /tmp and unpack it.",
+            attention: "You should config COS trigger before you use it, and the total size shoud less than 500M after decompression. Please make sure the function have COS read and write permission, and configure environment: targetRegion, targetBucket, targetPrefix and suffix",
+            author: {
+                name: "Tencent Cloud Serverless Team",
+            },
+        },
+        runtime: "Python3.6",
+        readme: "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-UnpackAndUploadToCOS",
+        version: "1.0.2",
+        tags: [
+            "COS",
+            "Python3.6",
+            "UNZIP",
+        ],
+    },
+}

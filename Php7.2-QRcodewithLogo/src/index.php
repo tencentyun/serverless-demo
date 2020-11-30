@@ -70,7 +70,7 @@ context:'.json_encode($context, JSON_PRETTY_PRINT);
         $QR_height = imagesy($QR);
         $logo_width = imagesx($logo);
         $logo_height = imagesy($logo);  
-        $logo_qr_width = $QR_width / 2.2;
+        $logo_qr_width = $QR_width / 3;
         $scale = $logo_width / $logo_qr_width;
         $logo_qr_height = $logo_height / $scale;  
         $from_width = ($QR_width - $logo_qr_width) / 2;  
@@ -81,8 +81,8 @@ context:'.json_encode($context, JSON_PRETTY_PRINT);
         unlink($base);
 
         if (isset($_GET['down'])||!($path=='/'||$path=='')) {
-            // if '?down' or path not null, then return a file (see the favicon.ico)
-            // 如果指定了下载，或是用的path中的值，则直接输出文件（直观表现是favicon.ico）
+            // if '?down' or path not null, then return a file
+            // 如果指定了下载，或是用的path中的值，则直接输出文件
             $image_data = fread(fopen($last, 'r'), filesize($last));
             unlink($last);
             return [

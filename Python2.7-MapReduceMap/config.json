@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        Chinese: {
+            name: "map_function",
+            description: "本示例Demo演示怎么利用COS来做MapReduce，一共需要2个函数：map_function和reduce_function，3个COS Bucket：srcmr、middlestagebucket 和 destmr",
+            attention: "具体使用方法步骤说明，可参考产品文档的最佳实践：https://cloud.tencent.com/document/product/583/9728",
+            author: {
+                name: "腾讯云无服务器云函数团队",
+            },
+        },
+        English: {
+            name: "map_function",
+            description: "This is one of the MapReduce function which is map_function",
+            attention: "The detail of step description, please refer to product doc https://cloud.tencent.com/document/product/583/9728",
+            author: {
+                name: "Tencent Cloud Serverless Team",
+            },
+        },
+        runtime: "Python2.7",
+        readme: "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-MapReduceMap",
+        version: "1.1",
+        tags: [
+            "Python2.7",
+            "MapReduce",
+            "map_function",
+        ],
+    },
+}

@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
+#####----------------------------------------------------------------#####
+#####                                                                #####
+#####   使用教程/readme:                                              #####
+#####   https://cloud.tencent.com/document/product/583/32996         #####
+#####                                                                #####
+#####----------------------------------------------------------------#####
+
 def render_template(html, keys={}):
     for k, v in keys.iteritems():
         html = html.replace("${" + k + "}", v)

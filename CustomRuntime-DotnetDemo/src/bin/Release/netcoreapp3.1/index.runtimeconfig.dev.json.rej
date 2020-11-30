@@ -1,0 +1,14 @@
+--- test/cases/CustomRuntime/dotnet-demo/src/bin/Release/netcoreapp3.1/index.runtimeconfig.dev.json
++++ test/cases/CustomRuntime/dotnet-demo/src/bin/Release/netcoreapp3.1/index.runtimeconfig.dev.json
+@@ -1,9 +1,8 @@
+ {
+   "runtimeOptions": {
+     "additionalProbingPaths": [
+-      "/home/liaobin/.dotnet/store/|arch|/|tfm|",
+-      "/home/liaobin/.nuget/packages",
+-      "/tmp/sdk/NuGetFallbackFolder"
++      "/home/lzang1/.dotnet/store/|arch|/|tfm|",
++      "/home/lzang1/.nuget/packages"
+     ]
+   }
+ }

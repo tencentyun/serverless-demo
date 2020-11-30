@@ -8,19 +8,23 @@ logger.setLevel(level=logging.INFO)
 
 class CDWClient(object):
     
-    def __init__(self, host:str, user: str, password: str, port: int, database: str):
+    def __init__(self, host:str, user: str, password: str, port: int, database: str, statement_timeout: int):
         self.host = host
         self.user = user
         self.password = password
         self.port = port
         self.database = database
+        self.statement_timeout = statement_timeout
 
     def get_connection(self):
+        timeout_str = '-c statement_timeout=' + str(self.statement_timeout) + 's'
         conn = psycopg2.connect(database = self.database,
                                 user = self.user,
                                 password = self.password,
                                 host = self.host,
-                                port = self.port)
+                                port = self.port,
+                                connect_timeout=5,
+                                options=timeout_str)
         return conn
 
 

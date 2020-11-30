@@ -1,0 +1,5 @@
+#!/bin/sh
+echo "Start bootstrap" 
+export PATH=$(pwd):${PATH}
+./rust-demo
+

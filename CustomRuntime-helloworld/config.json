@@ -1,0 +1,27 @@
+{
+  "serverless-cloud-function-application": {
+    "Chinese": {
+      "name": "helloworld",
+      "description": "helloworld 空白模板函数",
+      "attention": "无",
+      "author": {
+        "name": "腾讯云 Serverless 团队"
+      }
+    },
+    "English": {
+      "name": "helloworld",
+      "description": "This is helloworld function",
+      "attention": "None",
+      "author": {
+        "name": "Tencent Cloud Serverless Team"
+      }
+    },
+    "runtime": "CustomRuntime",
+    "readme": "https://github.com/tencentyun/serverless-demo/tree/master/CustomRuntime-helloworld",
+    "version": "1.0.0",
+    "tags": [
+      "CustomRuntime",
+      "helloworld"
+    ]
+  }
+}

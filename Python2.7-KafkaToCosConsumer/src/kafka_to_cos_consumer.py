@@ -10,6 +10,7 @@ from qcloud_cos_v5 import CosClientError, CosServiceError
 from pykafka.exceptions import ConsumerStoppedException
 from pykafka.client import KafkaClient
 from pykafka.common import OffsetType
+from kafka import KafkaConsumer,TopicPartition
 
 to_cos_bytes_up_limit = 1024 * 1024 * 500  # 每次最大投递cos包大小 500M
 to_cos_bytes_down_limit = 1  # 每次最小投递cos包大小 1B
@@ -184,12 +185,21 @@ class KafkaToCos(object):
         elif self.offset_type.lower() == 'latest':
             start_offset = OffsetType.LATEST
         else:
-            offsets = topic.fetch_offset_limits(int(self.offset_type))
-            if len(offsets[self.partition_id].offset) == 0:
-                start_offset = OffsetType.LATEST
-            else:
-                start_offset = offsets[self.partition_id].offset[0]
-                reset_offset_on_start_status = True
+            # 引用kafka库，解决pykafka fetch_offset_limits函数不能正确根据timestamp返回offset的问题
+            start_offset = OffsetType.LATEST
+            consumer = KafkaConsumer(self.topic_name, group_id=self.group_id, bootstrap_servers=[self.kafka_address])
+            tp = TopicPartition(self.topic_name, self.partition_id)
+            offsets  = consumer.offsets_for_times({tp:int(self.offset_type)})
+            if offsets[tp]:
+                if offsets[tp].offset == 0:
+                    start_offset = OffsetType.EARLIEST
+                else:
+                    committed = consumer._coordinator.fetch_committed_offsets([tp])
+                    if not committed or (committed[tp] and committed[tp].offset < offsets[tp].offset):
+                        start_offset = offsets[tp].offset - 1
+                        reset_offset_on_start_status = True
+
+        logger.info("consumer start offset on partition {} is {}".format(self.partition_id, start_offset))
 
         consumer = topic.get_simple_consumer(consumer_group=self.group_id,
                                              partitions={partitions.get(self.partition_id)},

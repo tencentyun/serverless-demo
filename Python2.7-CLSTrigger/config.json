@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        Chinese: {
+            name: "CLS Trigger Python",
+            description: "CLS 触发器获取日志内容模版",
+            attention: "无",
+            author: {
+                name: "腾讯云无服务器云函数团队",
+            },
+        },
+        English: {
+            name: "CLS Trigger Python",
+            description: "CLS trigger to get logs",
+            attention: "No",
+            author: {
+                name: "Tencent Cloud Serverless Team",
+            },
+        },
+        runtime: "Python2.7",
+        readme: "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-CLSTrigger",
+        version: "1.0.0",
+        tags: [
+            "Python",
+            "CLS",
+            "CLSTrigger",
+        ],
+    },
+}

@@ -1,0 +1,81 @@
+<!-- <!DOCTYPE html> -->
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Invitation-Demo</title>
+</head>
+
+<body>
+    <h1>提交：姓名</h1>
+    <div id='textContainer'>
+        <form id="uploadForm" type="text/javascript">
+            姓名：<input type="text" value="" id='textId' class="textClass" name="textName"/>
+            <input type="button" value="提交" id='btnAjax'/>
+        </form>
+    </div>
+    <script type="text/javascript">
+                
+         // 绑定点击事件
+        document.querySelector('#btnAjax').onclick = function () {
+            // 更改后端服务地址
+            var url="https://service-1c2dsqdi-1255721742.gz.apigw.tencentcs.com/release/test-123456";
+             // 异步对象
+            var ajaxObj = new XMLHttpRequest();
+            // 设置属性
+            ajaxObj.open("POST",url,"false");
+            // 如果想要使用post提交数据,必须添加此行
+            ajaxObj.setRequestHeader("Content-type", "application/x-www-form-urlencoded;charset=UTF-8","Origin");
+            // 将数据通过send方法传递
+            var value = document.getElementById("textId").value 
+            console.log(value);
+            ajaxObj.send(value);
+            // 发送并接受返回值
+            ajaxObj.onreadystatechange = function () {
+                // 这步为判断服务器是否正确响应
+                if (ajaxObj.readyState == 4 && ajaxObj.status == 200) {
+                    console.log('数据返回成功');
+                    // alert(ajaxObj.responseText);
+                    // 修改页面的显示
+                    document.querySelector('h2').innerHTML = ajaxObj.responseText;
+                    // 图片展示
+                    var url_jpg = ajaxObj.responseText; 
+                    xmlhttp = new XMLHttpRequest();
+                    xmlhttp.open("GET",url_jpg,true);
+                    xmlhttp.responseType = "blob";
+                    xmlhttp.onload = function(){
+                        if (this.status == 200) {
+                            var blob = this.response;
+                            var img = document.createElement("img");
+                            img.onload = function(e) {
+                                window.URL.revokeObjectURL(img.src); 
+                            };
+                            img.src = window.URL.createObjectURL(blob);
+                            document.body.appendChild(img); 
+                        }
+                    }
+                    xmlhttp.send();
+                }
+                else{
+                    // alert(ajaxObj.responseText);
+                    document.querySelector('h2').innerHTML = ajaxObj.responseText;
+                }
+            };
+        }
+    </script>    
+
+    <hr>
+    <h2>云函数处理后返回：下载链接</h2>
+    <div id="showContainer" style="width:200px;">
+        <!-- <p class="loadingTips" style="display: none;">处理中...</p> -->
+    </div>
+
+    <hr>
+    <h3>邀请函展示</h2>
+    <div id="showContainer" style="width:800px;">
+        <!-- <p class="loadingTips" style="display: none;">处理中...</p> -->
+    </div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+--- test/cases/CustomRuntime/dotnet-demo/src/obj/project.nuget.cache
++++ test/cases/CustomRuntime/dotnet-demo/src/obj/project.nuget.cache
+@@ -1,8 +1,8 @@
+ {
+   "version": 2,
+-  "dgSpecHash": "ySdGpqyoA17YOp4yTfpIqWOMIvhYfHbqMaEXnXCH/XHljijoYJkeo8a6ok8D4C8fvoShltoKGtXjsElLsGdaWw==",
++  "dgSpecHash": "MbxSz+GJKoMeSvLQC2nKCTHwb3N2+aiy+bpKbEyXaPlTVzd0fcEfgoeQc0QCpWqsYK3ceeXjej5K2nynyFkm8Q==",
+   "success": true,
+-  "projectFilePath": "/data/scf-runtime/test/cases/CustomRuntime/dotnet-demo/src/index.csproj",
++  "projectFilePath": "/data/Source/scf/runtime/test/cases/CustomRuntime/dotnet-demo/src/index.csproj",
+   "expectedPackageFiles": [],
+   "logs": []
+ }

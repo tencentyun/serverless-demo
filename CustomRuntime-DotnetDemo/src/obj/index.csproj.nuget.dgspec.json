@@ -1,0 +1,58 @@
+{
+  "format": 1,
+  "restore": {
+    "/data/Source/scf/runtime/test/cases/CustomRuntime/dotnet-demo/src/index.csproj": {}
+  },
+  "projects": {
+    "/data/Source/scf/runtime/test/cases/CustomRuntime/dotnet-demo/src/index.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/data/Source/scf/runtime/test/cases/CustomRuntime/dotnet-demo/src/index.csproj",
+        "projectName": "index",
+        "projectPath": "/data/Source/scf/runtime/test/cases/CustomRuntime/dotnet-demo/src/index.csproj",
+        "packagesPath": "/home/lzang1/.nuget/packages/",
+        "outputPath": "/data/Source/scf/runtime/test/cases/CustomRuntime/dotnet-demo/src/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/home/lzang1/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "netcoreapp3.1"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "netcoreapp3.1": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "netcoreapp3.1": {
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/home/lzang1/dotnet/sdk/3.1.300/RuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}

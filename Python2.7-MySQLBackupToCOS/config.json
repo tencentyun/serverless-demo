@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        Chinese: {
+            name: "MySQL自动备份",
+            description: "MySQL数据备份到COS",
+            attention: "MySQL数据备份到COS",
+            author: {
+                name: "腾讯云无服务器云函数团队",
+            },
+        },
+        English: {
+            name: "mysql_backup_to_cos",
+            description: "MySQL data backup to COS.",
+            attention: "mysql_backup_to_cos",
+            author: {
+                name: "Tencent Cloud Serverless Team",
+            },
+        },
+        runtime: "Python2.7",
+        readme: "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-MySQLBackupToCOS",
+        version: "1.2",
+        tags: [
+            "mysql",
+            "Python2.7",
+            "backup",
+        ],
+    },
+}

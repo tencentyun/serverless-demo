@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        Chinese: {
+            name: "日志分析写数据库",
+            description: "本示例展示了从COS下载日志文件，使用云函数分析后写入MySql",
+            attention: "需要在函数配置中添加环境变量",
+            author: {
+                name: "腾讯云无服务器云函数团队",
+            },
+        },
+        English: {
+            name: "log_analysis",
+            description: "This demo shows downloading log files from COS, using cloud function analysis and writing to MySql.",
+            attention: "NA",
+            author: {
+                name: "Tencent Cloud Serverless Team",
+            },
+        },
+        runtime: "Python2.7",
+        readme: "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-LogAnalysisToMySQL",
+        version: "1.1",
+        tags: [
+            "log",
+            "analysis",
+            "MySql",
+        ],
+    },
+}

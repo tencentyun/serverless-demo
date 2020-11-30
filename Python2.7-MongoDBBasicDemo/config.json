@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        Chinese: {
+            name: "mongodb_basic_demo",
+            description: "本示例演示MongoDB的基础使用方法",
+            attention: "NA",
+            author: {
+                name: "腾讯云无服务器云函数团队",
+            },
+        },
+        English: {
+            name: "mongodb_basic_demo",
+            description: "mongodb_basic_demo",
+            attention: "NA",
+            author: {
+                name: "Tencent Cloud Serverless Team",
+            },
+        },
+        runtime: "Python2.7",
+        readme: "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-MongoDBBasicDemo",
+        version: "1.1",
+        tags: [
+            "mongodb",
+            "Python2.7",
+            "basic",
+        ],
+    },
+}

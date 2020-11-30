@@ -1,0 +1,76 @@
+{
+  "serverless-cloud-function-application": {
+    "application":{
+      "Chinese":{
+        "name": "CLS 消息转储至 ES",
+        "description": "使用CLS+云函数+ES，提供日志转存和清洗能力, 支持功能自定义",
+        "attention": "在使用本示例代码时需要在函数配置里添加环境变量和VPC配置；环境变量：ES_Address，ES_User，ES_Password",
+        "readme": {
+            "file": "",
+            "content": ""
+        },
+        "license": {
+            "file": "",
+            "content": "公开"
+        },
+        "author": {
+            "name": "腾讯云无服务器云函数团队"
+        }
+      },
+      "English":{
+        "name": "CLS To Elasticsearch",
+        "description": "This demo will connect CLS and consume message automatically. ",
+        "attention": "Please change before you use it",
+        "readme": {
+            "file": "",  // readme file
+            "content": ""  //content of readme
+        },
+        "license": {
+            "file": "",  // license file
+            "content": "Open"  //content of license
+        },
+        "author": {
+            "name": "Tencent Cloud Serverless Team"  // author
+        }
+      },
+      "input_parameters":{
+        "event":"",
+        "context":""
+      },
+      "output_parameters":{
+      },
+      "download_address":"",  // Demo's git download url. demo的git下载链接
+      "tags":[
+              "CLS", "Python2.7", "ES"
+              // The tags only support English and can be multiple, we suggest you to use keywords such as runtime, trigger, environment and so on.
+              // 标签统一为英文，可编写多个，建议使用runtime、触发器、场景等关键字，用户可以通过该关键字搜索。前台需要展示，请认真填写，不支持中文
+      ],
+      "version": "1.0.0"
+      // Version number, which identifies the demo version status. 
+      // Demo will not to update to the page if the version number unmodified.
+      //版本号，通过版本号标识 demo 升级情况，未修改版本号会导致 demo 不更新至页面
+    },
+    "functions": {
+      "name": "CLS_SCF_Elasticsearch",  // Function name which only be in English. 函数名称，只支持英文
+      "description": "This demo will accept message from CLS and put the data to es. 本示例会从ckafka触发器中获取消息，并将消息上传至es。",
+      "handler":"index.main_handler",
+      "memorySize": 128,  // Running memory.  运行配置内存
+      "timeout": 30,  // Running timeout. 运行超时时间
+      "runtime": "Python2.7", // Runtime which users can search demo by this keyword. 运行环境，用户可以通过该关键字搜索["Python2.7", "Python3.6", "Nodejs6.10", "Java8", "LuaCDN", "NodejsCDN", "Php5", "Php7", "Nodejs8.9", "Go1"]
+      "Environment":{
+        "ES_Address":"192.168.10.10",
+        "ES_User":"name",
+        "ES_Password":"xxxx"
+      },
+      "Events":{
+        "Type": "CLS",
+        "Name":"",
+        "Topic":"",
+        "Message":50,
+        "Enable": "true"
+      },      // Optional, used define the event source that triggers this function.  可选，用于定义触发此函数的事件源
+      "VpcConfig":{
+      }      // Optional, used configure cloud function's private network. 可选， 用于配置云函数访问 VPC 私有网络。
+    }
+  }
+}

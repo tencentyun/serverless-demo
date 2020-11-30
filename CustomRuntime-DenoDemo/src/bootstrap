@@ -1,0 +1,9 @@
+#!/bin/sh
+echo "Start deno~~~"
+export DENO_DIR=/tmp
+export PATH=$(pwd):${PATH}
+unset http_proxy
+unset https_proxy
+
+./deno run --allow-net --allow-env demo.ts
+
