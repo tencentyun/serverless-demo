@@ -84,7 +84,7 @@ CustomRuntime
         "English":{
             "name": "DemoEnglishName",                       # This is the name of demo. If it is java demo. Please keep the same name with jar package. No restrictions for non-java demos. Please do not add runtime information in the name.
             "description": "Demo English description.",      # The description of demo. You can describe the detail function.
-            "attention": "This demo has used api gw and integrated response function. So the return value should be json format based on the requirement",                                                                      #the description of precautions
+            "attention": "The description of precautions.",  # The precautions for using the template will be shown in the view details.
             "author": {
                 "name": "English Name"                       # author English Name
             }
@@ -94,7 +94,7 @@ CustomRuntime
         "version": "1.0.0",                          #版本号，通过版本号校验模版更新情况，未修改版本号会导致模版无法同步更新到控制台。
         "tags":[
             "Python2.7", "COS", "HTML"
-        ]                                           #标签统一为英文，可编写多个，建议第一个标签为runtime，其他标签为触发器、场景等关键字，不同标签之间用英文逗号间隔，用户可以通过该关键字搜索。前台需要展示，请认真填写，不支持中文。
+        ]                                            #标签统一为英文，可编写多个，建议第一个标签为runtime，其他标签为触发器、场景等关键字，不同标签之间用英文逗号间隔，用户可以通过该关键字搜索。前台需要展示，请认真填写，不支持中文。
     }
 }
 ```
