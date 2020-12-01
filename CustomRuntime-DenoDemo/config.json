@@ -1,7 +1,7 @@
 {
     "serverless-cloud-function-application": {
         "Chinese": {
-            "name": "deno函数示例",
+            "name": "Deno函数示例",
             "description": "本示例展示如何在CustomRuntime类型函数中使用deno。",
             "attention": "无",
             "author": {
