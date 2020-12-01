@@ -1,0 +1,26 @@
+component: scf
+name: ap-guangzhou_default_Ckafka_SCF_Elasticsearch
+org: app
+app: Ckafka_SCF_Elasticsearch
+stage: dev
+
+inputs:
+  name: Ckafka_SCF_Elasticsearch
+  src: ./
+  description: >-
+    使用Ckafka+云函数+ES+Kibana，提供日志转存和清洗能力，支持功能自定义。
+  handler: index.main_handler
+  runtime: Python3.6
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 30
+  events:
+    - ckafka: # ckafka触发器
+        name: # input Ckafka  trigger name
+        parameters:
+          name: # input Ckafka Instance id        
+          topic: # input Ckafka Topic name  
+          maxMsgNum: 100
+          offset: latest
+          enable: true

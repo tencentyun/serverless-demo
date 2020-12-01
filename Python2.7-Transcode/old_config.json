@@ -1,0 +1,79 @@
+{
+  "serverless-cloud-function-application": {
+    "application":{
+      "Chinese":{
+        "name": "音视频转码",
+        "description": "使用COS+云函数+ASR+CFS（可选），快速构建音视频转码服务；凭借 ffmpeg，还可以扩展支持自定义的转码能力",
+        "attention": "1. 本示例需要在环境变量配置COS的bucket信息，并设置COS触发器或者API网关触发器配合使用；2. 另外在函数配置中会使用运行角色来操作COS资源，需要确保有cos bucket的对象上传权限；3. 源文件所在bucket需要设置为公有读私有写。",
+        "readme": {
+            "file": "",
+            "content": ""
+        },
+        "license": {
+            "file": "",
+            "content": "公开"
+        },
+        "author": {
+            "name": "腾讯云无服务器云函数团队"
+        }
+      },
+      "English":{
+        "name": "Transcode",
+        "description": "This example demonstrates triggering a cloud function from COS or a gateway, obtaining the source file download address, and transcoding based on ffmpeg using HTTP read stream",
+        "attention": "This example needs to configure the COS bucket information in the environment variable, and set the COS trigger or API gateway trigger to cooperate with",
+        "readme": {
+            "file": "",  // readme file
+            "content": ""  //content of readme
+        },
+        "license": {
+            "file": "",  // license file
+            "content": "Open"  //content of license
+        },
+        "author": {
+            "name": "Tencent Cloud Serverless Team"  // author
+        }
+      },
+      "input_parameters":{
+        "event":"",
+        "context":""
+      },
+      "output_parameters":{
+      },
+      "download_address":"https://github.com/tencentyun/scf-demo-repo/tree/master/Python2.7-Transcode",  // Demo's git download url. demo的git下载链接
+      "tags":[
+              "COS", "Python2.7", "ffmpeg","CFS"  
+              // The tags only support English and can be multiple, we suggest you to use keywords such as runtime, trigger, environment and so on.
+              // 标签统一为英文，可编写多个，建议使用runtime、触发器、场景等关键字，用户可以通过该关键字搜索。前台需要展示，请认真填写，不支持中文
+      ],
+      "version": "1.2"  
+      // Version number, which identifies the demo version status. 
+      // Demo will not to update to the page if the version number unmodified.
+      //版本号，通过版本号标识 demo 升级情况，未修改版本号会导致 demo 不更新至页面
+    },
+    "functions": {
+      "name": "transcode_ffmpeg",  // Function name which only be in English. 函数名称，只支持英文
+      "description": "本示例演示从COS（对象存储）或者网关触发云函数，获取源文件下载地址，并基于ffmpeg，采用HTTP读流的方式进行转码；并把转码后的文件上传到COS。注意：1. 本示例需要在环境变量配置COS的bucket信息，并设置COS触发器或者API网关触发器配合使用；2. 另外在函数配置中会使用运行角色来操作COS资源，需要确保有cos bucket的对象上传权限；3. 源文件所在bucket需要设置为公有读私有写。",
+      "handler":"index.main_handler",
+      "memorySize": 3072,  // Running memory. 运行配置内存
+      "timeout": 300,  // Running timeout. 运行超时时间
+      "runtime": "Python2.7", // Runtime which users can search demo by this keyword. 运行环境，用户可以通过该关键字搜索["Python2.7", "Python3.6", "Nodejs6.10", "Java8", "LuaCDN", "NodejsCDN", "Php5", "Php7", "Nodejs8.9", "Go1"]
+      "Environment":{
+        "region": "ap-shanghai",
+        "target_bucket": "serverless-demo-1256608914",
+        "target_path": "/transcode"
+      },      // Optional, used to define environment variables.  可选，用于定义环境变量
+      "Events":{
+      },      // Optional, used define the event source that triggers this function. 可选，用于定义触发此函数的事件源
+      "VpcConfig":{
+      },      // Optional, used configure cloud function's private network. 可选， 用于配置云函数访问 VPC 私有网络。
+      "codeObject": {
+          "codeFile": [
+              "index.py"
+          ],
+          "CodeUri":[     // Code download url which should be same as 'download_address'. 代码下载地址，和download_address保持一致
+              "https://github.com/tencentyun/scf-demo-repo/tree/master/Python2.7-Transcode"
+          ]
+      }
+    }
+  }
+}

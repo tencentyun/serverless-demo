@@ -1,0 +1,23 @@
+component: scf
+name: ap-guangzhou_default_SendEmail_By_CMQ
+org: app
+app: SendEmail_By_CMQ
+stage: dev
+inputs:
+  name: SendEmail_By_CMQ
+  src: ./
+  description: >-
+    This function will be trigged by CMQ and send email. 本示例通过接收 CMQ
+    消息队列中指定格式的消息，并根据消息内容向指定的邮箱发送邮件
+  handler: sendemail.main_handler
+  runtime: Python3.6
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3
+  events:
+    - cmq: # CMQ Topic 触发器
+       name: # input CMQ trigger  name //e.g. test
+       parameters:
+          name: # input CMQ Topic name //e.g. topicxxx
+          enable: true

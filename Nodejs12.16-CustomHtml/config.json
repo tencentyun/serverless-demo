@@ -1,0 +1,29 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "Web 静态页面托管",
+            "description": "将HTML页面部署至云函数，配合使用 API 网关触发器可迅速实现静态页面托管和访问。",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云 Serverless 团队"
+            }
+        },
+        "English": {
+            "name": "APIGWHtmlDemo",
+            "description": "This demo is mainly to show how to return custom html in serverless.",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud Serverless Team"
+            }
+        },
+        "runtime": "Nodejs12.16",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-CustomHtml",
+        "version": "1.0.10",
+        "tags": [
+            "Nodejs12.16",
+            "HTTP",
+            "HTML",
+            "APIGW",
+        ]
+    }
+}

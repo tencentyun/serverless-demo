@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "Ckafka 数据转存到 Ckafka",
+            "description": "本示例会将Ckafka的消息转存到另外一个 Ckafka topic 中。",
+            "attention": "在使用本示例代码时需要传递相关的环境变量给函数。",
+            "author": {
+                "name": "腾讯云 Serverless 团队"
+            }
+        },
+        "English": {
+            "name": "CkafkaToCkafka",
+            "description": "This example consumes kafka data and push these data to another kafka topic.",
+            "attention": "When using this sample code, you need to pass some env variables to this function.",
+            "author": {
+                "name": "Tencent Cloud Serverless Team"
+            }
+        },
+        "runtime": "Python2.7",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-KafkaToKafkaConsumer",
+        "version": "1.9",
+        "tags": [
+            "Python2.7",
+            "Ckafka",
+            "consumer"
+        ]
+    }
+}

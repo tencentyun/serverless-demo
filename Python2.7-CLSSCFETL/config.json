@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "CLS日志ETL",
+            "description": "本示例会将CLS投递的日志，通过CLS触发器进行ETL处理，日志清洗等能力。",
+            "attention": "在使用本示例代码时需要传递相关的环境变量给函数。",
+            "author": {
+                "name": "腾讯云 Serverless 团队"
+            }
+        },
+        "English": {
+            "name": "CLSLogETL",
+            "description": "This example uses CLS logs to perform ETL processing and log cleaning capabilities through SCF.",
+            "attention": "When using this sample code, you need to pass some env variables to this function.",
+            "author": {
+                "name": "Tencent Cloud Serverless Team"
+            }
+        },
+        "runtime": "Python2.7",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-CLSSCFETL",
+        "version": "1.0.0",
+        "tags": [
+            "Python2.7",
+            "ETL",
+            "CLS"
+        ]
+    }
+}

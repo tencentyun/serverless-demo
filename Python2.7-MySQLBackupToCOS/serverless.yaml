@@ -1,0 +1,15 @@
+component: scf
+name: ap-guangzhou_default_mysql_backup_to_cos
+org: app
+app: mysql_backup_to_cos
+stage: dev
+inputs:
+  name: mysql_backup_to_cos
+  src: ./
+  description: MySQL data backup to COS. MySQL数据备份到COS
+  handler: mysql_backup_to_cos.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3

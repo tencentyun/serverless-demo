@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "CLS 消息转储至 ES",
+            "description": "使用CLS+云函数+ES，提供日志转存和清洗能力, 支持功能自定义。",
+            "attention": "在使用本示例代码时需要在函数配置里添加环境变量和VPC配置；环境变量：ES_Address，ES_User，ES_Password。",
+            "author": {
+                "name": "腾讯云 Serverless 团队"
+            }
+        },
+        "English": {
+            "name": "CLSToElasticsearch",
+            "description": "This demo will connect CLS and consume message automatically. ",
+            "attention": "Please change before you use it",
+            "author": {
+                "name": "Tencent Cloud Serverless Team"
+            }
+        },
+        "runtime": "Python2.7",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-CLSSCFElasticsearch",
+        "version": "1.0.0",
+        "tags": [
+            "Python2.7",
+            "CLS",
+            "ES"
+        ]
+    }
+}
