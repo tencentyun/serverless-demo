@@ -1,0 +1,27 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "定时任务报表",
+            "description": "定时任务报表，对API内容进行聚拢，数据展示等定时任务。",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云 Serverless 团队"
+            }
+        },
+        "English": {
+            "name": "TimerReport",
+            "description": "This is timer report function.",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud Serverless Team"
+            }
+        },
+        "runtime": "Php7",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Php7.2-Report",
+        "version": "1.0.0",
+        "tags": [
+            "Php7",
+            "定时报表"
+        ]
+    }
+}

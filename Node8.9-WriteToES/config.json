@@ -20,9 +20,9 @@
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Node8.9-WriteToES",
         "version": "1.1.2",
         "tags": [
-            "Nodejs8.9",
             "elasticsearch",
-            "ES"
+            "Nodejs8.9",
+            "timer"
         ]
     }
 }

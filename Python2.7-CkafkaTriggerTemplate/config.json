@@ -21,7 +21,8 @@
         "version": "1.2.0",
         "tags": [
             "Python2.7",
-            "Ckafka"
+            "Ckafka",
+            "template"
         ]
     }
 }

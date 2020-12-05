@@ -22,7 +22,8 @@
         "tags": [
             "Nodejs12.16",
             "CLS",
-            "CLSTrigger"
+            "CLSTrigger",
+            "Node"
         ]
     }
 }

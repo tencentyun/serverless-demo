@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "Cdn_Refresh",
+            "name": "CDN_Refresh",
             "description": "This demo uses COS trigger and SCF to refresh CDN automaticly",
             "attention": "None",
             "author": {
@@ -17,11 +17,12 @@
             }
         },
         "runtime": "Nodejs8.9",
-        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Node8.9_COSCDNRefresh",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Node8.9-COSCDNRefresh",
         "version": "1.0.0",
         "tags": [
             "Nodejs8.9",
-            "CDN"
+            "Cdn",
+            "cdn refresh"
         ]
     }
 }

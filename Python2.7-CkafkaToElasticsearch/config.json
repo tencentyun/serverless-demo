@@ -20,7 +20,7 @@
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-CkafkaToElasticsearch",
         "version": "1.10.0",
         "tags": [
-            "Python3.6",
+            "Python2.7",
             "Ckafka",
             "ES",
             "Logstash"

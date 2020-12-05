@@ -17,11 +17,12 @@
             }
         },
         "runtime": "Nodejs8.9",
-        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Node8.9_COSUnzipFile",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Node8.9-COSUnzipFile",
         "version": "1.0.8",
         "tags": [
             "Nodejs8.9",
-            "unzip"
+            "Unzip",
+            "unzip file"
         ]
     }
 }

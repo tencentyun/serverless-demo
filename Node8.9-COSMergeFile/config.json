@@ -17,7 +17,7 @@
             }
         },
         "runtime": "Nodejs8.9",
-        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Node8.9_COSMergeFile",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Node8.9-COSMergeFile",
         "version": "1.0.4",
         "tags": [
             "Nodejs8.9",

@@ -22,6 +22,7 @@
         "tags": [
             "Python2.7",
             "Ckafka",
+            "tokafka",
             "consumer"
         ]
     }
