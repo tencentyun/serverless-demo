@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "API_GW_WebPage_Demo",
+            "name": "APIGWWebPageDemo",
             "description": "This demo is mainly to show how to set up personal web page in serverless with apigateway",
             "attention": "None",
             "author": {
