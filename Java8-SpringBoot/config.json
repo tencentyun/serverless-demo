@@ -1,7 +1,7 @@
 {
     "serverless-cloud-function-application": {
         "Chinese": {
-            "name": "SCFSpringbootWeb",
+            "name": "SpringBoot",
             "description": "使用 SCF 部署 Spring Boot 并通过 API 网关测试事件模拟请求和获取 spring 返回的处理结构。",
             "attention": "无",
             "author": {
@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "SCFSpringbootWeb",
+            "name": "SpringBoot",
             "description": "Use SCF to deploy Spring Boot and test event simulation requests through the API gateway and obtain the processing structure returned by Spring",
             "attention": "None",
             "author": {
