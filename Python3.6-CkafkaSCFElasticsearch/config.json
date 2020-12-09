@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "CkafkaToElasticsearch",
+            "name": "CkafkaSCFElasticsearch",
             "description": "This demo will connect Ckafca and consume message automatically. ",
             "attention": "Please change before you use it",
             "author": {
