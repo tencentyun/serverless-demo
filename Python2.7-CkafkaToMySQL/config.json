@@ -1,0 +1,29 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "CKAFKA数据备份MySQL",
+            "description": "本示例会使用Ckafka触发器，将消息转储至MySQL。",
+            "attention": "在使用本示例代码时需要传递相关函数的环境变量。",
+            "author": {
+                "name": "腾讯云 Serverless 团队"
+            }
+        },
+        "English": {
+            "name": "CkafkaBackupToCDBMySQL",
+            "description": "This example consumes Kafka to the CDB MySQL.",
+            "attention": "When using this sample code, you need to pass the environment variables of related functions. ",
+            "author": {
+                "name": "Tencent Cloud Serverless Team"
+            }
+        },
+        "runtime": "Python2.7",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-CkafkaToMySQL",
+        "version": "1.9.2",
+        "tags": [
+            "Python2.7",
+            "Ckafka",
+            "COS",
+            "consumer"
+        ]
+    }
+}
