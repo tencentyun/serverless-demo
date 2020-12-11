@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "MPS 消息转储至 COS",
+            "description": "使用 MPS 触发器将消息转储至指定的 COS 存储桶。",
+            "attention": "在使用本示例代码时需要在函数里修改用户的 appid、secret_id、secret_key、bucket。",
+            "author": {
+                "name": "腾讯云 Serverless 团队"
+            }
+        },
+        "English": {
+            "name": "MPS_SCF_COS",
+            "description": "The SCF will write each message to txt by each line. Then SCF will name this file by time and upload this txt to COS bucket.",
+            "attention": "Please change the appid,secret_id,secret_key,bucket name and region before you use it.",
+            "author": {
+                "name": "Tencent Cloud Serverless Team"
+            }
+        },
+        "runtime": "Python2.7",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-MPSCOS",
+        "version": "1.0.1",
+        "tags": [
+            "Python2.7",
+            "MPS",
+            "COS"
+        ]
+    }
+}

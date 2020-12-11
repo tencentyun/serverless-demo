@@ -17,7 +17,7 @@
             }
         },
         "runtime": "Nodejs8.9",
-        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Node8.9-COSCDNRefresh",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-COSCDNRefresh",
         "version": "1.0.0",
         "tags": [
             "Nodejs8.9",

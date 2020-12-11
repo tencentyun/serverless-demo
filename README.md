@@ -69,6 +69,7 @@ CustomRuntime
 ```
 
 ## 模版配置文件 config.json 说明
+注意：config.json 中，English name 不要包含空格，该字段会作为模版创建函数时的默认函数名称，English name 包含空格会导致函数创建失败。
 
 ```sh
 {
@@ -82,7 +83,7 @@ CustomRuntime
             }
         },
         "English":{
-            "name": "DemoEnglishName",                       # This is the name of demo. If it is java demo. Please keep the same name with jar package. No restrictions for non-java demos. Please do not add runtime information in the name.
+            "name": "DemoEnglishName",                       # This is the English name of demo. If it is java demo. Please keep the same name with jar package. No restrictions for non-java demos. Please do not add runtime information in the name.
             "description": "Demo English description.",      # The description of demo. You can describe the detail function.
             "attention": "The description of precautions.",  # The precautions for using the template will be shown in the view details.
             "author": {

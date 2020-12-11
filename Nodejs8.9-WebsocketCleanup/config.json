@@ -17,7 +17,7 @@
             }
         },
         "runtime": "Nodejs8.9",
-        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Node8.9-WebsocketCleanup",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-WebsocketCleanup",
         "version": "1.1.2",
         "tags": [
             "Nodejs8.9",
