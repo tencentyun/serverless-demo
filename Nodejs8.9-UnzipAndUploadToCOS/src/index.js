@@ -28,7 +28,7 @@ const cos = new COS({
 
 
 const REGION = 'ap-guangzhou' // Replace it with your bucket's reigon , 请替换为您bucket所在的地域
-const BUCKET_UPLOAD = 'test1' // Replace it with your uploading bucket's name, 请替换为解压后需要长传的bucket名
+const BUCKET_UPLOAD = 'test1' // Replace it with your uploading bucket's name, 请替换为解压后需要上传的bucket名
 const TEMP_PATH = '/tmp'
 
 const traversal = function(dir) {

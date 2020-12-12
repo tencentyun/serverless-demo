@@ -5,12 +5,12 @@ const qs = require("querystring");
 
 const url = "https://vod.api.qcloud.com/v2/index.php";
 let config = {
-  SecretId: "",
-  SecretKey: "",
+  SecretId: "",// Replace it with your SecretId please, 请替换为您的 SecretId
+  SecretKey: "",// Replace it with your SecretKey please, 请替换为您的 SecretKey
   param: {
     output: {
-      bucket: "",
-      dir: ""
+      bucket: "",// Replace it with your uploading bucket's name, 请替换为解压后需要上传的bucket名
+      dir: ""// Replace it with your uploading bucket's name, 请替换为解压后需要上传的bucket目录
     },
     mediaProcess: {
       transcode: {
