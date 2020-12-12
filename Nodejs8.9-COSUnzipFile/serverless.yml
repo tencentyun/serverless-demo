@@ -1,0 +1,16 @@
+component: scf
+name: ap-guangzhou_default_UnzipFile
+inputs:
+  name: UnzipFile
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Nodejs8.9
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 896
+  timeout: 900
+  triggers:
+    - type: cos
+      enable: true
+      events: 'cos:ObjectCreated:*'

@@ -1,0 +1,12 @@
+component: scf
+name: ap-guangzhou_default_RustDemo
+inputs:
+  src:
+    src: ./src
+  region: ap-guangzhou
+  name: RustDemo
+  runtime: CustomRuntime
+  handler: main
+  memorySize: 128
+  timeout: 3
+

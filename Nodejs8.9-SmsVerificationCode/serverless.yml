@@ -1,0 +1,23 @@
+component: scf
+name: ap-guangzhou_default_SmsVerificationCode
+inputs:
+  name: SmsVerificationCode
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Nodejs8.9
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  environment:
+    - key: REDIS_HOST
+      value: Redis 实例 host/Redis instance host
+    - key: REDIS_PASSWORD
+      value: Redis 实例密码 /Redis instance password
+    - key: SMS_TEMPLATE_ID
+      value: 腾讯云短信模板id / SMS template id
+    - key: SMS_SIGN
+      value: 腾讯云短信签名 / SMS sign
+    - key: SMS_SDKAPPID
+      value: 腾讯云短信应用id / SMS id
+  timeout: 3

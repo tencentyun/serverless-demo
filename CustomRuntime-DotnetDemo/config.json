@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "dotnet_demo",
+            "name": "DotnetDemo",
             "description": "This example shows how to use dotnet in CustomRuntime type function",
             "attention": "None",
             "author": {

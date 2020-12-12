@@ -1,0 +1,12 @@
+component: scf
+name: ap-guangzhou_default_CLSTrigger
+inputs:
+  src:
+    src: ./src
+  region: ap-guangzhou
+  name: CLSTrigger
+  runtime: Go1
+  handler: main
+  memorySize: 128
+  timeout: 3
+

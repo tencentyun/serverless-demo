@@ -1,0 +1,12 @@
+component: scf
+name: ap-guangzhou_default_DenoDemo
+inputs:
+  src:
+    src: ./src
+  region: ap-guangzhou
+  name: DenoDemo
+  runtime: CustomRuntime
+  handler: main
+  memorySize: 128
+  timeout: 3
+

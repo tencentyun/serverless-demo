@@ -1,0 +1,19 @@
+component: scf
+name: ap-guangzhou_default_UnpackToCOS
+inputs:
+  name: UnpackToCOS
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Nodejs10.15
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  environment:
+    - key: targetRegion
+      value: 目标存储桶地域/ target bucket region
+  timeout: 900
+  triggers:
+    - type: cos
+      enable: true
+      events: 'cos:ObjectCreated:*'
