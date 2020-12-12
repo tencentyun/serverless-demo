@@ -1,0 +1,22 @@
+component: scf
+name: ap-guangzhou_default_SCFOnedriveIndex
+inputs:
+  name: SCFOnedriveIndex
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Php7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 30
+  triggers:
+    - type: apigw
+      protocols:
+        - http
+      environment: release
+      apis:
+        - path: /
+          method: GET
+          function:
+            isIntegratedResponse: true

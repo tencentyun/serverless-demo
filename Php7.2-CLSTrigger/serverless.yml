@@ -1,0 +1,12 @@
+component: scf
+name: ap-guangzhou_default_CLSTrigger
+inputs:
+  name: CLSTrigger
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Php7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3

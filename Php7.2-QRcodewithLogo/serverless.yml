@@ -1,11 +1,9 @@
 component: scf
-name: ap-guangzhou_default_QRcodewithLogo
-org: app
-app: QRcodewithLogo
-stage: dev
+name: ap-guangzhou_default_GetValueCreateQRcodeAPIGWDemo
 inputs:
-  name: QRcodewithLogo
-  src: ./
+  name: GetValueCreateQRcodeAPIGWDemo
+  src:
+    src: ./src
   description: >-
     This demo is mainly to show how to use resources, how to get values from the
     web users, and how to return a web or a file.
@@ -17,18 +15,13 @@ inputs:
   region: ap-guangzhou
   memorySize: 128
   timeout: 10
-  events:
-     - apigw: # api网关触发器
-        name: serverless
-        serviceId: # input API gateway serviceId
-        parameters:
-          protocols:
-            - http
-          description: the serverless service
-          environment: release
-          endpoints:
-            - path: /
-              method: GET
-              function:
-                isIntegratedResponse: TRUE
-
+  triggers:
+    - type: apigw
+      protocols:
+        - http
+      environment: release
+      apis:
+        - path: /
+          method: GET
+          function:
+            isIntegratedResponse: true

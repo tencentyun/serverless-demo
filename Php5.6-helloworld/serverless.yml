@@ -1,12 +1,9 @@
 component: scf
 name: ap-guangzhou_default_helloworld
-org: app
-app: helloworld
-stage: dev
 inputs:
   name: helloworld
-  src: ./
-  description: helloworld 空白模板函数
+  src:
+    src: ./src
   handler: index.main_handler
   runtime: Php5
   namespace: default

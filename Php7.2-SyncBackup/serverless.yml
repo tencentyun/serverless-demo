@@ -1,0 +1,17 @@
+component: scf
+name: ap-guangzhou_default_COSSyncBackup
+inputs:
+  name: COSSyncBackup
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Php7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 10
+  triggers:
+    - type: cos
+      enable: true
+      bucket: 
+      events: 'cos:ObjectCreated:*'
