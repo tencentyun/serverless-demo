@@ -3,7 +3,7 @@
         "Chinese": {
             "name": "SpringBoot",
             "description": "使用 SCF 部署 Spring Boot 并通过 API 网关测试事件模拟请求和获取 spring 返回的处理结构。",
-            "attention": "无",
+            "attention": "可使用 API Gateway 事件模版并将 path 改为 /hello 进行模拟测试。",
             "author": {
                 "name": "腾讯云 serverless 团队"
             }
@@ -11,7 +11,7 @@
         "English": {
             "name": "SpringBoot",
             "description": "Use SCF to deploy Spring Boot and test event simulation requests through the API gateway and obtain the processing structure returned by Spring",
-            "attention": "None",
+            "attention": "You can use the API Gateway event template and change the path to /hello for simulation testing.",
             "author": {
                 "name": "tencent cloud serverless team"
             }

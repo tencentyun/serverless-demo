@@ -3,7 +3,7 @@
         "Chinese": {
             "name": "定时拨测函数",
             "description": "本示例主要演示定时拨测 URL 列表中的地址，当拨测失败时，通过邮件发送告警。",
-            "attention": "无",
+            "attention": "可选择 CMQ Topic 事件模版进行模拟测试。",
             "author": {
                 "name": "腾讯云 Serverless 团队"
             }
@@ -11,7 +11,7 @@
         "English": {
             "name": "DialURLByTimer",
             "description": "This demo will dial url list by tmier trigger. If dial url fail, it will send email to email list",
-            "attention": "No",
+            "attention": "CMQ Topic event template can be selected for simulation test.",
             "author": {
                 "name": "Tencent Cloud Serverless Team"
             }

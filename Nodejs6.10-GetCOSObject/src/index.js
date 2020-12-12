@@ -4,8 +4,7 @@ TIPS:
 1. cos-nodejs-sdk-v5 do not support the use of promise and async/await
 
 REFERENCE: 
-1. https://github.com/tencentyun/scf-demo-repo -  DEMO repository
-2. https://cloud.tencent.com/document/product/436/12264 - COS-NODE-SDK document
+1. https://cloud.tencent.com/document/product/436/12264 - COS-NODE-SDK document
 ***************************************************/
 
 const COS = require('cos-nodejs-sdk-v5')
