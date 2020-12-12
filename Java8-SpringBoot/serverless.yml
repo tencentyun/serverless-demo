@@ -1,0 +1,12 @@
+component: scf
+name: ap-guangzhou_default_SpringBoot
+inputs:
+  src:
+    src: ./src
+  region: ap-guangzhou
+  name: SpringBoot
+  runtime: Java8
+  handler: example.Hello::mainHandler
+  memorySize: 256
+  timeout: 30
+

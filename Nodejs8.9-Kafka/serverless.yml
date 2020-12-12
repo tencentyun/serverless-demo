@@ -1,15 +1,13 @@
 component: scf
-name: ap-guangzhou_default_ckafka
-org: app
-app: ckafka
-stage: dev
+name: ap-guangzhou_default_SendMsgToCkafka
 inputs:
-  name: ckafka
-  src: ./
+  name: SendMsgToCkafka
+  src:
+    src: ./src
   description: 本示例通过kafka node客户端，给kafka发消息
   handler: index.main_handler
   runtime: Nodejs8.9
   namespace: default
   region: ap-guangzhou
   memorySize: 128
-  timeout: 3
+  timeout: 60
