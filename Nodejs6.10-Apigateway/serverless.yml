@@ -1,0 +1,25 @@
+component: scf
+name: ap-guangzhou_default_APIGWBasicDemo
+inputs:
+  name: APIGWBasicDemo
+  src:
+    src: ./src
+  description: 本示例演示 API 网关使用的基础方法，主要展示在集成响应下（通过云函数控制台创建的API网关触发器默认启用集成响应），怎样构造返回值
+  handler: index.main_handler
+  runtime: Nodejs6.10
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3
+  triggers:
+    - type: apigw
+      name: SCF_API_SERVICE
+      protocols:
+        - http
+      environment: release
+      apis:
+        - path: /
+          method: ANY
+          function:
+            isIntegratedResponse: true
+

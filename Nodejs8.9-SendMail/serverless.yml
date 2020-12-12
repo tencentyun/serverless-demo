@@ -1,15 +1,15 @@
 component: scf
-name: ap-guangzhou_default_helloworld
-org: app
-app: helloworld
-stage: dev
+name: ap-guangzhou_default_SendEmailByCMQ
 inputs:
-  name: helloworld
-  src: ./
-  description: helloworld 空白模板函数
+  name: SendEmailByCMQ
+  src:
+    src: ./src
   handler: index.main_handler
   runtime: Nodejs8.9
   namespace: default
   region: ap-guangzhou
   memorySize: 128
   timeout: 3
+  triggers:
+    - type: cmq
+      enable: true

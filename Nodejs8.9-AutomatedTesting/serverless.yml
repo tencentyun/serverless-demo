@@ -1,0 +1,18 @@
+component: scf
+name: ap-guangzhou_default_DialURLByTimer
+inputs:
+  name: DialURLByTimer
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Nodejs8.9
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 10
+  triggers:
+    - type: timer
+      name: timer
+      cronExpression: 0 0 */1 * * * *
+      argument: ''
+      enable: true

@@ -1,0 +1,12 @@
+component: scf
+name: ap-guangzhou_default_helloworld
+inputs:
+  name: helloworld
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Nodejs8.9
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3

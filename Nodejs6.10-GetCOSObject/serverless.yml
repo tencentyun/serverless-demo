@@ -1,0 +1,17 @@
+component: scf
+name: ap-guangzhou_default_GetCOSObject
+inputs:
+  name: GetCOSObject
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Nodejs6.10
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 5
+  triggers:
+    - type: cos
+      enable: true
+      bucket: 
+      events: 'cos:ObjectCreated:*'
