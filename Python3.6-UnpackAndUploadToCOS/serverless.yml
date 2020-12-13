@@ -1,0 +1,26 @@
+component: scf
+name: ap-guangzhou_default_UnpackToCOS
+inputs:
+  name: UnpackToCOS
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Python3.6
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  environment:
+    - key: targetRegion
+      value: the region of target bucket
+    - key: targetBucket
+      value: target bucket
+    - key: suffix
+      value: suffix
+    - key: targetPrefix
+      value: target prefix
+  timeout: 900
+  triggers:
+    - type: cos
+      enable: true
+      bucket: 
+      events: 'cos:ObjectCreated:*'

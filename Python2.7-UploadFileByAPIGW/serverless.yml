@@ -1,0 +1,26 @@
+component: scf
+name: ap-guangzhou_default_upload_UploadFileToCOSByAPIGW
+inputs:
+  name: UploadFileToCOSByAPIGW
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 30
+  triggers:
+    - type: apigw
+      name: SCF_API_SERVICE
+      protocols:
+        - http
+        - https
+      environment: release
+      netTypes:
+        - OUTER
+      apis:
+        - path: /
+          method: ANY
+          function:
+            isIntegratedResponse: true

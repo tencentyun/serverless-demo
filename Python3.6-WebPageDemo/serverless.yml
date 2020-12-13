@@ -1,0 +1,25 @@
+component: scf
+name: ap-guangzhou_default_APIGWWebPageDemo
+inputs:
+  name: APIGWWebPageDemo
+  handler: index.main_handler
+  memorySize: 128
+  region: ap-guangzhou
+  runtime: Python3.6
+  src:
+    src: ./src
+  timeout: 3
+  triggers:
+    - type: apigw
+      name: SCF_API_SERVICE
+      protocols:
+        - http
+        - https
+      environment: release
+      netTypes:
+        - OUTER
+      apis:
+        - path: /APIGWWebPageDemo
+          method: ANY
+          function:
+            isIntegratedResponse: true
