@@ -4,7 +4,7 @@ inputs:
   name: AddTextToPictures
   src:
     src: ./src
-  runtime: Nodejs10.15
+  runtime: Python2.7
   region: ap-guangzhou
   handler: index.main_handler
   memorySize: 512

@@ -1,0 +1,35 @@
+component: scf
+name: ap-guangzhou_default_KafkaLoadToCDWConsumer
+inputs:
+  name: KafkaLoadToCDWConsumer
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Python3.6
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  environment:
+    - key: KAFKA_ADDRESS
+      value: ckafka address
+    - key: TOPIC_NAME
+      value: ckafka topic name
+    - key: OFFSET_TYPE
+      value: offset type
+    - key: CONSUMER_TIMEOUT_MS
+      value: consumer timeout, ms
+    - key: DB_HOST
+      value: DB host
+    - key: DB_USER
+      value: DB user name
+    - key: DB_PASSWORD
+      value: DB password
+    - key: DB_DATABASE
+      value: DB database
+    - key: DB_PORT
+      value: DB port
+    - key: DB_SCHEMA
+      value: DB schema
+    - key: DB_TABLE
+      value: DB table
+  timeout: 60

@@ -1,0 +1,17 @@
+component: scf
+name: ap-guangzhou_default_ReduceFunction
+inputs:
+  name: ReduceFunction
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3
+  triggers:
+    - type: cos
+      enable: true
+      bucket: 
+      events: 'cos:ObjectCreated:*'

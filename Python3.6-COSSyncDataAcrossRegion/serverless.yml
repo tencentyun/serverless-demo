@@ -1,0 +1,25 @@
+component: scf
+name: ap-guangzhou_default_COSSyncDataAcrossRegion
+inputs:
+  name: COSSyncDataAcrossRegion
+  src:
+    src: ./src
+  runtime: Python3.6
+  region: ap-guangzhou
+  handler: index.main_handler
+  memorySize: 128
+  timeout: 100
+  environments:
+    - key: target_bucket
+      value: target bucket name
+    - key: target_region
+      value: region of target bucket
+    - key: source_region
+      value: region of source bucket
+  triggers:
+    - type: cos
+      enable: true
+      bucket: 
+      events: 'cos:ObjectCreated:*'
+      filter:
+        prefix: copy/
