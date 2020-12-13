@@ -1,0 +1,30 @@
+component: scf
+name: ap-guangzhou_default_CkafkaBackupToCDBMySQL
+inputs:
+  name: CkafkaBackupToCDBMySQL
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  environment:
+    - key: dbhost
+      value: db host
+    - key: dbuser
+      value: db user name
+    - key: dbpwd
+      value: db password
+    - key: dbdatabase
+      value: db database
+    - key: dbtable
+      value: db table
+  timeout: 300
+  triggers:
+    - type: ckafka
+      name: 
+      topic: 
+      maxMsgNum: 100
+      offset: latest
+      enable: true

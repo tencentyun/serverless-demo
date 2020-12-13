@@ -1,0 +1,15 @@
+component: scf
+name: ap-guangzhou_default_COSCDNPurgeUrlsCache
+inputs:
+  name: COSCDNPurgeUrlsCache
+  src:
+    src: ./src
+  runtime: Python2.7
+  region: ap-guangzhou
+  handler: index.main_handler
+  memorySize: 128
+  timeout: 20
+  triggers:
+    - type: cos
+      enable: true
+      events: 'cos:ObjectCreated:*'
