@@ -1,0 +1,33 @@
+component: scf
+name: ap-guangzhou_default_MySQLBackupToCOS
+inputs:
+  name: MySQLBackupToCOS
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  environment:
+    - key: dbhost
+      value: db host
+    - key: dbport
+      value: db port
+    - key: dbuser
+      value: db user name
+    - key: dbpwd
+      value: db password
+    - key: dbname
+      value: db name
+    - key: cosregion
+      value: cos region
+    - key: cosbucket
+      value: cos bucket name
+  timeout: 3
+  triggers:
+    - type: timer
+      name: 
+      cronExpression: 0 0 */1 * * * *
+      argument: ''
+      enable: true

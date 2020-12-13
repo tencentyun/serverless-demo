@@ -1,0 +1,28 @@
+component: scf
+name: ap-guangzhou_default_CkafkaBackupToCOSSchedule
+inputs:
+  name: CkafkaBackupToCOSSchedule
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  environment:
+    - key: instance_id
+      value: ckafka instanceid
+    - key: topic_name
+      value: ckafka topic name
+    - key: region
+      value: region
+    - key: consumer_function_name
+      value: consumer function name
+  timeout: 10
+  triggers:
+    - type: ckafka
+      name: 
+      topic: 
+      maxMsgNum: 100
+      offset: latest
+      enable: true

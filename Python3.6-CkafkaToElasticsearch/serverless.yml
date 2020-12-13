@@ -1,0 +1,28 @@
+component: scf
+name: ap-guangzhou_default_CkafkaToElasticsearch
+inputs:
+  name: CkafkaToElasticsearch
+  src: ./src
+  handler: index.main_handler
+  runtime: Python3.6
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  environment:
+    - key: ES_Address
+      value: ES address/ES 地址
+    - key: ES_User
+      value: ES user name/ ES 用户名
+    - key: ES_Password
+      value: ES password/ES 密码
+    - key: ES_Index_KeyWord
+      value: ES prefix keywords for indexing，eg. Log/ES 建立索引的前缀关键词，如填Log
+  timeout: 30
+  triggers:
+    - type: ckafka
+      name: 
+      enable: true
+      topic: 
+      maxMsgNum: 50
+      offset: latest
+      retry: 10000
