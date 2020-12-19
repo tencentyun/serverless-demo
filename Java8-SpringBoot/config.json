@@ -2,8 +2,8 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "SpringBoot",
-            "description": "使用 SCF 部署 Spring Boot 并通过 API 网关测试事件模拟请求和获取 spring 返回的处理结构。",
-            "attention": "可使用 API Gateway 事件模版并将 path 改为 /hello 进行模拟测试。",
+            "description": "使用 SCF 部署 Spring Boot 并通过 API 网关测试事件模拟请求和获取 spring 返回的处理结构。请使用 API Gateway 事件模版并将 path 改为 /hello 进行模拟测试。",
+            "attention": "请使用 API Gateway 事件模版并将 path 改为 /hello 进行模拟测试。",
             "author": {
                 "name": "腾讯云 serverless 团队"
             }
