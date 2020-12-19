@@ -10,7 +10,7 @@ inputs:
   region: ap-guangzhou
   memorySize: 128
   timeout: 300
-  environments:
+  environment:
     - key: kafka_address
       value: ckafka address
     - key: kafka_topic_name
