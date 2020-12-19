@@ -9,7 +9,7 @@ inputs:
   handler: index.main_handler
   memorySize: 128
   timeout: 10
-  environments:
+  environment:
     - key: target_bucket
       value: target bucket name
     - key: source_bucket
