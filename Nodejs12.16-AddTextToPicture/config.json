@@ -18,7 +18,7 @@
         },
         "runtime": "Nodejs12.16",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-AddTextToPicture",
-        "version": "1.3.0",
+        "version": "1.3.1",
         "tags": [
             "Nodejs12.16",
             "HTTP",
