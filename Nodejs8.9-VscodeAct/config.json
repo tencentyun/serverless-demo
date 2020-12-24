@@ -1,0 +1,27 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "国庆 SCF 运营推广活动 Demo",
+            "description": "本示例主要演示如何配置 API 网关触发器返回自定义 html 页面。",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云 Serverless 团队"
+            }
+        },
+        "English": {
+            "name": "VscodeAct",
+            "description": "This demo is mainly to show how to return custom html in serverless.",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud Serverless Team"
+            }
+        },
+        "runtime": "Nodejs8.9",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-VscodeAct",
+        "version": "1.0.5",
+        "tags": [
+            "Nodejs8.9",
+            "Vscode"
+        ]
+    }
+}

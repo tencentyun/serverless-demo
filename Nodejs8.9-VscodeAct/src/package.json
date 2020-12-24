@@ -1,0 +1,16 @@
+{
+  "name": "vscodeact",
+  "version": "1.0.0",
+  "description": "vscode插件运营活动",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Vscode",
+    "ScreenShot"
+  ],
+  "author": "louiswu",
+  "license": "ISC",
+  "dependencies": {}
+}

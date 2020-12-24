@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "API 网关返回自定义html页面",
+            "description": "本示例主要演示如何配置 API 网关触发器返回自定义的html页面。",
+            "attention": "无。",
+            "author": {
+                "name": "腾讯云 Serverless 团队"
+            }
+        },
+        "English": {
+            "name": "APIGWHtmlDemo",
+            "description": "This demo is mainly to show how to return custom html in serverless.",
+            "attention": "None.",
+            "author": {
+                "name": "Tencent Cloud Serverless Team"
+            }
+        },
+        "runtime": "Php7",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Php7.2-APIGWHtmlDemo",
+        "version": "1.0.9",
+        "tags": [
+            "Php7",
+            "API GW",
+            "Custom Html"
+        ]
+    }
+}

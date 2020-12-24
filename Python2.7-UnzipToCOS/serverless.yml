@@ -1,0 +1,17 @@
+component: scf
+name: ap-guangzhou_default_UnzipToCOS
+inputs:
+  name: UnzipToCOS
+  src:
+    src: ./src
+  handler: unzip_to_cos.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 30
+  triggers:
+    - type: cos
+      enable: true
+      bucket: 
+      events: 'cos:ObjectCreated:*'

@@ -1,0 +1,24 @@
+component: scf
+name: ap-guangzhou_default_APIGWHtmlDemo
+inputs:
+  name: APIGWHtmlDemo
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Nodejs8.9
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3
+  triggers:
+    - type: apigw
+      name: SCF_API_SERVICE
+      protocols:
+        - http
+      environment: release
+      apis:
+        - path: /
+          method: ANY
+          function:
+            isIntegratedResponse: true
+

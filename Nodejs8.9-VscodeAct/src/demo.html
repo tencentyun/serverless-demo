@@ -1,0 +1,251 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>VS Code 十一活动</title>
+    <meta name="keywords" content="VS Code 十一活动">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta itemprop="name" content="VS Code 十一活动">
+    <meta itemprop="description" name="description" content="VS Code 十一活动">
+    <meta itemprop="image" content=" 配置分享图片">
+    <link href="https://imgcache.qq.com/open_proj/proj_qcloud_v2/mc_2014/scf/css/act-vscode.css" rel="stylesheet">
+    <style>
+        .preview-container {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #dialog-container {
+            position: absolute;
+            width: 100px;
+            height: 80px;
+            top: 50%;
+            left: 50%;
+            margin: -70px 0 0 -70px;
+            display: none;
+            background-color: red;
+            padding: 20px;
+        }
+
+        #dialog-container #dialog-close {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+        }
+
+        .mask-container {
+            display: none
+        }
+    </style>
+</head>
+
+<body ontouchstart="">
+    <div class="vscode-act-wrap">
+        <img src="https://imgcontainer-1253309074.cos.ap-guangzhou.myqcloud.com/bg.jpg" crossorigin="anonymous" style="
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            z-index: -1;
+            top: 0;
+            left: 0;
+        ">
+        <div class="vscode-act-content">
+            <!-- 上logo -->
+            <i class="p-logos"><img src="https://imgcontainer-1253309074.cos.ap-guangzhou.myqcloud.com/logo.png" alt=""
+                    crossorigin="anonymous"></i>
+
+            <div class="wrap-inner">
+                <div class="vs-time-line">
+                    <span>2019年10月1日</span>
+                    <span>星期二</span>
+                    <span>农历己亥年九月初三</span>
+                </div>
+                <div class="vs-main-img">
+                    <span class="nation-day"><img
+                            src="https://imgcontainer-1253309074.cos.ap-guangzhou.myqcloud.com/national-day.png" alt=""
+                            crossorigin="anonymous" /></span>
+                    <span class="nation-day-img"><img
+                            src="https://imgcontainer-1253309074.cos.ap-guangzhou.myqcloud.com/main-img.jpg" alt=""
+                            crossorigin="anonymous" /></span>
+                </div>
+                <div class="vs-op-area">
+                    <div class="calendar-info">
+                        <p class="item">
+                            <i class="badge">宜</i>${appropriate}
+                        </p>
+                        <p class="item">
+                            <i class="badge gray">忌</i>${avoid}
+                        </p>
+                        <p class="item from-item">
+                            <span>来自</span>
+                            <span>${from}</span>
+                        </p>
+                    </div>
+                    <div class="op-area qrcode" style="display: none">
+                        <img width="68" src="https://imgcontainer-1253309074.cos.ap-guangzhou.myqcloud.com/qrcode.png"
+                            alt="" crossorigin="anonymous">
+                    </div>
+                </div>
+            </div>
+            <div class="save-img"><button class="vs-btn" id="js-btn"><i class="vs-icon-download"></i>保存图片</button></div>
+            <div class="bottom-tips" style="display: none">长按识别二维码定制专属海报</div>
+            <div class="mask-container">
+                <div class="vs-mask"></div>
+                <div class="vs-screenshot-wrap">
+                </div>
+                <div class="vs-toast" style="display: none">
+                    <i class="icon-press"></i>长按保存图片
+                </div>
+            </div>
+        </div>
+
+        <div id="preview" class="preview-container"></div>
+        <div id="dialog-container">
+            <div id="dialog-close">x</div>
+            <div id="dialog-body"></div>
+        </div>
+    </div>
+    <script src="https://img.qcloud.com/qcloud/iaas_web/build/jquery.min.js"></script>
+    <script src="https://img.qcloud.com/qcloud/iaas_web/build/fileSaver.min.js"></script>
+    <script src="https://img.qcloud.com/qcloud/iaas_web/build/canvas2image.min.js"></script>
+    <script src="https://img.qcloud.com/qcloud/iaas_web/build/es6-promise.min.js"></script>
+    <script src="https://img.qcloud.com/qcloud/iaas_web/build/html2canvas.min.js"></script>
+    <script>
+        //手机访问判断
+        const isMobile = /AppleWebKit.*Mobile/i.test(navigator.userAgent) ||
+            /MIDP|SymbianOS|NOKIA|SAMSUNG|LG|NEC|TCL|Alcatel|BIRD|DBTEL|Dopod|PHILIPS|HAIER|LENOVO|MOT-|Nokia|SonyEricsson|SIE-|Amoi|ZTE/.test(
+                navigator.userAgent
+            )
+        if (!isMobile) {
+            $(document.body).addClass('pc-open')
+        }
+
+        if (!HTMLCanvasElement.prototype.toBlob) {
+            Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+                value: function (callback, type, quality) {
+
+                    var binStr = atob(this.toDataURL(type, quality).split(',')[1]),
+                        len = binStr.length,
+                        arr = new Uint8Array(len);
+
+                    for (var i = 0; i < len; i++) {
+                        arr[i] = binStr.charCodeAt(i);
+                    }
+
+                    callback(new Blob([arr], { type: type || 'image/png' }));
+                }
+            });
+        }
+
+    </script>
+    <script type="text/javascript">
+        document.addEventListener('WeixinJSBridgeReady', function onBridgeReady() {
+            WeixinJSBridge.call('hideToolbar');
+            WeixinJSBridge.call('hideOptionMenu');
+        });
+        function DPR() {
+            if (window.devicePixelRatio && window.devicePixelRatio > 1) {
+                return window.devicePixelRatio;
+            }
+            return 1;
+        }
+        function parseValue(value) {
+            return parseInt(value, 10);
+        };
+
+        function saveFile(blob, filename) {
+            saveAs(blob, "vscodeAct.jpg");
+        }
+
+        function drawCanvas() {
+            const scrollWidth = window.innerWidth - document.body.offsetWidth
+            const scrollHeight = document.body.offsetHeight - document.body.clientHeight
+
+            /*图片跨域及截图模糊处理*/
+            let shareContent = $('.vscode-act-wrap')[0],//需要截图的包裹的（原生的）DOM 对象
+                computedContent = window.getComputedStyle(shareContent),
+                width = parseValue(shareContent.offsetWidth),//shareContent.offsetWidth; //获取dom 宽度
+                height = parseValue(shareContent.offsetHeight),//shareContent.offsetHeight; //获取dom 高度
+                canvas = document.createElement("canvas"), //创建一个canvas节点
+                scale = DPR(); //定义任意放大倍数 支持小数
+            canvas.width = width * scale; //定义canvas 宽度 * 缩放
+            canvas.height = height * scale; //定义canvas高度 *缩放
+            canvas.style.width = width + "px";
+            canvas.style.height = height + "px";
+            canvas.getContext("2d").scale(scale, scale); //获取context,设置scale
+            let opts = {
+                scale: scale, // 添加的scale 参数
+                canvas: canvas, //自定义 canvas
+                logging: false, //日志开关，便于查看html2canvas的内部执行流程
+                width: width, //dom 原始宽度
+                height: height,
+                useCORS: true, // 【重要】开启跨域配置
+                scrollX: -scrollWidth / 2,
+                scrollY: -Math.ceil(scrollHeight),
+                onclone: function (doc, b, c) {
+                    $(doc.querySelector('.qrcode')).show()
+                    $(doc.querySelector('.bottom-tips')).show()
+                    $(doc.querySelector('.save-img')).hide()
+
+                }
+            };
+            // 将自定义 canvas 作为配置项传入，开始绘制
+            return html2canvas(shareContent, opts);
+        }
+
+        $("#dialog-close").click(function () {
+            $(this).parent("#dialog-container").fadeOut()
+        })
+
+        let flag = false
+        $("#js-btn").click(function () {
+            if (flag) return
+            flag = true
+            const el = $('.vscode-act-wrap')
+            drawCanvas()
+                .then(function (canvas) {
+
+                    const img = new Image()
+                    // 将 canvas 导出成 base64
+                    img.src = canvas.toDataURL('image/jpeg', 1.0)
+                    img.style.display = "block"
+
+                    let context = canvas.getContext('2d');
+                    // 【重要】关闭抗锯齿
+                    context.mozImageSmoothingEnabled = false;
+                    context.webkitImageSmoothingEnabled = false;
+                    context.msImageSmoothingEnabled = false;
+                    context.imageSmoothingEnabled = false;
+
+                    $(".mask-container .vs-screenshot-wrap").append(img)
+                    $(".vs-screenshot-wrap img").css({
+                        width: canvas.width / DPR() + 'px',
+                        height: canvas.height / DPR() + 'px'
+                    })
+
+                    $('.mask-container').fadeIn()
+                    if (isMobile) {
+                        $('.mask-container .vs-toast').fadeIn(500, function () {
+                            $('.mask-container .vs-toast').fadeOut(3000)
+                        })
+                    }
+                    flag = false
+
+                    canvas.toBlob(function (blob) {
+                        saveFile(blob, 'vscodeAct.jpg')
+                    }, { type: 'image/jpeg' }, 1);
+                })
+                .catch(function (e) {
+                    console.log(e)
+                    alert('当前浏览器不支持保存图片的功能')
+                })
+        })
+    </script>
+</body>
+
+</html>
