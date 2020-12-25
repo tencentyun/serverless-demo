@@ -6,7 +6,7 @@ inputs:
   region: ap-guangzhou
   name: ShellDemo
   runtime: CustomRuntime
-  handler: main
+  handler: index.main_handler
   memorySize: 128
   timeout: 3
 
