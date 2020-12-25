@@ -18,7 +18,7 @@
         },
         "runtime": "CustomRuntime",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/CustomRuntime-ShellDemo",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "tags": [
             "CustomRuntime",
             "shell"
