@@ -13,7 +13,7 @@
             "description": "This demo need to config COS trigger. When ZIP has been upload to COS bucket, the SCF will download it to /tmp and unzip it.",
             "attention": "You should config COS trigger before you use it. Please change the appid,secret_id,secret_key,password of zip.",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Python2.7",
