@@ -5,7 +5,7 @@
             "description": "本示例通过配置COS触发，上传到COS的ZIP包，使用SCF下载并本地解压，支持带密码解压，支持中文字段解压，并把解压后的文件上传到COS另一个bucket中，您还可以扩充支持RAR包的解压。",
             "attention": "该云函数需要配置 COS 触发器，另外在使用本示例代码时需要在函数里修改 appid、secret_id、secret_key、需要接收解压后文件的bucket、压缩包的解压密码。",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
