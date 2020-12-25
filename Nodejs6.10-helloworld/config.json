@@ -5,7 +5,7 @@
             "description": "helloworld 空白模板函数",
             "attention": "无",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This is helloworld function",
             "attention": "No",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Nodejs6.10",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs6.10-helloworld",
-        "version": "1.0.6",
+        "version": "1.0.7",
         "tags": [
             "Nodejs6.10",
             "helloworld"
