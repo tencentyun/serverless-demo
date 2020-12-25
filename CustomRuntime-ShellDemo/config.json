@@ -5,7 +5,7 @@
             "description": "本示例展示如何在 CustomRuntime 类型函数中使用shell。",
             "attention": "无",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,7 +13,7 @@
             "description": "This example shows how to use shell in CustomRuntime type function",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "CustomRuntime",
