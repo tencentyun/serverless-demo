@@ -5,7 +5,7 @@
             "description": "本示例主要演示定时拨测 URL 列表中的地址，当拨测失败时，通过邮件发送告警。",
             "attention": "可选择 CMQ Topic 事件模版进行模拟测试。",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This demo will dial url list by tmier trigger. If dial url fail, it will send email to email list",
             "attention": "CMQ Topic event template can be selected for simulation test.",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Nodejs6.10",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs6.10-AutomatedTesting",
-        "version": "1.0.7",
+        "version": "1.0.8",
         "tags": [
             "Nodejs6.10",
             "url",
