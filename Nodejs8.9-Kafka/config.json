@@ -5,7 +5,7 @@
             "description": "本示例通过 kafka node 客户端，给 kafka 发消息。",
             "attention": "云函数需与 kafka 处于相同 vpc 内，已经在代码中注明。",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This function will send message to kafka",
             "attention": "scf function and kafka install should be in same vpc.",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Nodejs8.9",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-Kafka",
-        "version": "1.0.4",
+        "version": "1.0.5",
         "tags": [
             "Nodejs8.9",
             "Ckafka"
