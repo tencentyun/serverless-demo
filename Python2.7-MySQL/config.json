@@ -5,7 +5,7 @@
             "description": "本示例展示了MySQL的基础使用方法，用户可根据实际业务配合触发器一起使用。",
             "attention": "函数部署成功后，请先在控制上把数据库相关的信息进行更改后再进行测试。",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This demo shows how to operate mysql.",
             "attention": "You should change the account information before you use it.",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-MySQL",
-        "version": "1.4.0",
+        "version": "1.4.1",
         "tags": [
             "Python2.7",
             "MySQL",
