@@ -5,7 +5,7 @@
             "description": "MySQL数据备份到COS。",
             "attention": "无",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "MySQL data backup to COS.",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-MySQLBackupToCOS",
-        "version": "1.2.0",
+        "version": "1.2.1",
         "tags": [
             "Python2.7",
             "MySQL",
