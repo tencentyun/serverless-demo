@@ -5,7 +5,7 @@
             "description": "CLS 触发器获取日志内容模版。",
             "attention": "无",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "CLS trigger to get logs.",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Php7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Php7.2-CLSTrigger",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "tags": [
             "Php7",
             "CLS",
