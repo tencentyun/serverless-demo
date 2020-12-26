@@ -5,7 +5,7 @@
             "description": "本示例展示了从COS下载日志文件，使用云函数分析后写入MySQL。",
             "attention": "无",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This demo shows downloading log files from COS, using cloud function analysis and writing to MySQL.",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-LogAnalysisToMySQL",
-        "version": "1.1.0",
+        "version": "1.1.1",
         "tags": [
             "Python2.7",
             "log",
