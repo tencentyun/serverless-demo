@@ -5,7 +5,7 @@
             "description": "本示例会根据触发器配置的最大批量消息数去触发云函数运行，云函数每次运行都会输出消息文本。",
             "attention": "在使用本示例代码时需要在函数里修改用户的appid、secret_id、secret_key、bucket名。",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This demo will connect Ckafca and consume message automatically. The SCF will print the msg.",
             "attention": "Please change the appid,secret_id,secret_key,bucket name and region before you use it.",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-CkafkaTriggerTemplate",
-        "version": "1.2.0",
+        "version": "1.2.1",
         "tags": [
             "Python2.7",
             "Ckafka",
