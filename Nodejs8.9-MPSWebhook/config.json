@@ -5,7 +5,7 @@
             "description": "使用云函数推送 MPS 回调信息。",
             "attention": "无",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "Use cloud functions to push MPS information.",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Nodejs8.9",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-MPSWebhook",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "tags": [
             "Nodejs8.9",
             "MPS",
