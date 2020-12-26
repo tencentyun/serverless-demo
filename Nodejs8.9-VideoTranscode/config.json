@@ -5,7 +5,7 @@
             "description": "本示例通过配置COS触发器，当你在通过上传视频文件到cos时，通过云点播提供的接口，进行视频转码，并写入目标bucket中。",
             "attention": "无",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This function will transcode your video by call api, when you upload video to cos bucket",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Nodejs8.9",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-VideoTranscode",
-        "version": "1.0.4",
+        "version": "1.0.5",
         "tags": [
             "Nodejs8.9",
             "Ckafka",
