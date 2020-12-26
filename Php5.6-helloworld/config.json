@@ -5,7 +5,7 @@
             "description": "helloworld 空白模板函数",
             "attention": "无",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This is helloworld function",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Php5",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Php5.6-helloworld",
-        "version": "1.2.0",
+        "version": "1.2.1",
         "tags": [
             "Php5",
             "helloworld"
