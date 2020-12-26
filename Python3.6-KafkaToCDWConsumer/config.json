@@ -5,7 +5,7 @@
             "description": "本示例会根据Kafka分区Id去消费Kafka数据，然后将数据写入云数据仓库CDW。",
             "attention": "在使用本示例代码时需要传递相关函数的环境变量,本实例由两个函数组成。",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This example consumes Kafka data based on the Ckafka partition Id, then write the data to CDW.",
             "attention": "When using this sample code, you need to pass the environment variables of related functions. This example consists of two functions.",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-KafkaToCDWConsumer",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "tags": [
             "Python3.6",
             "Kafka",
