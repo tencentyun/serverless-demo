@@ -5,7 +5,7 @@
             "description": "本示例通过从源bucket下载多个小文件，合并之后，上传到另一个bucket",
             "attention": "无",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This function will download multiple file from source bucket, merge them to a new file, and upload to target bucket.",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Nodejs8.9",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-COSMergeFile",
-        "version": "1.0.4",
+        "version": "1.0.5",
         "tags": [
             "Nodejs8.9",
             "Ckafka",
