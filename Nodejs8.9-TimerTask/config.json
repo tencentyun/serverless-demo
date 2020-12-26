@@ -5,7 +5,7 @@
             "description": "Timer WEB定时任务执行模版。",
             "attention": "无。",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This is timer task function.",
             "attention": "None.",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Nodejs8.9",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-TimerTask",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "tags": [
             "Nodejs8.9",
             "定时任务"
