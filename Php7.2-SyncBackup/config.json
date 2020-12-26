@@ -5,7 +5,7 @@
             "description": "此示例使用COS作为触发器，在用户上传文件到指定bucket时，将该文件复制到另一个用于备份的bucket存储。",
             "attention": "在使用本示例代码时需要在函数里修改用户的appid、secret_id、secret_key、bucket名。",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This demo will backup the COS bucket object to another bucket when you upload the file.",
             "attention": "Please change the appid,secret_id,secret_key,bucket name and region before you use it.",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Php7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Php7.2-SyncBackup",
-        "version": "1.3.2",
+        "version": "1.3.3",
         "tags": [
             "Php7",
             "COS",
