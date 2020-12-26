@@ -5,7 +5,7 @@
             "description": "本示例主要通过 SCF 结合 API 网关，快速实现一个对公网服务的 Web 页面。",
             "attention": "无",
             "author": {
-                "name": "腾讯云 Serverless 团队"
+                "name": "腾讯云"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This demo is mainly to show how to set up personal web page in serverless with apigateway",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud Serverless Team"
+                "name": "Tencent Cloud"
             }
         },
         "runtime": "Nodejs8.9",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-WebPageDemo",
-        "version": "1.0.3",
+        "version": "1.0.4",
         "tags": [
             "Nodejs8.9",
             "API GW",
