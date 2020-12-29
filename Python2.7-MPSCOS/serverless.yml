@@ -10,3 +10,5 @@ inputs:
   region: ap-guangzhou
   memorySize: 128
   timeout: 5
+  triggers:
+    - type: mps
