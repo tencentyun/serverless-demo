@@ -18,7 +18,7 @@
         },
         "runtime": "Go1",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Go1-CLSTrigger",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "tags": [
             "Go1",
             "CLS",
