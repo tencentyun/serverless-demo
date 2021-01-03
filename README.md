@@ -102,6 +102,24 @@ CustomRuntime
 
 ## 函数配置文件 serverless.yml 说明
 
+
+```YAML
+component: scf
+name: ap-guangzhou_default_helloworld
+inputs:
+  name: helloworld
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Nodejs10.15
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3
+ ```
+ 
+
+
 函数配置文件 serverless.yml 可通过[云函数控制台](https://console.cloud.tencent.com/scf/list?rid=16&ns=default)-函数管理-函数代码页的"下载 YAML" 入口生成。
 
 serverless.yml 全部配置规范可参考[配置文档](https://github.com/serverless-components/tencent-scf/blob/master/docs/configure.md)。
