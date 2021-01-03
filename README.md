@@ -100,11 +100,11 @@ CustomRuntime
 }
 ```
 
-## 函数配置文件 serverless.yaml 说明
+## 函数配置文件 serverless.yml 说明
 
-函数配置文件 serverless.yaml 可通过[云函数控制台](https://console.cloud.tencent.com/scf/list?rid=16&ns=default)-函数管理-函数代码页的"下载 YAML" 入口生成。
+函数配置文件 serverless.yml 可通过[云函数控制台](https://console.cloud.tencent.com/scf/list?rid=16&ns=default)-函数管理-函数代码页的"下载 YAML" 入口生成。
 
-serverless.yaml 全部配置规范可参考[配置文档](https://github.com/serverless-components/tencent-scf/blob/master/docs/configure.md)。
+serverless.yml 全部配置规范可参考[配置文档](https://github.com/serverless-components/tencent-scf/blob/master/docs/configure.md)。
 
 函数入口 handler 写法：
 * 一段式：Golang，预置内容："main"
