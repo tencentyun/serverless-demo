@@ -104,18 +104,39 @@ CustomRuntime
 
 
 ```YAML
-component: scf
-name: ap-guangzhou_default_helloworld
+component: scf                                      #函数模版填scf，必填
+name: ap-guangzhou_default_helloworld               #可参考示例填写，必填，不会在控制台展示
 inputs:
-  name: helloworld
+  name: helloworld                                  #模版名称，与 config.json 中 English name 一致，必填
   src:
-    src: ./src
-  handler: index.main_handler
-  runtime: Nodejs10.15
-  namespace: default
-  region: ap-guangzhou
-  memorySize: 128
-  timeout: 3
+    src: ./src                                      #填./src，必填
+  handler: index.main_handler                       #函数入口 handler，必填
+  runtime: Nodejs10.15                              #函数runtime，必填
+  namespace: default                                #可参考示例填写，必填，不会在控制台展示
+  region: ap-guangzhou                              #可参考示例填写，必填，不会在控制台展示
+  memorySize: 128                                   #函数配置内存，必填，会作为使用该模版创建函数时的默认值
+  timeout: 3                                        #函数执行超时时间，必填，会作为使用该模版创建函数时的默认值
+  environment:                                      #环境变量，选填，如模版代码依赖环境变量则需要填写，会作为使用该模版创建函数时的默认值
+    - key: region
+      value: the region of target bucket
+    - key: target_bucket
+      value: target bucket name
+    - key: target_path
+      value: path of target bucket
+  triggers:                                         #触发器配置，选填，如模版代码运行依赖触发器则需要填写，会作为使用该模版创建函数时的默认值
+    - type: apigw
+      name: SCF_API_SERVICE
+      protocols:
+        - http
+        - https
+      environment: release
+      netTypes:
+        - OUTER
+      apis:
+        - path: /AddTextToPictures
+          method: ANY
+          function:
+            isIntegratedResponse: true
  ```
  
 
