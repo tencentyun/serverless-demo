@@ -149,8 +149,10 @@ inputs:
       maxMsgNum: 50
       offset: latest
       retry: 10000
-    - type: cmq                                    #CMQ触发器配置，选填，如模版代码运行依赖触发器则需要填写，会作为使用该模版创建函数时的默认触发器配置                                   enable: true
-    - type: mps                                    #MPS触发器配置，选填，如模版代码运行依赖触发器则需要填写，会作为使用该模版创建函数时的默认触发器配置                                   enable: true
+    - type: cmq                                    #CMQ触发器配置，选填，如模版代码运行依赖触发器则需要填写，会作为使用该模版创建函数时的默认触发器配置
+      enable: true
+    - type: mps                                    #MPS触发器配置，选填，如模版代码运行依赖触发器则需要填写，会作为使用该模版创建函数时的默认触发器配置
+      enable: true
     - type: timer                                  #定时触发器配置，选填，如模版代码运行依赖触发器则需要填写，会作为使用该模版创建函数时的默认触发器配置
       cronExpression: 0 0 */1 * * * *
       enable: true
