@@ -53,7 +53,7 @@ class ClsToKafka(object):
                 # 当 key 为 "" 或者为 "None" 时，要传入key=None，这样python kafka库会随机选取一个partition写入消息
                 if key == "" or key == "None":
                     key = None
-                value = data
+                value = record
 
                 # 也可以对消息进行处理后再转存
                 #value = deal_message(data)
