@@ -1,0 +1,18 @@
+component: springboot
+name: springbootDemo
+app: springbootAppDemo
+
+inputs:
+  region: ap-guangzhou
+  runtime: Java8
+  src: ./
+  projectJarName: 'my-springboot.jar'
+  functionConfig:
+    handler: 'example.MyHandler::mainHandler'
+    timeout: 30
+    memorySize: 256
+  apigatewayConf:
+    protocols:
+      - http
+      - https
+    environment: release

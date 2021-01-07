@@ -1,0 +1,17 @@
+component: nextjs
+name: nextjsDemo
+app: appDemo
+
+inputs:
+  src:
+    dist: ./
+    hook: npm run build
+    exclude:
+      - .env
+  region: ap-guangzhou
+  runtime: Nodejs10.15
+  apigatewayConf:
+    protocols:
+      - http
+      - https
+    environment: release

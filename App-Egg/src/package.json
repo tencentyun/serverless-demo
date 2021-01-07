@@ -1,0 +1,29 @@
+{
+  "name": "egg-example",
+  "version": "1.0.0",
+  "description": "demo",
+  "private": true,
+  "egg": {
+    "declarations": true
+  },
+  "dependencies": {
+    "egg": "^2.15.1",
+    "egg-view-nunjucks": "^2.2.0"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "ci": "npm run lint && npm run cov"
+  },
+  "ci": {
+    "version": "10"
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "yugasun",
+  "license": "MIT"
+}
