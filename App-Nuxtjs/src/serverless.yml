@@ -1,0 +1,17 @@
+component: nuxtjs
+name: nuxtjsDemo
+app: appDemo
+
+inputs:
+  src:
+    hook: npm run build
+    dist: ./
+    exclude:
+      - .env
+  region: ap-guangzhou
+  runtime: Nodejs10.15
+  apigatewayConf:
+    protocols:
+      - http
+      - https
+    environment: release

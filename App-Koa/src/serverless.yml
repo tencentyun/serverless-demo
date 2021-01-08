@@ -1,0 +1,16 @@
+component: koa # (required) name of the component. In that case, it's koa.
+name: koaDemo # (required) name of your koa component instance.
+app: appDemo # (optional) serverless dashboard app. default is the same as the name property.
+
+inputs:
+  src:
+    src: ./ # (optional) path to the source folder. default is a hello world app.
+    exclude:
+      - .env
+  region: ap-guangzhou
+  runtime: Nodejs10.15
+  apigatewayConf:
+    protocols:
+      - http
+      - https
+    environment: release

@@ -1,0 +1,13 @@
+component: laravel # (required) name of the component. In that case, it's laravel.
+name: laravelDemo # (required) name of your flash component instance.
+app: appDemo # (optional) serverless dashboard app. default is the same as the name property.
+
+inputs:
+  src: ./ # (optional) path to the source folder. default is a hello world app.
+  region: ap-guangzhou
+  runtime: Php7
+  apigatewayConf:
+    protocols:
+      - http
+      - https
+    environment: release
