@@ -18,7 +18,7 @@
         },
         "runtime": "Nodejs10.15",
         "readme": "https://github.com/serverless-components/tencent-examples/tree/master/nextjs-starter",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "tags": [
             "Nextjs",
             "APIGW",
