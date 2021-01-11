@@ -10,7 +10,7 @@ inputs:
   runtime: Nodejs10.15 
   entryFile: sls.js # 自定义 server 的入口文件名，默认为 sls.js，如果不想修改文件名为 sls.js 可以自定义
   src: 
-     src: ./src
+     src: ./
      exclude: 
         - .env
         - node_modules/**

@@ -18,7 +18,7 @@
         },
         "runtime": "PHP7",
         "readme": "https://github.com/serverless-components/tencent-examples/tree/master/laravel-starter",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "tags": [
             "Laravel",
             "APIGW",
