@@ -9,7 +9,7 @@ inputs:
   functionName: ${name}
   runtime: Nodejs10.15 
   src: 
-     src: ./src
+     src: ./
      exclude: 
         - .env
         - node_modules/**

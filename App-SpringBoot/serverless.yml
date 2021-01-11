@@ -11,10 +11,6 @@ inputs:
   src: ./
   projectJarName: 'my-springboot.jar'
 
-  layers:
-    - name: layerName
-      version: 1
-
   functionConf: # 函数配置相关
     handler: 'example.MyHandler::mainHandler'
     timeout: 30 # 超时时间，单位秒
