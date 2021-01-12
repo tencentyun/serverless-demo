@@ -9,7 +9,7 @@ Node.js
 ```
 |-- Nodejs6.10-helloworld    文件夹名称，也作为模版名称，最好和 config.json 中 serverless-cloud-function-application::English::name 一致。
 |   |-- config.json          模版配置文件，用于控制台模版详情展示，必填。
-|   |-- serverless.yaml      函数配置文件，用于控制台解析模版函数配置，必填。
+|   |-- serverless.yml      函数配置文件，用于控制台解析模版函数配置，必填。
 |   |-- readme.md            模版使用说明，建议填写。
 |   |-- src                  模版函数代码，函数入口文件及其他代码文件均放在该目录下。
 |       |-- index.js         函数入口文件，必填。
@@ -21,7 +21,7 @@ Python
 ```
 |-- Python2.7-helloworld     文件夹名称，也作为模版名称，最好和 config.json 中 serverless-cloud-function-application::English::name 一致。
 |   |-- config.json          模版配置文件，用于控制台模版详情展示，必填。
-|   |-- serverless.yaml      函数配置文件，用于控制台解析模版函数配置，必填。
+|   |-- serverless.yml       函数配置文件，用于控制台解析模版函数配置，必填。
 |   |-- readme.md            模版使用说明，建议填写。
 |   |-- src                  模版函数代码，函数入口文件及其他代码文件均放在该目录下。
 |       |-- index.py         函数入口文件，必填。
@@ -31,7 +31,7 @@ Php
 ```
 |-- Php7.2-helloworld        文件夹名称，也作为模版名称，最好和 config.json 中 serverless-cloud-function-application::English::name 一致。
 |   |-- config.json          模版配置文件，用于控制台模版详情展示，必填。
-|   |-- serverless.yaml      函数配置文件，用于控制台解析模版函数配置，必填。
+|   |-- serverless.yml       函数配置文件，用于控制台解析模版函数配置，必填。
 |   |-- readme.md            模版使用说明，建议填写。
 |   |-- src                  模版函数代码，函数入口文件及其他代码文件均放在该目录下。
 |       |-- index.php        函数入口文件，必填。
@@ -41,7 +41,7 @@ Golang1
 ```
 |-- Go1-helloworld           文件夹名称，也作为模版名称，最好和 config.json 中 serverless-cloud-function-application::English::name 一致。
 |   |-- config.json          模版配置文件，用于控制台模版详情展示，必填。
-|   |-- serverless.yaml      函数配置文件，用于控制台解析模版函数配置，必填。
+|   |-- serverless.yml       函数配置文件，用于控制台解析模版函数配置，必填。
 |   |-- readme.md            模版使用说明，建议填写。
 |   |-- src                  模版函数代码，函数入口文件及其他代码文件均放在该目录下。
 |       |-- main             函数入口文件，必填，Golang1 入口文件须为可执行文件。
@@ -51,7 +51,7 @@ Java8
 ```
 |-- Java8-helloworld         文件夹名称，也作为模版名称，最好和 config.json 中 serverless-cloud-function-application::English::name 一致。
 |   |-- config.json          模版配置文件，用于控制台模版详情展示，必填。
-|   |-- serverless.yaml      函数配置文件，用于控制台解析模版函数配置，必填。
+|   |-- serverless.yml       函数配置文件，用于控制台解析模版函数配置，必填。
 |   |-- readme.md            模版使用说明，建议填写。
 |   |-- src                  模版函数代码，函数入口文件及其他代码文件均放在该目录下。
 |       |-- Java8-helloworld 函数入口文件，必填，Java8 入口文件须为 jar 包，jar 包文件名称须和模版名称一致。
@@ -61,7 +61,7 @@ CustomRuntime
 ```
 |-- CustomRuntime-helloworld 文件夹名称，也作为模版名称，最好和 config.json 中 serverless-cloud-function-application::English::name 一致。
 |   |-- config.json          模版配置文件，用于控制台模版详情展示，必填。
-|   |-- serverless.yaml      函数配置文件，用于控制台解析模版函数配置，必填。
+|   |-- serverless.yml       函数配置文件，用于控制台解析模版函数配置，必填。
 |   |-- readme.md            模版使用说明，建议填写。
 |   |-- src                  模版函数代码，函数入口文件及其他代码文件均放在该目录下。
 |       |-- bootstrap        Custom Runtime 固定的可执行引导程序文件，必填。
@@ -116,7 +116,7 @@ inputs:
   region: ap-guangzhou                              #可参考示例填写，必填，不会在控制台展示
   memorySize: 128                                   #函数配置内存，必填，会作为使用该模版创建函数时的默认值
   timeout: 3                                        #函数执行超时时间，必填，会作为使用该模版创建函数时的默认值
-  environment:                                      #环境变量，选填，如模版代码依赖环境变量则需要填写，会作为使用该模版创建函数时的默认值
+  environment:                                      #环境变量，选填，如模版代码依赖环境变量则需要填写，会作为使用该模版创建函数时的默认值，value 值请填写对应的环境变量含义
     - key: region
       value: the region of target bucket
     - key: target_bucket
