@@ -1,0 +1,46 @@
+{
+  "serverless-cloud-function-application": {
+    "application": {
+      "Chinese": {
+        "name": "COS SELECT 数据检索",
+        "description": "本示例使用 COS 触发器，完成 COS SELECT 数据检索",
+        "attention": "",
+        "readme": {
+          "file": "",
+          "content": ""
+        },
+        "license": {
+          "file": "",
+          "content": "公开"
+        },
+        "author": {
+          "name": "腾讯云无服务器云函数团队"
+        }
+      },
+      "English": {
+        "name": "Cos_Select_File",
+        "description": "This demo uses COS trigger and SCF to select file",
+        "attention": "",
+        "readme": {
+          "file": "",
+          "content": ""
+        },
+        "license": {
+          "file": "",
+          "content": "Open"
+        },
+        "author": {
+          "name": "Tencent Cloud Serverless Team"
+        }
+      },
+      "input_parameters": {
+        "event": "",
+        "context": ""
+      },
+      "output_parameters": {},
+      "download_address": "https://github.com/tencentyun/scf-demo-repo/tree/master/Node10.15_CosSelectFile",
+      "tags": ["Cos", "Nodejs10.15", "cos select"],
+      "version": "1.0.2"
+    }
+  }
+}
