@@ -18,7 +18,7 @@
         },
         "runtime": "Nodejs6.10",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs6.10-Apigateway",
-        "version": "1.0.9",
+        "version": "1.0.10",
         "tags": [
             "Nodejs6.10",
             "API GW",
