@@ -7,7 +7,7 @@ name: flaskInstance
 inputs:
   region: ap-guangzhou 
   functionName: ${name}
-  runtime: Nodejs10.15 
+  runtime: Python3.6 
   src: 
      hook: 'pip3 install -r requirements.txt -t ./'
      dist: ./ 
