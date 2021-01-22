@@ -17,6 +17,6 @@ inputs:
       environment: release
       apis:
         - path: /
-          method: GET
+          method: ANY
           function:
             isIntegratedResponse: true
