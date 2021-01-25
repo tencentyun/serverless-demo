@@ -1,0 +1,14 @@
+{
+  "name": "cos-cdb-backup",
+  "version": "1.0.1",
+  "main": "index.js",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^3.2.0",
+    "cos-nodejs-sdk-v5": "^2.8.3",
+    "moment": "^2.29.1",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6",
+    "tencentcloud-sdk-nodejs": "^3.0.131"
+  }
+}

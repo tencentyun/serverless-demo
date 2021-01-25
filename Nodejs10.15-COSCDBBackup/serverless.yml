@@ -1,0 +1,17 @@
+component: scf
+name: ap-guangzhou_default_COSCDBBackup
+inputs:
+  src:
+    src: ./src
+  handler: index.main_handler
+  memorySize: 896
+  name: COSCDBBackup
+  region: ap-guangzhou
+  runtime: Nodejs10.15
+  timeout: 900
+  environment:
+    variables:
+      instanceList: instanceList
+      targetBucket: targetBucket
+      targetRegion: targetRegion
+      targetPrefix: targetPrefix
