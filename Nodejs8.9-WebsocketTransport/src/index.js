@@ -63,7 +63,7 @@ async function send(connectionId, data) {
       {
         method: "POST",
         host: "**", // Secd back host, 反向推送地址host
-        path: "**", // Send back path, 反向推送地址路径
+        path: "/**", // ApiId, API 网关的 ApiId, 形如 /api-xxx
         headers: {
           "Content-Type": "application/json",
           "Content-Length": Buffer.byteLength(postData)
