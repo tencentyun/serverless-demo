@@ -10,3 +10,6 @@ inputs:
   region: ap-guangzhou
   memorySize: 128
   timeout: 3
+  triggers:
+    - type: cmq
+      enable: true
