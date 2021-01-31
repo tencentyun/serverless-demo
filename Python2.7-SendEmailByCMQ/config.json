@@ -18,7 +18,7 @@
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-SendEmailByCMQ",
-        "version": "1.0.5",
+        "version": "1.0.6",
         "tags": [
             "Python2.7",
             "CMQ",
