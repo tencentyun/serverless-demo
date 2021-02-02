@@ -2,7 +2,7 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "MapReduce_Reduce示例函数",
-            "description": "本示例Demo演示怎么利用COS来做MapReduce，一共需要2个函数：map_function和reduce_function，3个COS Bucket：srcmr、middlestagebucket 和 destmr。",
+            "description": "本示例Demo演示怎么利用COS来做MapReduce，一共需要2个函数：MapFunction和ReduceFunction，3个COS Bucket：srcmr、middlestagebucket 和 destmr。",
             "attention": "具体使用方法步骤说明，可参考产品文档的最佳实践：https://cloud.tencent.com/document/product/583/9728",
             "author": {
                 "name": "腾讯云"
