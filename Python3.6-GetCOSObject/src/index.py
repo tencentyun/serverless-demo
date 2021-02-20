@@ -19,7 +19,7 @@ token = ''
 config = CosConfig(Secret_id=secret_id, Secret_key=secret_key, Region=region, Token=token)
 client = CosS3Client(config)
 logger = logging.getLogger()
-
+#logger.setLevel(logging.INFO) 默认打印DEBUG级别日志，可根据需要调整为INFO、WARNING、ERROR、CRITICAL级日志
 
 def main_handler(event, context):
     logger.info("start main handler")
