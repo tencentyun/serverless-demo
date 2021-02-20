@@ -18,7 +18,7 @@
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-GetCOSObject",
-        "version": "1.0.7",
+        "version": "1.0.8",
         "tags": [
             "Python3.6",
             "COS",
