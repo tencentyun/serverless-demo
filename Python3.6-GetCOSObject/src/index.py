@@ -8,7 +8,7 @@ from qcloud_cos_v5 import CosClientError
 import sys
 import logging
 
-logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+logging.basicConfig(level=logging.INFO, stream=sys.stdout) #默认打印 INFO 级别日志，可根据需要调整为 DEBUG、WARNING、ERROR、CRITICAL 级日志
 
 appid = XXXXXX  # Please replace with your APPID. 请替换为您的 APPID
 secret_id = u'************'  # Please replace with your SecretId. 请替换为您的 SecretId
@@ -19,7 +19,6 @@ token = ''
 config = CosConfig(Secret_id=secret_id, Secret_key=secret_key, Region=region, Token=token)
 client = CosS3Client(config)
 logger = logging.getLogger()
-#logger.setLevel(logging.INFO) 默认打印DEBUG级别日志，可根据需要调整为INFO、WARNING、ERROR、CRITICAL级日志
 
 def main_handler(event, context):
     logger.info("start main handler")
