@@ -1,0 +1,29 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "Z-BlogPHP 快速建站",
+            "description": "本示例展示如何快速部署一个 Z-BlogPHP 网站。",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "Z-BlogPHP Demo",
+            "description": "This example shows how to deploy an Z-BlogPHP demo to Serverless",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "html",
+        "readme": "https://github.com/zhouzishu/tencent-zblogphp",
+        "version": "1.0.2",
+        "tags": [
+            "Z-Blog",
+            "SCF",
+            "CFS",
+            "APIGateway"
+        ]
+    }
+}

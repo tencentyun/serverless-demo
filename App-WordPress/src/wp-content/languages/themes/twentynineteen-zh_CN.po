@@ -1,0 +1,397 @@
+# Translation of Themes - Twenty Nineteen in Chinese (China)
+# This file is distributed under the same license as the Themes - Twenty Nineteen package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2020-12-10 10:32:17+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: GlotPress/3.0.0-alpha.2\n"
+"Language: zh_CN\n"
+"Project-Id-Version: Themes - Twenty Nineteen\n"
+
+#. Description of the theme
+msgid "Our 2019 default theme is designed to show off the power of the block editor. It features custom styles for all the default blocks, and is built so that what you see in the editor looks like what you'll see on your website. Twenty Nineteen is designed to be adaptable to a wide range of websites, whether you’re running a photo blog, launching a new business, or supporting a non-profit. Featuring ample whitespace and modern sans-serif headlines paired with classic serif body text, it's built to be beautiful on all screen sizes."
+msgstr "我们的二〇一九默认主题旨在展示区块编辑器的强大功能。它具备适用于全部默认区块的自定义样式。编辑器中的所见即所得内容，会与网站前端呈现的结果几近一致。二〇一九适用于各种类型的网站，无论您是运作照片博客、开拓新业务还是支持非营利组织。足够的留白及具备现代感的非衬线字体标题，搭配经典的衬线字体内容，在各种尺寸的屏幕上均相当美观。"
+
+#. Theme Name of the theme
+#: inc/block-patterns.php:20
+msgid "Twenty Nineteen"
+msgstr "二〇一九"
+
+#: functions.php:149
+msgid "Blue"
+msgstr "蓝色"
+
+#: functions.php:154
+msgid "Dark Blue"
+msgstr "深蓝色"
+
+#: classes/class-twentynineteen-walker-comment.php:98
+msgid "Your comment is awaiting moderation. This is a preview; your comment will be visible after it has been approved."
+msgstr "您的评论正在等待审核。此为预览，您的评论将在获得批准后显示。"
+
+#. translators: %s: Parent post link.
+#: single.php:31
+msgid "<span class=\"meta-nav\">Published in</span><span class=\"post-title\">%s</span>"
+msgstr "<span class=\"meta-nav\">发布在</span><span class=\"post-title\">%s</span>"
+
+#: image.php:87
+msgctxt "Parent post link"
+msgid "<span class=\"meta-nav\">Published in</span><br><span class=\"post-title\">%title</span>"
+msgstr "<span class=\"meta-nav\">发布于</span><br><span class=\"post-title\">%title</span>"
+
+#: template-parts/content/content.php:18
+#: template-parts/content/content-excerpt.php:18
+msgctxt "post"
+msgid "Featured"
+msgstr "特色"
+
+#. translators: %s: WordPress version.
+#: inc/back-compat.php:40 inc/back-compat.php:55 inc/back-compat.php:76
+msgid "Twenty Nineteen requires at least WordPress version 4.7. You are running version %s. Please upgrade and try again."
+msgstr "二〇一九主题需要WordPress 4.7或更高版本。您正在运行%s版，请在更新WordPress后重试。"
+
+#: inc/template-functions.php:143
+msgid "Back"
+msgstr "返回"
+
+#: inc/template-functions.php:136
+msgid "More"
+msgstr "更多"
+
+#: inc/customizer.php:98
+msgid "Apply a filter to featured images using the primary color"
+msgstr "通过主颜色向特色图像添加滤镜"
+
+#: inc/customizer.php:78
+msgid "Apply a custom color for buttons, links, featured images, etc."
+msgstr "向按钮、链接、特色图像等应用自定义颜色"
+
+#: inc/customizer.php:56
+msgctxt "primary color"
+msgid "Custom"
+msgstr "自定义"
+
+#: inc/customizer.php:55
+msgctxt "primary color"
+msgid "Default"
+msgstr "默认"
+
+#: functions.php:169
+msgid "White"
+msgstr "白色"
+
+#: functions.php:164
+msgid "Light Gray"
+msgstr "浅灰色"
+
+#: functions.php:159
+msgid "Dark Gray"
+msgstr "深灰色"
+
+#: functions.php:137
+msgid "XL"
+msgstr "XL"
+
+#: functions.php:136
+msgid "Huge"
+msgstr "超大"
+
+#: functions.php:131
+msgid "L"
+msgstr "L"
+
+#: functions.php:130
+msgid "Large"
+msgstr "大"
+
+#: functions.php:125
+msgid "M"
+msgstr "M"
+
+#: functions.php:124
+msgid "Normal"
+msgstr "常规"
+
+#: functions.php:118
+msgid "Small"
+msgstr "小"
+
+#: functions.php:119
+msgid "S"
+msgstr "S"
+
+#: functions.php:60 footer.php:37
+msgid "Footer Menu"
+msgstr "页脚菜单"
+
+#: image.php:70
+msgctxt "Used before full size attachment link."
+msgid "Full size"
+msgstr "全尺寸"
+
+#: image.php:56
+msgid "Page"
+msgstr "页"
+
+#: functions.php:196
+msgid "Add widgets here to appear in your footer."
+msgstr "在此向页脚中添加挂件。"
+
+#: functions.php:194 template-parts/footer/footer-widgets.php:12
+msgid "Footer"
+msgstr "页脚"
+
+#: inc/customizer.php:53
+msgid "Primary Color"
+msgstr "主颜色"
+
+#: 404.php:24
+msgid "It looks like nothing was found at this location. Maybe try a search?"
+msgstr "这儿似乎什么都没有，试试搜索？"
+
+#: 404.php:20
+msgid "Oops! That page can&rsquo;t be found."
+msgstr "有点尴尬诶！该页无法显示。"
+
+#: comments.php:116
+msgid "Comments are closed."
+msgstr "评论已关闭。"
+
+#: functions.php:61 template-parts/header/site-branding.php:46
+msgid "Social Links Menu"
+msgstr "社交网络链接菜单"
+
+#: header.php:25
+msgid "Skip to content"
+msgstr "跳至内容"
+
+#: image.php:52 template-parts/content/content.php:49
+#: template-parts/content/content-single.php:40
+#: template-parts/content/content-page.php:27
+msgid "Pages:"
+msgstr "页码："
+
+#. translators: %s: Post title. Only visible to screen readers.
+#: template-parts/content/content.php:36
+#: template-parts/content/content-single.php:27
+msgid "Continue reading<span class=\"screen-reader-text\"> \"%s\"</span>"
+msgstr "继续阅读<span class=\"screen-reader-text\">“%s”</span>"
+
+#: single.php:41
+msgid "Previous Post"
+msgstr "上一篇文章"
+
+#: template-parts/content/content-none.php:16
+msgid "Nothing Found"
+msgstr "未找到"
+
+#. translators: 1: Link to WP admin new post page.
+#: template-parts/content/content-none.php:26
+msgid "Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr "准备好发布第一篇文章了？<a href=\"%1$s\">从这里开始</a>。"
+
+#: template-parts/content/content-none.php:39
+msgid "Sorry, but nothing matched your search terms. Please try again with some different keywords."
+msgstr "抱歉，没有符合您搜索条件的结果。请换其它关键词再试。"
+
+#: template-parts/content/content-none.php:46
+msgid "It seems we can&rsquo;t find what you&rsquo;re looking for. Perhaps searching can help."
+msgstr "我们可能无法找到您需要的内容。或许搜索功能可以帮到您。"
+
+#: template-parts/header/site-branding.php:33
+msgid "Top Menu"
+msgstr "顶部菜单"
+
+#. translators: Used between list items, there is a space after the comma.
+#: inc/template-tags.php:86 inc/template-tags.php:98
+msgid ", "
+msgstr "、"
+
+#: single.php:38
+msgid "Next Post"
+msgstr "下一篇文章"
+
+#: template-parts/post/discussion-meta.php:18
+msgid "No comments"
+msgstr "没有评论"
+
+#. translators: %d: Number of comments.
+#: template-parts/post/discussion-meta.php:16
+msgid "%d Comment"
+msgid_plural "%d Comments"
+msgstr[0] "%d条评论"
+
+#: template-parts/post/author-bio.php:26
+msgid "View more posts"
+msgstr "查看更多文章"
+
+#. translators: %s: Post author.
+#: template-parts/post/author-bio.php:17
+msgid "Published by %s"
+msgstr "发布者：%s"
+
+#: single.php:42
+msgid "Previous post:"
+msgstr "上一篇文章："
+
+#: single.php:39
+msgid "Next post:"
+msgstr "下一篇文章："
+
+#: search.php:22
+msgid "Search results for: "
+msgstr "搜索结果："
+
+#: inc/template-tags.php:104
+msgid "Tags:"
+msgstr "标签："
+
+#: inc/template-tags.php:92
+msgid "Posted in"
+msgstr "发布于"
+
+#. translators: %s: Post title. Only visible to screen readers.
+#: inc/template-tags.php:63
+msgid "Leave a comment<span class=\"screen-reader-text\"> on %s</span>"
+msgstr "<span class=\"screen-reader-text\">于%s</span>留下评论"
+
+#: inc/template-tags.php:46
+msgid "Posted by"
+msgstr "发布者："
+
+#: inc/template-functions.php:82
+msgctxt "monthly archives date format"
+msgid "F Y"
+msgstr "Y年F"
+
+#: inc/template-functions.php:80
+msgctxt "yearly archives date format"
+msgid "Y"
+msgstr "Y年"
+
+#: inc/template-functions.php:92
+msgid "Archives:"
+msgstr "存档："
+
+#. translators: %s: Taxonomy singular name.
+#: inc/template-functions.php:90
+msgid "%s Archives:"
+msgstr "%s存档："
+
+#: inc/template-functions.php:86
+msgid "Post Type Archives: "
+msgstr "文章类别存档："
+
+#: inc/template-functions.php:84
+msgid "Daily Archives: "
+msgstr "每日存档："
+
+#: inc/template-functions.php:82
+msgid "Monthly Archives: "
+msgstr "每月存档："
+
+#: inc/template-functions.php:80
+msgid "Yearly Archives: "
+msgstr "每年存档："
+
+#: inc/template-functions.php:78
+msgid "Author Archives: "
+msgstr "作者存档："
+
+#: inc/template-functions.php:76
+msgid "Tag Archives: "
+msgstr "标签存档："
+
+#: inc/template-functions.php:74
+msgid "Category Archives: "
+msgstr "分类存档："
+
+#. translators: %s: Post title. Only visible to screen readers.
+#: inc/template-tags.php:120 template-parts/content/content-page.php:41
+#: template-parts/header/entry-header.php:32
+msgid "Edit <span class=\"screen-reader-text\">%s</span>"
+msgstr "编辑<span class=\"screen-reader-text\">%s</span>"
+
+#: functions.php:59
+msgid "Primary"
+msgstr "主"
+
+#. translators: %s: WordPress.
+#: footer.php:28
+msgid "Proudly powered by %s."
+msgstr "自豪地由%s驱动。"
+
+#: comments.php:92 comments.php:95 comments.php:96
+msgid "Comments"
+msgstr "评论"
+
+#. translators: 1: Number of comments, 2: Post title.
+#: comments.php:44
+msgctxt "comments title"
+msgid "%1$s reply on &ldquo;%2$s&rdquo;"
+msgid_plural "%1$s replies on &ldquo;%2$s&rdquo;"
+msgstr[0] "&ldquo;%2$s&rdquo;上的%1$s条回复"
+
+#. translators: %s: Post title.
+#: comments.php:40
+msgctxt "comments title"
+msgid "One reply on &ldquo;%s&rdquo;"
+msgstr "&ldquo;%s&rdquo;上的一条回复"
+
+#: comments.php:35 comments.php:105 comments.php:107
+msgid "Leave a comment"
+msgstr "留下评论"
+
+#: comments.php:33
+msgid "Join the Conversation"
+msgstr "加入对话"
+
+#: classes/class-twentynineteen-walker-comment.php:96
+msgid "Your comment is awaiting moderation."
+msgstr "您的评论正在等待审核。"
+
+#: classes/class-twentynineteen-walker-comment.php:89
+msgid "Edit"
+msgstr "编辑"
+
+#. translators: 1: Comment date, 2: Comment time.
+#: classes/class-twentynineteen-walker-comment.php:78
+msgid "%1$s at %2$s"
+msgstr "%1$s %2$s"
+
+#. translators: %s: Comment author link.
+#: classes/class-twentynineteen-walker-comment.php:59
+msgid "%s <span class=\"screen-reader-text says\">says:</span>"
+msgstr "%s<span class=\"screen-reader-text says\">说：</span>"
+
+#: comments.php:95
+msgid "Previous"
+msgstr "上一页"
+
+#: comments.php:96
+msgid "Next"
+msgstr "下一页"
+
+#: inc/template-tags.php:230
+msgid "Newer posts"
+msgstr "较新文章"
+
+#: inc/template-tags.php:234
+msgid "Older posts"
+msgstr "较早文章"
+
+#. Theme URI of the theme
+msgid "https://wordpress.org/themes/twentynineteen/"
+msgstr "https://wordpress.org/themes/twentynineteen/"
+
+#. Author of the theme
+msgid "the WordPress team"
+msgstr "WordPress团队"
+
+#. Author URI of the theme
+#: footer.php:25
+msgid "https://wordpress.org/"
+msgstr "https://cn.wordpress.org/"

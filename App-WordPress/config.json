@@ -1,0 +1,29 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "WordPress 快速建站",
+            "description": "本示例展示如何快速部署一个 WordPress 网站。",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "WordPress Demo",
+            "description": "This example shows how to deploy an WordPress demo to Serverless",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "html",
+        "readme": "https://github.com/serverless-components/tencent-wordpress",
+        "version": "1.0.2",
+        "tags": [
+            "WordPress",
+            "SCF",
+            "CFS",
+            "APIGateway"
+        ]
+    }
+}
