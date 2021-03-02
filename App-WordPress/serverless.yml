@@ -1,0 +1,10 @@
+app: appDemo
+stage: dev
+component: wordpress
+name: wordpressDemo
+
+inputs:
+  # src:
+  #   src: ./wordpress
+  #   exclude:
+  #     - .env
