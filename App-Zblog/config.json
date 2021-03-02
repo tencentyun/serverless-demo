@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "Z-BlogPHP Demo",
+            "name": "Z-BlogPHP-Demo",
             "description": "This example shows how to deploy an Z-BlogPHP demo to Serverless",
             "attention": "None",
             "author": {
@@ -18,7 +18,7 @@
         },
         "runtime": "html",
         "readme": "https://github.com/zhouzishu/tencent-zblogphp",
-        "version": "1.0.2",
+        "version": "1.0.3",
         "tags": [
             "Z-Blog",
             "SCF",
