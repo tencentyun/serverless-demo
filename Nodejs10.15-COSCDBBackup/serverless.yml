@@ -4,22 +4,14 @@ inputs:
   src:
     src: ./src
   handler: index.main_handler
-  memorySize: 896
+  memorySize: 2048
   name: COSCDBBackup
   region: ap-guangzhou
   runtime: Nodejs10.15
   timeout: 900
   environment:
-    - key: instanceList
-      value: instanceList
-    - key: targetBucket
-      value: targetBucket
-    - key: targetRegion
-      value: targetRegion    
-    - key: targetPrefix
-      value: targetPrefix
-  triggers:
-    - type: timer
-      cronExpression: 0 0 */1 * * * *
-      enable: true
-      argument: argument
+    variables:
+      instanceList: instanceList
+      targetBucket: targetBucket
+      targetRegion: targetRegion
+      targetPrefix: targetPrefix
