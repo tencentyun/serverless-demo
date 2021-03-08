@@ -4,10 +4,26 @@ component: zblogphp
 name: zblogphpDemo
 
 inputs:
-  region: ap-beijing
-  zone: ap-beijing-3
-  # src:
-    # # 指定 zblogphp 源码目录
-    # src: ./test/ # 本地需要打包的文件目录
-    # exclude: # 被排除的文件或目录
-    #   - .env
+  inputs:
+    region: ap-beijing
+    zone: ap-beijing-3
+    src:
+      src: ./ 
+      exclude: 
+        - .env
+    faas: 
+        timeout: 10
+        memorySize: 128
+    apigw: 
+        timeout: 15
+        environment: release
+        customDomains: 
+            - domain: abc.com
+              certId: abcdefg
+              customMap: false
+              pathMappingSet: 
+                - path: /
+                  environment: release
+              protocols: 
+                - http
+                - https
