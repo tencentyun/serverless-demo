@@ -1,61 +1,48 @@
-'use strict';
+"use strict"
 
-var fs = require('fs')
-  , path = require('path')
-  , browserify = require('browserify')
-  , uglify = require('uglify-js');
+const fs = require("fs")
+const path = require("path")
+const browserify = require("browserify")
+const {minify} = require("terser")
 
-var pkg = process.argv[2]
-  , standalone = process.argv[3]
-  , compress = process.argv[4];
+const [sourceFile, outFile, globalName] = process.argv.slice(2)
 
-var packageDir = path.join(__dirname, '..');
-if (pkg != '.') packageDir = path.join(packageDir, 'node_modules', pkg);
+const json = require(path.join(__dirname, "..", "package.json"))
+const bundleDir = path.join(__dirname, "..", "bundle")
+if (!fs.existsSync(bundleDir)) fs.mkdirSync(bundleDir)
 
-var json = require(path.join(packageDir, 'package.json'));
+browserify({standalone: globalName})
+  .require(path.join(__dirname, "../dist", sourceFile), {expose: sourceFile})
+  .bundle(saveAndMinify)
 
-var distDir = path.join(__dirname, '..', 'dist');
-if (!fs.existsSync(distDir)) fs.mkdirSync(distDir);
-
-var bOpts = {};
-if (standalone) bOpts.standalone = standalone;
-
-browserify(bOpts)
-.require(path.join(packageDir, json.main), {expose: json.name})
-.bundle(function (err, buf) {
+async function saveAndMinify(err, buf) {
   if (err) {
-    console.error('browserify error:', err);
-    process.exit(1);
+    console.error("browserify error:", err)
+    process.exit(1)
   }
 
-  var outputFile = path.join(distDir, json.name);
-  var uglifyOpts = {
+  const bundlePath = path.join(bundleDir, outFile)
+  const opts = {
+    ecma: 2018,
     warnings: true,
-    compress: {},
-    output: {
-      preamble: '/* ' + json.name + ' ' + json.version + ': ' + json.description + ' */'
-    }
-  };
-  if (compress) {
-    var compressOpts = compress.split(',');
-    for (var i=0, il = compressOpts.length; i<il; ++i) {
-      var pair = compressOpts[i].split('=');
-      uglifyOpts.compress[pair[0]] = pair.length < 1 || pair[1] != 'false';
-    }
-  }
-  if (standalone) {
-    uglifyOpts.sourceMap = {
-      filename: json.name + '.min.js',
-      url: json.name + '.min.js.map'
-    };
+    compress: {
+      pure_getters: true,
+      keep_infinity: true,
+      unsafe_methods: true,
+    },
+    format: {
+      preamble: `/* ${json.name} ${json.version} (${globalName}): ${json.description} */`,
+    },
+    sourceMap: {
+      filename: outFile + ".min.js",
+      url: outFile + ".min.js.map",
+    },
   }
 
-  var result = uglify.minify(buf.toString(), uglifyOpts);
-  fs.writeFileSync(outputFile + '.min.js', result.code);
-  if (result.map) fs.writeFileSync(outputFile + '.min.js.map', result.map);
-  if (standalone) fs.writeFileSync(outputFile + '.bundle.js', buf);
-  if (result.warnings) {
-    for (var j=0, jl = result.warnings.length; j<jl; ++j)
-      console.warn('UglifyJS warning:', result.warnings[j]);
-  }
-});
+  const result = await minify(buf.toString(), opts)
+
+  fs.writeFileSync(bundlePath + ".bundle.js", buf)
+  fs.writeFileSync(bundlePath + ".min.js", result.code)
+  fs.writeFileSync(bundlePath + ".min.js.map", result.map)
+  if (result.warnings) result.warnings.forEach((msg) => console.warn("terser.minify warning:", msg))
+}

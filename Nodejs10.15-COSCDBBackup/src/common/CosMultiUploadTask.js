@@ -1,16 +1,18 @@
+/* eslint-disable no-param-reassign */
+/* eslint-disable prefer-const */
 /* eslint-disable prefer-destructuring */
 const CosSdk = require('cos-nodejs-sdk-v5');
 const Async = require('async');
-const { retry, getUUID } = require('./utils');
+const { retry, getUUID, readStreamAddPassThrough } = require('./utils');
 
 class CosMultiUploadTask {
   constructor({
     cosSdkInstance,
     object,
     getReadStream,
-    parallel = 3,
+    parallel = 9,
     maxTryTime = 3,
-    putObjectLimit = 5 * 1024 * 1024 * 1024,
+    putObjectLimit = 8 * 1024 * 1024,
     defaultChunkSize,
     mode = 'ALL_UPLOAD_ID_ALLOW',
     cacheData,
@@ -23,8 +25,7 @@ class CosMultiUploadTask {
       maxTryTime,
       putObjectLimit,
       defaultChunkSize:
-        defaultChunkSize
-        || Math.max(Math.ceil(object.ContentLength / 1000), 1024 * 1024),
+        defaultChunkSize || this.getDefaultChunkSize(object.ContentLength),
       mode,
       globalCacheKey,
       status: 'waiting',
@@ -49,7 +50,11 @@ class CosMultiUploadTask {
             throw this.cancelError;
           }
           const uuid = getUUID();
-          const { Body = {} } = args[0] || {};
+          let { Body = {}, GetBody } = args[0] || {};
+          if (GetBody) {
+            Body = GetBody();
+            args[0].Body = Body;
+          }
           if (typeof Body.pipe === 'function') {
             this.runningStream[uuid] = Body;
           }
@@ -108,6 +113,33 @@ class CosMultiUploadTask {
     };
   }
   /**
+   * calculate the available defaultChunkSize
+   */
+  getDefaultChunkSize(contentLength) {
+    const STEP = [
+      1,
+      2,
+      4,
+      8,
+      16,
+      32,
+      64,
+      128,
+      256,
+      512,
+      1024,
+      2048,
+      4096,
+      5120,
+    ];
+    let available = 1024 * 1024;
+    for (let i = 0; i < STEP.length; i++) {
+      available = STEP[i] * 1024 * 1024;
+      if (contentLength / available <= 10000) break;
+    }
+    return Math.max(available, 1024 * 1024);
+  }
+  /**
    * get upload id
    * if cacheData has upload id, use it
    * otherwise if mode is 'NEW_UPLOAD_ID_ONLY', that multipartInit and get the new upload id
@@ -144,12 +176,28 @@ class CosMultiUploadTask {
   async multipartListPart() {
     const { Bucket, Region, Key, UploadId, ContentLength } = this.getParams();
     const { defaultChunkSize } = this;
-    const { Part = [] } = await this.cosSdkInstance.multipartListPartRetry({
+    let Part = [];
+    const params = {
       Bucket,
       Region,
       Key,
       UploadId,
-    });
+    };
+    while (true) {
+      const {
+        Part: SomePart = [],
+        NextPartNumberMarker,
+        IsTruncated,
+      } = await this.cosSdkInstance.multipartListPartRetry({
+        ...params,
+      });
+      Part.push(...SomePart);
+      if (IsTruncated === 'true') {
+        params.PartNumberMarker = NextPartNumberMarker;
+      } else {
+        break;
+      }
+    }
     const uploadedETag = Part.reduce((res, { PartNumber, ETag }) => {
       res[`${PartNumber}`] = ETag;
       return res;
@@ -180,7 +228,6 @@ class CosMultiUploadTask {
       : ContentLength - defaultChunkSize * (PartNumber - 1);
     const start = defaultChunkSize * (PartNumber - 1);
     const end = start + streamSize;
-    const readStream = this.getReadStream(start, end);
     const result = await this.cosSdkInstance.multipartUploadRetry({
       Bucket,
       Region,
@@ -188,7 +235,7 @@ class CosMultiUploadTask {
       UploadId,
       PartNumber,
       ContentLength: streamSize,
-      Body: readStream,
+      GetBody: () => readStreamAddPassThrough(this.getReadStream(start, end)),
     });
     this.updateParts({
       ...result,
@@ -209,6 +256,12 @@ class CosMultiUploadTask {
             const res = await this.multipartUploadOnePart(part);
             return res;
           } catch (error) {
+            if (error.statusCode === 403) {
+              throw new Error(JSON.stringify({
+                statusCode: error.statusCode,
+                headers: error.headers || {},
+              }));
+            }
             return {
               error,
             };
@@ -262,7 +315,7 @@ class CosMultiUploadTask {
     const { ContentLength } = this.object;
     this.resultData = await this.cosSdkInstance.putObjectRetry({
       ...this.object,
-      Body: this.getReadStream(0, ContentLength),
+      GetBody: () => readStreamAddPassThrough(this.getReadStream(0, ContentLength)),
     });
     this.manageGlobalCacheData('remove');
   }
@@ -270,17 +323,23 @@ class CosMultiUploadTask {
    * start upload task
    */
   async runTask() {
-    this.status = 'running';
-    const { ContentLength } = this.getParams();
-    if (ContentLength > this.putObjectLimit) {
-      await this.multipartInit();
-      await this.multipartListPart();
-      await this.multipartUpload();
-      await this.multipartComplete();
-    } else {
-      await this.putObject();
+    try {
+      this.status = 'running';
+      const { ContentLength } = this.getParams();
+      if (ContentLength > this.putObjectLimit) {
+        await this.multipartInit();
+        await this.multipartListPart();
+        await this.multipartUpload();
+        await this.multipartComplete();
+      } else {
+        await this.putObject();
+      }
+      return this.resultData;
+    } catch (err) {
+      throw err;
+    } finally {
+      process.nextTick(() => this.destroy());
     }
-    return this.resultData;
   }
   /**
    * cancel upload task
@@ -298,6 +357,22 @@ class CosMultiUploadTask {
         }
       } catch (err) {}
     });
+  }
+  destroy() {
+    this.object = null;
+    this.getReadStream = null;
+    this.parallel = null;
+    this.maxTryTime = null;
+    this.putObjectLimit = null;
+    this.defaultChunkSize = null;
+    this.mode = null;
+    this.globalCacheKey = null;
+    this.status = null;
+    this.cancelError = null;
+    this.runningStream = null;
+    this.resultData = null;
+    this.cosSdkInstance = null;
+    this.cacheData = null;
   }
 }
 

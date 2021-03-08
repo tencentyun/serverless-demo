@@ -6,26 +6,43 @@ const request = require('request');
 const moment = require('moment');
 const { inspect } = require('util');
 const { URL } = require('url');
+const { PassThrough } = require('stream');
 
 const requestPromiseRetry = retry({ func: requestPromise });
 
 /**
  * parse params from event and process.env
  */
-function getParams({ Time: triggerTime }) {
+function getParams({
+  Time: triggerTime,
+  Type: triggerType,
+  parentRequestId,
+  ...eventArgs
+}) {
   const {
-    env: {
-      TENCENTCLOUD_SECRETID: secretId,
-      TENCENTCLOUD_SECRETKEY: secretKey,
-      TENCENTCLOUD_SESSIONTOKEN: token,
-      instanceList: instanceListStr,
-      targetBucket,
-      targetRegion,
-      targetPrefix = '',
-      backTrackDays = '3', // please do not set backTrackDays too large, it may cause scf timeout
-      ...args
-    },
-  } = process;
+    TENCENTCLOUD_SECRETID: secretId,
+    TENCENTCLOUD_SECRETKEY: secretKey,
+    TENCENTCLOUD_SESSIONTOKEN: token,
+    instanceList: instanceListStr,
+    targetBucket,
+    targetRegion,
+    targetPrefix = '',
+    backTrackDays = '3', // please do not set backTrackDays too large, it may cause scf timeout
+    ...args
+  } = {
+    ...process.env,
+    ...eventArgs,
+  };
+
+  if (triggerType !== 'Timer' && !parentRequestId) {
+    throw new Error('this function is not trigger by timer or parent function, refuse to execute');
+  } else if (parentRequestId) {
+    logger({
+      title: `this function is trigger by parent function, parent request id is ${parentRequestId}`,
+    });
+  } else if (triggerType === 'Timer') {
+    logger({ title: 'this function is trigger by timer' });
+  }
 
   const missingParams = [
     { key: 'instanceList', value: instanceListStr },
@@ -60,6 +77,7 @@ function getParams({ Time: triggerTime }) {
     targetPrefix,
     backTrackDays: parseInt(backTrackDays, 10),
     triggerTime,
+    triggerType,
     ...args,
   };
 }
@@ -118,11 +136,28 @@ function getRangeStreamFromUrl({
       range: `bytes=${start}-${end - 1}`,
     }
     : {};
-  return request({
+  let req = request({
     url,
     timeout,
     headers,
+  }).on('response', (response) => {
+    if (!`${response.statusCode}`.startsWith('2')) {
+      req.emit('error', {
+        statusCode: response.statusCode,
+        headers: response.headers || {},
+      });
+    }
+    req = null;
   });
+  return req;
+}
+/**
+ * ReadStream add PassThrough, when ReadStream emit error, proxy error to PassThrough
+ */
+function readStreamAddPassThrough(readStream) {
+  const passThrough = new PassThrough();
+  readStream.on('error', err => passThrough.emit('error', err));
+  return readStream.pipe(passThrough);
 }
 /**
  * sleep logic
@@ -133,7 +168,7 @@ function sleep(duration) {
 /**
  * get retry function
  */
-function retry({ maxTryTime = 3, func }) {
+function retry({ maxTryTime = 3, duration = 1000, func }) {
   return async (...args) => {
     let err;
     let tryTime = 0;
@@ -144,6 +179,7 @@ function retry({ maxTryTime = 3, func }) {
         return res;
       } catch (e) {
         err = e;
+        await sleep(duration);
       }
     }
     throw err;
@@ -216,6 +252,7 @@ module.exports = {
   parseUrl,
   getMetaFromUrl,
   getRangeStreamFromUrl,
+  readStreamAddPassThrough,
   sleep,
   retry,
   getUUID,

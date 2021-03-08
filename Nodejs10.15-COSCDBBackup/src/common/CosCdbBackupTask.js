@@ -27,6 +27,7 @@ class CosCdbBackupTask {
       status: 'waiting',
       cancelError: null,
       runningUploadTask: {},
+      backupUrlExpireTime: 10 * 60 * 60 * 1000,
     });
   }
   runTask() {
@@ -34,14 +35,18 @@ class CosCdbBackupTask {
     return new Promise(async (resolve) => {
       let backupUrls = [];
       try {
-        backupUrls = await this.getBackupUrls();
+        if (this.instanceBackupUrls) {
+          backupUrls = this.instanceBackupUrls;
+        } else {
+          backupUrls = await this.getBackupUrls();
+        }
       } catch (err) {
         resolve([err]);
         return;
       }
       Async.mapLimit(
         backupUrls,
-        3,
+        1,
         async (sourceUrl) => {
           const result = await this.runOneTask(sourceUrl);
           return result;
@@ -66,6 +71,14 @@ class CosCdbBackupTask {
     const taskId = getUUID();
     let result;
     let error;
+    // update sourceUrl to prevent expiration
+    const renewInterval = setInterval(async () => {
+      try {
+        sourceUrl = await this.renewBackupUrl(sourceUrl);
+      } catch (err) {
+        console.log(err);
+      }
+    }, this.backupUrlExpireTime);
     try {
       const targetKey = this.getTargetKey(sourceUrl);
       const targetUrl = this.cosSdkInstance.getObjectUrl({
@@ -118,24 +131,27 @@ class CosCdbBackupTask {
     } catch (err) {
       error = err;
     } finally {
+      clearInterval(renewInterval);
       delete this.runningUploadTask[taskId];
     }
     return {
       params: {
         instanceRegion: this.instanceRegion,
         instanceId: this.instanceId,
-        sourceUrl: sourceUrl.replace(/(\?)[\s\S]*$/, ''), // remove querystring, avoid security problem when logging
+        sourceUrl: sourceUrl.replace(/\?[\s\S]*$/, ''), // remove querystring, avoid security problem when logging
       },
       result,
       error,
     };
   }
-  async getBackupUrls() {
+  async getBackupUrls({ instanceRegion, instanceId } = {}) {
     try {
+      instanceRegion = instanceRegion || this.instanceRegion;
+      instanceId = instanceId || this.instanceId;
       const backups = [];
       const params = {
-        Region: this.instanceRegion,
-        InstanceId: this.instanceId,
+        Region: instanceRegion,
+        InstanceId: instanceId,
       };
       const Limit = 100;
       let Offset = 0;
@@ -177,13 +193,81 @@ class CosCdbBackupTask {
     } catch (error) {
       throw {
         params: {
-          instanceRegion: this.instanceRegion,
-          instanceId: this.instanceId,
+          instanceRegion,
+          instanceId,
           action: 'DescribeBackups',
         },
         error,
       };
     }
+  }
+  /**
+   * split each backup url with it's cdb instance, ensure each task has only one backup url
+   * for example, if there are 3 cdb instances and each one has 3 backup urls, we will split it into 9 backup tasks
+   */
+  async runBackupUrlSplitTask({ instanceList = [] } = {}) {
+    const results = [];
+    for (const instance of instanceList) {
+      try {
+        const urls = await this.getBackupUrls(instance);
+        for (const sourceUrl of urls) {
+          try {
+            const targetKey = this.getTargetKey(sourceUrl);
+            const targetUrl = this.cosSdkInstance.getObjectUrl({
+              Bucket: this.targetBucket,
+              Region: this.targetRegion,
+              Key: targetKey,
+              Sign: true,
+              Expires: 24 * 60 * 60,
+            });
+            const sourceMeta = await getMetaFromUrl(sourceUrl);
+            const isSame = await this.checkFileSame({
+              sourceUrl,
+              targetUrl,
+              sourceMeta,
+              silent: true,
+            });
+            if (isSame) {
+              results.push({
+                params: {
+                  sourceUrl: sourceUrl.replace(/\?[\s\S]*$/, ''),
+                },
+                result: {
+                  headers: sourceMeta,
+                  comment: 'same file skip',
+                },
+              });
+            } else {
+              results.push({
+                backupUrlSplitInstance: {
+                  ...instance,
+                  instanceBackupUrls: [sourceUrl],
+                },
+              });
+            }
+          } catch (error) {
+            results.push({
+              params: {
+                sourceUrl: sourceUrl.replace(/\?[\s\S]*$/, ''),
+              },
+              error,
+            });
+          }
+        }
+      } catch (error) {
+        results.push(error);
+      }
+    }
+    return results;
+  }
+  async renewBackupUrl(sourceUrl) {
+    const unsignSourceUrl = sourceUrl.replace(/\?[\s\S]*$/, '');
+    const backupUrls = await this.getBackupUrls();
+    const renewUrl = backupUrls.filter(url => url.replace(/\?[\s\S]*$/, '') === unsignSourceUrl)[0];
+    if (renewUrl) {
+      return renewUrl;
+    }
+    throw new Error('get renew backup url error');
   }
   getTargetKey(url) {
     const { key } = parseUrl(url);
