@@ -4,7 +4,25 @@ component: wordpress
 name: wordpressDemo
 
 inputs:
-  # src:
-  #   src: ./wordpress
-  #   exclude:
-  #     - .env
+    region: ap-shanghai # 云函数所在区域
+    zone: ap-shanghai-2
+    src:
+      src: ./ 
+      exclude: 
+        - .env
+    faas: 
+        timeout: 10
+        memorySize: 128
+    apigw: 
+        timeout: 15
+        environment: release
+        customDomains: 
+            - domain: abc.com
+              certId: abcdefg
+              customMap: false
+              pathMappingSet: 
+                - path: /
+                  environment: release
+              protocols: 
+                - http
+                - https
