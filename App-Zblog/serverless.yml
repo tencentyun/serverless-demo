@@ -4,26 +4,25 @@ component: zblogphp
 name: zblogphpDemo
 
 inputs:
-  inputs:
-    region: ap-beijing
-    zone: ap-beijing-3
-    src:
-      src: ./ 
-      exclude: 
-        - .env
-    faas: 
-        timeout: 10
-        memorySize: 128
-    apigw: 
-        timeout: 15
-        environment: release
-        customDomains: 
-            - domain: abc.com
-              certId: abcdefg
-              customMap: false
-              pathMappingSet: 
-                - path: /
-                  environment: release
-              protocols: 
-                - http
-                - https
+  region: ap-beijing
+  zone: ap-beijing-3
+  src:
+    src: ./ 
+    exclude: 
+      - .env
+  faas: 
+      timeout: 10
+      memorySize: 128
+  apigw: 
+      timeout: 15
+      environment: release
+      customDomains: 
+          - domain: abc.com
+            certId: abcdefg
+            customMap: false
+            pathMappingSet: 
+              - path: /
+                environment: release
+            protocols: 
+              - http
+              - https
