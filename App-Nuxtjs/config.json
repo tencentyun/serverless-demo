@@ -22,7 +22,8 @@
         "tags": [
             "Nuxtjs",
             "APIGW",
-            "SCF"
+            "SCF",
+            "web"
         ]
     }
 }
