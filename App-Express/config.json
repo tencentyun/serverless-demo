@@ -23,6 +23,7 @@
             "Express",
             "APIGW",
             "SCF",
+            "web",
             "hot"
         ]
     }
