@@ -22,7 +22,9 @@
         "tags": [
             "Nextjs",
             "APIGW",
-            "SCF"
+            "SCF",
+            "web",
+            "hot"
         ]
     }
 }
