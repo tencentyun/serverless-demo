@@ -22,7 +22,8 @@
         "tags": [
             "Egg",
             "APIGW",
-            "SCF"
+            "SCF",
+            "web"
         ]
     }
 }
