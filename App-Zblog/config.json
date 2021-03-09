@@ -23,7 +23,8 @@
             "Z-Blog",
             "SCF",
             "CFS",
-            "APIGateway"
+            "APIGateway",
+            "site"
         ]
     }
 }
