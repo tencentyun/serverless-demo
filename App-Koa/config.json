@@ -22,7 +22,8 @@
         "tags": [
             "Koa",
             "APIGW",
-            "SCF"
+            "SCF",
+            "web"
         ]
     }
 }
