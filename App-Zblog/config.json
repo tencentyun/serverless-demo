@@ -5,7 +5,7 @@
             "description": "本示例展示如何快速部署一个 Z-BlogPHP 网站。",
             "attention": "无",
             "author": {
-                "name": "腾讯云"
+                "name": "Z-BlogPHP"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This example shows how to deploy an Z-BlogPHP demo to Serverless",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Z-BlogPHP"
             }
         },
         "runtime": "html",
         "readme": "https://github.com/zhouzishu/tencent-zblogphp",
-        "version": "1.1.6",
+        "version": "1.1.7",
         "tags": [
             "Z-Blog",
             "SCF",
