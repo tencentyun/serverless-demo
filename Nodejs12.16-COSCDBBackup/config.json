@@ -18,7 +18,7 @@
 		},
 		"runtime": "Nodejs12.16",
 		"readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSCDBBackup",
-		"version": "1.0.13",
+		"version": "1.0.14",
 		"tags": [
 			"Nodejs12.16",
 			"CDB",

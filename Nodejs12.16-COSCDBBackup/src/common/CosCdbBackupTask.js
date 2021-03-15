@@ -80,7 +80,10 @@ class CosCdbBackupTask {
       }
     }, this.backupUrlExpireTime);
     try {
-      const targetKey = this.getTargetKey(sourceUrl);
+      const targetKey = this.getTargetKey({
+        sourceUrl,
+        instanceId: this.instanceId,
+      });
       const targetUrl = this.cosSdkInstance.getObjectUrl({
         Bucket: this.targetBucket,
         Region: this.targetRegion,
@@ -212,7 +215,7 @@ class CosCdbBackupTask {
         const urls = await this.getBackupUrls(instance);
         for (const sourceUrl of urls) {
           try {
-            const targetKey = this.getTargetKey(sourceUrl);
+            const targetKey = this.getTargetKey({ sourceUrl, ...instance });
             const targetUrl = this.cosSdkInstance.getObjectUrl({
               Bucket: this.targetBucket,
               Region: this.targetRegion,
@@ -269,9 +272,9 @@ class CosCdbBackupTask {
     }
     throw new Error('get renew backup url error');
   }
-  getTargetKey(url) {
-    const { key } = parseUrl(url);
-    return `${this.targetPrefix}${key}`;
+  getTargetKey({ sourceUrl, instanceId }) {
+    const { key } = parseUrl(sourceUrl);
+    return `${this.targetPrefix}${instanceId}/${key}`;
   }
   async checkFileSame({
     sourceUrl,
