@@ -1,0 +1,17 @@
+component: scf                                      #函数模版填scf，必填
+name: ap-guangzhou_default_COS_CosSelectFile        #可参考示例填写，必填，不会在控制台展示
+inputs:
+  name: Cos_Select_File                             #模版名称，与 config.json 中 English name 一致，必填
+  src:
+    src: ./src                                      #填./src，必填
+  handler: index.main_handler                       #函数入口 handler，必填
+  runtime: Nodejs12.16                              #函数runtime，必填
+  namespace: default                                #可参考示例填写，必填，不会在控制台展示
+  region: ap-guangzhou                              #可参考示例填写，必填，不会在控制台展示
+  memorySize: 896                                   #函数配置内存，必填，会作为使用该模版创建函数时的默认值
+  timeout: 900                                      #函数执行超时时间，必填，会作为使用该模版创建函数时的默认值
+  triggers:                                         #API网关触发器配置，选填，如模版代码运行依赖触发器则需要填写，会作为使用该模版创建函数时的默认触发器配置
+    - type: cos                                    #COS触发器配置，选填，如模版代码运行依赖触发器则需要填写，会作为使用该模版创建函数时的默认触发器配置
+      enable: true
+      bucket: 
+      events: 'cos:ObjectCreated:*'
