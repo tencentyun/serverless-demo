@@ -24,7 +24,8 @@
             "SCF",
             "CFS",
             "APIGateway",
-            "site"
+            "website",
+            "hot"
         ]
     }
 }
