@@ -18,13 +18,13 @@
         },
         "runtime": "html",
         "readme": "https://github.com/zhouzishu/tencent-zblogphp",
-        "version": "1.1.7",
+        "version": "1.1.8",
         "tags": [
             "Z-Blog",
             "SCF",
             "CFS",
             "APIGateway",
-            "site"
+            "website"
         ]
     }
 }
