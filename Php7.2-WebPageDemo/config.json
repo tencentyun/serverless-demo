@@ -18,10 +18,10 @@
         },
         "runtime": "Php7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Php7.2-WebPageDemo",
-        "version": "1.0.6",
+        "version": "1.0.7",
         "tags": [
             "Php7",
-            "API GW",
+            "APIGW",
             "Web Page"
         ]
     }
