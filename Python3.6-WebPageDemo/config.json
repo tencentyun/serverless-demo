@@ -18,10 +18,10 @@
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-WebPageDemo",
-        "version": "1.0.4",
+        "version": "1.0.5",
         "tags": [
             "Python3.6",
-            "API GW",
+            "APIGW",
             "Web Page"
         ]
     }
