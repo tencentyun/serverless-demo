@@ -23,7 +23,8 @@
             "Nextjs",
             "APIGW",
             "SCF",
-            "web"
+            "web",
+            "hot"
         ]
     }
 }
