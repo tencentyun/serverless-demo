@@ -18,12 +18,12 @@
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-CustomHtml",
-        "version": "1.0.13",
+        "version": "1.0.14",
         "tags": [
             "Python3.6",
             "HTTP",
             "HTML",
-            "API GW"
+            "APIGW"
         ]
     }
 }

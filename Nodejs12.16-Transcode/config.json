@@ -18,12 +18,13 @@
         },
         "runtime": "Nodejs12.16",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-Transcode",
-        "version": "1.2.1",
+        "version": "1.2.2",
         "tags": [
             "Nodejs12.16",
             "COS",
             "ffmpeg",
-            "CFS"
+            "CFS",
+            "Transcode"
         ]
     }
 }

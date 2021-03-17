@@ -23,7 +23,8 @@
             "Python2.7",
             "COS",
             "ffmpeg",
-            "CFS"
+            "CFS",
+            "Transcode"
         ]
     }
 }
