@@ -4,6 +4,7 @@
             "name": "图像压缩",
             "description": "本示例配置了 COS 触发器，当有图片上传到对应的 COS bucket时，会触发云函数执行，并把文件下载到本地临时目录进行压缩处理，压缩后的图片会上传到另外一个bucket中。",
             "attention": "该云函数需要配置 COS 触发器，另外在使用本示例代码时需要在函数里修改 appid、secret_id、secret_key、需要接收压缩后图片的bucket。",
+            "tutorial":"https://cloud.tencent.com/document/product/583/9736",
             "author": {
                 "name": "腾讯云"
             }
@@ -12,13 +13,14 @@
             "name": "Thumbnail",
             "description": "This demo need to config COS trigger. When object has been upload to COS bucket, the SCF will download it to /tmp and compress it.",
             "attention": "You should config COS trigger before you use it. Please change the appid,secret_id,secret_key.",
+            "tutorial":" ",
             "author": {
                 "name": "Tencent Cloud"
             }
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-Thumbnail",
-        "version": "1.0.6",
+        "version": "1.0.7",
         "tags": [
             "Python2.7",
             "COS",
