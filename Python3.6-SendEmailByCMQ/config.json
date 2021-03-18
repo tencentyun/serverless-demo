@@ -4,6 +4,7 @@
             "name": "通过消息队列发送邮件",
             "description": "本示例通过接收 CMQ 消息队列中指定格式的消息，并根据消息内容向指定的邮箱发送邮件。",
             "attention": "需要配置 CMQ 触发器、配置发送邮箱、修改接收邮件的邮箱列表;注意CMQ的消息体结构，已经在代码中注明。",
+            "tutorial":"https://cloud.tencent.com/document/product/583/35400",
             "author": {
                 "name": "腾讯云"
             }
@@ -12,13 +13,14 @@
             "name": "SendEmailByCMQ",
             "description": "This function will be trigged by CMQ and send email.",
             "attention": "Please config the CMQ trigger and change the email host,email notification list before you use it.",
+            "tutorial":" ",
             "author": {
                 "name": "Tencent Cloud"
             }
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-SendEmailByCMQ",
-        "version": "1.0.4",
+        "version": "1.0.5",
         "tags": [
             "Python3.6",
             "CMQ",
