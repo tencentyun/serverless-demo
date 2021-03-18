@@ -18,10 +18,11 @@
         },
         "runtime": "Nodejs12.16",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-helloworld",
-        "version": "1.0.2",
+        "version": "1.0.3",
         "tags": [
             "Nodejs12.16",
-            "helloworld"
+            "helloworld",
+            "new"
         ]
     }
 }
