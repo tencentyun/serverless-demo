@@ -4,6 +4,7 @@
             "name": "身份证识别",
             "description": "本示例使用 COS 触发器，并调用AI接口实现身份证识别。",
             "attention": "该云函数使用了AI 身份证识别功能，需要到控制台上开通服务。",
+            "tutorial":"https://cloud.tencent.com/document/product/583/19502",
             "author": {
                 "name": "腾讯云"
             }
@@ -12,13 +13,14 @@
             "name": "IDCardDetection",
             "description": "This demo uses COS trigger and calls AI interface to realize ID card recognition",
             "attention": "This function uses the AI ID card recognition function, and you need to open the service on the console.",
+            "tutorial":" ",
             "author": {
                 "name": "Tencent Cloud"
             }
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-IDCardDetectByAI",
-        "version": "1.1.1",
+        "version": "1.1.2",
         "tags": [
             "Python2.7",
             "detection",
