@@ -4,6 +4,7 @@
             "name": "定时任务示例函数",
             "description": "Timer WEB定时任务执行模版。",
             "attention": "无。",
+            "tutorial":"https://cloud.tencent.com/document/product/583/50724",
             "author": {
                 "name": "腾讯云"
             }
@@ -12,16 +13,18 @@
             "name": "TimerTask",
             "description": "This is timer task function.",
             "attention": "None.",
+            "tutorial":" ",
             "author": {
                 "name": "Tencent Cloud"
             }
         },
         "runtime": "Nodejs8.9",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-TimerTask",
-        "version": "1.0.1",
+        "version": "1.1.1",
         "tags": [
             "Nodejs8.9",
-            "定时任务"
+            "定时任务",
+            "timer"
         ]
     }
 }
