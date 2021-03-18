@@ -18,10 +18,11 @@
         },
         "runtime": "Java8",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Java8-helloworld",
-        "version": "1.0.7",
+        "version": "1.0.8",
         "tags": [
             "Java8",
-            "helloworld"
+            "helloworld",
+            "new"
         ]
     }
 }
