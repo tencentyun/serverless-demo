@@ -1,0 +1,11 @@
+component: scf
+name: ap-guangzhou_default_SpiderGetUserInfo
+inputs:
+  name: SpiderGetUserInfo
+  src:
+    src: ./src
+  runtime: Python3.6
+  region: ap-guangzhou
+  handler: index.main_handler
+  memorySize: 3072
+  timeout: 300
