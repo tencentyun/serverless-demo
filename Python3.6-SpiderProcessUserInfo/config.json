@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "SpiderGetUserInfo",
+            "name": "SpiderProcessUserInfo",
             "description": "This example demonstrates how to process user info.",
             "attention": "",
             "author": {
