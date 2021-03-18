@@ -18,10 +18,11 @@
         },
         "runtime": "Go1",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Go1-helloworld",
-        "version": "1.0.7",
+        "version": "1.0.8",
         "tags": [
             "Go1",
-            "helloworld"
+            "helloworld",
+            "new"
         ]
     }
 }
