@@ -4,6 +4,7 @@
             "name": "音视频转码",
             "description": "使用COS+云函数+ASR+CFS（可选），快速构建音视频转码服务；凭借 ffmpeg，还可以扩展支持自定义的转码能力。",
             "attention": "1. 本示例需要在环境变量配置COS的bucket信息，并设置COS触发器或者API网关触发器配合使用；2. 另外在函数配置中会使用运行角色来操作COS资源，需要确保有cos bucket的对象上传权限；3. 源文件所在bucket需要设置为公有读私有写。",
+            "tutorial":"https://cloud.tencent.com/document/product/583/47071",
             "author": {
                 "name": "腾讯云"
             }
@@ -12,13 +13,14 @@
             "name": "Transcode",
             "description": "This example demonstrates triggering a cloud function from COS or a gateway, obtaining the source file download address, and transcoding based on ffmpeg using HTTP read stream",
             "attention": "This example needs to configure the COS bucket information in the environment variable, and set the COS trigger or API gateway trigger to cooperate with",
+            "tutorial":" ",
             "author": {
                 "name": "Tencent Cloud"
             }
         },
         "runtime": "Nodejs10.15",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs10.15-Transcode",
-        "version": "1.2.1",
+        "version": "1.2.2",
         "tags": [
             "Nodejs10.15",
             "COS",
