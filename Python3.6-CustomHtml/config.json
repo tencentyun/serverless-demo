@@ -4,6 +4,7 @@
             "name": "Web 静态页面托管",
             "description": "将HTML页面部署至云函数，配合使用 API 网关触发器可迅速实现静态页面托管和访问。",
             "attention": "无",
+            "tutorial":"https://cloud.tencent.com/document/product/583/32996",
             "author": {
                 "name": "腾讯云"
             }
@@ -12,13 +13,14 @@
             "name": "APIGWHtmlDemo",
             "description": "This demo is mainly to show how to return custom html in serverless.",
             "attention": "None",
+            "tutorial":" ",
             "author": {
                 "name": "Tencent Cloud"
             }
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-CustomHtml",
-        "version": "1.0.14",
+        "version": "1.1.14",
         "tags": [
             "Python3.6",
             "HTTP",
