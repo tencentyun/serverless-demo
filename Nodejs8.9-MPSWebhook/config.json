@@ -4,6 +4,7 @@
             "name": "MPS Webhook 示例函数",
             "description": "使用云函数推送 MPS 回调信息。",
             "attention": "无",
+            "tutorial":"https://cloud.tencent.com/document/product/583/50837",
             "author": {
                 "name": "腾讯云"
             }
@@ -12,13 +13,14 @@
             "name": "MPSWebhookDemo",
             "description": "Use cloud functions to push MPS information.",
             "attention": "None",
+            "tutorial":" ",
             "author": {
                 "name": "Tencent Cloud"
             }
         },
         "runtime": "Nodejs8.9",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-MPSWebhook",
-        "version": "1.0.3",
+        "version": "1.1.3",
         "tags": [
             "Nodejs8.9",
             "MPS",
