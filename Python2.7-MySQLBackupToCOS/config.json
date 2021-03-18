@@ -4,6 +4,7 @@
             "name": "MySQL自动备份",
             "description": "MySQL数据备份到COS。",
             "attention": "无",
+            "tutorial":"https://cloud.tencent.com/document/product/583/18251",
             "author": {
                 "name": "腾讯云"
             }
@@ -12,13 +13,14 @@
             "name": "MySQLBackupToCOS",
             "description": "MySQL data backup to COS.",
             "attention": "None",
+            "tutorial":" ",
             "author": {
                 "name": "Tencent Cloud"
             }
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-MySQLBackupToCOS",
-        "version": "1.2.1",
+        "version": "1.2.2",
         "tags": [
             "Python2.7",
             "MySQL",
