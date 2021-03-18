@@ -18,10 +18,11 @@
         },
         "runtime": "Php7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Php7.2-helloworld",
-        "version": "1.2.1",
+        "version": "1.2.2",
         "tags": [
             "Php7",
-            "helloworld"
+            "helloworld",
+            "new"
         ]
     }
 }
