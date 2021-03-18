@@ -4,6 +4,7 @@
             "name": "定时任务报表",
             "description": "定时任务报表，对API内容进行聚拢，数据展示等定时任务。",
             "attention": "无",
+            "tutorial":"https://cloud.tencent.com/document/product/583/50725",
             "author": {
                 "name": "腾讯云"
             }
@@ -12,13 +13,14 @@
             "name": "TimerReport",
             "description": "This is timer report function.",
             "attention": "None",
+            "tutorial":" ",
             "author": {
                 "name": "Tencent Cloud"
             }
         },
         "runtime": "Php7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Php7.2-Report",
-        "version": "1.0.2",
+        "version": "1.1.2",
         "tags": [
             "Php7",
             "timer"
