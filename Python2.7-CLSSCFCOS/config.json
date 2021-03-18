@@ -4,6 +4,7 @@
             "name": "CLS 消息转储至 COS",
             "description": "使用 CLS 触发器将消息转储至指定的 COS 存储桶。",
             "attention": "在使用本示例代码时需要在函数里修改用户的appid、secret_id、secret_key、bucket名。",
+            "tutorial":"https://cloud.tencent.com/document/product/583/51596",
             "author": {
                 "name": "腾讯云"
             }
@@ -12,13 +13,14 @@
             "name": "CLSSCFCOS",
             "description": "This demo will connect CLS and consume message automatically. The SCF will write each message to txt by each line. Then SCF will name this file by time and upload this txt to COS bucket.",
             "attention": "Please change the appid,secret_id,secret_key,bucket name and region before you use it.",
+            "tutorial":" ",
             "author": {
                 "name": "Tencent Cloud"
             }
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-CLSSCFCOS",
-        "version": "1.4.1",
+        "version": "1.4.2",
         "tags": [
             "Python2.7",
             "CLS",
