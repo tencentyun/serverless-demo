@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "SpiderGetUserInfo",
+            "name": "SpiderWriteUserInfo",
             "description": "This example demonstrates how to write user info to cos.",
             "attention": "",
             "author": {
