@@ -4,6 +4,7 @@
             "name": "Websocket注册函数",
             "description": "本示例基于 API 网关实现websocket功能，API网关和云函数一起构成websocket的Server端，由API网关承载和Client端的长连接。websocket一共需要3类函数承载，分别是注册函数、传输函数和清理函数，本函数为注册函数。",
             "attention": "在使用本示例时，请在控制台上更改 API 网关的反向推送地址，数据库相关信息等。详情请参考产品文档->操作指南->API网关触发器->Websocket。",
+            "tutorial":"https://cloud.tencent.com/document/product/583/32971",
             "author": {
                 "name": "腾讯云"
             }
@@ -12,13 +13,14 @@
             "name": "WebsocketRegisterDemo",
             "description": "This demo uses API GW and SCF to build websocket. This is register function.",
             "attention": "API GW and SCF together build websocket server.",
+            "tutorial":" ",
             "author": {
                 "name": "Tencent Cloud"
             }
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-WebsocketRegister",
-        "version": "1.2.1",
+        "version": "1.2.2",
         "tags": [
             "Python2.7",
             "APIGW",
