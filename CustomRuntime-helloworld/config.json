@@ -18,10 +18,11 @@
     },
     "runtime": "CustomRuntime",
     "readme": "https://github.com/tencentyun/serverless-demo/tree/master/CustomRuntime-helloworld",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "tags": [
       "CustomRuntime",
-      "helloworld"
+      "helloworld",
+      "new"
     ]
   }
 }
