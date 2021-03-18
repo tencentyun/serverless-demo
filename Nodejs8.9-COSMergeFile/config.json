@@ -10,7 +10,7 @@
         },
         "English": {
             "name": "MergeFile",
-            "description": "This function will download multiple file from source bucket, merge them to a new file, and upload to target bucket.",
+            "description": "This function will download multiple file from source bucket, merge them to another file, and upload to target bucket.",
             "attention": "None",
             "author": {
                 "name": "Tencent Cloud"
