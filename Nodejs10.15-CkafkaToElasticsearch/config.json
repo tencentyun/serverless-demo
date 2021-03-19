@@ -20,12 +20,13 @@
         },
         "runtime": "Nodejs10.15",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs10.15-CkafkaToElasticsearch",
-        "version": "1.9.2",
+        "version": "1.9.3",
         "tags": [
             "Nodejs10.15",
             "Ckafka",
             "ES",
-            "Logstash"
+            "Logstash",
+            "ETL"
         ]
     }
 }
