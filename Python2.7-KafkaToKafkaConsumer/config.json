@@ -18,12 +18,13 @@
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-KafkaToKafkaConsumer",
-        "version": "1.9.1",
+        "version": "1.9.2",
         "tags": [
             "Python2.7",
             "Ckafka",
             "tokafka",
-            "consumer"
+            "consumer",
+            "ETL"
         ]
     }
 }
