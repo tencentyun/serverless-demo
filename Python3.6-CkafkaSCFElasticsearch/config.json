@@ -20,11 +20,12 @@
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-CkafkaSCFElasticsearch",
-        "version": "1.13.2",
+        "version": "1.13.3",
         "tags": [
             "Python3.6",
             "Ckafka",
-            "ES"
+            "ES",
+            "ETL"
         ]
     }
 }
