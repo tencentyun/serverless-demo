@@ -20,12 +20,13 @@
         },
         "runtime": "Nodejs12.16",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-CkafkaSCFCOS",
-        "version": "1.5.2",
+        "version": "1.5.3",
         "tags": [
             "Nodejs12.16",
             "Ckafka",
             "COS",
-            "consumer"
+            "consumer",
+            "ETL"
         ]
     }
 }
