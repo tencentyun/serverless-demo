@@ -20,12 +20,13 @@
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-CkafkaSCFCOS",
-        "version": "1.4.2",
+        "version": "1.4.3",
         "tags": [
             "Python3.6",
             "Ckafka",
             "COS",
-            "consumer"
+            "consumer",
+            "ETL"
         ]
     }
 }
