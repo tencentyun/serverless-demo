@@ -18,11 +18,12 @@
         },
         "runtime": "Nodejs8.9",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-KafkaToCOS",
-        "version": "1.0.6",
+        "version": "1.1.6",
         "tags": [
             "Nodejs8.9",
             "Ckafka",
-            "COS"
+            "COS",
+            "ETL"
         ]
     }
 }
