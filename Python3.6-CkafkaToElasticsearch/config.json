@@ -20,12 +20,13 @@
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-CkafkaToElasticsearch",
-        "version": "1.10.2",
+        "version": "1.10.3",
         "tags": [
             "Python3.6",
             "Ckafka",
             "ES",
-            "Logstash"
+            "Logstash",
+            "ETL"
         ]
     }
 }
