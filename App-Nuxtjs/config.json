@@ -4,6 +4,7 @@
             "name": "Nuxtjs SSR 应用模版",
             "description": "本示例展示如何快速部署一个 Nuxtjs SSR 应用服务。",
             "attention": "无",
+            "tutorial": "https://cloud.tencent.com/document/product/1242/47245",
             "author": {
                 "name": "腾讯云"
             }
@@ -12,13 +13,14 @@
             "name": "Nuxtjs SSR Demo",
             "description": "This example shows how to deploy an Nuxtjs SSR demo to Serverless",
             "attention": "None",
+            "tutorial": " ",
             "author": {
                 "name": "Tencent Cloud"
             }
         },
         "runtime": "Nodejs10.15",
         "readme": "https://github.com/serverless-components/tencent-examples/tree/master/nuxtjs-starter",
-        "version": "1.1.2",
+        "version": "1.1.3",
         "tags": [
             "Nuxtjs",
             "APIGW",
