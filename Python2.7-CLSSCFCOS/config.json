@@ -20,12 +20,13 @@
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-CLSSCFCOS",
-        "version": "1.4.2",
+        "version": "1.4.3",
         "tags": [
             "Python2.7",
             "CLS",
             "COS",
-            "consumer"
+            "consumer",
+            "ETL"
         ]
     }
 }
