@@ -20,11 +20,12 @@
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-CkafkaSCFElasticsearch",
-        "version": "1.13.2",
+        "version": "1.13.3",
         "tags": [
             "Python2.7",
             "Ckafka",
-            "ES"
+            "ES",
+            "ETL"
         ]
     }
 }
