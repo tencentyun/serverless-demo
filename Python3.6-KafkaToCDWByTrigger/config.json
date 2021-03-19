@@ -18,11 +18,12 @@
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-KafkaToCDWByTrigger",
-        "version": "1.4.1",
+        "version": "1.4.2",
         "tags": [
             "Python3.6",
             "CKafka",
-            "CDW"
+            "CDW",
+            "ETL"
         ]
     }
 }
