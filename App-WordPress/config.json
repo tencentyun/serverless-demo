@@ -4,6 +4,7 @@
             "name": "WordPress 快速建站",
             "description": "本示例展示如何快速部署一个 WordPress 网站。",
             "attention": "无",
+            "tutorial": "https://cloud.tencent.com/document/product/1154/52643",
             "author": {
                 "name": "腾讯云"
             }
@@ -12,13 +13,14 @@
             "name": "WordPress Demo",
             "description": "This example shows how to deploy an WordPress demo to Serverless",
             "attention": "None",
+            "tutorial": " ",
             "author": {
                 "name": "Tencent Cloud"
             }
         },
         "runtime": "html",
         "readme": "https://github.com/serverless-components/tencent-wordpress",
-        "version": "1.1.4",
+        "version": "1.1.5",
         "tags": [
             "WordPress",
             "SCF",
