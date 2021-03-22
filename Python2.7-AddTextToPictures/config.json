@@ -20,11 +20,12 @@
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-AddTextToPictures",
-        "version": "1.4.3",
+        "version": "1.4.4",
         "tags": [
             "Python2.7",
             "HTTP",
-            "REST API"
+            "REST API",
+            "FileProcess"
         ]
     }
 }
