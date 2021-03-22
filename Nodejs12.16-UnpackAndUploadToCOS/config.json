@@ -18,10 +18,11 @@
         },
         "runtime": "Nodejs12.16",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-UnpackAndUploadToCOS ",
-        "version": "1.0.5",
+        "version": "1.0.6",
         "tags": [
             "Nodejs12.16",
             "COS",
+            "FileProcess",
             "unzip"
         ]
     }
