@@ -18,10 +18,11 @@
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-UnpackAndUploadToCOS",
-        "version": "1.0.3",
+        "version": "1.0.4",
         "tags": [
             "Python2.7",
             "COS",
+            "FileProcess",
             "unzip"
         ]
     }
