@@ -16,7 +16,7 @@ logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 logger = logging.getLogger()
 logger.setLevel(level=logging.INFO)
 
-url_cdn = os.getenv('url_cdn') # 请替换为您要加速的bucket域名，具体的文件路径在main函数里拼装
+url_cdn = os.getenv('url_cdn') # 请替换为您要加速的bucket域名，具体的文件路径在main函数里拼装，如 http://test-1xxx.file.myqcloud.com ，URL后不带 /
 region = os.getenv('region')  # 请替换为您bucket 所在的地域
 
 def main_handler(event, context):
