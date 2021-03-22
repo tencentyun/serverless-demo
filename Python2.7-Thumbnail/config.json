@@ -20,11 +20,12 @@
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-Thumbnail",
-        "version": "1.0.7",
+        "version": "1.0.8",
         "tags": [
             "Python2.7",
             "COS",
-            "thumbnail"
+            "thumbnail",
+            "FileProcess"
         ]
     }
 }
