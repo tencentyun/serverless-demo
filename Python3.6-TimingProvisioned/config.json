@@ -20,7 +20,8 @@
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-TimingProvisioned",
         "version": "1.0.0",
         "tags": [
-            "Python3.6"
+            "Python3.6",
+            "timer"
         ]
     }
 }
