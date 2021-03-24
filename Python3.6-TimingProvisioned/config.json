@@ -1,0 +1,26 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "TimingProvisioned",
+            "description": "定时配置云函数SCF预置并发，保障活动等业务突发高峰",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "TimingProvisioned",
+            "description": "Timing configuration provisioned concurrency",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Python3.6",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-TimingProvisioned",
+        "version": "1.0.0",
+        "tags": [
+            "Python3.6"
+        ]
+    }
+}
