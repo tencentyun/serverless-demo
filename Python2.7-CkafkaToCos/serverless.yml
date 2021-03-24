@@ -1,0 +1,32 @@
+component: scf
+name: ap-guangzhou_default_CkafkaBackupToCOS
+inputs:
+  name: CkafkaBackupToCOS
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 512
+  environment:
+    - key: region
+      value: region，eg.ap-guangzhou
+    - key: topic_name
+      value: ckafka topic name
+    - key: topic_id
+      value: ckafka topic name
+    - key: kafka_instance_id
+      value: ckafka instance id
+    - key: kafka_address
+      value: ckafka address
+    - key: partition_max_to_cos_bytes
+      value: partition_max_to_cos_bytes
+    - key: consumer_timeout_ms
+      value: consumer timeout, ms
+    - key: offset_type
+      value: offset type
+  timeout: 300
+  triggers:
+    - type: timer
+
