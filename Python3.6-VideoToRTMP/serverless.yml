@@ -1,0 +1,22 @@
+component: scf
+name: ap-guangzhou_default_VideoToRTMP
+inputs:
+  name: VideoToRTMP
+  src: ./src
+  runtime: Python3.6
+  region: ap-guangzhou
+  handler: index.main_handler
+  memorySize: 3072
+  timeout: 86400
+  asyncRunEnable: true
+  triggers:
+   - apigw:
+        parameters:
+          protocols:
+            - http
+              https
+          description: the serverless service
+          environment: release
+          endpoints:
+            - path:/videoToRTMP
+              method: ANY

@@ -1,0 +1,31 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "视频文件转RTMP推流",
+            "description": "使用ffmpeg+云函数+API网关，快速构建视频文件转RTMP推流服务。",
+            "attention": "1. 本示例需要API网关触发器配合使用；2. 缓存播放进度需要引入持久化存储；",
+            "tutorial":"",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "VideoToRTMP",
+            "description": "This example demonstrates transcoding video files to RTMP push streaming based on ffmpeg.",
+            "attention": "This example needs to configure the API gateway trigger. Caching playback progress requires the introduction of persistent storage.",
+            "tutorial":" ",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Python3.6",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-VideoToRTMP",
+        "version": "1.3.3",
+        "tags": [
+            "Python3.6",
+            "ffmpeg",
+            "RTMP",
+            "video"
+        ]
+    }
+}
