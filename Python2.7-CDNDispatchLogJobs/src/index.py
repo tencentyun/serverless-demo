@@ -77,7 +77,8 @@ class Job:
 
     def get_cdn_hosts(self):
         '''Getting a list of all domain names under the account （获取账号下全部域名列表）'''
-        action = "DescribeCdnHosts"
+        # action = "DescribeCdnHosts"
+        action = "DescribeDomains"
         end = datetime.datetime.now()
         start = end - datetime.timedelta(days=1)
         action_params = {
@@ -137,7 +138,6 @@ class Job:
                 self.invoke_cos_upload(url)
             cnt += len(urls)
         return {"status": "jobs dispatched", "count_url": cnt, "count_host": len(hosts)}
-
 
 def run_app():
     config = {
