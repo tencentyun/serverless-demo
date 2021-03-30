@@ -2,7 +2,8 @@ component: scf
 name: ap-guangzhou_default_VideoToRTMP
 inputs:
   name: VideoToRTMP
-  src: ./src
+  src: 
+    src: ./src
   runtime: Python3.6
   region: ap-guangzhou
   handler: index.main_handler
