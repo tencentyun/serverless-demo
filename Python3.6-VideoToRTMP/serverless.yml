@@ -11,13 +11,15 @@ inputs:
   timeout: 86400
   asyncRunEnable: true
   triggers:
-   - apigw:
-        parameters:
-          protocols:
-            - http
-              https
-          description: the serverless service
-          environment: release
-          endpoints:
-            - path:/videoToRTMP
-              method: ANY
+    - type: apigw
+      name: SCF_API_SERVICE
+      protocols:
+        - http
+        - https
+      environment: release
+      description: the serverless service
+      apis:
+        - path: /videoToRTMP
+          method: ANY
+          function: 
+            isIntegratedResponse: false
