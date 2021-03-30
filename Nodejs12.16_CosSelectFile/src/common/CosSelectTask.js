@@ -26,11 +26,14 @@ class CosSelectTask {
     } = cosSelectConfig;
 
     const basename = path.basename(key, path.extname(key));
+    const dirname = path.dirname(key);
     const extname = `${
       Object.keys(OutputSerialization)[0] || ''
     }`.toLowerCase();
     const targetName = replaceMap(targetNameFormat, { basename, extname });
-    const targetKey = path.join(targetPrefix, targetName).replace(/\\/g, '/');
+    const targetKey = path
+      .join(targetPrefix, dirname, targetName)
+      .replace(/\\/g, '/');
 
     Object.assign(this, {
       cosInstance,
