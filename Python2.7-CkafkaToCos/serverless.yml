@@ -29,4 +29,6 @@ inputs:
   timeout: 300
   triggers:
     - type: timer
-
+      cronExpression: 0 */5 * * * * *
+      enable: true
+      argument: argument
