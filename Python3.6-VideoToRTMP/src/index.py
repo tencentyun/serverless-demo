@@ -9,9 +9,15 @@ import requests
 
 #ffmpeg命令
 #视频转flv推流RTMP
-video_2rtmp = './ffmpeg -re -reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 2 -progress /dev/stdout -ss %s -i "%s"  -c copy -f flv -flvflags no_duration_filesize "%s" '
+video_2rtmp = '/tmp/ffmpeg -re -reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 2 -progress /dev/stdout -ss %s -i "%s"  -c copy -f flv -flvflags no_duration_filesize "%s" '
 
 def main_handler(event, context):
+
+    # 为了适配windows端用户
+    # 将ffmeg文件复制到/tmp下并赋予执行权限
+    subprocess.run(
+        'cp ./ffmpeg /tmp/ffmpeg && chmod 755 /tmp/ffmpeg',
+        shell=True)
     
     #判断请求是否从API网关传递
     if "body" in event.keys():
