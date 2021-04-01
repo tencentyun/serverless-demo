@@ -1,0 +1,6 @@
+Flask==1.0.2
+werkzeug==0.16.0
+python_jwt==3.3.0
+six==1.15.0
+Flask-WTF==0.14.3
+Flask-Bootstrap4==4.0.2
