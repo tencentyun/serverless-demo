@@ -1,6 +1,7 @@
 const path = require('path');
 const zlib = require('zlib');
 const tar = require('tar-stream');
+const EventEmitter = require('events');
 const TrashWriteStream = require('./TrashWriteStream');
 const { PassThrough } = require('stream');
 const { streamPipelinePromise } = require('./utils');
@@ -66,6 +67,10 @@ class CosTGunzipFileTask {
   }
   runTaskOnce() {
     return new Promise((resolve, reject) => {
+      const emitter = new EventEmitter();
+      emitter.once('resolve', resolve);
+      emitter.once('reject', reject);
+
       const { bucket, region, key } = this;
       this.results = this.results.filter(item => !item.error);
 
@@ -77,6 +82,7 @@ class CosTGunzipFileTask {
           Key: key,
         })
         .pipe(zlib.createGunzip())
+        .on('error', error => emitter.emit('reject', error))
         .pipe(tar.extract())
         .on('entry', async (header, stream, next) => {
           index += 1;
@@ -107,8 +113,8 @@ class CosTGunzipFileTask {
             next(error);
           }
         })
-        .on('error', error => reject(error))
-        .on('finish', () => resolve(this.results));
+        .on('error', error => emitter.emit('reject', error))
+        .on('finish', () => emitter.emit('resolve', this.results));
     });
   }
   async skipOneTask({ stream }) {
