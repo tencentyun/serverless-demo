@@ -1,0 +1,10 @@
+{
+  "name": "cos-gunzip-file",
+  "version": "1.0.9",
+  "main": "index.js",
+  "license": "ISC",
+  "dependencies": {
+    "cos-nodejs-sdk-v5": "^2.8.3",
+    "tar-stream": "^2.2.0"
+  }
+}
