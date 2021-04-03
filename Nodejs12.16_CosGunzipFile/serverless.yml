@@ -1,0 +1,17 @@
+component: scf
+name: ap-guangzhou_default_COS_CosGunzipFile
+inputs:
+  name: Cos_Gunzip_File
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Nodejs12.16
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 896
+  timeout: 900
+  triggers:
+    - type: cos
+      enable: true
+      bucket: 
+      events: 'cos:ObjectCreated:*'

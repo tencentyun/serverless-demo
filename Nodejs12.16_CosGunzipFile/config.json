@@ -1,0 +1,26 @@
+{
+  "serverless-cloud-function-application": {
+	  "Chinese":{
+		  "name": "COS GZIP 解压",                   //请填写模版中文名称，如果是java模版，必须和jar文件的名称一致，其他语言不做限制。前台需要展示，请认真填写，名称要具有一定的意义，名称里统一剥离掉runtime。
+		  "description": "本示例使用 COS 触发器，完成 COS GZIP 解压",            //模版描述，主要是介绍该模版的用途、用法、涉及到的关键技术等，用户可以通过该关键字搜索。前台需要展示，请认真填写，支持中文。
+		  "attention": "",    //模版使用的注意事项，在模板查看详情里展示。
+		  "author": {
+			  "name": "腾讯云对象存储团队"                       //作者
+		  }
+	  },
+	  "English":{
+		  "name": "Cos_Gunzip_File",                       // This is the English name of demo. If it is java demo. Please keep the same name with jar package. No restrictions for non-java demos. Please do not add runtime information in the name.
+		  "description": "This example uses COS step by step to complete unzip *.gz file.",      // The description of demo. You can describe the detail function.
+		  "attention": ".",  // The precautions for using the template will be shown in the view details.
+		  "author": {
+			  "name": "TencentCloud COS Team"                       // author English Name
+		  }
+	  },
+	  "runtime": "Nodejs12.16",                      //运行环境，用户可以通过该关键字搜索，请在下述已经支持的运行环境中选择一个填入。前台需要展示，请认真填写。["Python3.6","Python2.7","Node.js12.16","Node.js12.16","Node.js8.9","Nodejs6.10","Php7.2","Php5.6","Java8","Golang1","CustomRuntime"]
+	  "readme":"https://github.com/tencentyun/serverless-demo/Nodejs12.16_CosGunzipFile",                      //模版同步的唯一标识，必填。
+	  "version": "1.0.13",                          //版本号，通过版本号校验模版更新情况，未修改版本号会导致模版无法同步更新到控制台。
+	  "tags":[
+		  "Nodejs12.16", "COS Gunzip File", "gz", "gzip"
+	  ]                                            //标签统一为英文，可编写多个，建议第一个标签为runtime，其他标签为触发器、场景等关键字，不同标签之间用英文逗号间隔，用户可以通过该关键字搜索。前台需要展示，请认真填写，不支持中文。
+  }
+}
