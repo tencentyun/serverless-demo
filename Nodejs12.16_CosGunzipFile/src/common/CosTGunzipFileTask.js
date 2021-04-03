@@ -74,6 +74,8 @@ class CosTGunzipFileTask {
       const { bucket, region, key } = this;
       this.results = this.results.filter(item => !item.error);
 
+      const decompressStream = zlib.createGunzip();
+
       let index = -1;
       this.cosInstance
         .getObjectStream({
@@ -81,8 +83,8 @@ class CosTGunzipFileTask {
           Region: region,
           Key: key,
         })
-        .pipe(zlib.createGunzip())
-        .on('error', error => emitter.emit('reject', error))
+        .on('end', () => setTimeout(() => decompressStream.end(), 5000))
+        .pipe(decompressStream, { end: false })
         .pipe(tar.extract())
         .on('entry', async (header, stream, next) => {
           index += 1;
