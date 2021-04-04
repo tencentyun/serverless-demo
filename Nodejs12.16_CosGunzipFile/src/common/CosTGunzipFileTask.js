@@ -77,13 +77,15 @@ class CosTGunzipFileTask {
       const decompressStream = zlib.createGunzip();
 
       let index = -1;
+      let sourceEnded = false;
+      let lastEntryTimer;
       this.cosInstance
         .getObjectStream({
           Bucket: bucket,
           Region: region,
           Key: key,
         })
-        .on('end', () => setTimeout(() => decompressStream.end(), 5000))
+        .on('end', () => (sourceEnded = true))
         .pipe(decompressStream, { end: false })
         .pipe(tar.extract())
         .on('entry', async (header, stream, next) => {
@@ -93,11 +95,19 @@ class CosTGunzipFileTask {
             size: header.size,
           };
           try {
+            if (lastEntryTimer !== undefined) {
+              clearTimeout(lastEntryTimer);
+            }
             if (this.cancelError) {
               throw this.cancelError;
             }
             if (this.results[index]) {
               await this.skipOneTask({ stream });
+              // to avoid Zlib Gunzip Bug, try to end the decompressStream after last entry is done
+              // 1000ms delay is unnecessary, you can set it to 0, just in case of some unexpected problem
+              if (sourceEnded) {
+                lastEntryTimer = setTimeout(() => decompressStream.end(), 1000);
+              }
               next();
             } else {
               const result = await this.runOneTask({ header, stream });
@@ -105,6 +115,11 @@ class CosTGunzipFileTask {
                 params,
                 result,
               });
+              // to avoid Zlib Gunzip Bug, try to end the decompressStream after last entry is done
+              // 1000ms delay is unnecessary, you can set it to 0, just in case of some unexpected problem
+              if (sourceEnded) {
+                lastEntryTimer = setTimeout(() => decompressStream.end(), 1000);
+              }
               next();
             }
           } catch (error) {
