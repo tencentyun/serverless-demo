@@ -69,7 +69,16 @@ class CosTGunzipFileTask {
     return new Promise((resolve, reject) => {
       const emitter = new EventEmitter();
       emitter.once('resolve', resolve);
-      emitter.once('reject', reject);
+      emitter.once('reject', (error) => {
+        // ensure results constain error
+        if (this.results.filter(item => item.error).length === 0) {
+          this.results.push({
+            params: {},
+            error,
+          });
+        }
+        reject(error);
+      });
 
       const { bucket, region, key } = this;
       this.results = this.results.filter(item => !item.error);
