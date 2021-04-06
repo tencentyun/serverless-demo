@@ -1,6 +1,6 @@
 {
   "name": "cos-gunzip-file",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "main": "index.js",
   "license": "ISC",
   "dependencies": {

@@ -18,7 +18,7 @@ class CosTGunzipFileTask {
     targetRegion,
     targetPrefix,
     extraRootDir,
-    maxTryTime = 20,
+    maxTryTime = 30,
   }) {
     const extname = /\.tar.gz$/.test(key) ? '.tar.gz' : path.extname(key);
     const basename = path.basename(key, extname);
