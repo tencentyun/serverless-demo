@@ -18,7 +18,7 @@ class CosTGunzipFileTask {
     targetRegion,
     targetPrefix,
     extraRootDir,
-    maxTryTime = 3,
+    maxTryTime = 20,
   }) {
     const extname = /\.tar.gz$/.test(key) ? '.tar.gz' : path.extname(key);
     const basename = path.basename(key, extname);
@@ -85,8 +85,10 @@ class CosTGunzipFileTask {
           Region: region,
           Key: key,
         })
+        .on('error', error => emitter.emit('reject', error))
         .on('end', () => (sourceEnded = true))
         .pipe(decompressStream, { end: false })
+        .on('error', error => emitter.emit('reject', error))
         .pipe(tar.extract())
         .on('entry', async (header, stream, next) => {
           index += 1;
@@ -142,7 +144,14 @@ class CosTGunzipFileTask {
     return result;
   }
   async runOneTask({ header, stream }) {
-    await this.checkFileSize(header);
+    try {
+      await this.checkFileSize(header);
+    } catch (error) {
+      throw {
+        trace: 'CosTGunzipFileTask.checkFileSize',
+        error,
+      };
+    }
     const result = await this.uploadToCos({
       targetBucket: this.targetBucket,
       targetRegion: this.targetRegion,
