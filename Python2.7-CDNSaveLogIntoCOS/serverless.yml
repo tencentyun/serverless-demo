@@ -10,8 +10,3 @@ inputs:
   region: ap-guangzhou
   memorySize: 128
   timeout: 300
-  triggers:
-    - type: cos
-      enable: true
-      bucket: 
-      events: 'cos:ObjectCreated:*'
