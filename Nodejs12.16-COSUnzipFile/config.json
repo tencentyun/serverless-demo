@@ -1,0 +1,24 @@
+{
+  "serverless-cloud-function-application": {
+    "Chinese": {
+      "name": "zip格式文件解压",
+      "description": "本示例通过从源bucket下载zip格式文件，解压之后，上传到另一个bucket",
+      "attention": "请前往 COS 控制台进行配置，参考文档：https://cloud.tencent.com/document/product/436/42893",
+      "author": {
+        "name": "腾讯云"
+      }
+    },
+    "English": {
+      "name": "UnzipFile",
+      "description": "This function will download zip file from source bucket, unzip them, and upload to target bucket",
+      "attention": "Please go to COS Console, for more information: https://intl.cloud.tencent.com/zh/document/product/436/35663",
+      "author": {
+        "name": "Tencent Cloud"
+      }
+    },
+    "runtime": "Nodejs12.16",
+    "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSUnzipFile",
+    "version": "1.0.24",
+    "tags": ["Nodejs12.16", "Unzip", "unzip file"]
+  }
+}
