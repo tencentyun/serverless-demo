@@ -6,7 +6,7 @@ inputs:
   region: ap-shanghai
   name: TRTC
   runtime: Java8
-  handler: example.Handler::handleRequest
+  handler: example.Hello::mainHandler
   memorySize: 1024
   timeout: 43200
   asyncRunEnable: true
