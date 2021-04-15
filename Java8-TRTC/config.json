@@ -1,0 +1,29 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "TRTC直播推流",
+            "description": "使用ffmpeg+云函数+TRTC，快速构建视频文件直播推流服务",
+            "attention": "1. 本示例需要API网关触发器配合使用；2. 缓存播放进度需要引入持久化存储；",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "TRTC",
+            "description": "This example demonstrates transcoding video files to TRTC push streaming based on ffmpeg.",
+            "attention": "This example needs to configure the API gateway trigger. Caching playback progress requires the introduction of persistent storage.",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Java8",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Java8-TRTC",
+        "version": "1.0.8",
+        "tags": [
+            "Java8",
+            "TRTC",
+            "ffmpeg",
+            "video"
+        ]
+    }
+}
