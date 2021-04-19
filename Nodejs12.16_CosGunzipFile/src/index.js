@@ -6,6 +6,7 @@
 const CosSdk = require('cos-nodejs-sdk-v5');
 const TimeoutWatcher = require('./common/TimeoutWatcher');
 const CosGunzipFileTask = require('./common/CosGunzipFileTask');
+const ScfInvokeTask = require('./common/ScfInvokeTask');
 
 const { getParams, logger, getLogSummary } = require('./common/utils');
 
@@ -59,16 +60,29 @@ exports.main_handler = async (event, context) => {
     XCosSecurityToken: token,
   });
 
-  runningTask = new CosGunzipFileTask({
-    cosInstance,
-    bucket,
-    region,
-    key,
-    targetBucket,
-    targetRegion,
-    targetPrefix,
-    extraRootDir,
-  });
+  if (/manifest\.json$/.test(key)) {
+    runningTask = new ScfInvokeTask({
+      secretId,
+      secretKey,
+      token,
+      cosInstance,
+      bucket,
+      region,
+      key,
+      context,
+    });
+  } else {
+    runningTask = new CosGunzipFileTask({
+      cosInstance,
+      bucket,
+      region,
+      key,
+      targetBucket,
+      targetRegion,
+      targetPrefix,
+      extraRootDir,
+    });
+  }
 
   const taskResults = await runningTask.runTask();
 

@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 /* eslint-disable no-restricted-syntax */
 'use strict';
 
@@ -18,13 +19,36 @@ function getParams(event) {
     targetRegion,
     targetPrefix = '',
     extraRootDir = 'dirnameAndBasename',
+    parentRequestId,
     ...args
   } = {
     ...process.env,
     ...event,
   };
 
-  const objects = Records.map(item => parseUrl({ url: item.cos.cosObject.url }));
+  if (!Records.length && !parentRequestId) {
+    throw new Error('this function is not trigger by cos or parent function, refuse to execute');
+  } else if (parentRequestId) {
+    logger({
+      title: `this function is trigger by parent function, parent request id is ${parentRequestId}`,
+    });
+  } else if (Records.length) {
+    logger({ title: 'this function is trigger by cos' });
+  }
+
+  const objects = Records.map((item) => {
+    let url = item.cos.cosObject.url;
+    if (!url && item.cos.cosObject.key && item.event && item.event.eventQueue) {
+      const { 3: cosRegion } = item.event.eventQueue.split(':');
+      const [appid, bucketName, ...keyArgs] = item.cos.cosObject.key
+        .slice(1)
+        .split('/');
+      const cosKey = keyArgs.join('/');
+      const cosBucket = `${bucketName}-${appid}`;
+      url = `https://${cosBucket}.cos.${cosRegion}.myqcloud.com/${cosKey}`;
+    }
+    return parseUrl({ url });
+  });
   const { bucket, region, key } = objects[0] || {};
 
   const missingParams = [
@@ -88,6 +112,26 @@ function logger({ messages = [], title = '', data = {} }) {
 }
 
 /**
+ * get retry function
+ */
+function retry({ maxTryTime = 3, func }) {
+  return async (...args) => {
+    let err;
+    let tryTime = 0;
+    while (tryTime < maxTryTime) {
+      tryTime += 1;
+      try {
+        const res = await func(...args);
+        return res;
+      } catch (e) {
+        err = e;
+      }
+    }
+    throw err;
+  };
+}
+
+/**
  * get log summary
  */
 function getLogSummary({ name = '', results }) {
@@ -146,6 +190,7 @@ function streamPipelinePromise(streams) {
 module.exports = {
   getParams,
   logger,
+  retry,
   getLogSummary,
   sleep,
   streamPipelinePromise,
