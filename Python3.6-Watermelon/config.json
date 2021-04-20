@@ -1,0 +1,30 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "合成大西瓜_Demo演示",
+            "description": "本示例演示基于API网关提供合成大西瓜游戏，您可以扩展函数来实现 Web 后端服务。",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "watermelon",
+            "description": "This demo uses API GW to watermelon game. You can expand to do Web API based on this.",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Python3.6",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-Watermelon",
+        "version": "1.0.0",
+        "tags": [
+            "Python3.6",
+            "HTTP",
+            "HTML",
+            "xigua",
+            "Watermelon"
+        ]
+    }
+}
