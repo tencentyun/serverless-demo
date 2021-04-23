@@ -1,0 +1,24 @@
+{
+  "serverless-cloud-function-application": {
+    "Chinese": {
+      "name": "zip文件压缩",
+      "description": "本示例通过从源 bucket 下载文件，压缩成 zip 包之后，上传到另一个 bucket",
+      "attention": "",
+      "author": {
+        "name": "腾讯云"
+      }
+    },
+    "English": {
+      "name": "ZipFile",
+      "description": "This function will download file from source bucket, zip them, and upload to target bucket",
+      "attention": "",
+      "author": {
+        "name": "Tencent Cloud"
+      }
+    },
+    "runtime": "Nodejs12.16",
+    "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSZipFile",
+    "version": "1.0.15",
+    "tags": ["Nodejs12.16", "Zip", "zip file"]
+  }
+}
