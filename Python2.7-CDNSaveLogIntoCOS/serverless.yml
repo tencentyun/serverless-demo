@@ -10,3 +10,4 @@ inputs:
   region: ap-guangzhou
   memorySize: 128
   timeout: 300
+  asyncRunEnable: true
