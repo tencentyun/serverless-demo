@@ -1,7 +1,7 @@
 {
     "serverless-cloud-function-application": {
         "Chinese": {
-            "name": "下载CDN日志并存储到COS",
+            "name": "CDN日志转存COS",
             "description": "本示例演示了如何下载CDN的日志文件，使用流式分片的方式，存储到COS存储桶。该函数可以用于实现CDN日志定时存档等需求。",
             "attention": "无",
             "author": {
@@ -18,7 +18,7 @@
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-CDNSaveLogIntoCOS",
-        "version": "1.4.3",
+        "version": "1.4.4",
         "tags": [
             "Python2.7",
             "CDN",
