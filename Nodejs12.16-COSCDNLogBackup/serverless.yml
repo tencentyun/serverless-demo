@@ -1,0 +1,17 @@
+component: scf
+name: ap-guangzhou_default_COSCDNLogBackup
+inputs:
+  src:
+    src: ./src
+  handler: index.main_handler
+  memorySize: 1024
+  name: COSCDNLogBackup
+  region: ap-guangzhou
+  runtime: Nodejs12.16
+  timeout: 900
+  environment:
+    variables:
+      domainList: domainList
+      targetBucket: targetBucket
+      targetRegion: targetRegion
+      targetPrefix: targetPrefix
