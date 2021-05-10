@@ -18,7 +18,7 @@
 	  },
 	  "runtime": "Nodejs12.16",                      //运行环境，用户可以通过该关键字搜索，请在下述已经支持的运行环境中选择一个填入。前台需要展示，请认真填写。["Python3.6","Python2.7","Node.js12.16","Node.js12.16","Node.js8.9","Nodejs6.10","Php7.2","Php5.6","Java8","Golang1","CustomRuntime"]
 	  "readme":"https://github.com/tencentyun/serverless-demo/Nodejs12.16_CosGunzipFile",                      //模版同步的唯一标识，必填。
-	  "version": "1.0.29",                          //版本号，通过版本号校验模版更新情况，未修改版本号会导致模版无法同步更新到控制台。
+	  "version": "1.0.30",                          //版本号，通过版本号校验模版更新情况，未修改版本号会导致模版无法同步更新到控制台。
 	  "tags":[
 		  "Nodejs12.16", "COS Gunzip File", "gz", "gzip"
 	  ]                                            //标签统一为英文，可编写多个，建议第一个标签为runtime，其他标签为触发器、场景等关键字，不同标签之间用英文逗号间隔，用户可以通过该关键字搜索。前台需要展示，请认真填写，不支持中文。
