@@ -23,5 +23,5 @@ inputs:
       apis:
         - path: /trtc-recorder
           method: ANY
-          function: 
+          function:
             isIntegratedResponse: false
