@@ -1,6 +1,5 @@
 {
   "serverless-cloud-function-application": {
-    "application":{
       "Chinese":{
         "name": "单流音频录制",
         "description": "基于云函数+TRTC+COS+ffmpeg实现单流音频录制。可配合CFS实现长时间单流音频录制，并将生成的FLV音频文件转码MP3格式转储到指定的COS桶持久保存。",
@@ -23,6 +22,6 @@
       "tags":[
             "Python3.6", "TRTC", "audio", "CFS", "COS", "ffmpeg"
       ]
-    }
   }
 }
+
