@@ -3,72 +3,26 @@
     "application":{
       "Chinese":{
         "name": "单流音频录制",
-        "description": "基于TRTC实现单流音频录制。配合CFS实现长时间单流音频录制，并将生成的FLV音频文件转码MP3格式转储到指定的COS桶持久保存。",
-        "attention": "无",
-        "readme": {
-            "file": "",
-            "content": ""
-        },
-        "license": {
-            "file": "",
-            "content": "公开"
-        },
+        "description": "基于云函数+TRTC+COS+ffmpeg实现单流音频录制。可配合CFS实现长时间单流音频录制，并将生成的FLV音频文件转码MP3格式转储到指定的COS桶持久保存。",
+        "attention": "模版函数需要配置API网关触发器。",
         "author": {
             "name": "腾讯云无服务器云函数团队"
         }
       },
       "English":{
-        "name": "single_audio_recorder",
-        "description": "Realize single-stream audio recording based on TRTC service",
-        "attention": "No",
-        "readme": {
-            "file": "",  // readme file
-            "content": ""  //content of readme
-        },
-        "license": {
-            "file": "",  // license file
-            "content": "Open"  //content of license
-        },
+        "name": "SingleAudioRecorder",
+        "description": "This example demonstrates single-stream audio recording based on TRTC service, and push audio files to cos bucket.",
+        "attention": "This example needs to configure the API gateway trigger.",
         "author": {
-            "name": "Tencent Cloud Serverless Team"  // author
+            "name": "Tencent Cloud Serverless Team"
         }
       },
-      "input_parameters":{
-      },
-      "output_parameters":{
-      },
-      "download_address":"https://github.com/tencentyun/scf-demo-repo/tree/master/Python2.7-helloworld",  // Demo's git download url. demo的git下载链接
+      "runtime": "Python3.6",
+      "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-SingleAudioRecorder",
+      "version": "1.0.0",
       "tags":[
-              "Python3.6", "TRTC", "audio", "CFS", "COS", "ffmpeg"
-              // The tags only support English and can be multiple, we suggest you to use keywords such as runtime, trigger, environment and so on.
-              // 标签统一为英文，可编写多个，建议使用runtime、触发器、场景等关键字，用户可以通过该关键字搜索。前台需要展示，请认真填写，不支持中文
-      ],
-      "version": "1.0.0"
-      // Version number, which identifies the demo version status. 
-      // Demo will not to update to the page if the version number unmodified.
-      //版本号，通过版本号标识 demo 升级情况，未修改版本号会导致 demo 不更新至页面
-    },
-    "functions": {
-      "name": "single_audio_recorder",  // Function name which only be in English. 函数名称，只支持英文
-      "description": "single audio recorder function.",
-      "handler":"index.main_handler",
-      "memorySize": 3072,  // Running memory. 运行配置内存
-      "timeout": 43200,  // Running timeout. 运行超时时间
-      "runtime": "Python3.6", // Runtime which users can search demo by this keyword. 运行环境，用户可以通过该关键字搜索["Python2.7", "Python3.6", "Nodejs6.10", "Java8", "LuaCDN", "NodejsCDN", "Php5", "Php7", "Nodejs8.9", "Go1"]
-      "Environment":{
-      },      // Optional, used to define environment variables.  可选，用于定义环境变量
-      "Events":{
-      },      // Optional, used define the event source that triggers this function. 可选，用于定义触发此函数的事件源
-      "VpcConfig":{
-      },      // Optional, used configure cloud function's private network.  可选， 用于配置云函数访问 VPC 私有网络。
-      "codeObject": {
-          "codeFile": [
-              "index.py"
-          ],
-          "CodeUri":[     // Code download url which should be same as 'download_address'.  代码下载地址，和download_address保持一致
-              "https://github.com/tencentyun/scf-demo-repo/tree/master/Python3.6-SingleAudioRecorder"
-          ]
-      }
+            "Python3.6", "TRTC", "audio", "CFS", "COS", "ffmpeg"
+      ]
     }
   }
 }

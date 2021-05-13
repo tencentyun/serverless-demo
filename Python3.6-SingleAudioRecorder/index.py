@@ -93,6 +93,9 @@ def main_handler(event, context):
     # 设置动态链接库搜索路径
     lib_path = os.environ.get('LD_LIBRARY_PATH')
     os.environ['LD_LIBRARY_PATH'] = lib_path + ':/var/user/recordClient'
+    work_dir = "/tmp"
+    if os.environ.get('CFS_PATH'):
+        work_dir = os.environ.get('CFS_PATH')
 
     # ffmpeg赋予执行权限
     subprocess.run(
@@ -103,7 +106,6 @@ def main_handler(event, context):
     secret_id = os.environ.get('TENCENTCLOUD_SECRETID')
     secret_key = os.environ.get('TENCENTCLOUD_SECRETKEY')
     token = os.environ.get('TENCENTCLOUD_SESSIONTOKEN')
-    # cfs_enable = os.environ.get('IsCfs')
 
     # 请求从API网关传递,通过网关获取TRTC参数，在body中获取
     if "requestContext" not in event.keys():
@@ -131,7 +133,7 @@ def main_handler(event, context):
     logger.info('cos client init success. Cos target bucket: ' + target_bucket)
 
     # 子进程开启单流录制
-    record_path = '/tmp/record'
+    record_path = os.path.join(work_dir, 'record')
     logger.info("start recording, record path: " + record_path)
 
     # step1 进房参数
@@ -161,7 +163,8 @@ def main_handler(event, context):
 
     # 校验统计生成的音频文件，成功录制的flv文件转换成.mp3文件上传cos桶
     # 失败的音频文件直接上传cos桶做回溯
-    upload_path = '/tmp/upload'
+    upload_path = os.path.join(work_dir, 'upload')
+    logger.info("local path to upload cos: " + record_path)
     if not os.path.exists(upload_path):
         os.mkdir(upload_path)
     flv_files, failed_files, files_num = check_record_files(record_path)
@@ -192,5 +195,10 @@ def main_handler(event, context):
         except Exception as e:
             logging.exception(e)
             continue
+
+    # 清理工作目录和日志目录
+    logger.info("clear work dir and log dir...")
+    delete_local_file(work_dir)
+    delete_local_file("/tmp")
 
     return "record and upload success."
