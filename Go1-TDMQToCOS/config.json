@@ -1,0 +1,29 @@
+{
+  "serverless-cloud-function-application": {
+    "Chinese": {
+      "name": "TDMQ_TO_COS",
+      "description": "TDMQ转储到COS模版",
+      "attention": "在使用本示例代码时需要传递相关函数的环境变量。",
+      "author": {
+        "name": "腾讯云"
+      }
+    },
+    "English": {
+      "name": "TDMQToCOS",
+      "description": "TDMQ messages backup to COS",
+      "attention": "When using this sample code, you need to pass the environment variables of related functions.",
+      "author": {
+        "name": "Tencent Cloud"
+      }
+    },
+    "runtime": "Go1",
+    "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Go1-TDMQToCOS",
+    "version": "1.0.0",
+    "tags": [
+      "Go1",
+      "TDMQ",
+      "COS",
+      "TDMQToCOS"
+    ]
+  }
+}
