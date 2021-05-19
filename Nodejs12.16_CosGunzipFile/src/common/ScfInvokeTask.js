@@ -1,4 +1,5 @@
 const Async = require('async');
+const path = require('path');
 const ScfSdk = require('./ScfSdk');
 const { sleep } = require('./utils');
 
@@ -11,6 +12,10 @@ class ScfInvokeTask {
     bucket,
     region,
     key,
+    targetBucket,
+    targetRegion,
+    targetPrefix,
+    extraRootDir,
     context,
     ...args
   }) {
@@ -21,6 +26,10 @@ class ScfInvokeTask {
       bucket,
       region,
       key,
+      targetBucket,
+      targetRegion,
+      targetPrefix,
+      extraRootDir,
       context,
       status: 'waiting',
       cancelError: null,
@@ -81,6 +90,8 @@ class ScfInvokeTask {
             },
           },
         ],
+        targetPrefix: `${this.targetPrefix}${path.dirname(this.key)}/`,
+        extraRootDir: 'none',
         parentRequestId: this.context.request_id,
       }),
     };

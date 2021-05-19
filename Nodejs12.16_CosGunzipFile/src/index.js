@@ -69,6 +69,10 @@ exports.main_handler = async (event, context) => {
       bucket,
       region,
       key,
+      targetBucket,
+      targetRegion,
+      targetPrefix,
+      extraRootDir,
       context,
     });
   } else {
