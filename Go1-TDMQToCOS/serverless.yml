@@ -1,0 +1,39 @@
+component: scf
+name: ap-guangzhou_default_tdmq_to_cos
+inputs:
+  src:
+    src: ./src
+  region: ap-guangzhou
+  name: CLSTrigger
+  runtime: Go1
+  handler: main
+  memorySize: 2048
+  timeout: 300
+  environment:
+    - key: region
+      value: region，eg.ap-guangzhou
+    - key: cos_bucket_name
+      value: cos bucket name
+    - key: file_path_prefix
+      value: cos file path prefix
+    - key: once_max_to_cos_bytes
+      value: once max to cos file size
+    - key: seek_type
+      value: tdmq seek position
+    - key: tdmq_cluster_id
+      value: tdmq cluster id
+    - key: tdmq_environment_id
+      value: tdmq environment id
+    - key: tdmq_listener
+      value: tdmq listener
+    - key: tdmq_subscription_name
+      value: tdmq subscription name
+    - key: tdmq_token
+      value: tdmq token
+    - key: tdmq_topic_name
+      value: tdmq topic name
+    - key: tdmq_url
+      value: tdmq url
+  triggers:
+    - type: timer
+
