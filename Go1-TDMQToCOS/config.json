@@ -1,8 +1,8 @@
 {
   "serverless-cloud-function-application": {
     "Chinese": {
-      "name": "TDMQ_TO_COS",
-      "description": "TDMQ转储到COS模版",
+      "name": "TDMQ 消息转储至 COS",
+      "description": "使用时间触发器定时调用函数对TDMQ消息进行消费，并将消息投递至指定COS Bucket。",
       "attention": "在使用本示例代码时需要传递相关函数的环境变量。",
       "author": {
         "name": "腾讯云"
@@ -18,7 +18,7 @@
     },
     "runtime": "Go1",
     "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Go1-TDMQToCOS",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "tags": [
       "Go1",
       "TDMQ",
