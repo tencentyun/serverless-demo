@@ -17,11 +17,11 @@
         }
       },
       "runtime": "Python3.6",
+      "handler": "index.main_handler",
       "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-SingleAudioRecorder",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "tags":[
             "Python3.6", "TRTC", "audio", "CFS", "COS", "ffmpeg"
       ]
   }
 }
-

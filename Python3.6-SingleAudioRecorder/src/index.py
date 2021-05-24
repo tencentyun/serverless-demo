@@ -29,12 +29,14 @@ logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 logger = logging.getLogger()
 logger.setLevel(level=logging.INFO)
 
+
 # 用于签发TRTC服务中必须要使用的UserSig鉴权票据
 # 默认过期时间24小时
 def gen_sig(sdk_appId, user_id, key):
     api = TLSSigAPIv2.TLSSigAPIv2(sdk_appId, key)
     user_sig = api.genUserSig(user_id, 86400)
     return user_sig
+
 
 # 获取进程id
 def get_pid(process):
@@ -51,6 +53,7 @@ def get_pid(process):
     else:
         return -1
 
+
 # 删除本地文件
 def delete_local_file(src):
     if os.path.isfile(src):
@@ -66,6 +69,7 @@ def delete_local_file(src):
             os.rmdir(src)
         except:
             pass
+
 
 # 遍历录制目录下所有音频文件，做检查和统计
 # 可能存在录制失败的中间文件，都做一个统计
@@ -84,6 +88,63 @@ def check_record_files(path):
     logger.info("A total of %d audio files were generated. %d successfully recorded flv files, %d failed files." % (
     len(record_files), len(flv_files), len(failed_files)))
     return flv_files, failed_files, len(record_files)
+
+
+# 获取音频文件cos存储位置
+def get_cos_audio_file(path, bucket, region, cos_path):
+    _file = os.path.basename(path)
+    params = _file.split('.')[0].split('-')
+    user_id = ""
+    cos_object = ""
+    if len(params) > 0:
+        user_id = params[4]
+        cos_object = "https://" + bucket + ".cos." + region + ".myqcloud.com" + cos_path + "/" + _file
+
+    return user_id, cos_object
+
+
+# 根据音频文件名称解析出主播id
+def get_anchor_id(path):
+    _file = os.path.basename(path)
+    params = _file.split('.')[0].split('-')
+    user_id = ""
+    if len(params) > 0:
+        user_id = params[4]
+
+    return user_id
+
+
+# 回调逻辑。可自定义回调逻辑
+# 存在录制失败，返回录制失败的主播和文件
+# 存在格式转换失败，返回转换失败的FLV文件
+def callback(url, sdk_app_id, room_id, user_id, cos_files, convert_failed_files, failed_files):
+    if len(url) <= 0:
+        print("callback url is empty, no need to callback.")
+        return
+
+    data = {}
+    data['SdkAppId'] = sdk_app_id
+    data['RoomId'] = room_id
+    data['UserId'] = user_id
+    # 录制失败或者转换失败响应
+    if len(failed_files) > 0 or len(convert_failed_files) > 0:
+        _failed_files = {}
+        _convert_failed_files = {}
+        for file in failed_files:
+            anchor_id = get_anchor_id(file)
+            _failed_files[anchor_id] = file
+        for file in convert_failed_files:
+            anchor_id = get_anchor_id(file)
+            _convert_failed_files[anchor_id] = file
+        message = "audio record failed. Record failed files: %s. Convert failed files: %s\n" % (json.dumps(_failed_files), json.dumps(_convert_failed_files))
+        data['Status'] = "fail"
+        data['Message'] = message
+    else:
+        data['Status'] = "success"
+        data['Files'] = cos_files
+
+    response = requests.post(url, json=data)
+    print("callback response:", response.text.encode('utf8'))
 
 
 # 主函数
@@ -133,7 +194,9 @@ def main_handler(event, context):
     logger.info('cos client init success. Cos target bucket: ' + target_bucket)
 
     # 子进程开启单流录制
-    record_path = os.path.join(work_dir, 'record')
+    t = time.time()
+    record_time = lambda: int(round(t * 1000))
+    record_path = os.path.join(work_dir, 'record_%d' % (record_time()))
     logger.info("start recording, record path: " + record_path)
 
     # step1 进房参数
@@ -146,6 +209,7 @@ def main_handler(event, context):
     room_id = trtc_param_['roomId']
     user_id = trtc_param_['userId']
     user_sig = trtc_param_['userSig']
+    callback_url = trtc_param_['callback']
 
     # step2 开始进房，开启单流录制
     try:
@@ -155,6 +219,7 @@ def main_handler(event, context):
         ret = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, check=True)
         if ret.returncode == 0:
             print('single stream record finished.')
+            print("audio record details:", ret.stdout)
         else:
             print("single stream record failed, err code:", ret.returncode)
     except Exception as e:
@@ -163,11 +228,13 @@ def main_handler(event, context):
 
     # 校验统计生成的音频文件，成功录制的flv文件转换成.mp3文件上传cos桶
     # 失败的音频文件直接上传cos桶做回溯
-    upload_path = os.path.join(work_dir, 'upload')
-    logger.info("local path to upload cos: " + record_path)
+    upload_path = os.path.join(work_dir, 'upload_%d' % (record_time()))
+    logger.info("local path to upload cos: " + upload_path)
     if not os.path.exists(upload_path):
         os.mkdir(upload_path)
     flv_files, failed_files, files_num = check_record_files(record_path)
+    convert_failed_files = []
+    cos_files = {}
     # 执行ffmpeg命令，将flv音频文件转化为MP3文件
     for flv_file in flv_files:
         _file = os.path.basename(flv_file)
@@ -181,6 +248,7 @@ def main_handler(event, context):
                 print('file convert: %s ---> %s finished.' % (flv_file, mp3_file))
             else:
                 print('file convert: %s ---> %s failed, ret code: %d' % (flv_file, mp3_file, ret.returncode))
+                convert_failed_files = convert_failed_files.append(flv_file)
             # 上传视频，可自定义上传路径
             # 如果转换成功，上传cos桶
             if os.path.exists(mp3_file):
@@ -189,6 +257,8 @@ def main_handler(event, context):
                     LocalFilePath=mp3_file,
                     Key=cos_path + '/' + filename + '.mp3'
                 )
+            anchor_id, audio_file = get_cos_audio_file(mp3_file, target_bucket, cos_region, cos_path)
+            cos_files[anchor_id] = audio_file
             # 上传完当前音频文件，立即删除flv文件和mp3文件
             delete_local_file(flv_file)
             delete_local_file(mp3_file)
@@ -198,7 +268,10 @@ def main_handler(event, context):
 
     # 清理工作目录和日志目录
     logger.info("clear work dir and log dir...")
-    delete_local_file(work_dir)
+    delete_local_file(record_path)
+    delete_local_file(upload_path)
     delete_local_file("/tmp")
+
+    callback(callback_url, sdk_app_id, room_id, user_id, cos_files, convert_failed_files, failed_files)
 
     return "record and upload success."
