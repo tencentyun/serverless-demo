@@ -62,7 +62,7 @@ def dealWithData(record):
     try:
         # 这里默认把msgBody直接存入Es，可以根据需求自定义解析
         # python2.7要解码，防止中文
-        msg_body = data.decode('utf-8')
+        msg_body = record.decode('utf-8')
 
         # 自定义index
         index_name = createIndex(ES_Index_KeyWord, ES_Index_TimeFormat)
@@ -84,6 +84,7 @@ def dealWithData(record):
 
 # 写入es
 def writeDataToEs(records):
+    print(len(records))
     for record in records:
         # 处理数据再写入
         data = dealWithData(record)
