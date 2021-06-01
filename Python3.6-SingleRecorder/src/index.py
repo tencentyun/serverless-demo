@@ -99,7 +99,7 @@ def check_record_files(path):
                     flv_files.append(path_)
                 else:
                     failed_files.append(path_)
-    logger.info("A total of %d audio files were generated. %d successfully recorded flv files, %d failed files." % (
+    logger.info("A total of %d recording files were generated. %d successfully recorded flv files, %d failed files." % (
         len(record_files), len(flv_files), len(failed_files)))
     return flv_files, failed_files, len(record_files)
 
@@ -128,12 +128,9 @@ def get_anchor_id(path):
     return user_id
 
 
-# 回调逻辑。可自定义回调逻辑
-def callback(url, sdk_app_id, is_str_room, room_id, user_id, success_files, convert_failed_files, failed_files,
+# 录制响应
+def response(sdk_app_id, is_str_room, room_id, user_id, success_files, convert_failed_files, failed_files,
              upload_failed_files):
-    if len(url) <= 0:
-        print("callback url is empty, no need to callback.")
-        return
 
     data = {}
     data['SdkAppId'] = sdk_app_id
@@ -144,37 +141,36 @@ def callback(url, sdk_app_id, is_str_room, room_id, user_id, success_files, conv
     else:
         data['RoomId'] = room_id
 
-    response = []
+    resp = []
     # 封装录制失败响应
     for file in failed_files:
         anchor_id = get_anchor_id(file)
-        resp = build_resp(anchor_id, "", 0, MSG_RECORD_FAIL)
-        response.append(resp)
+        _file = file_status(anchor_id, "", 0, MSG_RECORD_FAIL)
+        resp.append(_file)
 
     # 封装转换失败响应
     for file in convert_failed_files:
         anchor_id = get_anchor_id(file)
-        resp = build_resp(anchor_id, "", 0, MSG_CONVERT_FAIL)
-        response.append(resp)
+        _file = file_status(anchor_id, "", 0, MSG_CONVERT_FAIL)
+        resp.append(_file)
 
     # 封装上传失败响应
     for file in upload_failed_files:
         anchor_id = get_anchor_id(file)
-        resp = build_resp(anchor_id, "", 0, MSG_UPLOAD_FAIL)
-        response.append(resp)
+        _file = file_status(anchor_id, "", 0, MSG_UPLOAD_FAIL)
+        resp.append(_file)
 
     # 封装录制成功响应
     for key in success_files:
-        resp = build_resp(key, success_files[key], 1, MSG_RECORD_SUCCESS)
-        response.append(resp)
+        _file = file_status(key, success_files[key], 1, MSG_RECORD_SUCCESS)
+        resp.append(_file)
 
-    data['Files'] = response
+    data['Files'] = resp
 
-    response = requests.post(url, json=data)
-    print("callback response:", response.text.encode('utf8'))
+    return data
 
 
-def build_resp(user_id, cos_file, status, message):
+def file_status(user_id, cos_file, status, message):
     resp = {
         'UserId': user_id,
         'RecordFile': cos_file,
@@ -185,16 +181,21 @@ def build_resp(user_id, cos_file, status, message):
     return resp
 
 
-# 回调逻辑。
-def callback_msg(url, code, message):
-    if url == "":
-        print("callback url is empty, no need to callback.")
-        return
-
-    data = {
+# 错误响应
+def err_resp(code, message):
+    resp = {
         'Code': code,
         'Message': message
     }
+
+    return resp
+
+
+# 回调逻辑。
+def callback(url, data):
+    if not url:
+        print("callback url is empty, no need to callback.")
+        return
 
     response = requests.post(url, json=data)
     print("callback response:", response.text.encode('utf8'))
@@ -228,6 +229,19 @@ def record_mode(mode):
     return scene, recorder_mode, file_type
 
 
+def get_value(data, key=''):
+    value = None
+    if data and len(key) > 0:
+        if data.get(key):
+            value = data.get(key)
+
+        lower_key = key[0].lower() + key[1:]
+        if data.get(lower_key):
+            value = data.get(lower_key)
+
+    return value
+
+
 # 主函数
 def main_handler(event, context):
     logger.info("start main handler")
@@ -259,38 +273,44 @@ def main_handler(event, context):
     # 参数错误通过回调返回错误，提示校验参数
     trtc_param = event['body']
     callback_url = ""
+    is_str_room = False
     try:
         trtc_param_ = json.loads(trtc_param)
         logger.info("trtc params:" + json.dumps(trtc_param_))
 
-        callback_url = trtc_param_['Callback']
-        sdk_app_id = trtc_param_['SdkAppId']
-        user_id = trtc_param_['UserId']
-        user_sig = trtc_param_['UserSig']
+        callback_url = get_value(trtc_param_, 'Callback')
+        sdk_app_id = get_value(trtc_param_, 'SdkAppId')
+        user_id = get_value(trtc_param_, 'UserId')
+        user_sig = get_value(trtc_param_, 'UserSig')
 
-        cos_config = trtc_param_['CosConfig']
+        if not sdk_app_id or not user_id or not user_sig:
+            logger.error("bad request: SdkAppId or UserId or UserSig is empty, please check.")
+            raise KeyError('SdkAppId or UserId or UserSig is empty')
+
+        cos_config = get_value(trtc_param_, 'CosConfig')
+        if not cos_config:
+            logger.error("bad request: cos config is empty, please check.")
+            raise KeyError('cos config is empty')
+
         logger.info("cos config:" + json.dumps(cos_config))
 
-        cos_region = cos_config['Region']
-        target_bucket = cos_config['Bucket']
-        cos_path = cos_config['Path']
-
-        is_str_room = False
+        cos_region = get_value(cos_config, 'Region')
+        target_bucket = get_value(cos_config, 'Bucket')
+        cos_path = get_value(cos_config, 'Path')
 
         # 校验， roomId和strRoomId必传一个，生成录制命令
-        if not trtc_param_.get('StrRoomId') and not trtc_param_.get('RoomId'):
+        if not get_value(trtc_param_, 'StrRoomId') and not get_value(trtc_param_, 'RoomId'):
             logger.error("bad request: roomId is empty, please check.")
-            message = "bad request: roomId is empty, please check."
-            callback_msg(callback_url, ERROR_CODE_INVALID_PARAMETER, message)
             raise KeyError('roomId is empty')
 
-        if trtc_param_.get('StrRoomId') and not trtc_param_.get('RoomId'):
+        if get_value(trtc_param_, 'StrRoomId') and not get_value(trtc_param_, 'RoomId'):
             is_str_room = True
 
     except Exception as err:
         logger.error("bad request: request body[%s] is invalid, please check." % (trtc_param,))
         message = "bad request: request body[%s] is invalid, please check." % (trtc_param,)
-        callback_msg(callback_url, ERROR_CODE_INVALID_PARAMETER, message)
+        resp = err_resp(ERROR_CODE_INVALID_PARAMETER, message)
+        callback(callback_url, resp)
         raise err
 
     # 录制文件本地存放目录
@@ -300,9 +320,10 @@ def main_handler(event, context):
     logger.info("start recording, record path: " + record_path)
 
     # 从request中获取用户的secretid和secretkey，如果没有使用临时密钥初始化cos客户端
-    if cos_config.get('SecretId') and cos_config.get('SecretKey'):
-        secret_id = cos_config.get('SecretId')
-        secret_key = cos_config.get('SecretKey')
+    if get_value(cos_config, 'SecretId') and get_value(cos_config, 'SecretKey'):
+        secret_id = get_value(cos_config, 'SecretId')
+        secret_key = get_value(cos_config, 'SecretKey')
+
     # 初始化cos客户端
     cosClient = CosS3Client(CosConfig(Region=cos_region, SecretId=secret_id, SecretKey=secret_key, Token=token))
     logger.info('cos client init success. Cos target bucket: ' + target_bucket)
@@ -312,14 +333,14 @@ def main_handler(event, context):
     # 也无需设置太大，会导致等待很长时间
     timeout = 300000
     # 录制模式
-    scene, recorder_mode, file_type = record_mode(trtc_param_['Mode'])
+    scene, recorder_mode, file_type = record_mode(get_value(trtc_param_, 'Mode'))
 
     if not is_str_room:
-        room_id = trtc_param_['RoomId']
+        room_id = get_value(trtc_param_, 'RoomId')
         record_command = cmd_record % (
             scene, sdk_app_id, room_id, user_id, user_sig, record_path, recorder_mode, timeout)
     else:
-        room_id = trtc_param_['StrRoomId']
+        room_id = get_value(trtc_param_, 'StrRoomId')
         record_command = cmd_record_str_room % (
             scene, sdk_app_id, room_id, user_id, user_sig, record_path, recorder_mode, timeout, 1)
 
@@ -404,7 +425,9 @@ def main_handler(event, context):
         logging.exception(err)
         pass
 
-    callback(callback_url, sdk_app_id, is_str_room, room_id, user_id, success_files, convert_failed_files, failed_files,
-             upload_failed_files)
+    data = response(sdk_app_id, is_str_room, room_id, user_id, success_files, convert_failed_files,
+                    failed_files, upload_failed_files)
 
-    return "record and upload finished."
+    callback(callback_url, data)
+
+    return json.dumps(data)
