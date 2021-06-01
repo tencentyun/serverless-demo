@@ -138,8 +138,10 @@ def response(sdk_app_id, is_str_room, room_id, user_id, success_files, convert_f
 
     if is_str_room:
         data['StrRoomId'] = room_id
+        data['RoomId'] = None
     else:
         data['RoomId'] = room_id
+        data['StrRoomId'] = ""
 
     resp = []
     # 封装录制失败响应
