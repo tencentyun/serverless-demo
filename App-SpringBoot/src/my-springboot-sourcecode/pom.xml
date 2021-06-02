@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>examples</groupId>
-    <artifactId>scf-springboot-web</artifactId>
-    <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
-    <name>scf-springboot-web</name>
-
+    <groupId>example</groupId>
+    <artifactId>demo</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>demo</name>
+    <description>Demo project for Spring Boot</description>
+    <properties>
+        <java.version>1.8</java.version>
+    </properties>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.5.0</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
     <dependencies>
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -26,33 +32,51 @@
         <dependency>
             <groupId>com.tencentcloudapi</groupId>
             <artifactId>scf-java-events</artifactId>
-            <version>0.0.3</version>
+            <version>0.0.4</version>
         </dependency>
-
-        <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-parent -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
-            <version>2.1.1.RELEASE</version>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.1.1.RELEASE</version>
-    </parent>
+
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>3.1.1</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-maven-plugin</artifactId>
+                        <version>2.1.1.RELEASE</version>
+                    </dependency>
+                </dependencies>
                 <configuration>
                     <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <!--                    <createDependencyReducedPom>true</createDependencyReducedPom>-->
+                    <!--                    <keepDependenciesWithProvidedScope>true</keepDependenciesWithProvidedScope>-->
+                    <!--                    <filters>-->
+                    <!--                        <filter>-->
+                    <!--                            <artifact>*:*</artifact>-->
+                    <!--                            <excludes>-->
+                    <!--                                <exclude>META-INF/*.SF</exclude>-->
+                    <!--                                <exclude>META-INF/*.DSA</exclude>-->
+                    <!--                                <exclude>META-INF/*.RSA</exclude>-->
+                    <!--                            </excludes>-->
+                    <!--                        </filter>-->
+                    <!--                    </filters>-->
                 </configuration>
                 <executions>
                     <execution>
@@ -60,6 +84,24 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <!--                        <configuration>-->
+                        <!--                            <transformers>-->
+                        <!--                                <transformer-->
+                        <!--                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">-->
+                        <!--                                    <resource>META-INF/spring.handlers</resource>-->
+                        <!--                                </transformer>-->
+                        <!--                                <transformer-->
+                        <!--                                        implementation="org.springframework.boot.maven.PropertiesMergingResourceTransformer">-->
+                        <!--                                    <resource>META-INF/spring.factories</resource>-->
+                        <!--                                </transformer>-->
+                        <!--                                <transformer-->
+                        <!--                                        implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">-->
+                        <!--                                    <resource>META-INF/spring.schemas</resource>-->
+                        <!--                                </transformer>-->
+                        <!--                                <transformer-->
+                        <!--                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>-->
+                        <!--                            </transformers>-->
+                        <!--                        </configuration>-->
                     </execution>
                 </executions>
             </plugin>
@@ -72,15 +114,16 @@
                 </configuration>
             </plugin>
         </plugins>
+
         <resources>
             <resource>
-                <directory>${project.basedir}/lib</directory>
-                <targetPath>lib</targetPath>
+                <directory>src/main/resources</directory>
                 <includes>
-                    <include>**/*.jar</include>
+                    <include>**/**</include>
                 </includes>
+                <filtering>true</filtering>
             </resource>
         </resources>
-
     </build>
+
 </project>
