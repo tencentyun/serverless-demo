@@ -1,0 +1,15 @@
+app: appDemo
+stage: dev
+component: express
+name: expressDemo
+inputs:
+  src:
+    src: ./
+    exclude:
+      - .env
+  functionConf:
+    name: ${name}
+  apigatewayConf:
+    protocols:
+      - http
+      - https
