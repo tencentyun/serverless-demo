@@ -19,7 +19,7 @@
         "runtime": "Python3.6",
         "type": "app",
         "readme": "https://github.com/serverless-components/tencent-examples/tree/master/flask-starter",
-        "version": "1.1.4",
+        "version": "1.2.4",
         "tags": [
             "Flask",
             "APIGW",
