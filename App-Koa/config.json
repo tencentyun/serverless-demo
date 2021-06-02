@@ -17,6 +17,7 @@
             }
         },
         "runtime": "Nodejs10.15",
+        "type": "app",
         "readme": "https://github.com/serverless-components/tencent-examples/tree/master/koa-starter",
         "version": "1.0.2",
         "tags": [
