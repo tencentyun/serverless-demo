@@ -18,7 +18,7 @@
         },
         "runtime": "Nodejs12.16",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-ExpressDemo",
-        "version": "0.0.1",
+        "version": "0.1.1",
         "tags": [
             "WebFunc",
             "Express",
