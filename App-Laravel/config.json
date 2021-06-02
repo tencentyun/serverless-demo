@@ -17,6 +17,7 @@
             }
         },
         "runtime": "PHP7",
+        "type": "app",
         "readme": "https://github.com/serverless-components/tencent-examples/tree/master/laravel-starter",
         "version": "1.1.2",
         "tags": [
