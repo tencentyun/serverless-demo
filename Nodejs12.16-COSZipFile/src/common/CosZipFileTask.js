@@ -117,7 +117,15 @@ class CosZipFileTask {
         url,
       });
       getRangeStreamFromUrl({ url: signUrl })
-        .on('error', err => passThrough.emit('error', err))
+        .on('error', (err) => {
+          if (typeof err === 'object') {
+            err.action = 'getObject';
+            if (err.error && typeof err.error === 'object') {
+              err.error.action = 'getObject';
+            }
+          }
+          passThrough.emit('error', err);
+        })
         .pipe(passThrough);
     });
   }

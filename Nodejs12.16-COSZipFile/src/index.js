@@ -89,7 +89,8 @@ exports.main_handler = async (event, context) => {
         ETag,
       },
     };
-  } catch (error) {
+  } catch (err) {
+    const error = err.stack ? { message: err.message } : err;
     const response = {
       code: -1,
       message: 'cos zip file fail',

@@ -50,6 +50,12 @@ class CosMultiUpload {
             const res = await cosSdkInstance[method](...args);
             return res;
           } catch (err) {
+            if (typeof err === 'object') {
+              err.action = method;
+              if (err.error && typeof err.error === 'object') {
+                err.error.action = method;
+              }
+            }
             throw err;
           }
         },
