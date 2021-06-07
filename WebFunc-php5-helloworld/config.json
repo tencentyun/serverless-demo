@@ -16,14 +16,14 @@
                 "name": "Tencent Cloud"
             }
         },
-        "runtime": "PHP5",
+        "runtime": "Php5",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-php5-helloworld",
-        "version": "0.2.5",
+        "version": "0.2.6",
         "tags": [
             "WebFunc",
             "helloworld",
-            "PHP5"
+            "Php5"
         ]
     }
 }

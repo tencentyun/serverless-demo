@@ -16,14 +16,14 @@
                 "name": "Tencent Cloud"
             }
         },
-        "runtime": "Python2",
+        "runtime": "Python2.7",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-python2-helloworld",
-        "version": "0.2.5",
+        "version": "0.2.6",
         "tags": [
             "WebFunc",
             "helloworld",
-            "Python2"
+            "Python2.7"
         ]
     }
 }
