@@ -18,7 +18,7 @@
         },
         "runtime": "Nodejs8.9",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-Kafka",
-        "version": "1.0.5",
+        "version": "1.1.5",
         "tags": [
             "Nodejs8.9",
             "Ckafka"
