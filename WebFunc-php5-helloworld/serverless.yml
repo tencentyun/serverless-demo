@@ -1,0 +1,24 @@
+component: scf
+name: ap-guangzhou_helloworld_demo_php5
+inputs:
+  name: helloworld_demo_php5
+  src:
+    src: ./src
+  type: web
+  runtime: PHP5
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3
+  triggers:
+     - type: apigw
+       name: SCF_API_SERVICE
+       protocols:
+        - http
+        - https
+      environment: release
+      netTypes:
+        - OUTER
+      apis:
+        - path: /
+          method: ANY

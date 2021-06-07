@@ -1,0 +1,2 @@
+#!/bin/bash
+/var/lang/python2/bin/python app.py
