@@ -19,7 +19,7 @@
         "runtime": "Python3.6",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-python3-helloworld",
-        "version": "0.2.5",
+        "version": "0.2.6",
         "tags": [
             "WebFunc",
             "helloworld",
