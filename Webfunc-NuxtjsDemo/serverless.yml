@@ -1,0 +1,24 @@
+component: scf
+name: ap-guangzhou_nuxtjs_demo
+inputs:
+  name: nuxtjs_demo
+  src:
+    src: ./src
+  type: web
+  runtime: Nodejs12.16
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3
+  triggers:
+     - type: apigw
+       name: SCF_API_SERVICE
+       protocols:
+        - http
+        - https
+      environment: release
+      netTypes:
+        - OUTER
+      apis:
+        - path: /
+          method: ANY
