@@ -1,0 +1,48 @@
+{
+  "name": "stream-wormhole",
+  "version": "1.1.0",
+  "description": "Pipe ReadStream to a wormhole",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "scripts": {
+    "test": "npm run lint && mocha test/*.test.js -r thunk-mocha",
+    "test-cov": "istanbul cover _mocha -- test/*.test.js -r thunk-mocha",
+    "lint": "eslint *.js test",
+    "ci": "npm run lint && npm run test-cov"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "autod": "*",
+    "egg-ci": "^1.0.2",
+    "eslint": "3",
+    "eslint-config-egg": "3",
+    "istanbul": "*",
+    "mocha": "*",
+    "thunk-mocha": "^1.0.3"
+  },
+  "homepage": "https://github.com/node-modules/stream-wormhole",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/node-modules/stream-wormhole.git",
+    "web": "https://github.com/node-modules/stream-wormhole"
+  },
+  "bugs": {
+    "url": "https://github.com/node-modules/stream-wormhole/issues",
+    "email": "m@fengmk2.com"
+  },
+  "keywords": [
+    "stream-wormhole",
+    "wormhole",
+    "stream"
+  ],
+  "engines": {
+    "node": ">=4.0.0"
+  },
+  "ci": {
+    "version": "4, 6, 8, 10"
+  },
+  "author": "fengmk2 <m@fengmk2.com> (http://fengmk2.com)",
+  "license": "MIT"
+}

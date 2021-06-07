@@ -1,0 +1,18 @@
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+
+var noop = function noop() {};
+var _console = {
+  log: noop,
+  debug: noop,
+  info: noop,
+  warn: noop,
+  error: noop
+};
+
+exports.default = typeof console !== 'undefined' ? console : _console;
+module.exports = exports['default'];
+//# sourceMappingURL=logger.js.map

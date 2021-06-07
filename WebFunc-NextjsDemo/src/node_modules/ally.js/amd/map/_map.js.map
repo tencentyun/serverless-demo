@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/map/_map.js"],"names":["attribute","keycode"],"mappings":";;;;;;;;;;;;;;;;;;;;;;;;;;;;;oBAKe;AACbA,kCADa;AAEbC;AAFa,G","file":"_map.js","sourcesContent":["\n// exporting modules to be included the UMD bundle\n\nimport attribute from './attribute';\nimport keycode from './keycode';\nexport default {\n  attribute,\n  keycode,\n};\n"]}

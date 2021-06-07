@@ -1,0 +1,71 @@
+{
+  "name": "node-res",
+  "version": "5.0.1",
+  "description": "Nodejs http response builder",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "methods.js"
+  ],
+  "scripts": {
+    "lint": "standard",
+    "pretest": "npm run lint",
+    "posttest": "npm run coverage",
+    "test:local": "FORCE_COLOR=true node bin/index.js --local",
+    "test": "./node_modules/.bin/nyc npm run test:local",
+    "test:win": "set FORCE_COLOR=true && node bin/index.js --win",
+    "coverage": "nyc report --reporter=text-lcov | coveralls"
+  },
+  "author": "amanvirk",
+  "license": "MIT",
+  "devDependencies": {
+    "co-functional": "^0.2.1",
+    "coveralls": "^3.0.2",
+    "cz-conventional-changelog": "^2.1.0",
+    "japa": "^1.0.6",
+    "japa-cli": "^1.0.1",
+    "nyc": "^12.0.2",
+    "semver": "^5.5.1",
+    "standard": "^11.0.1",
+    "supertest": "^3.1.0"
+  },
+  "dependencies": {
+    "destroy": "^1.0.4",
+    "etag": "^1.8.1",
+    "mime-types": "^2.1.19",
+    "on-finished": "^2.3.0",
+    "vary": "^1.1.2"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/poppinss/node-res.git"
+  },
+  "keywords": [
+    "node-res",
+    "http",
+    "response",
+    "http-res",
+    "response",
+    "builder",
+    "res",
+    "builder"
+  ],
+  "bugs": {
+    "url": "https://github.com/poppinss/node-res/issues"
+  },
+  "homepage": "https://github.com/poppinss/node-res#readme",
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "nyc": {
+    "include": [
+      "index.js",
+      "methods.js"
+    ]
+  }
+}

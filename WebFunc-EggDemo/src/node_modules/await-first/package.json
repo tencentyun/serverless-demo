@@ -1,0 +1,49 @@
+{
+  "name": "await-first",
+  "version": "1.0.0",
+  "description": "Wait the first event in a set of event emitters and event pairs, then clean up after itself.",
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "autod": "autod",
+    "pkgfiles": "egg-bin pkgfiles --check",
+    "test": "npm run lint && npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "TEST_TIMEOUT=5000 egg-bin cov",
+    "lint": "eslint . --ext .js",
+    "ci": "npm run autod -- --check && npm run pkgfiles && npm run lint && npm run cov"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/node-modules/await-first.git"
+  },
+  "keywords": [
+    "ee-first",
+    "await"
+  ],
+  "author": "gxcsoccer <gxcsoccer@126.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/node-modules/await-first/issues"
+  },
+  "homepage": "https://github.com/node-modules/await-first#readme",
+  "dependencies": {
+    "ee-first": "^1.1.1"
+  },
+  "devDependencies": {
+    "autod": "^3.0.1",
+    "egg-bin": "^4.3.5",
+    "egg-ci": "^1.8.0",
+    "eslint": "^4.11.0",
+    "eslint-config-egg": "^5.1.1",
+    "mm": "^2.2.0"
+  },
+  "ci": {
+    "version": "6, 8, 9"
+  },
+  "engines": {
+    "node": ">= 6.0.0"
+  }
+}

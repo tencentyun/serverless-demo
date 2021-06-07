@@ -1,0 +1,60 @@
+{
+  "name": "@eggjs/router",
+  "version": "2.0.0",
+  "description": "Router middleware for egg/koa. Provides RESTful resource routing.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eggjs/egg-router.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eggjs/egg/issues"
+  },
+  "files": [
+    "lib",
+    "index.js"
+  ],
+  "author": "eggjs",
+  "keywords": [
+    "koa",
+    "middleware",
+    "router",
+    "route"
+  ],
+  "dependencies": {
+    "co": "^4.6.0",
+    "debug": "^3.1.0",
+    "http-errors": "^1.3.1",
+    "inflection": "^1.12.0",
+    "is-type-of": "^1.2.1",
+    "koa-compose": "^3.0.0",
+    "koa-convert": "^1.2.0",
+    "methods": "^1.0.1",
+    "path-to-regexp": "^1.1.1",
+    "urijs": "^1.19.0",
+    "utility": "^1.15.0"
+  },
+  "devDependencies": {
+    "egg-bin": "^4.10.0",
+    "egg-ci": "^1.11.0",
+    "eslint": "^5.13.0",
+    "eslint-config-egg": "^7.1.0",
+    "expect.js": "^0.3.1",
+    "koa": "^2.7.0",
+    "mocha": "^2.0.1",
+    "should": "^6.0.3",
+    "supertest": "^1.0.1"
+  },
+  "scripts": {
+    "test-local": "egg-bin test",
+    "test": "npm run lint && egg-bin test",
+    "ci": "npm run lint && egg-bin cov",
+    "lint": "eslint ."
+  },
+  "ci": {
+    "version": "8, 10, 11"
+  },
+  "engines": {
+    "node": ">= 8"
+  },
+  "license": "MIT"
+}

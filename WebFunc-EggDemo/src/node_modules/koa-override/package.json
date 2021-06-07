@@ -1,0 +1,52 @@
+{
+  "name": "koa-override",
+  "version": "3.0.0",
+  "description": "method override middleware for koa",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "scripts": {
+    "test": "egg-bin test",
+    "cov": "egg-bin cov",
+    "lint": "eslint test *.js",
+    "ci": "npm run lint && npm run cov",
+    "autod": "autod -w --prefix '^'"
+  },
+  "dependencies": {
+    "methods": "^1.1.2"
+  },
+  "devDependencies": {
+    "autod": "*",
+    "egg-bin": "^4.3.5",
+    "egg-ci": "^1.7.0",
+    "eslint": "^4.0.0",
+    "eslint-config-egg": "^4.2.1",
+    "koa": "2",
+    "koa-bodyparser": "4",
+    "supertest": "3"
+  },
+  "homepage": "https://github.com/node-modules/koa-override",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/node-modules/koa-override.git"
+  },
+  "bugs": {
+    "url": "https://github.com/node-modules/koa-override/issues"
+  },
+  "keywords": [
+    "koa-override",
+    "override-method",
+    "method-override",
+    "override",
+    "rewrite"
+  ],
+  "engines": {
+    "node": ">= 8.0.0"
+  },
+  "ci": {
+    "version": "8, 9"
+  },
+  "author": "fengmk2 <fengmk2@gmail.com> (http://fengmk2.com)",
+  "license": "MIT"
+}

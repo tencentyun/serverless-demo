@@ -1,0 +1,31 @@
+{
+  "name": "destr",
+  "version": "1.1.0",
+  "description": "A faster, secure and convenient alternative for JSON.parse",
+  "repository": "nuxt-contrib/destr",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "bench": "yarn build && node ./bench.js",
+    "build": "siroc build",
+    "lint": "eslint --ext .ts .",
+    "release": "yarn test && yarn build && standard-version && git push --follow-tags && npm publish",
+    "test": "yarn lint"
+  },
+  "devDependencies": {
+    "@hapi/bourne": "latest",
+    "@nuxtjs/eslint-config-typescript": "latest",
+    "benchmark": "latest",
+    "eslint": "latest",
+    "rollup-plugin-typescript2": "latest",
+    "secure-json-parse": "latest",
+    "siroc": "latest",
+    "standard-version": "latest",
+    "typescript": "latest"
+  }
+}

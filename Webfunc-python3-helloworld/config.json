@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "Python3 HelloWorld Web Demo",
+            "name": "Python3-WebDemo",
             "description": "A HelloWorld demo for APIGW and python Web Function",
             "attention": "None",
             "author": {
@@ -19,7 +19,7 @@
         "runtime": "Python3.6",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-python3-helloworld",
-        "version": "0.2.6",
+        "version": "0.2.8",
         "tags": [
             "WebFunc",
             "helloworld",

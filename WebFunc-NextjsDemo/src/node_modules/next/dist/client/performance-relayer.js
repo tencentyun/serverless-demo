@@ -1,0 +1,2 @@
+"use strict";exports.__esModule=true;exports.default=void 0;var _webVitals=require("web-vitals");var _default=onPerfEntry=>{(0,_webVitals.getCLS)(onPerfEntry);(0,_webVitals.getFID)(onPerfEntry);(0,_webVitals.getFCP)(onPerfEntry);(0,_webVitals.getLCP)(onPerfEntry);(0,_webVitals.getTTFB)(onPerfEntry);};exports.default=_default;
+//# sourceMappingURL=performance-relayer.js.map

@@ -1,0 +1,56 @@
+{
+  "name": "egg-session",
+  "version": "3.3.0",
+  "description": "session plugin for egg",
+  "eggPlugin": {
+    "name": "session"
+  },
+  "files": [
+    "config",
+    "app",
+    "app.js"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:eggjs/egg-session.git"
+  },
+  "keywords": [
+    "egg",
+    "egg-plugin",
+    "eggPlugin",
+    "session",
+    "cookie"
+  ],
+  "dependencies": {
+    "koa-session": "^6.0.0"
+  },
+  "devDependencies": {
+    "autod": "^2.10.1",
+    "egg": "next",
+    "egg-bin": "^4.3.5",
+    "egg-ci": "^1.8.0",
+    "egg-mock": "^3.13.1",
+    "egg-redis": "^1.0.1",
+    "eslint": "^4.10.0",
+    "eslint-config-egg": "^5.1.1",
+    "mz-modules": "^2.0.0",
+    "supertest": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "test": "npm run lint -- --fix && egg-bin test",
+    "test-local": "egg-bin test",
+    "cov": "egg-bin cov",
+    "ci": "npm run lint && npm run cov",
+    "autod": "autod"
+  },
+  "ci": {
+    "version": "8, 10, 12",
+    "services": "redis-server",
+    "type": "travis"
+  },
+  "author": "dead_horse"
+}

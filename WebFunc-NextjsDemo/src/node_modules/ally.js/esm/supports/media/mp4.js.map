@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/supports/media/mp4.js"],"names":["gif"],"mappings":";AACA;AACA,OAAOA,GAAP,MAAgB,OAAhB;AACA,eAAeA,GAAf","file":"mp4.js","sourcesContent":["\n// export default 'data:video/mp4;base64,video-focus-test';\nimport gif from './gif';\nexport default gif;\n"]}

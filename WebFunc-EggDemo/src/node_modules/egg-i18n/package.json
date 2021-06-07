@@ -1,0 +1,56 @@
+{
+  "name": "egg-i18n",
+  "version": "2.1.1",
+  "eggPlugin": {
+    "name": "i18n"
+  },
+  "description": "i18n plugin for egg",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint lib test *.js",
+    "test": "npm run lint && egg-bin test",
+    "cov": "egg-bin cov",
+    "ci": "npm run lint && npm run cov",
+    "autod": "autod"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eggjs/egg-i18n.git"
+  },
+  "keywords": [
+    "egg",
+    "i18n"
+  ],
+  "author": "gxcsoccer <gxcsoccer@126.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/eggjs/egg-i18n/issues"
+  },
+  "homepage": "https://github.com/eggjs/egg-i18n#readme",
+  "engines": {
+    "node": ">= 8.0.0"
+  },
+  "files": [
+    "app",
+    "config",
+    "app.js"
+  ],
+  "ci": {
+    "version": "8, 10, 12"
+  },
+  "dependencies": {
+    "debug": "^3.1.0",
+    "koa-locales": "^1.11.0"
+  },
+  "devDependencies": {
+    "autod": "^2.10.1",
+    "egg": "^2.21.1",
+    "egg-bin": "^4.3.5",
+    "egg-ci": "^1.8.0",
+    "egg-mock": "^3.13.1",
+    "egg-view-nunjucks": "^2.1.4",
+    "eslint": "^4.10.0",
+    "eslint-config-egg": "^5.1.1",
+    "pedding": "^1.1.0"
+  }
+}

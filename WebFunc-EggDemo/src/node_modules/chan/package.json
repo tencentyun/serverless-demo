@@ -1,0 +1,49 @@
+{
+  "name": "chan",
+  "version": "0.6.1",
+  "description": "A go style channel implementation that works nicely with co",
+  "main": "index.js",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/brentburgoyne/chan"
+  },
+  "keywords": [
+    "async",
+    "go",
+    "channel",
+    "co",
+    "generator"
+  ],
+  "author": "Brent Burgoyne",
+  "contributors": [
+    {
+      "name": "Brent Burgoyne"
+    },
+    {
+      "name": "TJ Holowaychuk",
+      "email": "tj@vision-media.ca"
+    },
+    {
+      "name": "Eugene Ware",
+      "email": "eugene@noblesamurai.com"
+    }
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/brentburgoyne/chan/issues"
+  },
+  "homepage": "https://github.com/brentburgoyne/chan",
+  "devDependencies": {
+    "co": "^3.0.6",
+    "co-wait": "0.0.0",
+    "expect.js": "^0.3.1",
+    "mocha": "^1.20.1",
+    "should": "^4.0.4",
+    "sinon": "^1.10.3",
+    "split": "^0.3.0",
+    "superagent": "^0.18.0"
+  }
+}

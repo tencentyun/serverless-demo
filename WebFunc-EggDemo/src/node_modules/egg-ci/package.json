@@ -1,0 +1,66 @@
+{
+  "name": "egg-ci",
+  "version": "1.18.0",
+  "description": "Auto gen ci config file",
+  "main": "index.js",
+  "files": [
+    "templates",
+    "install.js"
+  ],
+  "scripts": {
+    "env": "node -e 'console.log(process.env)'",
+    "test": "ava",
+    "cov": "nyc ava && nyc report --reporter=json --reporter=lcov",
+    "lint": "eslint *.js test --fix",
+    "ci": "npm run lint && npm run cov",
+    "egg-ci": "CI_ROOT_FOR_TEST=$PWD node install.js",
+    "postinstall": "node install.js",
+    "postinstall-local": "CI_ROOT_FOR_TEST=$PWD node install.js",
+    "autod": "autod -w --prefix='^'"
+  },
+  "keywords": [
+    "egg",
+    "travis",
+    "appveyor",
+    "ci"
+  ],
+  "author": "fengmk2 <fengmk2@gmail.com> (https://fengmk2.com)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eggjs/egg-ci.git"
+  },
+  "bug": {
+    "url": "https://github.com/eggjs/egg/issues"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "nunjucks": "^3.1.3"
+  },
+  "devDependencies": {
+    "autod": "2",
+    "ava": "^0.25.0",
+    "eslint": "3",
+    "eslint-config-egg": "3",
+    "nyc": "10",
+    "rimraf": "^2.6.2"
+  },
+  "engine": {
+    "node": ">=8.0.0"
+  },
+  "ava": {
+    "files": [
+      "test/**/*.test.js"
+    ]
+  },
+  "ci": {
+    "type": "travis, github",
+    "version": "10, 12, 14",
+    "os": {
+      "travis": "linux, osx, windows"
+    },
+    "nyc": true,
+    "license": {
+      "year": 2017
+    }
+  }
+}

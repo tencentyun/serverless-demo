@@ -1,0 +1,53 @@
+{
+  "name": "serialize-json",
+  "version": "1.0.3",
+  "description": "A serialize algorithm for JSON",
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "autod": "autod",
+    "pkgfiles": "egg-bin pkgfiles --check",
+    "lint": "eslint --ext .js lib test",
+    "test": "npm run lint && npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "egg-bin cov",
+    "ci": "npm run autod -- --check && npm run lint && npm run cov"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/node-modules/serialize-json.git"
+  },
+  "keywords": [
+    "json",
+    "serialization"
+  ],
+  "author": "gxcsoccer@126.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/node-modules/serialize-json/issues"
+  },
+  "homepage": "https://github.com/node-modules/serialize-json#readme",
+  "dependencies": {
+    "debug": "^3.2.6",
+    "is-type-of": "^1.2.1",
+    "utility": "^1.15.0"
+  },
+  "devDependencies": {
+    "autod": "^3.0.1",
+    "beautify-benchmark": "^0.2.4",
+    "benchmark": "^2.1.4",
+    "egg-bin": "^1.11.1",
+    "egg-ci": "^1.10.0",
+    "eslint": "^4.19.1",
+    "eslint-config-egg": "^6.0.0",
+    "mm": "^2.4.1"
+  },
+  "engines": {
+    "node": ">= 4.0.0"
+  },
+  "ci": {
+    "version": "4, 6, 8, 10, 11"
+  }
+}

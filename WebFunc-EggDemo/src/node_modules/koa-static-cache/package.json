@@ -1,0 +1,69 @@
+{
+  "name": "koa-static-cache",
+  "description": "Static cache for koa",
+  "version": "5.1.4",
+  "author": {
+    "name": "Jonathan Ong",
+    "email": "me@jongleberry.com",
+    "url": "http://jongleberry.com",
+    "twitter": "https://twitter.com/jongleberry"
+  },
+  "contributors": [
+    {
+      "name": "Jeremiah Senkpiel",
+      "email": "fishrock123@rocketmail.com",
+      "url": "https://searchbeam.jit.su",
+      "twitter": "https://twitter.com/fishrock123"
+    },
+    {
+      "name": "dead_horse",
+      "email": "dead_horse@qq.com",
+      "url": "http://deadhorse.me",
+      "twitter": "https://twitter.com/deadhorse_busi"
+    }
+  ],
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "koa",
+    "middleware",
+    "file",
+    "static",
+    "cache",
+    "gzip",
+    "sendfile"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/koajs/static-cache.git"
+  },
+  "bugs": {
+    "mail": "me@jongleberry.com",
+    "url": "https://github.com/koajs/static-cache/issues"
+  },
+  "dependencies": {
+    "compressible": "^2.0.6",
+    "debug": "^3.1.0",
+    "fs-readdir-recursive": "^1.0.0",
+    "mime-types": "^2.1.8",
+    "mz": "^2.7.0"
+  },
+  "devDependencies": {
+    "bluebird": "3",
+    "istanbul": "~0.4.1",
+    "koa": "2",
+    "mocha": "2",
+    "should": "8",
+    "should-http": "0.0.4",
+    "supertest": "1",
+    "ylru": "1"
+  },
+  "scripts": {
+    "test": "make test"
+  },
+  "engines": {
+    "node": ">= 7.6.0"
+  }
+}
