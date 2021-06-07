@@ -1,0 +1,22 @@
+#!/bin/bash
+
+#######################################
+# 注入 serverless 环境下的环境变量
+#######################################
+# 注入 SERVERLESS 标识
+export SERVERLESS=1
+# 修改模板编译缓存路径，云函数只有 /tmp 目录可读写
+export VIEW_COMPILED_PATH=/tmp/storage/framework/views
+# 修改 session 以内存方式（数组类型）存储
+export SESSION_DRIVER=array
+# 日志输出到 stderr
+export LOG_CHANNEL=stderr
+# 修改应用存储路径
+export APP_STORAGE=/tmp/storage
+
+# 初始化模板缓存目录
+mkdir -p /tmp/storage/framework/views
+
+# HTTP 直通函数由于是基于 docker 镜像运行，所以必须监听地址为 0.0.0.0，并且端口为 9000
+# 云端可执行文件路径 /var/lang/php7/bin/php
+/var/lang/php7/bin/php artisan serve --host 0.0.0.0 --port 9000

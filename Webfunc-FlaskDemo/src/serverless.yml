@@ -1,0 +1,20 @@
+app: appDemo
+stage: dev
+component: flask
+name: flaskDemo
+inputs:
+  src:
+    hook: pip3 install -r requirements.txt -t ./
+    dist: ./
+    exclude:
+      - .env
+      - __pycache__/**
+  region: ap-guangzhou
+  functionConf:
+    name: ${name}
+    runtime: Python3.6
+  apigatewayConf:
+    protocols:
+      - http
+      - https
+    environment: release
