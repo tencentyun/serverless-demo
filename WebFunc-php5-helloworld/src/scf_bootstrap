@@ -1,0 +1,2 @@
+#!/bin/bash
+/var/lang/php5/bin/php -S 0.0.0.0:9000 hello.php
