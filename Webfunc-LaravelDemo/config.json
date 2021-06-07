@@ -19,7 +19,7 @@
         "runtime": "Php7",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-LaravelDemo",
-        "version": "0.2.1",
+        "version": "0.2.5",
         "tags": [
             "WebFunc",
             "Laravel",
