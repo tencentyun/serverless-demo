@@ -1,0 +1,22 @@
+{
+  "name": "black-hole-stream",
+  "version": "0.0.1",
+  "description": "A writeable stream which silently drops all incoming data similar to /dev/null",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/meaku/black-hole-stream.git"
+  },
+  "keywords": [
+    "stream",
+    "writeable",
+    "black-hole",
+    "dev-null"
+  ],
+  "author": "meaku <michael.jaser@peerigon.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/meaku/black-hole-stream/issues"
+  },
+  "homepage": "https://github.com/meaku/black-hole-stream"
+}

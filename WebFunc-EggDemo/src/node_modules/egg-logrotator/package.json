@@ -1,0 +1,76 @@
+{
+  "name": "egg-logrotator",
+  "version": "3.1.0",
+  "description": "logrotator for egg",
+  "eggPlugin": {
+    "name": "logrotator",
+    "dep": [
+      "schedule"
+    ]
+  },
+  "keywords": [
+    "egg",
+    "eggPlugin",
+    "egg-plugin",
+    "logger",
+    "logrotator"
+  ],
+  "files": [
+    "app",
+    "utils.js",
+    "config",
+    "agent.js",
+    "app.js"
+  ],
+  "dependencies": {
+    "debug": "^4.1.1",
+    "moment": "^2.24.0",
+    "mz": "^2.7.0"
+  },
+  "devDependencies": {
+    "autod": "^3.1.0",
+    "egg": "^2.0.0",
+    "egg-bin": "^4.13.0",
+    "egg-ci": "^1.11.0",
+    "egg-logger": "^2.4.1",
+    "egg-mock": "^3.22.2",
+    "eslint": "^5.16.0",
+    "eslint-config-egg": "^7.3.1",
+    "glob": "^7.1.3",
+    "mz-modules": "^2.1.0",
+    "pedding": "1"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pkgfiles": "egg-bin pkgfiles",
+    "test": "npm run lint -- --fix && npm run pkgfiles && npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "egg-bin cov",
+    "ci": "npm run lint && npm run pkgfiles -- --check && npm run cov",
+    "autod": "autod"
+  },
+  "ci": {
+    "type": "travis",
+    "os": {
+      "travis": "linux, osx, windows"
+    },
+    "nyc": true,
+    "version": "8, 10",
+    "license": {
+      "year": 2016
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eggjs/egg-logrotator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eggjs/egg/issues"
+  },
+  "homepage": "https://github.com/eggjs/egg-logrotator#readme",
+  "author": "tianyi.jiangty",
+  "license": "MIT"
+}

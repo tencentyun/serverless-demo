@@ -1,0 +1,33 @@
+{
+  "name": "await-event",
+  "description": "yield an event with generators",
+  "version": "2.1.0",
+  "author": {
+    "name": "Jonathan Ong",
+    "email": "me@jongleberry.com",
+    "url": "http://jongleberry.com",
+    "twitter": "https://twitter.com/jongleberry"
+  },
+  "license": "MIT",
+  "repository": "cojs/await-event",
+  "keywords": [
+    "co",
+    "events",
+    "event-emitter",
+    "await"
+  ],
+  "scripts": {
+    "test": "jest --forceExit",
+    "test-cov": "jest --coverage --forceExit"
+  },
+  "devDependencies": {
+    "co": "^4.6.0",
+    "jest": "^18.1.0"
+  },
+  "jest": {
+    "testEnvironment": "node"
+  },
+  "files": [
+    "index.js"
+  ]
+}

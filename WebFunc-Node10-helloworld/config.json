@@ -1,7 +1,7 @@
 {
     "serverless-cloud-function-application": {
         "Chinese": {
-            "name": "Node.js 10 Web 函数模版",
+            "name": "Node10 Web 模版",
             "description": "基于 Node.js 10，使用 API 网关和 Web 函数，快速部署 Hello world 示例项目",
             "attention": "无",
             "author": {
@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "Node.js10 HelloWorld Web Demo",
+            "name": "Node10-Demo",
             "description": "A HelloWorld demo for APIGW and python Web Function",
             "attention": "None",
             "author": {
@@ -19,7 +19,7 @@
         "runtime": "Nodejs10.15",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-Node10-helloworld",
-        "version": "0.1.5",
+        "version": "0.1.6",
         "tags": [
             "WebFunc",
             "helloworld",

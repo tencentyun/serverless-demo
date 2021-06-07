@@ -1,0 +1,61 @@
+{
+  "name": "byte",
+  "version": "2.0.0",
+  "description": "Input Buffer and Output Buffer, just like Java ByteBuffer",
+  "main": "lib/byte.js",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "autod": "autod",
+    "lint": "eslint lib test *.js",
+    "test": "npm run lint && egg-bin test",
+    "test-local": "egg-bin test",
+    "cov": "egg-bin cov",
+    "pkgfiles": "egg-bin pkgfiles",
+    "ci": "npm run autod -- --check && egg-bin pkgfiles --check && npm run lint && npm run cov",
+    "contributors": "contributors -f plain -o AUTHORS",
+    "optimized": "node --allow-natives-syntax --trace_opt --trace_deopt test/optimized.js"
+  },
+  "dependencies": {
+    "debug": "^3.1.0",
+    "long": "^4.0.0",
+    "utility": "^1.13.1"
+  },
+  "devDependencies": {
+    "autod": "^3.0.1",
+    "beautify-benchmark": "^0.2.4",
+    "benchmark": "^2.1.4",
+    "egg-bin": "^4.7.0",
+    "egg-ci": "^1.8.0",
+    "eslint": "^4.19.1",
+    "eslint-config-egg": "^7.0.0",
+    "fastbench": "^1.0.1",
+    "optimized": "^1.2.0"
+  },
+  "homepage": "https://github.com/node-modules/byte",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/node-modules/byte.git",
+    "web": "https://github.com/node-modules/byte"
+  },
+  "bugs": {
+    "url": "https://github.com/node-modules/byte/issues",
+    "email": "fengmk2@gmail.com"
+  },
+  "keywords": [
+    "ByteBuffer",
+    "byte",
+    "bytes",
+    "io",
+    "buffer"
+  ],
+  "engines": {
+    "node": ">= 8.0.0"
+  },
+  "ci": {
+    "version": "8, 10"
+  },
+  "author": "fengmk2 <fengmk2@gmail.com> (http://fengmk2.com)",
+  "license": "MIT"
+}

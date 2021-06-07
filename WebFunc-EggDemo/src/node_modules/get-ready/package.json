@@ -1,0 +1,47 @@
+{
+  "name": "get-ready",
+  "version": "2.0.1",
+  "description": "mixin to add one-time ready event callback handler",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "dependencies": {
+    "is-type-of": "^1.0.0"
+  },
+  "engines": {
+    "node": ">= 4.0.0"
+  },
+  "devDependencies": {
+    "autod": "^2.7.1",
+    "egg": "^0.11.0",
+    "egg-bin": "^2.0.2",
+    "egg-ci": "^1.1.0",
+    "eslint": "^3.15.0",
+    "eslint-config-egg": "^3.2.0"
+  },
+  "scripts": {
+    "autod": "autod",
+    "lint": "eslint .",
+    "test": "npm run lint && egg-bin test",
+    "cov": "egg-bin cov",
+    "ci": "npm run lint && npm run cov"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/node-modules/ready"
+  },
+  "keywords": [
+    "ready",
+    "once",
+    "event"
+  ],
+  "author": "fengmk2 <m@fengmk2.com> (http://fengmk2.com)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/node-modules/ready/issues"
+  },
+  "ci": {
+    "version": "4, 6, 7"
+  }
+}

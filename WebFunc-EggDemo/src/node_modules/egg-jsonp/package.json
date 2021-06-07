@@ -1,0 +1,71 @@
+{
+  "name": "egg-jsonp",
+  "version": "2.0.0",
+  "description": "jsonp support for egg",
+  "eggPlugin": {
+    "name": "jsonp",
+    "optionalDependencies": [
+      "security"
+    ]
+  },
+  "files": [
+    "app",
+    "lib",
+    "config"
+  ],
+  "keywords": [
+    "egg",
+    "egg-plugin",
+    "jsonp",
+    "security"
+  ],
+  "dependencies": {
+    "is-type-of": "^1.2.0",
+    "jsonp-body": "^1.0.0"
+  },
+  "devDependencies": {
+    "autod": "^2.10.1",
+    "egg": "next",
+    "egg-bin": "^4.3.5",
+    "egg-ci": "^1.8.0",
+    "egg-mock": "^3.13.1",
+    "eslint": "^4.10.0",
+    "eslint-config-egg": "^5.1.1",
+    "supertest": "^3.0.0",
+    "webstorm-disable-index": "^1.2.0"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "scripts": {
+    "test": "npm run lint -- --fix && npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "egg-bin cov",
+    "lint": "eslint .",
+    "ci": "npm run lint && npm run cov && egg-bin pkgfiles --check",
+    "autod": "autod"
+  },
+  "ci": {
+    "version": "8, 9"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eggjs/egg-jsonp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eggjs/egg/issues"
+  },
+  "homepage": "https://github.com/eggjs/egg-jsonp#readme",
+  "author": "dead-horse",
+  "license": "MIT",
+  "boilerplate": {
+    "name": "egg-boilerplate-plugin",
+    "version": "1.7.0",
+    "description": "boilerplate for egg plugin",
+    "repository": {
+      "type": "git",
+      "url": "git@github.com:eggjs/egg-boilerplate-plugin.git"
+    },
+    "homepage": "https://github.com/eggjs/egg-boilerplate-plugin"
+  }
+}

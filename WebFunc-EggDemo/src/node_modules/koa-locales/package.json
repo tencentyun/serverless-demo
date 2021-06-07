@@ -1,0 +1,61 @@
+{
+  "name": "koa-locales",
+  "version": "1.12.0",
+  "description": "koa locales, i18n solution for koa",
+  "main": "index.js",
+  "files": [
+    "index.js"
+  ],
+  "scripts": {
+    "test": "eslint . && mocha -R spec -t 5000 test/*.test.js",
+    "cov": "istanbul cover _mocha -- -t 5000 test/*.test.js",
+    "lint": "eslint .",
+    "ci": "npm run lint && npm run cov",
+    "autod": "autod -w --prefix '^'",
+    "contributors": "contributors -f plain -o AUTHORS"
+  },
+  "dependencies": {
+    "debug": "^2.6.0",
+    "humanize-ms": "^1.2.0",
+    "ini": "^1.3.4",
+    "object-assign": "^4.1.0"
+  },
+  "devDependencies": {
+    "autod": "2",
+    "beautify-benchmark": "^0.2.4",
+    "benchmark": "^2.1.3",
+    "contributors": "*",
+    "egg-ci": "^1.1.0",
+    "eslint": "1",
+    "istanbul": "*",
+    "koa": "^1.2.4",
+    "mm": "^2.0.0",
+    "mocha": "4",
+    "pedding": "^1.1.0",
+    "supertest": "^2.0.1"
+  },
+  "homepage": "https://github.com/koajs/locales",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/koajs/locales.git",
+    "web": "https://github.com/koajs/locales"
+  },
+  "bugs": {
+    "url": "https://github.com/koajs/locales/issues"
+  },
+  "keywords": [
+    "koa-locales",
+    "i18n",
+    "locales",
+    "koa-i18n",
+    "koa"
+  ],
+  "engines": {
+    "node": ">=4.0.0"
+  },
+  "ci": {
+    "version": "4, 6, 8, 10, 12"
+  },
+  "author": "fengmk2 <fengmk2@gmail.com> (https://fengmk2.com)",
+  "license": "MIT"
+}

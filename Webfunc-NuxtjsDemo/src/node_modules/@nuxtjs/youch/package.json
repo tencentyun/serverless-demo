@@ -1,0 +1,49 @@
+{
+  "name": "@nuxtjs/youch",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "4.2.3",
+  "description": "Pretty error reporting for Node.js 🚀 (Modified for Nuxt.js & SSR Bundles)",
+  "main": "src/Youch/index.js",
+  "directories": {
+    "example": "examples"
+  },
+  "scripts": {
+    "test": "japa",
+    "test:win": "node ./node_modules/japa-cli/index.js",
+    "lint": "standard"
+  },
+  "author": "amanvirk",
+  "license": "MIT",
+  "devDependencies": {
+    "cz-conventional-changelog": "^2.0.0",
+    "japa": "^1.0.3",
+    "japa-cli": "^1.0.1",
+    "standard": "^10.0.2",
+    "supertest": "^3.0.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  },
+  "dependencies": {
+    "cookie": "^0.3.1",
+    "mustache": "^2.3.0",
+    "stack-trace": "0.0.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nuxt/youch.git"
+  },
+  "keywords": [
+    "errors",
+    "error-reporting",
+    "whoops"
+  ],
+  "bugs": {
+    "url": "https://github.com/poppinss/nuxt/issues"
+  },
+  "homepage": "https://github.com/poppinss/nuxt#readme"
+}

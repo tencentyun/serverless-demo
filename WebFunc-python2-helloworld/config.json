@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "Python2 HelloWorld Web Demo",
+            "name": "Python2-WebDemo",
             "description": "A HelloWorld demo for APIGW and python Web Function",
             "attention": "None",
             "author": {
@@ -19,7 +19,7 @@
         "runtime": "Python2.7",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-python2-helloworld",
-        "version": "0.2.6",
+        "version": "0.2.8",
         "tags": [
             "WebFunc",
             "helloworld",

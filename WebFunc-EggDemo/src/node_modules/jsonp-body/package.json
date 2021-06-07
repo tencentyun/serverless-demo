@@ -1,0 +1,47 @@
+{
+  "name": "jsonp-body",
+  "version": "1.0.0",
+  "description": "Helper to create more safe jsonp response body for koa and other web framework.",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test-all"
+  },
+  "config": {
+    "cov": {
+      "threshold": 100
+    }
+  },
+  "dependencies": {
+
+  },
+  "devDependencies": {
+    "autod": "*",
+    "contributors": "*",
+    "cov": "*",
+    "istanbul-harmony": "*",
+    "jshint": "*",
+    "mocha": "*",
+    "should": "~4.0.4"
+  },
+  "homepage": "https://github.com/node-modules/jsonp-body",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/node-modules/jsonp-body.git",
+    "web": "https://github.com/node-modules/jsonp-body"
+  },
+  "bugs": {
+    "url": "https://github.com/node-modules/jsonp-body/issues",
+    "email": "fengmk2@gmail.com"
+  },
+  "keywords": [
+    "jsonp",
+    "koa",
+    "json",
+    "CVE-2014-4671", "abusing-jsonp-with-rosetta-flash"
+  ],
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "author": "fengmk2 <fengmk2@gmail.com> (http://fengmk2.github.com)",
+  "license": "MIT"
+}

@@ -1,0 +1,54 @@
+{
+  "name": "wt",
+  "version": "1.2.0",
+  "description": "wt: Simple dir watcher, including all subdirectories, support multi dirs",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha -R spec -t 5000 -r should test/*.test.js",
+    "test-cov": "istanbul cover node_modules/mocha/bin/_mocha -- -t 5000 -r should test/*.test.js",
+    "ci": "npm run lint && npm run test-cov",
+    "lint": "jshint .",
+    "autod": "autod -w --prefix '~'",
+    "contributors": "contributors -f plain -o AUTHORS"
+  },
+  "dependencies": {
+    "debug": "^2.2.0",
+    "ndir": "^0.1.5",
+    "sdk-base": "^2.0.1"
+  },
+  "devDependencies": {
+    "autod": "*",
+    "contributors": "*",
+    "istanbul": "*",
+    "jshint": "*",
+    "mocha": "3",
+    "pedding": "1",
+    "rimraf": "^2.5.2",
+    "rmdir-recursive": "~0.0.1",
+    "should": "6"
+  },
+  "homepage": "https://github.com/node-modules/wt",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/node-modules/wt.git"
+  },
+  "bugs": {
+    "url": "https://github.com/node-modules/wt/issues",
+    "email": "fengmk2@gmail.com"
+  },
+  "keywords": [
+    "watch",
+    "watcher",
+    "wt",
+    "fs",
+    "dir",
+    "multi-watch",
+    "subdir",
+    "subdirectories"
+  ],
+  "engines": {
+    "node": ">= 0.12.9"
+  },
+  "author": "fengmk2 <fengmk2@gmail.com> (http://fengmk2.com)",
+  "license": "MIT"
+}

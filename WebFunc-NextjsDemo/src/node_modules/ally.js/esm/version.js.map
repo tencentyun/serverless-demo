@@ -1,0 +1,1 @@
+{"version":3,"sources":["../src/version.js"],"names":["version"],"mappings":";AACA;AACA,IAAMA,UAAU,OAAhB;AACA,eAAeA,OAAf","file":"version.js","sourcesContent":["\n// this file is overwritten by `npm run build:pre`\nconst version = '1.4.1';\nexport default version;\n"]}

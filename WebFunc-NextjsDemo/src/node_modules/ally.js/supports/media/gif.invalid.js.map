@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../../src/supports/media/gif.invalid.js"],"names":[],"mappings":";;;;;kBACe,gF","file":"gif.invalid.js","sourcesContent":["\nexport default 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ';\n"]}

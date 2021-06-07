@@ -1,0 +1,69 @@
+{
+  "name": "egg-development",
+  "version": "2.7.0",
+  "description": "development tool for egg",
+  "eggPlugin": {
+    "name": "development",
+    "env": [
+      "local"
+    ],
+    "dependencies": [
+      "watcher"
+    ]
+  },
+  "keywords": [
+    "egg",
+    "plugin",
+    "egg-plugin",
+    "eggPlugin"
+  ],
+  "dependencies": {
+    "debounce": "^1.1.0",
+    "multimatch": "^2.1.0",
+    "mz": "^2.7.0",
+    "mz-modules": "^2.1.0",
+    "utility": "^1.13.1"
+  },
+  "devDependencies": {
+    "autod": "^3.0.1",
+    "egg": "^2.3.0",
+    "egg-bin": "^4.3.7",
+    "egg-ci": "^1.8.0",
+    "egg-mock": "^3.14.0",
+    "eslint": "^4.17.0",
+    "eslint-config-egg": "^7.0.0",
+    "mz": "^2.7.0",
+    "mz-modules": "^2.0.0",
+    "supertest": "^3.4.2"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "scripts": {
+    "test": "npm run lint -- --fix && egg-bin pkgfiles && npm run test-local",
+    "test-local": "egg-bin test",
+    "cov": "egg-bin cov",
+    "lint": "eslint .",
+    "ci": "npm run lint && egg-bin pkgfiles --check && npm run cov",
+    "autod": "autod"
+  },
+  "ci": {
+    "version": "8, 10, 12",
+    "type": "travis, github"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eggjs/egg-development.git"
+  },
+  "files": [
+    "app",
+    "config",
+    "lib",
+    "agent.js",
+    "app.js"
+  ],
+  "bugs": "https://github.com/eggjs/egg/issues",
+  "homepage": "https://github.com/eggjs/egg-development#readme",
+  "author": "jtyjty99999",
+  "license": "MIT"
+}

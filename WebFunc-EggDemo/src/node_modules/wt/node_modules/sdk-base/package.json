@@ -1,0 +1,38 @@
+{
+  "name": "sdk-base",
+  "version": "2.0.1",
+  "description": "a base class for sdk with default error handler",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha -R spec -t 5000 -r should test/*.test.js",
+    "test-cov": "istanbul cover _mocha -- -t 5000 -r should test/*.test.js"
+  },
+  "keywords": [
+    "sdk",
+    "error"
+  ],
+  "files": [
+    "index.js"
+  ],
+  "author": {
+    "name": "dead_horse",
+    "email": "dead_horse@qq.com",
+    "url": "http://deadhorse.me"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:node-modules/sdk-base"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "get-ready": "~1.0.0"
+  },
+  "devDependencies": {
+    "istanbul": "*",
+    "mocha": "*",
+    "should": "7"
+  },
+  "engine": {
+    "node": ">=0.10"
+  }
+}

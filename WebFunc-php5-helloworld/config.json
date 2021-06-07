@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "Php5 HelloWorld Web Demo",
+            "name": "Php5-WebDemo",
             "description": "A HelloWorld demo for APIGW and python Web Function",
             "attention": "None",
             "author": {
@@ -19,7 +19,7 @@
         "runtime": "Php5",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-php5-helloworld",
-        "version": "0.2.6",
+        "version": "0.3.0",
         "tags": [
             "WebFunc",
             "helloworld",

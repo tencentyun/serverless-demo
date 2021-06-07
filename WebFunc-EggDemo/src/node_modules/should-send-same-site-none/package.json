@@ -1,0 +1,28 @@
+{
+  "name": "should-send-same-site-none",
+  "version": "2.0.5",
+  "description": "A simple utility to detect incompatible user agents for `SameSite=None` cookie attribute",
+  "keywords": [
+    "Express",
+    "samesite",
+    "cookie",
+    "middleware"
+  ],
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "jest --detectOpenHandles"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linsight/should-send-same-site-none.git"
+  },
+  "author": "David Lin",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/express": "^4.17.1",
+    "express": "^4.17.1",
+    "jest": "^25.5.1",
+    "supertest": "^4.0.2"
+  }
+}
