@@ -19,11 +19,12 @@
         "runtime": "Nodejs12.16",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-NestjsDemo",
-        "version": "0.2.5",
+        "version": "0.2.8",
         "tags": [
             "WebFunc",
             "Nest",
-            "Nodejs12.16"
+            "Nodejs12.16",
+            "web"
         ]
     }
 }
