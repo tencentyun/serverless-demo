@@ -19,11 +19,12 @@
         "runtime": "Python2.7",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-python2-helloworld",
-        "version": "0.2.8",
+        "version": "0.2.9",
         "tags": [
             "WebFunc",
             "helloworld",
-            "Python2.7"
+            "Python2.7",
+            "web"
         ]
     }
 }
