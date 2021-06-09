@@ -19,11 +19,12 @@
         "runtime": "Python3.6",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-FlaskDemo",
-        "version": "0.2.5",
+        "version": "0.2.8",
         "tags": [
             "WebFunc",
             "Flask",
-            "Python3.6"
+            "Python3.6",
+            "web"
         ]
     }
 }
