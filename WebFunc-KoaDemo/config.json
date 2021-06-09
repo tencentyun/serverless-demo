@@ -19,11 +19,12 @@
         "runtime": "Nodejs12.16",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-KoaDemo",
-        "version": "0.2.1",
+        "version": "0.2.8",
         "tags": [
             "WebFunc",
             "Koa",
-            "Nodejs12.16"
+            "Nodejs12.16",
+            "web"
         ]
     }
 }
