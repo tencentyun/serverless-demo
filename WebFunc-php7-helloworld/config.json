@@ -19,11 +19,12 @@
         "runtime": "Php7",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-php7-helloworld",
-        "version": "0.2.8",
+        "version": "0.2.9",
         "tags": [
             "WebFunc",
             "helloworld",
-            "Php7"
+            "Php7",
+            "web"
         ]
     }
 }
