@@ -13,9 +13,12 @@ const requestPromiseRetry = retry({ func: requestPromise });
 /**
  * parse params from event and process.env
  */
-function getParams({ body }, { tencentcloud_appid }) {
+function getParams(event, { tencentcloud_appid }) {
+  let body = event;
   try {
-    body = JSON.parse(body);
+    if (event.body) {
+      body = JSON.parse(event.body);
+    }
   } catch (err) {
     throw new Error('request body is not a json string');
   }
@@ -64,7 +67,7 @@ function getParams({ body }, { tencentcloud_appid }) {
   }
 
   if (!bucket.endsWith(`${tencentcloud_appid}`)) {
-    throw new Error(`${bucket} does not belong to owner`);
+    throw new Error(`${bucket} does not belong to the owner`);
   }
 
   return {
