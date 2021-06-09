@@ -19,11 +19,12 @@
         "runtime": "Nodejs10.15",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-Node10-helloworld",
-        "version": "0.1.6",
+        "version": "0.1.8",
         "tags": [
             "WebFunc",
             "helloworld",
-            "Nodejs10.15"
+            "Nodejs10.15",
+            "web"
         ]
     }
 }
