@@ -1,0 +1,17 @@
+component: scf
+name: ap-guangzhou_default_COSMongoDBBackup
+inputs:
+  src:
+    src: ./src
+  handler: index.main_handler
+  memorySize: 1024
+  name: COSMongoDBBackup
+  region: ap-guangzhou
+  runtime: Nodejs12.16
+  timeout: 900
+  environment:
+    variables:
+      instanceList: instanceList
+      targetBucket: targetBucket
+      targetRegion: targetRegion
+      targetPrefix: targetPrefix
