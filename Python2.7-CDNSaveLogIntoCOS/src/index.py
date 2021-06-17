@@ -1,12 +1,12 @@
 #!/usr/bin/python
 #-*- coding: UTF-8 -*-
 #################################################################################################################################
-# 1.  在第 208 行的 cos_region 变量中，填写 cos bucket 所在地区。   
-# 2.  在第 209 行的 cos_bucket 变量中，填写 cos bucket 名称。      
-# 3.  在第 213 行的 scf_region 变量中，填写 scf 所在地区。
+# 1.  在第 214 行的 cos_region 变量中，填写 cos bucket 所在地区。   
+# 2.  在第 215 行的 cos_bucket 变量中，填写 cos bucket 名称。      
+# 3.  在第 219 行的 scf_region 变量中，填写 scf 所在地区。
 # 注意：   
 # 1. 函数所在地域和 cos bucket 所在地域需要一致                                                       #
-# 2. 第 217 行 cdn_host 的默认值为空数组（即保存账号下所有域名的日志），如有需要可以修改填入指定域名列表。                                             #
+# 2. 第 223 行 cdn_host 的默认值为空数组（即保存账号下所有域名的日志），如有需要可以修改填入指定域名列表。                                             #
 # 3. 该函数可配置定时触发器，定时拉取日志上传到 COS。                                                                                       #
 #################################################################################################################################
 
@@ -88,16 +88,22 @@ class Job:
 
     def get_cdn_hosts(self):
         '''Getting a list of all domain names under the account （获取账号下全部域名列表）'''
-
-        req = models.DescribeDomainsRequest()
-        params = {}
-        req.from_json_string(json.dumps(params))
-
-        resp = self.cdn_client.DescribeDomains(req)
-
-        data = json.loads(resp.to_json_string())
-
-        hosts = [ v['Domain'] for v in data['Domains'] ]
+        offset = 0
+        total = 1
+        hosts = []
+        while offset < total:
+            req = models.DescribeDomainsRequest()
+            params = {
+                    "Offset": offset,
+                    "Limit": 100,
+                    }
+            req.from_json_string(json.dumps(params))
+            resp = self.cdn_client.DescribeDomains(req)
+            data = json.loads(resp.to_json_string())
+            hosts.extend([ v['Domain'] for v in data['Domains'] ])
+            total = data['TotalNumber']
+            offset = len(hosts)
+        hosts.sort()
         logging.info("cdn hosts = %s" % hosts)
         return hosts
 
