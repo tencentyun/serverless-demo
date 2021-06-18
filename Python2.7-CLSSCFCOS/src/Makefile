@@ -1,0 +1,17 @@
+APP = cls_to_cos
+
+.PHONY: build clean
+.DEFAULT_GOAL := build
+
+clean:
+	rm -rf ./output/* 
+
+build: clean
+	zip ./output/clstocos.zip -yr ./*
+
+###简单的测试用例，模拟cls触发
+#{
+#	"clslogs": {
+#		"data": "H4sIAAAAAAAA/+xX32/bNhD+VwRigF6kQiT1e9hD6iZYgTrrYu9pGgxaOrnEJFITKXeu4f99oOwoypoNqYINBuIXG7777vTxvo8neI+0bHi+4gVKURQV6zXGazcIoHR9TMBlzAtcgCL2AZfhuoiQc6oQrAaUolmltJxJpUFp5KAWctkWCqW/7pHmNSjN6galOCSUJmEU05hi6kVhHDsol0KD0ChF+wwtZjerq4ozlaE0QxlyjqF3Xcs0l6KP4iF804nchG9ZDX3KPH7NNyB0uyt5BQPyA2yh6iHvb29+egjLzZKfap8gN+DmUP+i2OYEDBIfh5S88bwRQA35O1CNFAqsO/ijA6XfF2nOvDULgbiBTzzXD0PsJkVZuFHpl0VQliUtIusO9FxtUhLQkMR+lomhuzmfalh+7F92n0F8+QRiMwB+7ljFSw5tD/juw9XyerEcsgOPPvscLqNS3e5uu7qvfDjuQrNWPzm5cIzRnZrJ4ggio2ktd80x+LFiupRtnaEDOjj/5pX4nL0ST/bK9e27b7TJxRePRp+csy+SF+yQRrb6WzfI/RFTXCtrDrVsdykm8fytdf/wFAdviEcxCeZvL04ampIkIVEQeBOc5P3nTronN81Ji+XV3fLV7xgyecd4MaU+nuKM/2HHnMhN3TE58C0UFmxB6NTavwrZZ53S8hmi+3GYnK3ohtw00S0ryzL0O+yw+U77X4aYtWVVB1YfdS5GGM06xIScrREMuRcagTxphD568cFo1BE9Yx8YctN8cLiIPJpjEsX0bEU25F74qu9P9qd52dt1//9gVfGa6xUXq3ptpxYmsWPZZj6jhLJTi3qe51h2e1R4xQs7teznKGw7lg1iy1spahDalO3NbuntdjW/Xny8ml33K8h8jCyXZegwKjaFj2p+eMB+/08JU1+eFFltoVX82Ohk3EdpwWowub8LZkDi/l4YwOP2GkQOQueV7IpVC5vTE1jjbjomNl8+ye4rGGua4wAxCWgSeYSEX2E63vehfkS9IA78yL7c1NFliBIvONub2pObdlN/hKqS1mfZVsVrk/u3w18BAAD//+jecMmHFgAA"
+#	}
+#}
