@@ -1,6 +1,6 @@
 {
   "name": "cos-mongodb-backup",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "index.js",
   "license": "ISC",
   "dependencies": {
