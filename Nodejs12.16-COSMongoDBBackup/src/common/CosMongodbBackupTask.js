@@ -164,7 +164,9 @@ class CosMongodbBackupTask {
   }
   async getBackupUrls() {
     try {
+      let tryTimes = 0;
       while (true) {
+        tryTimes += 1;
         const downloadTasks = await this.mongodbSdkInstance.requestAllPageRetry({
           action: 'DescribeBackupDownloadTask',
           resourceKey: 'Tasks',
@@ -194,10 +196,10 @@ class CosMongodbBackupTask {
           if (downloadTask.Status === 2) {
             return [downloadTask.Url];
           }
-          if (downloadTask.Status === 3) {
+          if (downloadTask.Status === 3 || tryTimes >= 3000) {
             throw {
               trace: 'CosMongodbBackupTask.getBackupUrls',
-              message: `get download url fail: ${JSON.stringify(downloadTask)}`,
+              message: `get download url fail, tryTimes: ${tryTimes}, detail: ${JSON.stringify(downloadTask)}`,
             };
           } else {
             await sleep(10 * 1000);
