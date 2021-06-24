@@ -1,2 +1,2 @@
 #!/bin/bash
-/var/lang/python2/bin/python app.py
+/var/lang/python2/bin/python -u app.py
