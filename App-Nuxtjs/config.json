@@ -10,7 +10,7 @@
             }
         },
         "English": {
-            "name": "Nuxtjs SSR Demo",
+            "name": "Nuxtjs-Demo",
             "description": "This example shows how to deploy an Nuxtjs SSR demo to Serverless",
             "attention": "None",
             "tutorial": " ",
@@ -21,7 +21,7 @@
         "runtime": "Nodejs10.15",
         "type": "app",
         "readme": "https://github.com/serverless-components/tencent-examples/tree/master/nuxtjs-starter",
-        "version": "1.2.3",
+        "version": "1.2.8",
         "tags": [
             "Nuxtjs",
             "APIGW",
