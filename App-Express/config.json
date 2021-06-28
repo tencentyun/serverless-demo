@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "Express Demo",
+            "name": "Express-Demo",
             "description": "This example shows how to deploy an Express demo to Serverless",
             "attention": "None",
             "author": {
@@ -19,7 +19,7 @@
         "runtime": "Nodejs10.15",
         "type": "app",
         "readme": "https://github.com/serverless-components/tencent-examples/tree/master/express-starter",
-        "version": "1.2.2",
+        "version": "1.2.5",
         "tags": [
             "Express",
             "APIGW",
