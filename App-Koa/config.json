@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "Koa Demo",
+            "name": "Koa-Demo",
             "description": "This example shows how to deploy an Koa demo to Serverless",
             "attention": "None",
             "author": {
@@ -19,7 +19,7 @@
         "runtime": "Nodejs10.15",
         "type": "app",
         "readme": "https://github.com/serverless-components/tencent-examples/tree/master/koa-starter",
-        "version": "1.1.2",
+        "version": "1.2.0",
         "tags": [
             "Koa",
             "APIGW",
