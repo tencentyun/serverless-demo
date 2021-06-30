@@ -1,18 +1,18 @@
-app: apigw-oauth-flask-app
+app: ApiGWOauthAppName
 stage: dev
 component: flask
-name: flaskInstance
+name: oatuhFlaskInstance
 inputs:
-  src:
-    hook: pip3 install -r requirements.txt -t ./
-    dist: .
-    exclude:
-      - .env
   region: ap-guangzhou
   runtime: Python3.6
+  src:
+    hook: pip3 install -r requirements.txt -t ./
+    dist: ./
+    exclude:
+      - .env
   functionConf:
-    eip: false
     timeout: 3
+    eip: false
     memorySize: 128
   apigatewayConf:
     serviceTimeout: 60
@@ -20,6 +20,3 @@ inputs:
       - http
       - https
     environment: release
-    autoCreateDns: false
-  isAutoCiDeploy: true
-  codePlatform: GITHUB

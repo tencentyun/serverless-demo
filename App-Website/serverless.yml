@@ -5,7 +5,7 @@ stage: dev
 
 inputs:
   src:
-    src: ./src
+    src: ./
     index: index.html
     error: index.html
   region: ap-guangzhou
