@@ -4,7 +4,6 @@ component: nextjs
 name: nextjsInstance
 inputs:
   region: ap-guangzhou
-  functionName: ${name}
   runtime: Nodejs10.15
   entryFile: sls.js
   src:
@@ -43,9 +42,9 @@ inputs:
       acl:
         permissions: public-read
       sources:
-        - src: .nuxt/dist/client
-          targetDir: /
-        - src: static
+        - src: .next/static
+          targetDir: /_next/static
+        - src: public
           targetDir: /
     cdnConf:
       area: mainland
