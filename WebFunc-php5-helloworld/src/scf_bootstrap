@@ -1,2 +1,2 @@
 #!/bin/bash
-/var/lang/php5/bin/php -S 0.0.0.0:9000 hello.php
+/var/lang/php5/bin/php -c /var/runtime/php5 -S 0.0.0.0:9000 hello.php
