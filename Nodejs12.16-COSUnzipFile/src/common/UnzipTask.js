@@ -22,6 +22,7 @@ class UnzipTask {
     targetRegion,
     targetPrefix,
     extraRootDir,
+    pathTraversalProtection,
     rangeLimit,
     currentRange,
   }) {
@@ -35,6 +36,7 @@ class UnzipTask {
       targetRegion,
       targetPrefix,
       extraRootDir,
+      pathTraversalProtection,
       rangeLimit,
       currentRange,
       dirname,
@@ -170,6 +172,7 @@ class UnzipTask {
         targetRegion,
         targetPrefix,
         extraRootDir,
+        pathTraversalProtection,
         dirname,
         basename,
         unzipFile,
@@ -187,8 +190,12 @@ class UnzipTask {
         extraRootDir.toLowerCase().includes('basename') ? basename : '',
       ].filter(Boolean);
 
+      const fileNameStr = pathTraversalProtection
+        ? task.entry.fileNameStr.replace(/\.\.\//g, '')
+        : task.entry.fileNameStr;
+
       const Key = path
-        .join(targetPrefix, ...extraPaths, task.entry.fileNameStr)
+        .join(targetPrefix, ...extraPaths, fileNameStr)
         .replace(/\\/g, '/');
 
       task.putObjectStream = await unzipFile.getStream(task.entry);
