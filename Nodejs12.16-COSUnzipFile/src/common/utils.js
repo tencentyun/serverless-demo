@@ -23,6 +23,7 @@ function getParams({ parentRequestId, ...eventArgs }) {
     targetRegion,
     targetPrefix = '',
     extraRootDir = 'basename',
+    pathTraversalProtection = 'true',
     rangeLimit = '50000',
     currentRange,
   } = {
@@ -66,6 +67,7 @@ function getParams({ parentRequestId, ...eventArgs }) {
     targetRegion,
     targetPrefix,
     extraRootDir,
+    pathTraversalProtection: ['true', true].includes(pathTraversalProtection),
     rangeLimit: parseInt(rangeLimit, 10),
     currentRange,
     SecretId,
