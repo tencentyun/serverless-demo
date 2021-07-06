@@ -1,0 +1,28 @@
+{
+	"serverless-cloud-function-application": {
+		"Chinese": {
+			"name": "Redis 备份文件同步到 COS",
+			"description": "本示例使用定时触发器，完成 Redis 备份文件同步到 COS",
+			"attention": "",
+			"author": {
+				"name": "腾讯云"
+			}
+		},
+		"English": {
+			"name": "COSRedisBackup",
+			"description": "This demo uses scheduled trigger and SCF to copy Redis backup file to COS automaticly",
+			"attention": "",
+			"author": {
+				"name": "Tencent Cloud"
+			}
+		},
+		"runtime": "Nodejs12.16",
+		"readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSRedisBackup",
+		"version": "1.0.1",
+		"tags": [
+			"Nodejs12.16",
+			"Redis",
+			"cos redis backup"
+		]
+	}
+}
