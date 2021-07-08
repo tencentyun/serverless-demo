@@ -4,6 +4,7 @@
 import time
 import logging
 import os
+import json
 from kafka import KafkaProducer
 from kafka.errors import KafkaError
 
@@ -21,7 +22,7 @@ class KafkaToKafka(object):
         self.producer = KafkaProducer(
             bootstrap_servers = [self.host],
             # retries = 10,
-            # max_in_flight_requests_per_connection = 1, 
+            # max_in_flight_requests_per_connection = 1,
             # request_timeout_ms = 30000,
             # max_block_ms = 60000,
             **kwargs
@@ -49,16 +50,14 @@ class KafkaToKafka(object):
 
             # peer
             if eventList is None:
-                ckafkaMsg = event["data"]
-                key = ckafkaMsg["msgKey"]
-                value = ckafkaMsg["msgBody"]
+                key = None
+                value = json.dumps(event)
                 self.producer.send(topic, key = key, value = value).add_callback(on_send_success).add_errback(on_send_error)
             else:
                 # batch
                 for data in eventList:
-                    ckafkaMsg = data["data"]
-                    key = ckafkaMsg["msgKey"]
-                    value = ckafkaMsg["msgBody"]
+                    key = None
+                    value = json.dumps(data)
                     self.producer.send(topic, key = key, value = value).add_callback(on_send_success).add_errback(on_send_error)
 
 
