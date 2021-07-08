@@ -1,0 +1,25 @@
+component: scf
+name: ap-guangzhou_default_CkafkaToCkafka
+inputs:
+  name: CkafkaToCkafka
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 300
+  environment:
+    - key: kafka_address
+      value: ckafka address
+    - key: kafka_topic_name
+      value: ckafka topic name
+  triggers:
+    - type: ckafka
+      name: 
+      enable: true
+      topic: 
+      maxMsgNum: 100
+      offset: latest
+      retry: 10000
