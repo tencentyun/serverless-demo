@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "EventBridge-CkafkaToCkafka",
+            "name": "eb_ckafka_target",
             "description": "This example consumes eb data and push these data to another kafka topic.",
             "attention": "When using this sample code, you need to pass some env variables to this function.",
             "author": {
