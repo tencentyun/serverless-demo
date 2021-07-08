@@ -1,0 +1,12 @@
+component: scf
+name: eb-eis-target
+inputs:
+  name: eis-target
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Python3.6
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3

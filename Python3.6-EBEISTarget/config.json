@@ -1,0 +1,29 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "事件总线投递消息到企业集成服务",
+            "description": "这个函数用于创建eb to eis的目标模板函数",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "eb-eis-taregt",
+            "description": "This is eb eis target function",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Python3.6",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-EBEISTarget",
+        "version": "1.0.0",
+        "tags": [
+            "Python3.6",
+            "eb",
+            "eis",
+            "target"
+        ]
+    }
+}
