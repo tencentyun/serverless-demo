@@ -24,7 +24,7 @@ function getParams({ parentRequestId, ...eventArgs }) {
     targetPrefix = '',
     extraRootDir = 'basename',
     pathTraversalProtection = 'true',
-    recursive = 'false',
+    targetTriggerForbid = 'true',
     rangeLimit = '50000',
     currentRange,
   } = {
@@ -69,7 +69,7 @@ function getParams({ parentRequestId, ...eventArgs }) {
     targetPrefix,
     extraRootDir,
     pathTraversalProtection: ['true', true].includes(pathTraversalProtection),
-    recursive: ['true', true].includes(recursive),
+    targetTriggerForbid: ['true', true].includes(targetTriggerForbid),
     rangeLimit: parseInt(rangeLimit, 10),
     currentRange,
     SecretId,

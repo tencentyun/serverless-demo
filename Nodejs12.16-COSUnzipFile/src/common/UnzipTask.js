@@ -23,7 +23,7 @@ class UnzipTask {
     targetPrefix,
     extraRootDir,
     pathTraversalProtection,
-    recursive,
+    targetTriggerForbid,
     rangeLimit,
     currentRange,
   }) {
@@ -38,7 +38,7 @@ class UnzipTask {
       targetPrefix,
       extraRootDir,
       pathTraversalProtection,
-      recursive,
+      targetTriggerForbid,
       rangeLimit,
       currentRange,
       dirname,
@@ -58,12 +58,12 @@ class UnzipTask {
   }
   runTask() {
     return new Promise(async (resolve) => {
-      const { Bucket, Region, Key, extname, recursive } = this;
+      const { Bucket, Region, Key, extname, targetTriggerForbid } = this;
       try {
         if (extname !== '.zip') {
           throw new Error(`${Key} is not a *.zip file`);
         }
-        if (!recursive) {
+        if (targetTriggerForbid) {
           try {
             const {
               headers = {},
