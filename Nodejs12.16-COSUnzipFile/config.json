@@ -18,7 +18,7 @@
     },
     "runtime": "Nodejs12.16",
     "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSUnzipFile",
-    "version": "1.0.25",
+    "version": "1.0.26",
     "tags": ["Nodejs12.16", "Unzip", "unzip file"]
   }
 }

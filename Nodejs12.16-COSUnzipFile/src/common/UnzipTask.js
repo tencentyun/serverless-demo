@@ -23,6 +23,7 @@ class UnzipTask {
     targetPrefix,
     extraRootDir,
     pathTraversalProtection,
+    recursive,
     rangeLimit,
     currentRange,
   }) {
@@ -37,6 +38,7 @@ class UnzipTask {
       targetPrefix,
       extraRootDir,
       pathTraversalProtection,
+      recursive,
       rangeLimit,
       currentRange,
       dirname,
@@ -56,11 +58,48 @@ class UnzipTask {
   }
   runTask() {
     return new Promise(async (resolve) => {
-      const { Key, extname } = this;
+      const { Bucket, Region, Key, extname, recursive } = this;
       try {
         if (extname !== '.zip') {
           throw new Error(`${Key} is not a *.zip file`);
         }
+        if (!recursive) {
+          try {
+            const {
+              headers = {},
+            } = await this.cosInstance.headObjectRetryPromise({
+              Bucket,
+              Region,
+              Key,
+            });
+            if (
+              headers
+              && headers['x-cos-meta-scf-unzip']
+              && headers['x-cos-meta-scf-unzip'] === 'true'
+            ) {
+              console.log(`comment: ${Key} is an unzip result, to avoid recursive unzip, skip it`);
+              resolve({
+                runningRange: [],
+                results: [
+                  {
+                    params: {
+                      Bucket,
+                      Region,
+                      Key,
+                    },
+                    error: null,
+                    result: {
+                      headers,
+                      comment: `${Key} is an unzip result, to avoid recursive unzip, skip it`,
+                    },
+                  },
+                ],
+              });
+              return;
+            }
+          } catch (err) {}
+        }
+
         const { tasks, length } = await this.getTasks({
           start:
             this.currentRange && this.currentRange[0]
@@ -205,6 +244,9 @@ class UnzipTask {
         Region: targetRegion,
         Key,
         Body: task.putObjectStream,
+        Headers: {
+          'x-cos-meta-scf-unzip': 'true',
+        },
       });
       result = {
         RequestId,
