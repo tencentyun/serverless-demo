@@ -38,6 +38,7 @@ exports.main_handler = async (event, context) => {
     targetPrefix,
     extraRootDir,
     pathTraversalProtection,
+    targetTriggerForbid,
     rangeLimit,
     currentRange,
     SecretId,
@@ -55,6 +56,7 @@ exports.main_handler = async (event, context) => {
       targetPrefix,
       extraRootDir,
       pathTraversalProtection,
+      targetTriggerForbid,
       rangeLimit,
       currentRange,
       event,
@@ -85,6 +87,7 @@ exports.main_handler = async (event, context) => {
     targetPrefix,
     extraRootDir,
     pathTraversalProtection,
+    targetTriggerForbid,
     rangeLimit,
     currentRange,
   });
