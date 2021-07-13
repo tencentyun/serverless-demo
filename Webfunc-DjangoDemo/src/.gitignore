@@ -1,0 +1,11 @@
+requirements
+asgiref
+asgiref-3.3.1.dist-info
+bin
+django
+Django-3.1.3.dist-info
+pytz
+pytz-2020.4.dist-info
+pytz-2021.1.dist-info
+sqlparse
+sqlparse-0.4.1.dist-info

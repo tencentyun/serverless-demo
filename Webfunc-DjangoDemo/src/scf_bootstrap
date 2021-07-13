@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# HTTP 直通函数由于是基于 docker 镜像运行，所以必须监听地址为 0.0.0.0，并且端口为 9000
+export PATH=$PATH:/var/lang/python3/bin/python3
+SERVERLESS=1 /var/lang/python3/bin/python3 manage.py runserver 0.0.0.0:9000

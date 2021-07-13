@@ -1,0 +1,21 @@
+app: appDemo
+stage: dev
+component: django
+name: djangoDemo
+inputs:
+  src:
+    hook: pip3 install -r requirements.txt -t ./
+    dist: ./
+    exclude:
+      - .env
+      - __pycache__/**
+  region: ap-guangzhou
+  functionConf:
+    projectName: djangodemo
+    name: ${name}
+    runtime: Python3.6
+  apigatewayConf:
+    protocols:
+      - http
+      - https
+    environment: release
