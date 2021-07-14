@@ -4,7 +4,7 @@
       <logo />
       <h1 class="title">欢迎访问 Nuxt.js 应用</h1>
       <h2 class="subtitle">
-        <a href="https://cloud.tencent.com/product/sls" target="_blank" rel="noopener noreferrer">
+        <a href="https://cloud.tencent.com/product/scf" target="_blank" rel="noopener noreferrer">
           腾讯云 Serverless
         </a>
         为您提供服务

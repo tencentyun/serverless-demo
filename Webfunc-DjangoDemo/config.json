@@ -19,7 +19,7 @@
         "runtime": "Python3.6",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-DjangoDemo",
-        "version": "0.2.5",
+        "version": "0.2.8",
         "tags": [
             "WebFunc",
             "Django",
