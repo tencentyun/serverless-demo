@@ -16,9 +16,9 @@ inputs:
        protocols:
         - http
         - https
-      environment: release
-      netTypes:
-        - OUTER
-      apis:
-        - path: /
-          method: ANY
+       environment: release
+       netTypes:
+         - OUTER
+       apis:
+         - path: /
+           method: ANY

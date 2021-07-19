@@ -19,7 +19,7 @@
         "runtime": "Php5",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-php5-helloworld",
-        "version": "0.3.5",
+        "version": "0.3.8",
         "tags": [
             "WebFunc",
             "helloworld",

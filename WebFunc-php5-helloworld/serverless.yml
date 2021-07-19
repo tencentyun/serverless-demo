@@ -8,7 +8,7 @@ inputs:
   runtime: PHP5
   namespace: default
   region: ap-guangzhou
-  memorySize: 128
+  memorySize: 512
   timeout: 3
   triggers:
      - type: apigw
@@ -16,9 +16,9 @@ inputs:
        protocols:
         - http
         - https
-      environment: release
-      netTypes:
+       environment: release
+       netTypes:
         - OUTER
-      apis:
+       apis:
         - path: /
           method: ANY

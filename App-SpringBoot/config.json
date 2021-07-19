@@ -19,7 +19,7 @@
         "runtime": "Java8",
         "type": "app",
         "readme": "https://github.com/serverless-components/tencent-examples/tree/master/springboot-starter",
-        "version": "1.2.5",
+        "version": "1.2.8",
         "tags": [
             "SpringBoot",
             "APIGW",
