@@ -8,7 +8,7 @@ inputs:
   runtime: Nodejs12.16
   namespace: default
   region: ap-guangzhou
-  memorySize: 128
+  memorySize: 512
   timeout: 3
   triggers:
      - type: apigw
