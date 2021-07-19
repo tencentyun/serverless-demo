@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "SpringBoot Demo",
+            "name": "SpringBoot-Demo",
             "description": "This example shows how to deploy an SpringBoot demo to Serverless",
             "attention": "None",
             "author": {
@@ -19,7 +19,7 @@
         "runtime": "Java8",
         "type": "app",
         "readme": "https://github.com/serverless-components/tencent-examples/tree/master/springboot-starter",
-        "version": "1.2.3",
+        "version": "1.2.5",
         "tags": [
             "SpringBoot",
             "APIGW",
