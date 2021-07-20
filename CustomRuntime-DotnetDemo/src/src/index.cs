@@ -29,37 +29,46 @@ public class HttpRequest
     // return 返回的字符串
     public static string GetAndProcessEvent(string url)
     {
-        // Use Get Api to grab events.
-        HttpClient client = new HttpClient(new HttpClientHandler() { UseCookies = false });
-        HttpResponseMessage response = client.GetAsync(url).Result;
-        response.EnsureSuccessStatusCode();  //用来抛异常的
-        
-        // Events in response body, other infos in header.
-        string responseBody = response.Content.ReadAsStringAsync().Result;
-        Console.WriteLine("Get event :" + responseBody);
+	while (true)
+	{   try
+	    {
+    
+                // Use Get Api to grab events.
+                HttpClient client = new HttpClient(new HttpClientHandler() { UseCookies = false });
+                client.Timeout = TimeSpan.FromSeconds(3600);
+                HttpResponseMessage response = client.GetAsync(url).Result;
+                response.EnsureSuccessStatusCode();  //用来抛异常的
+                
+                // Events in response body, other infos in header.
+                string responseBody = response.Content.ReadAsStringAsync().Result;
+                Console.WriteLine("Get event :" + responseBody);
 
-        // Retrive information from header.
-        // Retrive memory limit 
-        // Retrive time limit
-        // Retrive request id
-        HttpHeaders headers = response.Headers;
-        IEnumerable<string> values;
-        string memoryLimitMB="";
-        string timeLimitMs="";
-        string requestId="";
-        if (headers.TryGetValues("memory_limit_in_mb", out values)) {
-           memoryLimitMB =  values.First();
-        }
-        if (headers.TryGetValues("time_limit_in_ms", out values)) {
-           timeLimitMs = values.First();
-        }
-        if (headers.TryGetValues("request_id", out values)) {
-           requestId = values.First();
-        }
-        // process event.
-        string res = processEvent(responseBody, requestId);
+                // Retrive information from header.
+                // Retrive memory limit 
+                // Retrive time limit
+                // Retrive request id
+                HttpHeaders headers = response.Headers;
+                IEnumerable<string> values;
+                string memoryLimitMB="";
+                string timeLimitMs="";
+                string requestId="";
+                if (headers.TryGetValues("memory_limit_in_mb", out values)) {
+                   memoryLimitMB =  values.First();
+                }
+                if (headers.TryGetValues("time_limit_in_ms", out values)) {
+                   timeLimitMs = values.First();
+                }
+                if (headers.TryGetValues("request_id", out values)) {
+                   requestId = values.First();
+                }
+                // process event.
+                string res = processEvent(responseBody, requestId);
 
-        return res;
+                return res;
+	    }
+            catch (Exception e){}
+	}
+	return "";
     }
 
     // process event , simply return event and request id.
@@ -102,3 +111,4 @@ public class index {
         }
     }
 }
+

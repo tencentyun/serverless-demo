@@ -1,0 +1,13 @@
+/root/src/bin/Debug/netcoreapp3.1/index
+/root/src/bin/Debug/netcoreapp3.1/index.deps.json
+/root/src/bin/Debug/netcoreapp3.1/index.runtimeconfig.json
+/root/src/bin/Debug/netcoreapp3.1/index.runtimeconfig.dev.json
+/root/src/bin/Debug/netcoreapp3.1/index.dll
+/root/src/bin/Debug/netcoreapp3.1/index.pdb
+/root/src/obj/Debug/netcoreapp3.1/index.csprojAssemblyReference.cache
+/root/src/obj/Debug/netcoreapp3.1/index.AssemblyInfoInputs.cache
+/root/src/obj/Debug/netcoreapp3.1/index.AssemblyInfo.cs
+/root/src/obj/Debug/netcoreapp3.1/index.csproj.CoreCompileInputs.cache
+/root/src/obj/Debug/netcoreapp3.1/index.dll
+/root/src/obj/Debug/netcoreapp3.1/index.pdb
+/root/src/obj/Debug/netcoreapp3.1/index.genruntimeconfig.cache

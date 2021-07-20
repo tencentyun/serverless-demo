@@ -18,7 +18,7 @@
         },
         "runtime": "CustomRuntime",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/CustomRuntime-DotnetDemo",
-        "version": "1.0.4",
+        "version": "1.0.5",
         "tags": [
             "CustomRuntime",
             "dotnet"

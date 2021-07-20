@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "MbxSz+GJKoMeSvLQC2nKCTHwb3N2+aiy+bpKbEyXaPlTVzd0fcEfgoeQc0QCpWqsYK3ceeXjej5K2nynyFkm8Q==",
+  "dgSpecHash": "tQCFvzLbzjDR8gPVRJakVguCVgCecbQvldibPDpkPN65PypfxLxj2CAybnGGksGBU+i7mRuiam9olTTML27ohA==",
   "success": true,
-  "projectFilePath": "/data/Source/scf/runtime/test/cases/CustomRuntime/dotnet-demo/src/index.csproj",
+  "projectFilePath": "/root/src/index.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }
