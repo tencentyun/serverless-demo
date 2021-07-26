@@ -1,0 +1,13 @@
+component: scf
+name: ap-guangzhou_default_COSWorkflowDemo
+inputs:
+  src:
+    src: ./src
+  handler: index.main_handler
+  memorySize: 128
+  name: COSWorkflowDemo
+  region: ap-guangzhou
+  runtime: Nodejs12.16
+  asyncRunEnable: TRUE
+  traceEnable: TRUE
+  timeout: 86400
