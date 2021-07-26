@@ -5,7 +5,7 @@ inputs:
   src:
     src: ./src
   type: web
-  runtime: php7
+  runtime: Php7
   namespace: default
   region: ap-guangzhou
   memorySize: 512
