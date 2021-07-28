@@ -1,0 +1,16 @@
+component: http
+name: eggDemo
+
+inputs:
+  src:
+    src: ./
+    exclude:
+      - .env
+  faas:
+    runtime: Nodejs12.16
+    framework: egg
+    name: ${name}
+  apigw:
+    protocols:
+      - http
+      - https
