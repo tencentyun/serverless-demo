@@ -1,15 +1,16 @@
-app: appDemo
-stage: dev
-component: express
+component: http
 name: expressDemo
+
 inputs:
   src:
     src: ./
     exclude:
       - .env
-  functionConf:
+  faas:
+    runtime: Nodejs12.16
+    framework: express
     name: ${name}
-  apigatewayConf:
+  apigw:
     protocols:
       - http
       - https
