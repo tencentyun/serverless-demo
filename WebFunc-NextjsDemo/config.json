@@ -19,7 +19,7 @@
         "runtime": "Nodejs12.16",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-NextjsDemo",
-        "version": "0.3.0",
+        "version": "0.3.2",
         "tags": [
             "WebFunc",
             "Nextjs",
