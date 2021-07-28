@@ -1,0 +1,20 @@
+component: http
+name: laravelDemo
+
+inputs:
+  src:
+    src: ./
+    exclude:
+      - .env
+  region: ap-guangzhou
+  faas:
+    name: ${name}
+    framework: laravel
+    runtime: Php7
+    environments:
+      - key: APP_ENV
+        value: production
+  apigw:
+    protocols:
+      - http
+      - https
