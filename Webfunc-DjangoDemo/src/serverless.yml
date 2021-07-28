@@ -1,21 +1,21 @@
-app: appDemo
-stage: dev
-component: django
+component: http
 name: djangoDemo
+
 inputs:
   src:
-    hook: pip3 install -r requirements.txt -t ./
+    # 这里会自动帮你安装依赖到当前项目根目录
+    hook: 'pip3 install -r requirements.txt -t ./'
     dist: ./
     exclude:
       - .env
-      - __pycache__/**
+      - '__pycache__/**'
   region: ap-guangzhou
-  functionConf:
-    projectName: djangodemo
+  faas:
+    framework: django
     name: ${name}
     runtime: Python3.6
-  apigatewayConf:
+    memorySize: 512
+  apigw:
     protocols:
       - http
       - https
-    environment: release
