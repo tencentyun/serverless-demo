@@ -1,0 +1,16 @@
+component: http
+name: koaDemo
+
+inputs:
+  src:
+    src: ./
+    exclude:
+      - .env
+  faas:
+    runtime: Nodejs12.16
+    framework: koa
+    name: ${name}
+  apigw:
+    protocols:
+      - http
+      - https
