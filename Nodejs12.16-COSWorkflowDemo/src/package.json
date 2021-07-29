@@ -1,6 +1,6 @@
 {
   "name": "cos-workflow-demo",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "main": "index.js",
   "license": "ISC",
   "dependencies": {
