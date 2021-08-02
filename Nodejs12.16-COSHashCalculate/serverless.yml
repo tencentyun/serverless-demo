@@ -1,0 +1,11 @@
+component: scf
+name: ap-guangzhou_default_COSHashCalculate
+inputs:
+  src:
+    src: ./src
+  handler: index.main_handler
+  memorySize: 1024
+  name: COSHashCalculate
+  region: ap-guangzhou
+  runtime: Nodejs12.16
+  timeout: 900
