@@ -1,0 +1,13 @@
+{
+  "name": "cos-hash-calculate",
+  "version": "1.0.6",
+  "main": "index.js",
+  "license": "ISC",
+  "dependencies": {
+    "@annexwu-packages/simple-stream-utils": "0.0.3",
+    "async": "^3.2.0",
+    "cos-nodejs-sdk-v5": "^2.8.3",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6"
+  }
+}
