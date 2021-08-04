@@ -1,0 +1,30 @@
+{
+	"serverless-cloud-function-application": {
+		"Chinese": {
+			"name": "COS 数据工作流音视频转码",
+			"description": "COS 数据工作流音视频转码",
+			"attention": "",
+			"author": {
+				"name": "腾讯云"
+			}
+		},
+		"English": {
+			"name": "COSWorkflowFFmpegTranscode",
+			"description": "This is a demo for cos workflow to transcode media file with ffmpeg",
+			"attention": "",
+			"author": {
+				"name": "Tencent Cloud"
+			}
+		},
+		"runtime": "Nodejs12.16",
+		"readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSWorkflowFFmpegTranscode",
+		"version": "1.0.6",
+		"tags": [
+			"Nodejs12.16",
+			"COS",
+			"ffmpeg",
+			"cos workflow",
+			"cos workflow ffmpeg transcode"
+		]
+	}
+}
