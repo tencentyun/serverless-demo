@@ -125,7 +125,7 @@ class UnzipTask {
         }
         Async.mapLimit(
           tasks,
-          6,
+          9,
           async (task) => {
             const params = {
               index: task.index,
