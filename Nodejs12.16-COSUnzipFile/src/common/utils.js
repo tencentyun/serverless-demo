@@ -4,11 +4,14 @@
 
 const COS = require('cos-nodejs-sdk-v5');
 const path = require('path');
+const requestPromise = require('request-promise');
 const { PassThrough } = require('stream');
 const { URL } = require('url');
 const { detect, decode } = require('./encoding');
 const { promisify, inspect } = require('util');
 const { isFunction } = require('lodash');
+
+const requestPromiseRetry = retry({ func: requestPromise });
 
 /**
  * get source and target message from event and process.env
@@ -27,6 +30,7 @@ function getParams({ parentRequestId, ...eventArgs }) {
     targetTriggerForbid = 'true',
     rangeLimit = '50000',
     currentRange,
+    callbackUrl,
   } = {
     ...process.env,
     ...eventArgs,
@@ -72,6 +76,7 @@ function getParams({ parentRequestId, ...eventArgs }) {
     targetTriggerForbid: ['true', true].includes(targetTriggerForbid),
     rangeLimit: parseInt(rangeLimit, 10),
     currentRange,
+    callbackUrl,
     SecretId,
     SecretKey,
     XCosSecurityToken,
@@ -261,6 +266,7 @@ module.exports = {
   initCosInstance,
   bufferToString,
   parseFileName,
+  requestPromiseRetry,
   retry,
   streamPromise,
   readStreamAddPassThrough,

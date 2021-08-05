@@ -8,6 +8,7 @@ const TimeoutWatcher = require('./common/TimeoutWatcher');
 const {
   getParams,
   initCosInstance,
+  requestPromiseRetry,
   logger,
   getLogSummary,
 } = require('./common/utils');
@@ -41,6 +42,7 @@ exports.main_handler = async (event, context) => {
     targetTriggerForbid,
     rangeLimit,
     currentRange,
+    callbackUrl,
     SecretId,
     SecretKey,
     XCosSecurityToken,
@@ -59,6 +61,7 @@ exports.main_handler = async (event, context) => {
       targetTriggerForbid,
       rangeLimit,
       currentRange,
+      callbackUrl,
       event,
       context: {
         memory_limit_in_mb: context.memory_limit_in_mb,
@@ -150,6 +153,51 @@ exports.main_handler = async (event, context) => {
     logger({
       messages: messages.map(item => item.replace(/, /g, '\n')),
     });
+  }
+
+  /**
+   * request callback url
+   */
+  if (callbackUrl && !(status === 'success' && nextRange)) {
+    try {
+      const firstError = (taskResults.filter(item => item.error)[0] || {})
+        .error;
+      let error = firstError;
+      if (error) {
+        let depth = 0;
+        while (error.error && depth < 10) {
+          depth += 1;
+          error = error.error;
+        }
+        if (error.stack) {
+          error = {
+            message: error.message,
+          };
+        }
+      }
+      await requestPromiseRetry({
+        uri: callbackUrl,
+        method: 'POST',
+        json: {
+          code: status === 'success' ? 0 : -1,
+          message: `cos unzip file ${status}`,
+          data: {
+            functionName: context.function_name,
+            functionRegion: context.tencentcloud_region,
+            functionRequestId: context.request_id,
+            bucket: Bucket,
+            region: Region,
+            key: Key,
+          },
+          ...(error ? { error } : {}),
+        },
+      });
+    } catch (err) {
+      logger({
+        title: 'request callback url fail',
+        data: err.message ? { message: err.message } : err,
+      });
+    }
   }
 
   watcher.clear();
