@@ -1,0 +1,27 @@
+component: scf
+name: ap-guangzhou_default_media_concat
+inputs:
+  src:
+    src: ./src
+  region: ap-guangzhou
+  name: MediaConcat
+  runtime: Python3.6
+  namespace: default
+  handler: index.main_handler
+  memorySize: 3072
+  timeout: 43200
+  asyncRunEnable: true
+  traceEnable: true
+  triggers:
+    - type: apigw
+      name: SCF_API_SERVICE
+      protocols:
+        - http
+        - https
+      environment: release
+      description: the serverless service
+      apis:
+        - path: /media_concat
+          method: ANY
+          function:
+            isIntegratedResponse: false
