@@ -1,0 +1,27 @@
+{
+  "serverless-cloud-function-application": {
+      "Chinese":{
+        "name": "视频拼接",
+        "description": "基于云函数+VOD+ffmpeg实现媒体文件拼接。可配合CFS实现大媒体文件拼接，并将生成的mp4媒体文件上传到VOD云主播服务保存。",
+        "attention": "模版函数需要配置API网关触发器。",
+        "author": {
+            "name": "腾讯云无服务器云函数团队"
+        }
+      },
+      "English":{
+        "name": "MediaConcat",
+        "description": "This example demonstrates media files concat based on ffmpeg, and push media file to VOD service.",
+        "attention": "This example needs to configure the API gateway trigger.",
+        "author": {
+            "name": "Tencent Cloud"
+        }
+      },
+      "runtime": "Python3.6",
+      "handler": "index.main_handler",
+      "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-MediaConcat",
+      "version": "1.0.0",
+      "tags":[
+            "Python3.6", "VOD", "media", "CFS", "video", "ffmpeg"
+      ]
+  }
+}
