@@ -24,7 +24,7 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.common import credential
 from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentCloudSDKException
 from tencentcloud.cdn.v20180606 import cdn_client,models
-
+from datetime import timedelta
 try:
     from qcloud_cos_v5 import CosConfig, CosS3Client, CosServiceError
 except:
@@ -58,7 +58,7 @@ class Job:
         '''Getting the log download link for CDN （获取CDN的日志下载链接）'''
         CDN_LOG_STABLE_HOURS = 12+1
         CDN_LOG_SAVE_HOURS   = 1
-        now = datetime.datetime.now()
+        now = datetime.datetime.now() + timedelta(hours=8) 
         end = now - datetime.timedelta(hours=CDN_LOG_STABLE_HOURS)
         start = end - datetime.timedelta(hours=CDN_LOG_SAVE_HOURS)
 
