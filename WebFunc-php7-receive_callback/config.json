@@ -18,7 +18,7 @@
         },
         "runtime": "PHP",
         "type": "web",
-        "readme":"模版的git地址",
+        "readme":"https://github.com/tencentyun/serverless-demo/tree/master/WebFunc-php7-receive_callback",
         "version": "1.0",
         "tags":["PHP7", "COS", "CLS","IM"]
     }
