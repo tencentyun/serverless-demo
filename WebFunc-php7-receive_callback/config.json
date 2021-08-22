@@ -1,0 +1,25 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese":{
+            "name": "接收第三方回调 示例函数",
+            "description": "使用云函数接收回调，配合CLS查看回调日志和持久化转储COS",
+            "attention": "使用方法和实际案例说明：https://cloud.tencent.com/developer/article/1865837",
+            "author": {
+                "name": "王野君"
+            }
+        },
+        "English":{
+            "name": "Receive third-party callback sample function",
+            "description": "Use cloud functions to receive callbacks, cooperate with CLS to view callback logs and persistently dump COS",
+            "attention": "Use method and actual case description: https://cloud.tencent.com/developer/article/1865837",
+            "author": {
+                "name": "yjwang"
+            }
+        },
+        "runtime": "PHP",
+        "type": "web",
+        "readme":"模版的git地址",
+        "version": "1.0",
+        "tags":["PHP7", "COS", "CLS","IM"]
+    }
+}
