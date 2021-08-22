@@ -9,7 +9,7 @@
             }
         },
         "English":{
-            "name": "Receive third-party callback sample function",
+            "name": "Receive_third-party_callback_sample_function",
             "description": "Use cloud functions to receive callbacks, cooperate with CLS to view callback logs and persistently dump COS",
             "attention": "Use method and actual case description: https://cloud.tencent.com/developer/article/1865837",
             "author": {
