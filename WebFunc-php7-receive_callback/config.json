@@ -16,7 +16,7 @@
                 "name": "yjwang"
             }
         },
-        "runtime": "PHP",
+        "runtime": "Php7.2",
         "type": "web",
         "readme":"https://github.com/tencentyun/serverless-demo/tree/master/WebFunc-php7-receive_callback",
         "version": "1.0",
