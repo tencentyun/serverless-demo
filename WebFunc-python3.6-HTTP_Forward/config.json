@@ -1,0 +1,30 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "IoT Explorer数据同步转发",
+            "description": "本示例使用 API 网关和 Web 函数，快速部署HTTP转发项目，实现在服务端接收物联网平台设备实时消息数据",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "IoT Explorer data forwarding",
+            "description": "Based on the API gateway and Web function , this example help you quickly deploy the HTTP forwarding project to receive the real-time message data from IoT platform",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Python3.6",
+        "type": "web",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/WebFunc-python3.6-HTTP_Forward",
+        "version": "1.0.0",
+        "tags": [
+            "WebFunc",
+            "HTTP_Forward",
+            "Python3.6",
+            "web"
+        ]
+    }
+}
