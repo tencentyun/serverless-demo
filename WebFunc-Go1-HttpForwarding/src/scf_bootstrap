@@ -1,5 +1,0 @@
-#!/bin/bash
-cp main /tmp/main
-chmod +x /tmp/main
-cd /tmp
-./main
