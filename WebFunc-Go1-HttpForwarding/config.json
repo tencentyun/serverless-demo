@@ -18,7 +18,7 @@
         },
         "runtime": "Go1",
         "type": "web",
-        "readme": "/Webfunc-Go1-HttpForwarding",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-Go1-HttpForwarding",
         "version": "0.0.1",
         "tags": [
             "WebFunc",
