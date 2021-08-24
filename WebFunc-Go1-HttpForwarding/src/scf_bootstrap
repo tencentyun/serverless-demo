@@ -1,3 +1,3 @@
 #!/bin/bash
-chmod +x main
+ls -al
 ./main
