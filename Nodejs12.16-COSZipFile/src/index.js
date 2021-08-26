@@ -41,10 +41,13 @@ exports.main_handler = async (event, context) => {
     });
 
     for (const { url } of sourceConfigList) {
-      const content = await requestPromiseRetry({
+      let content = await requestPromiseRetry({
         uri: tryAddCosSignature({ cosSdkInstance, url }),
         method: 'GET',
       });
+      if (content.charCodeAt(0) === 0xfeff) {
+        content = content.slice(1);
+      }
       const list = JSON.parse(content);
       list.forEach(item => sourceList.push(item));
     }
