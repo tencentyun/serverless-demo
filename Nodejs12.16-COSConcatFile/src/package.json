@@ -1,0 +1,13 @@
+{
+  "name": "cos-concat-file",
+  "version": "1.0.3",
+  "main": "index.js",
+  "license": "ISC",
+  "dependencies": {
+    "@annexwu-packages/simple-stream-utils": "0.0.3",
+    "async": "^3.2.0",
+    "cos-nodejs-sdk-v5": "^2.9.13",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.6"
+  }
+}

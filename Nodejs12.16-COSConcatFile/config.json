@@ -1,0 +1,24 @@
+{
+  "serverless-cloud-function-application": {
+    "Chinese": {
+      "name": "多文件合并",
+      "description": "本函数将源 bucket 中多个文件的内容合并为一个文件后，上传到指定 bucket",
+      "attention": "",
+      "author": {
+        "name": "腾讯云"
+      }
+    },
+    "English": {
+      "name": "ConcatFile",
+      "description": "This function will download file from source bucket, concat them, and upload to target bucket",
+      "attention": "",
+      "author": {
+        "name": "Tencent Cloud"
+      }
+    },
+    "runtime": "Nodejs12.16",
+    "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSConcatFile",
+    "version": "1.0.3",
+    "tags": ["Nodejs12.16", "concat", "concat file"]
+  }
+}
