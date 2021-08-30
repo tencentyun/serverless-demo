@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "IoT Explorer data forwarding",
+            "name": "IoTExplorerDataForwarding",
             "description": "Based on the API gateway and Web function , this example help you quickly deploy the HTTP forwarding project to receive the real-time message data from IoT platform",
             "attention": "None",
             "author": {
@@ -24,7 +24,7 @@
             "WebFunc",
             "DataForwarding",
             "Php7",
-            "web"
+            "Web"
         ]
     }
 }

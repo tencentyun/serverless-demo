@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "IoT Explorer data forwarding",
+            "name": "IoTExplorerDataForwarding",
             "description": "Based on the API gateway and Web function , this example help you quickly deploy the HTTP forwarding project to receive the real-time message data from IoT platform",
             "attention": "None",
             "author": {
@@ -18,13 +18,13 @@
         },
         "runtime": "Go1",
         "type": "web",
-        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-Go1-HttpForwarding",
-        "version": "1.0.4",
+        "readme": "/Webfunc-Go1-HttpForwarding",
+        "version": "0.0.1",
         "tags": [
             "WebFunc",
             "DataForwarding",
             "Go1",
-            "web"
+            "Web"
         ]
     }
 }
