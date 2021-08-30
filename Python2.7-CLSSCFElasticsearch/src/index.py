@@ -23,7 +23,7 @@ ES_Password = os.getenv('ES_Password')
 ES_Index_TimeFormat = "hour"
 
 # es索引前缀关键词
-ES_Index_KeyWord = "Log"
+ES_Index_KeyWord = "log"
 
 # 定义需要屏蔽的字符串, 以字典形式，如密码123456
 ES_Clean_Word = {"123456"}
