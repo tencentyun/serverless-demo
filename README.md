@@ -69,7 +69,9 @@ CustomRuntime
 ```
 
 ## 模版配置文件 config.json 说明
-注意：config.json 中，English name 不要包含空格，该字段会作为模版创建函数时的默认函数名称，English name 包含空格会导致函数创建失败。
+注意：
+1. config.json 中，English name 不要包含空格，该字段会作为模版创建函数时的默认函数名称，English name 包含空格会导致函数创建失败。
+2. config.json 中，English name 创建后不支持修改，请谨慎填写。
 
 ```sh
 {
