@@ -19,7 +19,7 @@
         "runtime": "Go1",
         "type": "web",
         "readme": "/Webfunc-Go1-HttpForwarding",
-        "version": "0.0.1",
+        "version": "1.0.3",
         "tags": [
             "WebFunc",
             "DataForwarding",

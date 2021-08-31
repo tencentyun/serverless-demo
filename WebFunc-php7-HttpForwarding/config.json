@@ -19,7 +19,7 @@
         "runtime": "Php7",
         "type": "web",
         "readme": "/Webfunc-php7-HttpForwarding",
-        "version": "0.0.1",
+        "version": "1.0.3",
         "tags": [
             "WebFunc",
             "DataForwarding",

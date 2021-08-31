@@ -19,7 +19,7 @@
         "runtime": "Python3.6",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/WebFunc-python3.6-HttpForwarding",
-        "version": "1.0.0",
+        "version": "1.0.3",
         "tags": [
             "WebFunc",
             "DataForwarding",
