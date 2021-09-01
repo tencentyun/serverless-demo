@@ -42,7 +42,6 @@ HTTP 服务器具备的功能如下：
 ![](https://main.qcloudimg.com/raw/e791156ac39a80818bec3ee3fa0b57a5.png)
 >提示：
 鉴权token如何自定义设置，可在函数部署阶段在代码中自定义配置，默认为`test`。
-![](https://main.qcloudimg.com/raw/51bcb353a227fffc04c05ef259a2e5ae.png)
 
 10.配置完成后，点击保存按钮，跳转到列表页，可开启该产品的【生效状态】，完成该产品的数据同步配置；
 ![](https://main.qcloudimg.com/raw/16aadaea76e1a51def49cf68aacfe467.png)
