@@ -1,0 +1,27 @@
+component: scf
+name: ap-guangzhou_default_CDNSaveLogsIntoCOS
+inputs:
+  name: CDNSaveLogsIntoCOS
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Python3.6
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 300
+  asyncRunEnable: true
+  environment:
+    - key: TARGET_COS_REGION
+      value: the region of target bucket
+    - key: TARGET_COS_BUCKET
+      value: target bucket name
+    - key: TARGET_SCF_REGION
+      value: the region of target scf
+    - key: TARGET_COS_PATH
+      value: the path of target bucket, default /cdnlog/
+  triggers:
+    - type: timer
+      cronExpression: 0 * * * * * *
+      enable: true
+      argument: argument

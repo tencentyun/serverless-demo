@@ -1,0 +1,33 @@
+component: scf
+name: ap-guangzhou_default_CDNSaveLogsIntoS3
+inputs:
+  name: CDNSaveLogsIntoS3
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Python3.6
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 300
+  asyncRunEnable: true
+  environment:
+    - key: TARGET_S3_SECRET_ID
+      value: secret id of your aws account which need s3 access permission
+    - key: TARGET_S3_SECRET_KEY
+      value: secret key of your aws account which need s3 access permission
+    - key: TARGET_S3_REGION
+      value: the region of target bucket
+    - key: TARGET_S3_BUCKET
+      value: the name of target bucket
+    - key: TARGET_SCF_REGION
+      value: the region of target scf
+    - key: TARGET_S3_PATH
+      value: the path of target bucket, default /cdnlog/
+    - key: TARGET_CDN_HOSTS
+      value: the hosts need to save, default none
+  triggers:
+    - type: timer
+      cronExpression: 0 * * * * * *
+      enable: true
+      argument: argument
