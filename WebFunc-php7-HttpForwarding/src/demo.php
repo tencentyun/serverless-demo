@@ -33,7 +33,7 @@ function checkSignature($signature='',$timestamp='',$nonce='')
     $posttimestamp = $timestamp;
     $postnonce = $nonce;
     # 用户设置token  在此填入设置的token 
-    $token = "aaa";
+    $token = "test";
     $tmpArr = array($token, $posttimestamp, $postnonce);
     sort($tmpArr, SORT_STRING);
     $tmpStr = implode( $tmpArr );
