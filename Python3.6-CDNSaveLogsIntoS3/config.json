@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "CDN日志转存S3",
+            "description": "本示例演示了如何下载CDN的日志文件，使用流式分片的方式，存储到S3存储桶。该函数可以用于实现CDN日志定时存档等需求。",
+            "attention": "必须指定环境变量 TARGET_S3_SECRET_ID、TARGET_S3_SECRET_KEY、TARGET_S3_REGION、TARGET_S3_BUCKET、TARGET_SCF_REGION; 可选环境变量 TARGET_S3_PATH TARGET_CDN_HOSTS",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "CDNSaveLogsIntoS3",
+            "description": "Get logs by url and upload to S3 by streaming.",
+            "attention": "Must assign environment variables:TARGET_S3_SECRET_ID、TARGET_S3_SECRET_KEY、TARGET_S3_REGION、TARGET_S3_BUCKET、TARGET_SCF_REGION; optional environment variables: TARGET_S3_PATH TARGET_CDN_HOSTS",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Python3.6",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-CDNSaveLogsIntoS3",
+        "version": "1.0.0",
+        "tags": [
+            "Python3.6",
+            "CDN",
+            "S3"
+        ]
+    }
+}
