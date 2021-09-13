@@ -5,7 +5,7 @@
 # 2. 必填环境 TARGET_COS_BUCKET，填写 cos bucket 名称。
 # 3. 必填环境 TARGET_SCF_REGION，填写 scf 所在地区。
 # 4. 选填环境 TARGET_COS_PATH，填写 cos 路径，默认为 /cdnlog/。
-# 4. 选填环境 TARGET_CDN_HOSTS，填写需要存储的域名，用英文逗号','分割；默认值为空（即保存账号下所有域名的日志）。
+# 5. 选填环境 TARGET_CDN_HOSTS，填写需要存储的域名，用英文逗号','分割；默认值为空（即保存账号下所有域名的日志）。
 #
 # 注意：
 # 1. 改函数由 CDN 离线日志转存生成，请不要在 SCF 侧手动修改函数的配置, 包括触发器，否则会导致 CDN离线日志转存失败; 如需修改请移步 CDN 控制台 ！！！
@@ -61,9 +61,8 @@ class Job:
 
     def get_cdn_log_urls(self, host):
         '''Getting the log download link for CDN （获取CDN的日志下载链接）'''
-        CDN_LOG_STABLE_HOURS = 12 + 1
+        CDN_LOG_STABLE_HOURS = 24
         CDN_LOG_SAVE_HOURS = 1
-        # now = datetime.datetime.now() + timedelta(hours=8)
         now = datetime.datetime.utcnow() + timedelta(hours=8)
         end = now - datetime.timedelta(hours=CDN_LOG_STABLE_HOURS)
         start = end - datetime.timedelta(hours=CDN_LOG_SAVE_HOURS)

@@ -2,7 +2,7 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "CDN日志转存COS",
-            "description": "本示例演示了如何下载CDN的日志文件，使用流式分片的方式，存储到COS存储桶。该函数可以用于实现CDN日志定时存档等需求。",
+            "description": "本函数由CDN日志转存任务创建，请勿删除，否则删除后会导致转存任务同步删除。",
             "attention": "必须指定环境变量 TARGET_COS_REGION、TARGET_COS_BUCKET、TARGET_SCF_REGION; 可选环境变量 TARGET_COS_PATH TARGET_CDN_HOSTS",
             "author": {
                 "name": "腾讯云"
@@ -10,7 +10,7 @@
         },
         "English": {
             "name": "CDNSaveLogsIntoCOS",
-            "description": "Get logs by url and upload to COS by streaming.",
+            "description": "Created by the CDN, do not delete it, otherwise causes the cdn log dump task failed.",
             "attention": "Must assign environment variables: TARGET_COS_REGION、TARGET_COS_BUCKET、TARGET_SCF_REGION; optional environment variables: TARGET_COS_PATH TARGET_CDN_HOSTS",
             "author": {
                 "name": "Tencent Cloud"
@@ -18,7 +18,7 @@
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-CDNSaveLogsIntoCOS",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "tags": [
             "Python3.6",
             "CDN",
