@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "自定义认证函数",
+            "description": "本示例基于 API 网关实现自定义认证功能。",
+            "attention": "该云函数使用了API 网关触发器，返回值需要构造为Json格式。",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "APIGWCustomAuthDemo",
+            "description": "This demo uses API GW to implement the custom authentication.",
+            "attention": "This demo uses api gw trigger, and the return value needs to be constructed in JSON format.",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Python3.6",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-APIGWCustomAuth",
+        "version": "1.0.8",
+        "tags": [
+            "Python3.6",
+            "APIGW",
+            "custom"
+        ]
+    }
+}
