@@ -23,9 +23,15 @@ class QueueConsumer {
     }));
     const index = this.tasks.findIndex(item => item.uuid === uuid);
     if (index === -1 || index === this.tasks.length - 1) {
-      this.tasks.push(...tasks);
+      tasks.forEach(item => this.tasks.push(item));
     } else {
-      this.tasks.splice(index + 1, 0, ...tasks);
+      if (tasks.length < 5000) {
+        this.tasks.splice(index + 1, 0, ...tasks);
+      } else {
+        const left = this.tasks.slice(0, index + 1);
+        const right = this.tasks.slice(index + 1);
+        this.tasks = left.concat(tasks).concat(right);
+      }
     }
     process.nextTick(() => this.start());
   }
