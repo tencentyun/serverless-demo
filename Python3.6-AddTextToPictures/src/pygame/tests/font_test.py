@@ -1,19 +1,24 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 import sys
 import os
 import unittest
 import platform
 
+try:
+    import pathlib
+except ImportError:
+    pathlib = None
+
 import pygame
 from pygame import font as pygame_font  # So font can be replaced with ftfont
 from pygame.compat import as_unicode, unicode_, as_bytes, xrange_, filesystem_errors
 from pygame.compat import PY_MAJOR_VERSION
 
-FONTDIR = os.path.join(os.path.dirname (os.path.abspath (__file__)),
-                       'fixtures', 'fonts')
+FONTDIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fixtures", "fonts")
 
 UCS_4 = sys.maxunicode > 0xFFFF
+
 
 def equal_images(s1, s2):
     size = s1.get_size()
@@ -27,12 +32,11 @@ def equal_images(s1, s2):
     return True
 
 
-IS_PYPY = 'PyPy' == platform.python_implementation()
+IS_PYPY = "PyPy" == platform.python_implementation()
 
 
-@unittest.skipIf(IS_PYPY, 'pypy skip known failure') # TODO
-class FontModuleTest( unittest.TestCase ):
-
+@unittest.skipIf(IS_PYPY, "pypy skip known failure")  # TODO
+class FontModuleTest(unittest.TestCase):
     def setUp(self):
         pygame_font.init()
 
@@ -42,10 +46,10 @@ class FontModuleTest( unittest.TestCase ):
     def test_SysFont(self):
         # Can only check that a font object is returned.
         fonts = pygame_font.get_fonts()
-        if 'arial' in fonts:
+        if "arial" in fonts:
             # Try to use arial font if it is there, rather than a random font
             #  which can be different depending on installed fonts on the system.
-            font_name = 'arial'
+            font_name = "arial"
         else:
             font_name = sorted(fonts)[0]
         o = pygame_font.SysFont(font_name, 20)
@@ -54,23 +58,23 @@ class FontModuleTest( unittest.TestCase ):
         self.assertTrue(isinstance(o, pygame_font.FontType))
         o = pygame_font.SysFont(font_name, 20, bold=True)
         self.assertTrue(isinstance(o, pygame_font.FontType))
-        o = pygame_font.SysFont('thisisnotafont', 20)
+        o = pygame_font.SysFont("thisisnotafont", 20)
         self.assertTrue(isinstance(o, pygame_font.FontType))
 
     def test_get_default_font(self):
-        self.assertEqual(pygame_font.get_default_font(), 'freesansbold.ttf')
+        self.assertEqual(pygame_font.get_default_font(), "freesansbold.ttf")
 
     def test_get_fonts_returns_something(self):
         fnts = pygame_font.get_fonts()
         self.assertTrue(fnts)
 
     # to test if some files exist...
-    #def XXtest_has_file_osx_10_5_sdk(self):
+    # def XXtest_has_file_osx_10_5_sdk(self):
     #    import os
     #    f = "/Developer/SDKs/MacOSX10.5.sdk/usr/X11/include/ft2build.h"
     #    self.assertEqual(os.path.exists(f), True)
 
-    #def XXtest_has_file_osx_10_4_sdk(self):
+    # def XXtest_has_file_osx_10_4_sdk(self):
     #    import os
     #    f = "/Developer/SDKs/MacOSX10.4u.sdk/usr/X11R6/include/ft2build.h"
     #    self.assertEqual(os.path.exists(f), True)
@@ -80,7 +84,7 @@ class FontModuleTest( unittest.TestCase ):
 
         self.assertTrue(fnts, msg=repr(fnts))
 
-        if (PY_MAJOR_VERSION >= 3):
+        if PY_MAJOR_VERSION >= 3:
             # For Python 3.x, names will always be unicode strings.
             name_types = (str,)
         else:
@@ -114,40 +118,100 @@ class FontModuleTest( unittest.TestCase ):
             self.assertFalse(path is None)
             self.assertTrue(os.path.isabs(path))
 
+    def test_match_font_name(self):
+        """That match_font accepts names of various types"""
+        font = pygame_font.get_fonts()[0]
+        font_path = pygame_font.match_font(font)
+        self.assertIsNotNone(font_path)
+        font_b = font.encode()
+        not_a_font = "thisisnotafont"
+        not_a_font_b = b"thisisnotafont"
+        good_font_names = [
+            # Check single name bytes.
+            font_b,
+            # Check string of comma-separated names.
+            ",".join([not_a_font, font, not_a_font]),
+            # Check list of names.
+            [not_a_font, font, not_a_font],
+            # Check generator:
+            (name for name in [not_a_font, font, not_a_font]),
+            # Check comma-separated bytes.
+            b",".join([not_a_font_b, font_b, not_a_font_b]),
+            # Check list of bytes.
+            [not_a_font_b, font_b, not_a_font_b],
+            # Check mixed list of bytes and string.
+            [font, not_a_font, font_b, not_a_font_b],
+        ]
+        for font_name in good_font_names:
+            self.assertEqual(
+                pygame_font.match_font(font_name), font_path, font_name
+            )
+
+    def test_not_match_font_name(self):
+        """match_font return None when names of various types do not exist"""
+        not_a_font = "thisisnotafont"
+        not_a_font_b = b"thisisnotafont"
+        bad_font_names = [
+            not_a_font,
+            ",".join([not_a_font, not_a_font, not_a_font]),
+            [not_a_font, not_a_font, not_a_font],
+            (name for name in [not_a_font, not_a_font, not_a_font]),
+            not_a_font_b,
+            b",".join([not_a_font_b, not_a_font_b, not_a_font_b]),
+            [not_a_font_b, not_a_font_b, not_a_font_b],
+            [not_a_font, not_a_font_b, not_a_font],
+        ]
+        for font_name in bad_font_names:
+            self.assertIsNone(pygame_font.match_font(font_name), font_name)
+
     def test_match_font_bold(self):
         fonts = pygame_font.get_fonts()
 
         # Look for a bold font.
-        self.assertTrue(any(pygame_font.match_font(font, bold=True)
-                            for font in fonts))
-
+        self.assertTrue(any(pygame_font.match_font(font, bold=True) for font in fonts))
 
     def test_match_font_italic(self):
         fonts = pygame_font.get_fonts()
 
         # Look for an italic font.
-        self.assertTrue(any(pygame_font.match_font(font, italic=True)
-                            for font in fonts))
+        self.assertTrue(
+            any(pygame_font.match_font(font, italic=True) for font in fonts)
+        )
 
-    def test_match_font_comma_separated(self):
-        fonts = pygame_font.get_fonts()
+    def test_issue_742(self):
+        """ that the font background does not crash.
+        """
+        surf = pygame.Surface((320, 240))
+        font = pygame_font.Font(None, 24)
+        image = font.render("Test", 0, (255, 255, 255), (0, 0, 0))
+        self.assertIsNone(image.get_colorkey())
+        image.set_alpha(255)
+        surf.blit(image, (0,0))
 
-        # Check for not found.
-        self.assertTrue(pygame_font.match_font('thisisnotafont') is None)
+    def test_issue_font_alphablit(self):
+        """ Check that blitting anti-aliased text doesn't
+            change the background blue"""
+        pygame.display.set_mode((600, 400))
 
-        # Check comma separated list.
-        names = ','.join(['thisisnotafont', fonts[-1], 'anothernonfont'])
-        self.assertFalse(pygame_font.match_font(names) is None)
-        names = ','.join(['thisisnotafont1', 'thisisnotafont2', 'thisisnotafont3'])
-        self.assertTrue(pygame_font.match_font(names) is None)
+        font = pygame_font.Font(None, 24)
+
+        (color, text, center, pos) = ((160, 200, 250), 'Music',
+                                      (190, 170), 'midright')
+        img1 = font.render(text, True, color)
+
+        img = pygame.Surface(img1.get_size(), depth=32)
+        pre_blit_corner_pixel = img.get_at((0, 0))
+        img.blit(img1, (0, 0))
+        post_blit_corner_pixel = img.get_at((0, 0))
+
+        self.assertEqual(pre_blit_corner_pixel, post_blit_corner_pixel)
 
     def test_quit(self):
         pygame_font.quit()
 
 
-@unittest.skipIf(IS_PYPY, 'pypy skip known failure') # TODO
+@unittest.skipIf(IS_PYPY, "pypy skip known failure")  # TODO
 class FontTest(unittest.TestCase):
-
     def setUp(self):
         pygame_font.init()
 
@@ -165,12 +229,12 @@ class FontTest(unittest.TestCase):
         self.assertTrue(font_surface)
         screen.blit(font_surface, font_rect, font_rect)
         pygame.display.update()
-        self.assertEqual(tuple(screen.get_at((0,0)))[:3], (255, 255, 255))
+        self.assertEqual(tuple(screen.get_at((0, 0)))[:3], (255, 255, 255))
         self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (255, 255, 255))
 
         # If we don't have a real display, don't do this test.
         # Transparent background doesn't seem to work without a read video card.
-        if os.environ.get('SDL_VIDEODRIVER') != 'dummy':
+        if os.environ.get("SDL_VIDEODRIVER") != "dummy":
             screen.fill((10, 10, 10))
             font_surface = f.render("   bar", True, (0, 0, 0), None)
             font_rect = font_surface.get_rect()
@@ -178,7 +242,7 @@ class FontTest(unittest.TestCase):
             self.assertTrue(font_surface)
             screen.blit(font_surface, font_rect, font_rect)
             pygame.display.update()
-            self.assertEqual(tuple(screen.get_at((0,0)))[:3], (10, 10, 10))
+            self.assertEqual(tuple(screen.get_at((0, 0)))[:3], (10, 10, 10))
             self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))
 
             screen.fill((10, 10, 10))
@@ -188,14 +252,12 @@ class FontTest(unittest.TestCase):
             self.assertTrue(font_surface)
             screen.blit(font_surface, font_rect, font_rect)
             pygame.display.update(rect)
-            self.assertEqual(tuple(screen.get_at((0,0)))[:3], (10, 10, 10))
+            self.assertEqual(tuple(screen.get_at((0, 0)))[:3], (10, 10, 10))
             self.assertEqual(tuple(screen.get_at(font_rect.topleft))[:3], (10, 10, 10))
 
 
-
-@unittest.skipIf(IS_PYPY, 'pypy skip known failure') # TODO
-class FontTypeTest( unittest.TestCase ):
-
+@unittest.skipIf(IS_PYPY, "pypy skip known failure")  # TODO
+class FontTypeTest(unittest.TestCase):
     def setUp(self):
         pygame_font.init()
 
@@ -248,7 +310,7 @@ class FontTypeTest( unittest.TestCase ):
         self.assertEqual(um, bm)
 
         u = u"\u212A"
-        b = u.encode("UTF-16")[2:] # Keep byte order consistent. [2:] skips BOM
+        b = u.encode("UTF-16")[2:]  # Keep byte order consistent. [2:] skips BOM
         bm = f.metrics(b)
 
         self.assertEqual(len(bm), 2)
@@ -269,21 +331,21 @@ class FontTypeTest( unittest.TestCase ):
             self.assertEqual(len(bm), 1)
             self.assertIsNone(bm[0])
 
-        return # unfinished
+        return  # unfinished
         # The documentation is useless here. How large a list?
         # How do list positions relate to character codes?
         # What about unicode characters?
 
         # __doc__ (as of 2008-08-02) for pygame_font.Font.metrics:
 
-          # Font.metrics(text): return list
-          # Gets the metrics for each character in the pased string.
-          #
-          # The list contains tuples for each character, which contain the
-          # minimum X offset, the maximum X offset, the minimum Y offset, the
-          # maximum Y offset and the advance offset (bearing plus width) of the
-          # character. [(minx, maxx, miny, maxy, advance), (minx, maxx, miny,
-          # maxy, advance), ...]
+        # Font.metrics(text): return list
+        # Gets the metrics for each character in the pased string.
+        #
+        # The list contains tuples for each character, which contain the
+        # minimum X offset, the maximum X offset, the minimum Y offset, the
+        # maximum Y offset and the advance offset (bearing plus width) of the
+        # character. [(minx, maxx, miny, maxy, advance), (minx, maxx, miny,
+        # maxy, advance), ...]
 
         self.fail()
 
@@ -297,17 +359,15 @@ class FontTypeTest( unittest.TestCase ):
         s = f.render("xxx", False, [0, 0, 0])
         s = f.render("   ", False, [0, 0, 0])
         s = f.render("   ", False, [0, 0, 0], [255, 255, 255])
-        # null text should be 1 pixel wide.
+        # null text should be 0 pixel wide.
         s = f.render("", False, [0, 0, 0], [255, 255, 255])
-        self.assertEqual(s.get_size()[0], 1)
-        # None text should be 1 pixel wide.
+        self.assertEqual(s.get_size()[0], 0)
+        # None text should be 0 pixel wide.
         s = f.render(None, False, [0, 0, 0], [255, 255, 255])
-        self.assertEqual(s.get_size()[0], 1)
+        self.assertEqual(s.get_size()[0], 0)
         # Non-text should raise a TypeError.
-        self.assertRaises(TypeError, f.render,
-                          [], False, [0, 0, 0], [255, 255, 255])
-        self.assertRaises(TypeError, f.render,
-                          1, False, [0, 0, 0], [255, 255, 255])
+        self.assertRaises(TypeError, f.render, [], False, [0, 0, 0], [255, 255, 255])
+        self.assertRaises(TypeError, f.render, 1, False, [0, 0, 0], [255, 255, 255])
         # is background transparent for antialiasing?
         s = f.render(".", True, [255, 255, 255])
         self.assertEqual(s.get_at((0, 0))[3], 0)
@@ -318,7 +378,7 @@ class FontTypeTest( unittest.TestCase ):
         sb = f.render(as_bytes("."), False, [0, 0, 0], [255, 255, 255])
         self.assertTrue(equal_images(su, sb))
         u = as_unicode(r"\u212A")
-        b = u.encode("UTF-16")[2:] # Keep byte order consistent. [2:] skips BOM
+        b = u.encode("UTF-16")[2:]  # Keep byte order consistent. [2:] skips BOM
         sb = f.render(b, False, [0, 0, 0], [255, 255, 255])
         try:  # FIXME why do we do this try/except ?
             su = f.render(u, False, [0, 0, 0], [255, 255, 255])
@@ -329,12 +389,13 @@ class FontTypeTest( unittest.TestCase ):
 
         # If the font module is SDL_ttf based, then it can only supports  UCS-2;
         # it will raise an exception for an out-of-range UCS-4 code point.
-        if UCS_4 and not hasattr(f, 'ucs4'):
+        if UCS_4 and not hasattr(f, "ucs4"):
             ucs_2 = as_unicode(r"\uFFEE")
             s = f.render(ucs_2, False, [0, 0, 0], [255, 255, 255])
             ucs_4 = as_unicode(r"\U00010000")
-            self.assertRaises(UnicodeError, f.render,
-                              ucs_4, False, [0, 0, 0], [255, 255, 255])
+            self.assertRaises(
+                UnicodeError, f.render, ucs_4, False, [0, 0, 0], [255, 255, 255]
+            )
 
         b = as_bytes("ab\x00cd")
         self.assertRaises(ValueError, f.render, b, 0, [0, 0, 0])
@@ -365,6 +426,30 @@ class FontTypeTest( unittest.TestCase ):
         f.set_underline(False)
         self.assertFalse(f.get_underline())
 
+    def test_bold_attr(self):
+        f = pygame_font.Font(None, 20)
+        self.assertFalse(f.bold)
+        f.bold = True
+        self.assertTrue(f.bold)
+        f.bold = False
+        self.assertFalse(f.bold)
+
+    def test_set_italic(self):
+        f = pygame_font.Font(None, 20)
+        self.assertFalse(f.italic)
+        f.italic = True
+        self.assertTrue(f.italic)
+        f.italic = False
+        self.assertFalse(f.italic)
+
+    def test_set_underline(self):
+        f = pygame_font.Font(None, 20)
+        self.assertFalse(f.underline)
+        f.underline = True
+        self.assertTrue(f.underline)
+        f.underline = False
+        self.assertFalse(f.underline)
+
     def test_size(self):
         f = pygame_font.Font(None, 20)
         text = as_unicode("Xg")
@@ -379,7 +464,7 @@ class FontTypeTest( unittest.TestCase ):
         self.assertEqual(f.size(btext), size)
 
         text = as_unicode(r"\u212A")
-        btext = text.encode("UTF-16")[2:] # Keep the byte order consistent.
+        btext = text.encode("UTF-16")[2:]  # Keep the byte order consistent.
         bsize = f.size(btext)
         try:  # FIXME why do we do this try/except ?
             size = f.size(text)
@@ -393,20 +478,30 @@ class FontTypeTest( unittest.TestCase ):
         # http://www.mail-archive.com/pygame-users@seul.org/msg11675.html
 
         pygame_font.init()
-        self.assertRaises(IOError,
-                          pygame_font.Font,
-                          unicode_('some-fictional-font.ttf'), 20)
+        self.assertRaises(
+            IOError, pygame_font.Font, unicode_("some-fictional-font.ttf"), 20
+        )
 
     def test_load_from_file(self):
         font_name = pygame_font.get_default_font()
-        font_path = os.path.join(os.path.split(pygame.__file__)[0],
-                                 pygame_font.get_default_font())
+        font_path = os.path.join(
+            os.path.split(pygame.__file__)[0], pygame_font.get_default_font()
+        )
         f = pygame_font.Font(font_path, 20)
+
+    @unittest.skipIf(pathlib is None, "no pathlib")
+    def test_load_from_pathlib(self):
+        font_name = pygame_font.get_default_font()
+        font_path = os.path.join(
+            os.path.split(pygame.__file__)[0], pygame_font.get_default_font()
+        )
+        f = pygame_font.Font(pathlib.Path(font_path), 20)
 
     def test_load_from_file_obj(self):
         font_name = pygame_font.get_default_font()
-        font_path = os.path.join(os.path.split(pygame.__file__)[0],
-                                 pygame_font.get_default_font())
+        font_path = os.path.join(
+            os.path.split(pygame.__file__)[0], pygame_font.get_default_font()
+        )
         with open(font_path, "rb") as f:
             font = pygame_font.Font(f, 20)
 
@@ -417,15 +512,16 @@ class FontTypeTest( unittest.TestCase ):
 
     def _load_unicode(self, path):
         import shutil
+
         fdir = unicode_(FONTDIR)
         temp = os.path.join(fdir, path)
-        pgfont = os.path.join(fdir, u'test_sans.ttf')
+        pgfont = os.path.join(fdir, u"test_sans.ttf")
         shutil.copy(pgfont, temp)
         try:
-            with open(temp, 'rb') as f:
+            with open(temp, "rb") as f:
                 pass
         except IOError:
-            raise unittest.SkipTest('the path cannot be opened')
+            raise unittest.SkipTest("the path cannot be opened")
         try:
             pygame_font.Font(temp, 20)
         finally:
@@ -433,29 +529,28 @@ class FontTypeTest( unittest.TestCase ):
 
     def test_load_from_file_unicode_0(self):
         """ASCII string as a unicode object"""
-        self._load_unicode(u'temp_file.ttf')
+        self._load_unicode(u"temp_file.ttf")
 
     def test_load_from_file_unicode_1(self):
-        self._load_unicode(u'你好.ttf')
+        self._load_unicode(u"你好.ttf")
 
     def test_load_from_file_bytes(self):
-        font_path = os.path.join(os.path.split(pygame.__file__)[0],
-                                 pygame_font.get_default_font())
+        font_path = os.path.join(
+            os.path.split(pygame.__file__)[0], pygame_font.get_default_font()
+        )
         filesystem_encoding = sys.getfilesystemencoding()
         try:  # FIXME why do we do this try/except ?
-            font_path = font_path.decode(filesystem_encoding,
-                                         filesystem_errors)
+            font_path = font_path.decode(filesystem_encoding, filesystem_errors)
         except AttributeError:
             pass
-        bfont_path = font_path.encode(filesystem_encoding,
-                                      filesystem_errors)
+        bfont_path = font_path.encode(filesystem_encoding, filesystem_errors)
         f = pygame_font.Font(bfont_path, 20)
 
 
-@unittest.skipIf(IS_PYPY, 'pypy skip known failure') # TODO
-class VisualTests( unittest.TestCase ):
+@unittest.skipIf(IS_PYPY, "pypy skip known failure")  # TODO
+class VisualTests(unittest.TestCase):
 
-    __tags__ = ['interactive']
+    __tags__ = ["interactive"]
 
     screen = None
     aborted = False
@@ -473,8 +568,7 @@ class VisualTests( unittest.TestCase ):
             pygame.quit()
         self.aborted = True
 
-    def query(self,
-              bold=False, italic=False, underline=False, antialiase=False):
+    def query(self, bold=False, italic=False, underline=False, antialiase=False):
         if self.aborted:
             return False
         spacing = 10
@@ -496,7 +590,7 @@ class VisualTests( unittest.TestCase ):
                 modes.append("underlined")
             if antialiase:
                 modes.append("antialiased")
-            text = "%s (y/n):" % ('-'.join(modes),)
+            text = "%s (y/n):" % ("-".join(modes),)
         f.set_bold(bold)
         f.set_italic(italic)
         f.set_underline(underline)
@@ -542,5 +636,5 @@ class VisualTests( unittest.TestCase ):
         self.assertTrue(self.query(italic=True, underline=True))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

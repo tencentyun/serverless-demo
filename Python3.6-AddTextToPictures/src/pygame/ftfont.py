@@ -1,6 +1,7 @@
 """pygame module for loading and rendering fonts (freetype alternative)"""
 
-__all__ = ['Font', 'init', 'quit', 'get_default_font', 'get_init', 'SysFont']
+__all__ = ['Font', 'init', 'quit', 'get_default_font', 'get_init', 'SysFont',
+           "match_font", "get_fonts"]
 
 from pygame._freetype import init, Font as _Font, get_default_resolution
 from pygame._freetype import quit, get_default_font, get_init as _get_init
@@ -8,7 +9,7 @@ from pygame._freetype import __PYGAMEinit__
 from pygame.sysfont import match_font, get_fonts, SysFont as _SysFont
 from pygame import encode_file_path
 from pygame.compat import bytes_, unicode_, as_unicode, as_bytes
-from pygame import Surface as _Surface, Color as _Color, SRCALPHA as _SRCALPHA
+
 
 class Font(_Font):
     """Font(filename, size) -> Font
@@ -41,7 +42,7 @@ class Font(_Font):
         if file is None:
             resolution = int(self.__get_default_resolution() * 0.6875)
             if resolution == 0:
-                kwds['resolution'] = 1
+                resolution = 1
         else:
             resolution = 0
         super(Font, self).__init__(file, size=size, resolution=resolution)
@@ -58,11 +59,9 @@ class Font(_Font):
 
         if text is None:
             text = ""
-        if (isinstance(text, unicode_) and  # conditional and
-            self.__unull in text):
+        if (isinstance(text, unicode_) and self.__unull in text):
             raise ValueError("A null character was found in the text")
-        if (isinstance(text, bytes_) and  # conditional and
-            self.__bnull in text):
+        if (isinstance(text, bytes_) and self.__bnull in text):
             raise ValueError("A null character was found in the text")
         save_antialiased = self.antialiased
         self.antialiased = bool(antialias)
@@ -81,8 +80,10 @@ class Font(_Font):
     def get_bold(self):
         """get_bold() -> bool
            check if text will be rendered bold"""
- 
+
         return self.wide
+
+    bold = property(get_bold, set_bold)
 
     def set_italic(self, value):
         """set_italic(bool) -> None
@@ -95,6 +96,8 @@ class Font(_Font):
            check if the text will be rendered italic"""
 
         return self.oblique
+
+    italic = property(get_italic, set_italic)
 
     def set_underline(self, value):
         """set_underline(bool) -> None
@@ -110,7 +113,7 @@ class Font(_Font):
 
     def metrics(self, text):
         """metrics(text) -> list
-           Gets the metrics for each character in the pased string."""
+           Gets the metrics for each character in the passed string."""
 
         return self.get_metrics(text)
 
@@ -136,7 +139,7 @@ class Font(_Font):
         """get_linesize() -> int
            get the line space of the font text"""
 
-        return self.get_sized_height();
+        return self.get_sized_height()
 
     def size(self, text):
         """size(text) -> (width, height)
@@ -147,14 +150,14 @@ class Font(_Font):
 FontType = Font
 
 def get_init():
-   """get_init() -> bool
-      true if the font module is initialized"""
+    """get_init() -> bool
+       true if the font module is initialized"""
 
-   return _get_init()
+    return _get_init()
 
 def SysFont(name, size, bold=0, italic=0, constructor=None):
     """pygame.ftfont.SysFont(name, size, bold=False, italic=False, constructor=None) -> Font
-       create a pygame Font from system font resources (freetype alternative)
+       Create a pygame Font from system font resources.
 
        This will search the system fonts for the given font
        name. You can also enable bold or italic styles, and
@@ -164,13 +167,14 @@ def SysFont(name, size, bold=0, italic=0, constructor=None):
        fallback on the builtin pygame font if the given font
        is not found.
 
-       Name can also be a comma separated list of names, in
-       which case set of names will be searched in order. Pygame
-       uses a small set of common font aliases, if the specific
-       font you ask for is not available, a reasonable alternative
-       may be used.
+       Name can also be an iterable of font names, a string of
+       comma-separated font names, or a bytes of comma-separated
+       font names, in which case the set of names will be searched
+       in order. Pygame uses a small set of common font aliases. If the
+       specific font you ask for is not available, a reasonable
+       alternative may be used.
 
-       if optional contructor is provided, it must be a function with
+       If optional constructor is provided, it must be a function with
        signature constructor(fontpath, size, bold, italic) which returns
        a Font instance. If None, a pygame.ftfont.Font object is created.
     """
@@ -184,4 +188,3 @@ def SysFont(name, size, bold=0, italic=0, constructor=None):
     return _SysFont(name, size, bold, italic, constructor)
 
 del _Font, get_default_resolution, encode_file_path, as_unicode, as_bytes
-

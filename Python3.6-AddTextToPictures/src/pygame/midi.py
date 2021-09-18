@@ -15,31 +15,28 @@ point in the future.  The pyportmidi bindings are included with pygame.
 New in pygame 1.9.0.
 """
 
-
-#TODO:
-#    - finish writing tests.
-#        - likely as interactive tests... so you'd need to plug in a midi device.
-#    - create a background thread version for input threads.
+# TODO: finish writing tests.
+#        - likely as interactive tests... so you'd need to plug in
+#          a midi device.
+# TODO: create a background thread version for input threads.
 #        - that can automatically inject input into the event queue
 #          once the input object is running.  Like joysticks.
 
 
-
-import atexit
+# In Python 2.7 pygame.math is imported instead of the built-in math module.
+# This import from future allows the built-in math module to be imported.
+from __future__ import absolute_import
 import math
+import atexit
 
 import pygame
 import pygame.locals
 
+import pygame.pypm as _pypm
 
-
-#
-MIDIIN = pygame.locals.USEREVENT + 10
-MIDIOUT = pygame.locals.USEREVENT + 11
-
-_init = False
-_pypm = None
-
+# For backward compatibility.
+MIDIIN = pygame.locals.MIDIIN
+MIDIOUT = pygame.locals.MIDIOUT
 
 __all__ = [
     "Input",
@@ -64,6 +61,21 @@ __all__ = [
 __theclasses__ = ["Input", "Output"]
 
 
+def _module_init(state=None):
+    # this is a sneaky dodge to store module level state in a non-public
+    # function. Helps us dodge using globals.
+    if state is not None:
+        _module_init.value = state
+        return state
+
+    try:
+        _module_init.value
+    except AttributeError:
+        return False
+    else:
+        return _module_init.value
+
+
 def init():
     """initialize the midi module
     pygame.midi.init(): return None
@@ -72,17 +84,13 @@ def init():
 
     It is safe to call this more than once.
     """
-    global _init, _pypm
-    if not _init:
-        import pygame.pypm
-        _pypm = pygame.pypm
-
+    if not _module_init():
         _pypm.Initialize()
-        _init = True
+        _module_init(True)
         atexit.register(quit)
 
 
-def quit():
+def quit():  # pylint: disable=redefined-builtin
     """uninitialize the midi module
     pygame.midi.quit(): return None
 
@@ -91,13 +99,10 @@ def quit():
 
     It is safe to call this function more than once.
     """
-    global _init, _pypm
-    if _init:
+    if _module_init():
         # TODO: find all Input and Output classes and close them first?
         _pypm.Terminate()
-        _init = False
-        del _pypm
-        #del pygame._pypm
+        _module_init(False)
 
 
 def get_init():
@@ -108,12 +113,13 @@ def get_init():
 
     New in pygame 1.9.5.
     """
-    return _init
+    return _module_init()
 
 
 def _check_init():
-    if not _init:
+    if not _module_init():
         raise RuntimeError("pygame.midi not initialised.")
+
 
 def get_count():
     """gets the number of devices.
@@ -126,15 +132,13 @@ def get_count():
     return _pypm.CountDevices()
 
 
-
-
 def get_default_input_id():
     """gets default input device number
     pygame.midi.get_default_input_id(): return default_id
 
 
     Return the default device ID or -1 if there are no devices.
-    The result can be passed to the Input()/Ouput() class.
+    The result can be passed to the Input()/Output() class.
 
     On the PC, the user can specify a default device by
     setting an environment variable. For example, to use device #1.
@@ -174,9 +178,8 @@ def get_default_input_id():
     Note: in the current release, the default is simply the first device
     (the input or output device with the lowest PmDeviceID).
     """
+    _check_init()
     return _pypm.GetDefaultInputDeviceID()
-
-
 
 
 def get_default_output_id():
@@ -185,7 +188,7 @@ def get_default_output_id():
 
 
     Return the default device ID or -1 if there are no devices.
-    The result can be passed to the Input()/Ouput() class.
+    The result can be passed to the Input()/Output() class.
 
     On the PC, the user can specify a default device by
     setting an environment variable. For example, to use device #1.
@@ -231,7 +234,9 @@ def get_default_output_id():
 
 def get_device_info(an_id):
     """ returns information about a midi device
-    pygame.midi.get_device_info(an_id): return (interf, name, input, output, opened)
+    pygame.midi.get_device_info(an_id): return (interf, name,
+                                                input, output,
+                                                opened)
 
     interf - a text string describing the device interface, eg 'ALSA'.
     name - a text string for the name of the device, eg 'Midi Through Port-0'
@@ -262,41 +267,40 @@ class Input(object):
         _check_init()
 
         if device_id == -1:
-            raise MidiException("Device id is -1, not a valid output id.  -1 usually means there were no default Output devices.")
+            raise MidiException("Device id is -1, not a valid output id.  "
+                                "-1 usually means there were no default "
+                                "Output devices.")
 
         try:
-            r = get_device_info(device_id)
+            result = get_device_info(device_id)
         except TypeError:
             raise TypeError("an integer is required")
         except OverflowError:
             raise OverflowError("long int too large to convert to int")
 
         # and now some nasty looking error checking, to provide nice error
-        #   messages to the kind, lovely, midi using people of whereever.
-        if r:
-            interf, name, input, output, opened = r
-            if input:
+        #   messages to the kind, lovely, midi using people of wherever.
+        if result:
+            _, _, is_input, is_output, _ = result
+            if is_input:
                 try:
                     self._input = _pypm.Input(device_id, buffer_size)
                 except TypeError:
                     raise TypeError("an integer is required")
                 self.device_id = device_id
 
-            elif output:
-                raise MidiException("Device id given is not a valid input id, it is an output id.")
+            elif is_output:
+                raise MidiException(
+                    "Device id given is not a valid"
+                    " input id, it is an output id.")
             else:
                 raise MidiException("Device id given is not a valid input id.")
         else:
             raise MidiException("Device id invalid, out of range.")
 
-
-
-
     def _check_open(self):
         if self._input is None:
             raise MidiException("midi not open.")
-
-
 
     def close(self):
         """ closes a midi stream, flushing any pending buffers.
@@ -306,11 +310,9 @@ class Input(object):
         exits -- this is particularly difficult under Windows.
         """
         _check_init()
-        if not (self._input is None):
+        if self._input is not None:
             self._input.Close()
         self._input = None
-
-
 
     def read(self, num_events):
         """reads num_events midi events from the buffer.
@@ -324,7 +326,6 @@ class Input(object):
         self._check_open()
         return self._input.Read(num_events)
 
-
     def poll(self):
         """returns true if there's data, or false if not.
         Input.poll(): return Bool
@@ -334,16 +335,15 @@ class Input(object):
         _check_init()
         self._check_open()
 
-        r = self._input.Poll()
-        if r == _pypm.TRUE:
+        result = self._input.Poll()
+        if result == _pypm.TRUE:
             return True
-        elif r == _pypm.FALSE:
+
+        if result == _pypm.FALSE:
             return False
-        else:
-            err_text = GetErrorText(r)
-            raise MidiException( (r, err_text) )
 
-
+        err_text = _pypm.GetErrorText(result)
+        raise MidiException((result, err_text))
 
 
 class Output(object):
@@ -374,7 +374,7 @@ class Output(object):
 
     """
 
-    def __init__(self, device_id, latency = 0, buffer_size = 4096):
+    def __init__(self, device_id, latency=0, buffer_size=256):
         """Output(device_id)
         Output(device_id, latency = 0)
         Output(device_id, buffer_size = 4096)
@@ -404,30 +404,35 @@ class Output(object):
         self._aborted = 0
 
         if device_id == -1:
-            raise MidiException("Device id is -1, not a valid output id.  -1 usually means there were no default Output devices.")
+            raise MidiException("Device id is -1, not a valid output id."
+                                "  -1 usually means there were no default "
+                                "Output devices.")
 
         try:
-            r = get_device_info(device_id)
+            result = get_device_info(device_id)
         except TypeError:
             raise TypeError("an integer is required")
         except OverflowError:
             raise OverflowError("long int too large to convert to int")
 
         # and now some nasty looking error checking, to provide nice error
-        #   messages to the kind, lovely, midi using people of whereever.
-        if r:
-            interf, name, input, output, opened = r
-            if output:
+        #   messages to the kind, lovely, midi using people of wherever.
+        if result:
+            _, _, is_input, is_output, _ = result
+            if is_output:
                 try:
-                    self._output = _pypm.Output(device_id, latency)
+                    self._output = _pypm.Output(device_id, latency,
+                                                buffer_size)
                 except TypeError:
                     raise TypeError("an integer is required")
                 self.device_id = device_id
 
-            elif input:
-                raise MidiException("Device id given is not a valid output id, it is an input id.")
+            elif is_input:
+                raise MidiException("Device id given is not a valid output "
+                                    "id, it is an input id.")
             else:
-                raise MidiException("Device id given is not a valid output id.")
+                raise MidiException("Device id given is not a"
+                                    " valid output id.")
         else:
             raise MidiException("Device id invalid, out of range.")
 
@@ -438,7 +443,6 @@ class Output(object):
         if self._aborted:
             raise MidiException("midi aborted.")
 
-
     def close(self):
         """ closes a midi stream, flushing any pending buffers.
         Output.close(): return None
@@ -447,7 +451,7 @@ class Output(object):
         exits -- this is particularly difficult under Windows.
         """
         _check_init()
-        if not (self._output is None):
+        if self._output is not None:
             self._output.Close()
         self._output = None
 
@@ -466,10 +470,6 @@ class Output(object):
         if self._output:
             self._output.Abort()
         self._aborted = 1
-
-
-
-
 
     def write(self, data):
         """writes a list of midi data to the Output
@@ -545,7 +545,7 @@ class Output(object):
         Turn a note on in the output stream.  The note must already
         be off for this to work correctly.
         """
-        if not (0 <= channel <= 15):
+        if not 0 <= channel <= 15:
             raise ValueError("Channel not between 0 and 15.")
 
         self.write_short(0x90 + channel, note, velocity)
@@ -561,11 +561,10 @@ class Output(object):
         Turn a note off in the output stream.  The note must already
         be on for this to work correctly.
         """
-        if not (0 <= channel <= 15):
+        if not 0 <= channel <= 15:
             raise ValueError("Channel not between 0 and 15.")
 
         self.write_short(0x80 + channel, note, velocity)
-
 
     def set_instrument(self, instrument_id, channel=0):
         """select an instrument for a channel, with a value between 0 and 127
@@ -573,10 +572,10 @@ class Output(object):
 
         Also called "patch change" or "program change".
         """
-        if not (0 <= instrument_id <= 127):
+        if not 0 <= instrument_id <= 127:
             raise ValueError("Undefined instrument id: %d" % instrument_id)
 
-        if not (0 <= channel <= 15):
+        if not 0 <= channel <= 15:
             raise ValueError("Channel not between 0 and 15.")
 
         self.write_short(0xc0 + channel, instrument_id)
@@ -593,10 +592,10 @@ class Output(object):
 
         If no value is given, the pitch bend is returned to "no change".
         """
-        if not (0 <= channel <= 15):
+        if not 0 <= channel <= 15:
             raise ValueError("Channel not between 0 and 15.")
 
-        if not (-8192 <= value <= 8191):
+        if not -8192 <= value <= 8191:
             raise ValueError("Pitch bend value must be between "
                              "-8192 and +8191, not %d." % value)
 
@@ -604,25 +603,21 @@ class Output(object):
         # 0x2000 is the center corresponding to the normal pitch of the note
         # (no pitch change)." so value=0 should send 0x2000
         value = value + 0x2000
-        LSB = value & 0x7f  # keep least 7 bits
-        MSB = value >> 7
-        self.write_short(0xe0 + channel, LSB, MSB)
+        lsb = value & 0x7f  # keep least 7 bits
+        msb = value >> 7
+        self.write_short(0xe0 + channel, lsb, msb)
 
 
-
-"""
-MIDI commands
-
-   0x80     Note Off    (note_off)
-   0x90     Note On     (note_on)
-   0xA0     Aftertouch
-   0xB0     Continuous controller
-   0xC0     Patch change    (set_instrument?)
-   0xD0     Channel Pressure
-   0xE0     Pitch bend
-   0xF0     (non-musical commands)
-"""
-
+# MIDI commands
+#
+#    0x80     Note Off    (note_off)
+#    0x90     Note On     (note_on)
+#    0xA0     Aftertouch
+#    0xB0     Continuous controller
+#    0xC0     Patch change    (set_instrument?)
+#    0xD0     Channel Pressure
+#    0xE0     Pitch bend
+#    0xF0     (non-musical commands)
 
 
 def time():
@@ -631,8 +626,8 @@ def time():
 
     The time is reset to 0, when the module is inited.
     """
+    _check_init()
     return _pypm.Time()
-
 
 
 def midis2events(midis, device_id):
@@ -643,37 +638,34 @@ def midis2events(midis, device_id):
     """
     evs = []
     for midi in midis:
+        ((status, data1, data2, data3), timestamp) = midi
 
-        ((status,data1,data2,data3),timestamp) = midi
-
-        e = pygame.event.Event(MIDIIN,
-                               status=status,
-                               data1=data1,
-                               data2=data2,
-                               data3=data3,
-                               timestamp=timestamp,
-                               vice_id = device_id)
-        evs.append( e )
-
+        event = pygame.event.Event(MIDIIN,
+                                   status=status,
+                                   data1=data1,
+                                   data2=data2,
+                                   data3=data3,
+                                   timestamp=timestamp,
+                                   vice_id=device_id)
+        evs.append(event)
 
     return evs
-
-
-
 
 
 class MidiException(Exception):
     """exception that pygame.midi functions and classes can raise
     MidiException(errno)
     """
+
     def __init__(self, value):
+        super(MidiException, self).__init__(value)
         self.parameter = value
+
     def __str__(self):
         return repr(self.parameter)
 
 
-
-def frequency_to_midi(freqency):
+def frequency_to_midi(frequency):
     """ converts a frequency into a MIDI note.
 
     Rounds to the closest midi note.
@@ -690,10 +682,11 @@ def frequency_to_midi(freqency):
     return int(
         round(
             69 + (
-                12 * math.log(freqency / 440.0)
+                12 * math.log(frequency / 440.0)
             ) / math.log(2)
         )
     )
+
 
 def midi_to_frequency(midi_note):
     """ Converts a midi note to a frequency.
@@ -707,7 +700,8 @@ def midi_to_frequency(midi_note):
     >>> midi_to_frequency(108)
     4186.0
     """
-    return round(440.0 * 2 ** ((midi_note - 69) * (1./12.)), 1)
+    return round(440.0 * 2 ** ((midi_note - 69) * (1. / 12.)), 1)
+
 
 def midi_to_ansi_note(midi_note):
     """ returns the Ansi Note name for a midi number.
@@ -724,5 +718,5 @@ def midi_to_ansi_note(midi_note):
     notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#']
     num_notes = 12
     note_name = notes[int(((midi_note - 21) % num_notes))]
-    note_number = int(round(((midi_note - 21) / 11.0)))
+    note_number = (midi_note - 12) // num_notes
     return '%s%s' % (note_name, note_number)

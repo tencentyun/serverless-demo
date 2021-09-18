@@ -22,9 +22,13 @@
 
 import os
 import sys
-from pygame.compat import xrange_, PY_MAJOR_VERSION
 from os.path import basename, dirname, exists, join, splitext
-import xml.etree.ElementTree as ET
+
+from pygame.font import Font
+from pygame.compat import xrange_, PY_MAJOR_VERSION, unicode_
+
+if sys.platform == 'darwin':
+    import xml.etree.ElementTree as ET
 
 
 OpenType_extensions = frozenset(('.ttf', '.ttc', '.otf'))
@@ -68,9 +72,6 @@ def initsysfonts_win32():
 
     fontdir = join(os.environ.get('WINDIR', 'C:\\Windows'), 'Fonts')
 
-    TrueType_suffix = '(TrueType)'
-    mods = ('demibold', 'narrow', 'light', 'unicode', 'bt', 'mt')
-
     fonts = {}
 
     # add fonts entered in the registry
@@ -107,7 +108,7 @@ def initsysfonts_win32():
                 # MBCS is the windows encoding for unicode file names.
                 try:
                     font = font.encode('MBCS')
-                except:
+                except UnicodeEncodeError:
                     # no success with str or MBCS encoding... skip this font.
                     continue
 
@@ -116,51 +117,67 @@ def initsysfonts_win32():
         if not dirname(font):
             font = join(fontdir, font)
 
-        if name.endswith(TrueType_suffix):
-            name = name.rstrip(TrueType_suffix).rstrip()
-        name = name.lower().split()
-
-        bold = italic = 0
-        for m in mods:
-            if m in name:
-                name.remove(m)
-        if 'bold' in name:
-            name.remove('bold')
-            bold = 1
-        if 'italic' in name:
-            name.remove('italic')
-            italic = 1
-        name = ''.join(name)
-
-        name = _simplename(name)
-
-        _addfont(name, bold, italic, font, fonts)
+        _parse_font_entry_win(name, font, fonts)
 
     return fonts
+
+
+def _parse_font_entry_win(name, font, fonts):
+    """
+    Parse out a simpler name and the font style from the initial file name.
+
+    :param name: The font name
+    :param font: The font file path
+    :param fonts: The pygame font dictionary
+
+    :return: Tuple of (bold, italic, name)
+    """
+    true_type_suffix = '(TrueType)'
+    mods = ('demibold', 'narrow', 'light', 'unicode', 'bt', 'mt')
+    if name.endswith(true_type_suffix):
+        name = name.rstrip(true_type_suffix).rstrip()
+    name = name.lower().split()
+    bold = italic = 0
+    for mod in mods:
+        if mod in name:
+            name.remove(mod)
+    if 'bold' in name:
+        name.remove('bold')
+        bold = 1
+    if 'italic' in name:
+        name.remove('italic')
+        italic = 1
+    name = ''.join(name)
+    name = _simplename(name)
+
+    _addfont(name, bold, italic, font, fonts)
 
 
 def _add_font_paths(sub_elements, fonts):
     """ Gets each element, checks its tag content,
         if wanted fetches the next value in the iterable
     """
-    font_name = font_path = None
+    font_name = None
+    bold = False
+    italic = False
     for tag in sub_elements:
         if tag.text == "_name":
-            font_name = next(sub_elements).text
-            if splitext(font_name)[1] not in OpenType_extensions:
+            font_file_name = next(sub_elements).text
+            font_name = splitext(font_file_name)[0]
+            if splitext(font_file_name)[1] not in OpenType_extensions:
                 break
             bold = "bold" in font_name
             italic = "italic" in font_name
         if tag.text == "path" and font_name is not None:
             font_path = next(sub_elements).text
-            _addfont(_simplename(font_name),bold,italic,font_path,fonts)
+            _addfont(_simplename(font_name), bold, italic, font_path, fonts)
             break
 
 
 def _system_profiler_darwin():
     fonts = {}
-    flout, flerr = subprocess.Popen(
-        ' '.join(['system_profiler', '-xml','SPFontsDataType']),
+    flout, _ = subprocess.Popen(
+        ' '.join(['system_profiler', '-xml', 'SPFontsDataType']),
         shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -171,7 +188,6 @@ def _system_profiler_darwin():
         _add_font_paths(font_node.iter("*"), fonts)
 
     return fonts
-
 
 
 def initsysfonts_darwin():
@@ -188,7 +204,7 @@ def initsysfonts_darwin():
     elif exists('/usr/sbin/system_profiler'):
         try:
             fonts = _system_profiler_darwin()
-        except:
+        except (OSError, ValueError):
             fonts = {}
     else:
         fonts = {}
@@ -204,52 +220,71 @@ def initsysfonts_unix(path="fc-list"):
     try:
         # note, we capture stderr so if fc-list isn't there to stop stderr
         # printing.
-        flout, flerr = subprocess.Popen('%s : file family style' % path, shell=True,
-                                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                        close_fds=True).communicate()
-    except Exception:
+        flout, _ = subprocess.Popen('%s : file family style' % path,
+                                    shell=True,
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.PIPE,
+                                    close_fds=True).communicate()
+    except (OSError, ValueError):
         return fonts
 
     entries = toascii(flout)
     try:
-        for line in entries.split('\n'):
+        for entry in entries.split('\n'):
 
             try:
-                filename, family, style = line.split(':', 2)
-                if splitext(filename)[1].lower() in OpenType_extensions:
-                    bold = 'Bold' in style
-                    italic = 'Italic' in style
-                    oblique = 'Oblique' in style
-                    for name in family.strip().split(','):
-                        if name:
-                            break
-                    else:
-                        name = splitext(basename(filename))[0]
-
-                    _addfont(
-                        _simplename(name), bold, italic or oblique, filename, fonts)
-
-            except Exception:
+                _parse_font_entry_unix(entry, fonts)
+            except ValueError:
                 # try the next one.
                 pass
 
-    except Exception:
+    except ValueError:
         pass
 
     return fonts
 
 
+def _parse_font_entry_unix(entry, fonts):
+    """
+    Parses an entry in the unix font data to add to the pygame font
+    dictionary.
+
+    :param entry: A entry from the unix font list.
+    :param fonts: The pygame font dictionary to add the parsed font data to.
+
+    """
+    filename, family, style = entry.split(':', 2)
+    if splitext(filename)[1].lower() in OpenType_extensions:
+        bold = 'Bold' in style
+        italic = 'Italic' in style
+        oblique = 'Oblique' in style
+        for name in family.strip().split(','):
+            if name:
+                break
+        else:
+            name = splitext(basename(filename))[0]
+
+        _addfont(_simplename(name), bold, italic or oblique,
+                 filename, fonts)
+
+
 def create_aliases():
-    """map common fonts that are absent from the system to similar fonts that are installed in the system"""
+    """ Map common fonts that are absent from the system to similar fonts
+        that are installed in the system
+    """
     alias_groups = (
         ('monospace', 'misc-fixed', 'courier', 'couriernew', 'console',
          'fixed', 'mono', 'freemono', 'bitstreamverasansmono',
-         'verasansmono', 'monotype', 'lucidaconsole'),
+         'verasansmono', 'monotype', 'lucidaconsole', 'consolas',
+         'dejavusansmono', 'liberationmono'),
         ('sans', 'arial', 'helvetica', 'swiss', 'freesans',
-         'bitstreamverasans', 'verasans', 'verdana', 'tahoma'),
+         'bitstreamverasans', 'verasans', 'verdana', 'tahoma',
+         'calibri', 'gillsans', 'segoeui', 'trebuchetms', 'ubuntu',
+         'dejavusans', 'liberationsans'),
         ('serif', 'times', 'freeserif', 'bitstreamveraserif', 'roman',
          'timesroman', 'timesnewroman', 'dutch', 'veraserif',
-         'georgia'),
+         'georgia', 'cambria', 'constantia', 'dejavuserif',
+         'liberationserif'),
         ('wingdings', 'wingbats'),
     )
     for alias_set in alias_groups:
@@ -264,8 +299,13 @@ def create_aliases():
                 Sysalias[name] = found
 
 
-# initialize it all, called once
 def initsysfonts():
+    """
+    Initialise the sysfont module, called once. Locates the installed fonts
+    and creates some aliases for common font categories.
+
+    Has different initialisation functions for different platforms.
+    """
     if sys.platform == 'win32':
         fonts = initsysfonts_win32()
     elif sys.platform == 'darwin':
@@ -278,15 +318,23 @@ def initsysfonts():
         Sysfonts[None] = None
 
 
-# pygame.font specific declarations
 def font_constructor(fontpath, size, bold, italic):
-    import pygame.font
+    """
+    pygame.font specific declarations
 
-    font = pygame.font.Font(fontpath, size)
+    :param fontpath: path to a font.
+    :param size: size of a font.
+    :param bold: bold style, True or False.
+    :param italic: italic style, True or False.
+
+    :return: A font.Font object.
+    """
+
+    font = Font(fontpath, size)
     if bold:
-        font.set_bold(1)
+        font.set_bold(True)
     if italic:
-        font.set_italic(1)
+        font.set_italic(True)
 
     return font
 
@@ -295,7 +343,7 @@ def font_constructor(fontpath, size, bold, italic):
 
 def SysFont(name, size, bold=False, italic=False, constructor=None):
     """pygame.font.SysFont(name, size, bold=False, italic=False, constructor=None) -> Font
-       create a pygame Font from system font resources
+       Create a pygame Font from system font resources.
 
        This will search the system fonts for the given font
        name. You can also enable bold or italic styles, and
@@ -305,13 +353,14 @@ def SysFont(name, size, bold=False, italic=False, constructor=None):
        fallback on the builtin pygame font if the given font
        is not found.
 
-       Name can also be a comma separated list of names, in
-       which case set of names will be searched in order. Pygame
-       uses a small set of common font aliases, if the specific
-       font you ask for is not available, a reasonable alternative
-       may be used.
+       Name can also be an iterable of font names, a string of
+       comma-separated font names, or a bytes of comma-separated
+       font names, in which case the set of names will be searched
+       in order. Pygame uses a small set of common font aliases. If the
+       specific font you ask for is not available, a reasonable
+       alternative may be used.
 
-       if optional contructor is provided, it must be a function with
+       If optional constructor is provided, it must be a function with
        signature constructor(fontpath, size, bold, italic) which returns
        a Font instance. If None, a pygame.font.Font object is created.
     """
@@ -324,16 +373,20 @@ def SysFont(name, size, bold=False, italic=False, constructor=None):
     gotbold = gotitalic = False
     fontname = None
     if name:
-        allnames = name
-        for name in allnames.split(','):
-            name = _simplename(name)
-            styles = Sysfonts.get(name)
+        if isinstance(name, (str, bytes, unicode_)):
+            name = name.split(b',' if str != bytes and isinstance(name, bytes) else ',')
+        for single_name in name:
+            if str != bytes and isinstance(single_name, bytes):
+                single_name = single_name.decode()
+
+            single_name = _simplename(single_name)
+            styles = Sysfonts.get(single_name)
             if not styles:
-                styles = Sysalias.get(name)
+                styles = Sysalias.get(single_name)
             if styles:
                 plainname = styles.get((False, False))
                 fontname = styles.get((bold, italic))
-                if not fontname and not plainname:
+                if not (fontname or plainname):
                     # Neither requested style, nor plain font exists, so
                     # return a font with the name requested, but an
                     # arbitrary style.
@@ -382,8 +435,9 @@ def match_font(name, bold=0, italic=0):
 
        This performs the same font search as the SysFont()
        function, only it returns the path to the TTF file
-       that would be loaded. The font name can be a comma
-       separated list of font names to try.
+       that would be loaded. The font name can also be an
+       iterable of font names or a string/bytes of comma-separated
+       font names to try.
 
        If no match is found, None is returned.
     """
@@ -391,12 +445,17 @@ def match_font(name, bold=0, italic=0):
         initsysfonts()
 
     fontname = None
-    allnames = name
-    for name in allnames.split(','):
-        name = _simplename(name)
-        styles = Sysfonts.get(name)
+    if isinstance(name, (str, bytes, unicode_)):
+        name = name.split(b',' if str != bytes and isinstance(name, bytes) else ',')
+
+    for single_name in name:
+        if str != bytes and isinstance(single_name, bytes):
+            single_name = single_name.decode()
+
+        single_name = _simplename(single_name)
+        styles = Sysfonts.get(single_name)
         if not styles:
-            styles = Sysalias.get(name)
+            styles = Sysalias.get(single_name)
         if styles:
             while not fontname:
                 fontname = styles.get((bold, italic))

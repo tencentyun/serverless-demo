@@ -15,15 +15,14 @@ def list_cameras():
     return [0]
 
     # this just cycles through all the cameras trying to open them
-    cameras = []
-    for x in range(256):
-        try:
-            c = Camera(x)
-        except:
-            break
-        cameras.append(x)
-
-    return cameras
+    #cameras = []
+    #for x in range(256):
+    #    try:
+    #        c = Camera(x)
+    #    except:
+    #        break
+    #    cameras.append(x)
+    #return cameras
 
 def init():
     global vidcap
@@ -35,16 +34,12 @@ def init():
 
 def quit():
     global vidcap
-    pass
-    del vidcap
+    vidcap = None
 
 
 class Camera:
 
-    def __init__(self, device =0,
-                       size = (640,480),
-                       mode = "RGB",
-                       show_video_window=0):
+    def __init__(self, device=0, size=(640, 480), mode="RGB", show_video_window=0):
         """device:  VideoCapture enumerates the available video capture devices
                     on your system.  If you have more than one device, specify
                     the desired one here.  The device number starts from 0.
@@ -97,33 +92,24 @@ class Camera:
         """ Not implemented.
         """
 
-    def get_image(self, dest_surf = None):
+    def get_image(self, dest_surf=None):
         """
         """
         return self.get_surface(dest_surf)
 
-    def get_surface(self, dest_surf = None):
-        """Returns a pygame Surface.
-        """
+    def get_surface(self, dest_surf=None):
+        """Returns a pygame Surface."""
         abuffer, width, height = self.get_buffer()
-        if abuffer:
-            surf = pygame.image.frombuffer(abuffer, (width, height), "RGB")
-
-            # swap it from a BGR surface to an RGB surface.
-            r,g,b,a = surf.get_masks()
-            surf.set_masks((b,g,r,a))
-
-            r,g,b,a = surf.get_shifts()
-            surf.set_shifts((b,g,r,a))
-
-            surf = pygame.transform.flip(surf, 0,1)
-
-            # if there is a destination surface given, we blit onto that.
-            if dest_surf:
-                dest_surf.blit(surf, (0,0))
-            else:
-                dest_surf = surf
-            return dest_surf
+        if not abuffer:
+            return None
+        surf = pygame.image.frombuffer(abuffer, (width, height), "BGR")
+        surf = pygame.transform.flip(surf, 0, 1)
+        # if there is a destination surface given, we blit onto that.
+        if dest_surf:
+            dest_surf.blit(surf, (0, 0))
+        else:
+            dest_surf = surf
+        return dest_surf
 
 if __name__ == "__main__":
     import pygame.examples.camera

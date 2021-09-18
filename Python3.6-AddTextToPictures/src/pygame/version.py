@@ -26,8 +26,12 @@ pygame version without importing the main pygame module.
 The python version information should always compare greater than any previous
 releases. (hmm, until we get to versions > 10)
 """
+from pygame.base import get_sdl_version
 
-class PygameVersion(tuple):
+class SoftwareVersion(tuple):
+    """
+    A class for storing data about software versions.
+    """
     __slots__ = ()
     fields = 'major', 'minor', 'patch'
     def __new__(cls, major, minor, patch):
@@ -40,6 +44,21 @@ class PygameVersion(tuple):
     major = property(lambda self: self[0])
     minor = property(lambda self: self[1])
     patch = property(lambda self: self[2])
-ver = "1.9.6"
-vernum = PygameVersion(1, 9, 6)
-rev = ""
+
+class PygameVersion(SoftwareVersion):
+    """
+    Pygame Version class.
+    """
+
+class SDLVersion(SoftwareVersion):
+    """
+    SDL Version class.
+    """
+
+_sdl_tuple = get_sdl_version()
+SDL = SDLVersion(_sdl_tuple[0], _sdl_tuple[1], _sdl_tuple[2])
+ver = "2.0.1"  # pylint: disable=invalid-name
+vernum = PygameVersion(2, 0, 1)
+rev = ""  # pylint: disable=invalid-name
+
+__all__ = ["SDL", "ver", "vernum", "rev"]

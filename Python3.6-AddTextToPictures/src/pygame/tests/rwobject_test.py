@@ -4,6 +4,11 @@ import unittest
 from pygame import encode_string, encode_file_path
 from pygame.compat import bytes_, as_bytes, as_unicode
 
+PY2 = sys.version_info[0] == 2
+
+if not PY2:
+    import pathlib
+
 
 class RWopsEncodeStringTest(unittest.TestCase):
     global getrefcount
@@ -21,14 +26,14 @@ class RWopsEncodeStringTest(unittest.TestCase):
 
     def test_obj_bytes(self):
         b = as_bytes("encyclop\xE6dia")
-        encoded_string = encode_string(b, 'ascii', 'strict')
+        encoded_string = encode_string(b, "ascii", "strict")
 
         self.assertIs(encoded_string, b)
 
     def test_encode_unicode(self):
         u = as_unicode(r"\u00DEe Olde Komp\u00FCter Shoppe")
-        b = u.encode('utf-8')
-        self.assertEqual(encode_string(u, 'utf-8'), b)
+        b = u.encode("utf-8")
+        self.assertEqual(encode_string(u, "utf-8"), b)
 
     def test_error_fowarding(self):
         self.assertRaises(SyntaxError, encode_string)
@@ -36,12 +41,12 @@ class RWopsEncodeStringTest(unittest.TestCase):
     def test_errors(self):
         s = r"abc\u0109defg\u011Dh\u0125ij\u0135klmnoprs\u015Dtu\u016Dvz"
         u = as_unicode(s)
-        b = u.encode('ascii', 'ignore')
-        self.assertEqual(encode_string(u, 'ascii', 'ignore'), b)
+        b = u.encode("ascii", "ignore")
+        self.assertEqual(encode_string(u, "ascii", "ignore"), b)
 
     def test_encoding_error(self):
         u = as_unicode(r"a\x80b")
-        encoded_string = encode_string(u, 'ascii', 'strict')
+        encoded_string = encode_string(u, "ascii", "strict")
 
         self.assertIsNone(encoded_string)
 
@@ -54,26 +59,39 @@ class RWopsEncodeStringTest(unittest.TestCase):
 
     def test_etype(self):
         u = as_unicode(r"a\x80b")
-        self.assertRaises(SyntaxError, encode_string,
-                          u, 'ascii', 'strict', SyntaxError)
+        self.assertRaises(
+            SyntaxError,
+            encode_string,
+            u,
+            "ascii",
+            "strict",
+            SyntaxError)
+
+    def test_etype__invalid(self):
+        """Ensures invalid etypes are properly handled."""
+
+        for etype in ("SyntaxError", self):
+            self.assertRaises(TypeError, encode_string, "test", etype=etype)
 
     def test_string_with_null_bytes(self):
         b = as_bytes("a\x00b\x00c")
         encoded_string = encode_string(b, etype=SyntaxError)
-        encoded_decode_string = encode_string(b.decode(), 'ascii', 'strict')
+        encoded_decode_string = encode_string(b.decode(), "ascii", "strict")
 
         self.assertIs(encoded_string, b)
         self.assertEqual(encoded_decode_string, b)
 
     try:
         from sys import getrefcount as _g
-        getrefcount = _g                   # This nonsense is for Python 3.x
+
+        getrefcount = _g  # This nonsense is for Python 3.x
     except ImportError:
         pass
     else:
+
         def test_refcount(self):
             bpath = as_bytes(" This is a string that is not cached.")[1:]
-            upath = bpath.decode('ascii')
+            upath = bpath.decode("ascii")
             before = getrefcount(bpath)
             bpath = encode_string(bpath)
             self.assertEqual(getrefcount(bpath), before)
@@ -83,13 +101,29 @@ class RWopsEncodeStringTest(unittest.TestCase):
     def test_smp(self):
         utf_8 = as_bytes("a\xF0\x93\x82\xA7b")
         u = as_unicode(r"a\U000130A7b")
-        b = encode_string(u, 'utf-8', 'strict', AssertionError)
+        b = encode_string(u, "utf-8", "strict", AssertionError)
         self.assertEqual(b, utf_8)
         #  For Python 3.1, surrogate pair handling depends on whether the
         #  interpreter was built with UCS-2 or USC-4 unicode strings.
         ##u = as_unicode(r"a\uD80C\uDCA7b")
         ##b = encode_string(u, 'utf-8', 'strict', AssertionError)
         ##self.assertEqual(b, utf_8)
+
+    @unittest.skipIf(PY2, "pathlib module is not in python 2")
+    def test_pathlib_obj(self):
+        """Test loading string representation of pathlib object"""
+        """
+        We do this because pygame functions internally use pg_EncodeString
+        to decode the filenames passed to them. So if we test that here, we
+        can safely assume that all those functions do not have any issues
+        with pathlib objects
+        """
+        encoded = encode_string(pathlib.PurePath("foo"), "utf-8")
+        self.assertEqual(encoded, b"foo")
+
+        encoded = encode_string(pathlib.Path("baz"))
+        self.assertEqual(encoded, b"baz")
+
 
 class RWopsEncodeFilePathTest(unittest.TestCase):
     # Most tests can be skipped since RWopsEncodeFilePath wraps
@@ -113,5 +147,12 @@ class RWopsEncodeFilePathTest(unittest.TestCase):
         b = as_bytes("a\x00b\x00c")
         self.assertRaises(TypeError, encode_file_path, b, TypeError)
 
-if __name__ == '__main__':
+    def test_etype__invalid(self):
+        """Ensures invalid etypes are properly handled."""
+
+        for etype in ("SyntaxError", self):
+            self.assertRaises(TypeError, encode_file_path, "test", etype)
+
+
+if __name__ == "__main__":
     unittest.main()
