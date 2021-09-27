@@ -1,0 +1,45 @@
+Metadata-Version: 2.0
+Name: patool
+Version: 1.12
+Summary: portable archive file manager
+Home-page: http://wummel.github.io/patool/
+Author: Bastian Kleineidam
+Author-email: bastian.kleineidam@web.de
+License: GPL
+Keywords: archiver,archive,compression,commandline,manager
+Platform: UNKNOWN
+Classifier: Environment :: Console
+Classifier: Topic :: System :: Archiving
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: License :: OSI Approved :: GNU General Public License (GPL)
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Operating System :: OS Independent
+
+Various archive formats can be created, extracted, tested, listed,
+searched, compared and repacked by patool. The advantage of patool
+is its simplicity in handling archive files without having to remember
+a myriad of programs and options.
+
+The archive format is determined by the file(1) program and as a
+fallback by the archive file extension.
+
+patool supports 7z (.7z), ACE (.ace), ADF (.adf), ALZIP (.alz), APE (.ape),
+AR (.a), ARC (.arc), ARJ (.arj), BZIP2 (.bz2),
+CAB (.cab), COMPRESS (.Z), CPIO (.cpio),
+DEB (.deb), DMS (.dms), FLAC (.flac), GZIP (.gz), ISO (.iso), LRZIP (.lrz),
+LZH (.lha, .lzh), LZIP (.lz), LZMA (.lzma), LZOP (.lzo), RPM (.rpm),
+RAR (.rar), RZIP (.rz), SHN (.shn), TAR (.tar), XZ (.xz), ZIP (.zip, .jar),
+ZOO (.zoo) and ZPAQ (.zpaq) formats.
+It relies on helper applications to handle those archive formats
+(for example bzip2 for BZIP2 archives).
+
+The archive formats TAR, ZIP, BZIP2 and GZIP
+are supported natively and do not require helper applications to be
+installed.
+
+

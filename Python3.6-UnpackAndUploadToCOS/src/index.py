@@ -11,14 +11,12 @@ import os
 import sys
 import os.path
 import zipfile
-import patool
+import patoolib
 import logging
 from qcloud_cos_v5 import CosConfig
 from qcloud_cos_v5 import CosS3Client
 from qcloud_cos_v5 import CosServiceError
 
-reload(sys)
-sys.setdefaultencoding('utf8')
 os.environ['PATH'] = os.getenv("PATH")+":"+os.getcwd()
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -33,7 +31,7 @@ logger = logging.getLogger()
 def run_extract(archive, outdir):
     """Extract files from archive(s)."""
     try:
-        patool.extract_archive(archive, verbosity=False, interactive="--non-interactive", outdir=outdir)
+        patoolib.extract_archive(archive, verbosity=False, interactive="--non-interactive", outdir=outdir)
     except PatoolError as msg:
         logger.Error("error extracting %s: %s" % (archive, msg))
 

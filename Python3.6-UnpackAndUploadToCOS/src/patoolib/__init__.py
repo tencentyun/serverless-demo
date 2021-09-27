@@ -21,6 +21,8 @@ import os
 import shutil
 import stat
 import importlib
+# PEP 396
+from .configuration import App, Version as __version__
 __all__ = ['list_formats', 'list_archive', 'extract_archive', 'test_archive',
     'create_archive', 'diff_archives', 'search_archive', 'repack_archive',
     'recompress_archive']
@@ -551,7 +553,7 @@ def get_archive_cmdlist_func (program, command, format):
         module = importlib.import_module(modulename, __name__)
     except ImportError as msg:
         raise util.PatoolError(msg)
-    # get archive handler function (eg. patool.programs.star.extract_tar)
+    # get archive handler function (eg. patoolib.programs.star.extract_tar)
     try:
         return getattr(module, '%s_%s' % (command, format))
     except AttributeError as msg:
