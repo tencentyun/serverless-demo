@@ -1,0 +1,159 @@
+.\"                                      -*- nroff -*-
+.\" Copyright (C) 2010-2016 Bastian Kleineidam
+.\"
+.\" This program is free software: you can redistribute it and/or modify
+.\" it under the terms of the GNU General Public License as published by
+.\" the Free Software Foundation, either version 3 of the License, or
+.\" (at your option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.TH PATOOL "1" "July 2013" "patool"
+.SH NAME
+patool - portable archive file manager
+.SH SYNOPSIS
+ \fBpatool\fP [\fIglobal-options\fP] (\fBlist\fP|\fBtest\fP|\fBextract\fP|\fBcreate\fP|\fBdiff\fP|\fBsearch\fP|\fBrepack\fP|\fBrecompressfP|\fBformats\fP) [\fIcommand-options\fP] <\fIcommand-arguments\fP>...
+.SH DESCRIPTION
+Various archive formats can be created, extracted, tested, listed, searched,
+repacked, recompressed and compared by
+\fBpatool\fP. The advantage of patool is its simplicity in handling archive
+files without having to remember a myriad of programs and options.
+.PP
+The archive format is determined by the file(1) program and as a fallback
+by the archive file extension.
+.PP
+\fBpatool\fP supports 7z (.7z, .cb7), ACE (.ace, .cba), ADF (.adf),
+ALZIP (.alz), APE (.ape), AR (.a), ARC (.arc), ARJ (.arj),
+BZIP2 (.bz2), CAB (.cab), COMPRESS (.Z), CPIO (.cpio), DEB (.deb), DMS (.dms),
+FLAC (.flac), GZIP (.gz), ISO (.iso), LRZIP (.lrz), LZH (.lha, .lzh),
+LZIP (.lz), LZMA (.lzma), LZOP (.lzo), RPM (.rpm), RAR (.rar, .cbr),
+RZIP (.rz), SHN (.shn), TAR (.tar, .cbt), XZ (.xz), ZIP (.zip, .jar, .cbz),
+ZOO (.zoo) and ZPAQ (.zpaq) archive formats.
+.br
+It relies on helper applications to handle those archive formats
+(for example bzip2 for BZIP2 archives).
+.PP
+The archive formats TAR, ZIP, BZIP2 and GZIP
+are supported natively and do not require helper applications to be
+installed.
+.SH EXAMPLES
+  \fBpatool extract archive.zip otherarchive.rar\fP
+  \fBpatool --verbose test dist.tar.gz\fP
+  \fBpatool list package.deb\fP
+  \fPpatool --verbose create myfiles.zip file1.txt dir/\fP
+  \fBpatool diff release1.0.tar.xz release2.0.zip\fP
+  \fBpatool search "def urlopen" python-3.3.tar.gz\fP
+  \fBpatool repack linux-2.6.33.tar.gz linux-2.6.33.tar.bz2\fP
+  \fBpatool recompress images.zip\fP
+.SH GLOBAL OPTIONS
+.TP
+\fB\-v\fP, \fB\-\-verbose\fP
+Display more info about what patool does, and display the output
+of helper applications. Can be given multiple times to increase
+the output even more.
+.TP
+\fB\-\-non\-interactive\fP
+Try to prevent any interactive user input (ie. prompting for passwords
+or for overwriting duplicate files). Use this option with care since
+overwriting files or ignoring password prompts could lead to unintended
+consequences.
+.br
+This only works for programs that allow preventing user prompts. Currently
+those are \fBarj\fP, \fB7z\fP and \fBrar\fP.
+.SH COMMANDS
+The following rules apply to all commands:
+.IP "\(bu" 4
+Existing files are never overwritten.
+.IP "\(bu" 4
+The original archive will never be removed.
+.IP "\(bu" 4
+Files outside the output directory will never be created. This relies on
+archive program options to prevent unpacking of files with an absolute
+path name (eg. \fB\-\-no\-absolute\-filenames\fP for \fBcpio(1)\fP).
+.PP
+The following commands are available.
+.SS extract
+\fBpatool\fP \fBextract\fP [\fB\-\-outdir\fP \fIdirectory\fP] <\fIarchive\fP>...
+.PP
+Extract files from given archives. The original archives will never
+be removed and are left as is.
+.TP
+\fB\-\-outdir\fP \fIdirectory\fP
+Extract to the given output directory. Default is to extract to
+the current working directory.
+.PP
+If the archive contains exactly one
+file or directory, the archive contents are extracted directly to the
+output directory.
+Else the files are extracted in a newly created subdirectory of the output
+directory. The new directory is named after the archive filename without
+the extension.
+.br
+This prevents cluttering the output directory with a lot
+of files from the extracted archive.
+.PP
+All extracted files are ensured that they are readable by the
+current user.
+.SS list
+\fBpatool\fP \fBlist\fP <\fIarchive\fP>...
+.PP
+List files in archives.
+.SS create
+\fBpatool\fP \fBcreate\fP <\fIarchive\fP> <\fIfile-or-directory\fP>...
+.PP
+Create an archive from given files. All of the given files to add
+to the archive must be readable by the current user.
+The format of the archive to create is determined by the archive file
+extension. If the archive program has options to maximize file compression,
+\fBpatool\fP uses those options.
+.SS test
+\fBpatool\fP \fBtest\fP <\fIarchive\fP>...
+.PP
+Test the given archives. If the helper application does not support
+testing, the archive contents are listed instead.
+.SS diff
+\fBpatool\fP \fBdiff\fP <\fIarchive1\fP> <\fIarchive2\fP>
+.PP
+Show differences between two archives with the \fBdiff(1)\fP program.
+The diff options used are \fB\-urN\fP.
+.SS search
+\fBpatool\fP \fBsearch\fP <\fIpattern\fP> <\fIarchive\fP>
+.PP
+Search in archive contents for given pattern using the \fBgrep(1)\fP program.
+The grep options used are \fB\-r\fP; additional options can be supplied
+with the \fBGREP_OPTIONS\fP environment variable.
+.SS repack
+\fBpatool\fP \fBrepack\fP <\fIarchive\fP> <\fIarchive_new\fP>
+.PP
+Repackage archive to a different format. The target archive format is
+determined by the file extension of \fIarchive_new\fP.
+.SS recompress
+\fBpatool\fP \fBrecompress\fP <\fIarchive\fP>
+.PP
+Recompress archive to a smaller file size. If the resulting file is
+not smaller, the archive is left unchanged.
+.SS formats
+\fBpatool\fP \fBformats\fP
+.PP
+Show all supported archive formats (ie. which helper applications
+are available).
+.SH HELP OPTION
+Specifying the help option displays help for patool itself, or a
+command.
+.br
+For example:
+  \fBpatool \-\-help\fP - display help for patool
+  \fBpatool extract \-\-help\fP - display help for the extract command
+.SH SHELL ALIASES
+When running under a Unix shell the following aliases can be defined to save some typing:
+  \fBalias pl='patool list'\fP
+  \fBalias px='patool extract'\fP
+  \fBalias pc='patool create'\fP
+  \fBalias pd='patool diff'\fP
+.SH AUTHOR
+Bastian Kleineidam <bastian.kleineidam@web.de>
+.SH COPYRIGHT
+Copyright \(co 2010-2016 Bastian Kleineidam

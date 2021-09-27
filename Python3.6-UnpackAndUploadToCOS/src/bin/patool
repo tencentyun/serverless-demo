@@ -1,0 +1,224 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+# Copyright (C) 2010-2015 Bastian Kleineidam
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+patool [global-options] {extract|list|create|diff|search|formats} [sub-command-options] <command-args>
+"""
+from __future__ import print_function
+import sys
+import argparse
+import pydoc
+import patoolib
+from patoolib.util import log_error, log_internal_error, PatoolError
+from patoolib.configuration import App
+
+def run_extract(args):
+    """Extract files from archive(s)."""
+    res = 0
+    for archive in args.archive:
+        try:
+            patoolib.extract_archive(archive, verbosity=args.verbosity, interactive=args.interactive, outdir=args.outdir)
+        except PatoolError as msg:
+            log_error("error extracting %s: %s" % (archive, msg))
+            res += 1
+    return res
+
+
+def run_list(args):
+    """List files in archive(s)."""
+    res = 0
+    for archive in args.archive:
+        try:
+            # increase default verbosity since the listing output should be visible
+            verbosity = args.verbosity + 1
+            patoolib.list_archive(archive, verbosity=verbosity, interactive=args.interactive)
+        except PatoolError as msg:
+            log_error("error listing %s: %s" % (archive, msg))
+            res += 1
+    return res
+
+
+def run_test(args):
+    """Test files in archive(s)."""
+    res = 0
+    for archive in args.archive:
+        try:
+            patoolib.test_archive(archive, verbosity=args.verbosity, interactive=args.interactive)
+        except PatoolError as msg:
+            log_error("error testing %s: %s" % (archive, msg))
+            res += 1
+    return res
+
+
+def run_create(args):
+    """Create an archive from given files."""
+    res = 0
+    try:
+        patoolib.create_archive(args.archive, args.filename, verbosity=args.verbosity, interactive=args.interactive)
+    except PatoolError as msg:
+        log_error("error creating %s: %s" % (args.archive, msg))
+        res = 1
+    return res
+
+
+def run_diff(args):
+    """Show differences between two archives."""
+    try:
+        res = patoolib.diff_archives(args.archive1, args.archive2, verbosity=args.verbosity, interactive=args.interactive)
+    except PatoolError as msg:
+        log_error("error showing differences between %s and %s: %s" % (args.archive1, args.archive2, msg))
+        res = 2
+    return res
+
+
+def run_search(args):
+    """Search for pattern in given archive."""
+    try:
+        res = patoolib.search_archive(args.pattern, args.archive, verbosity=args.verbosity, interactive=args.interactive)
+    except PatoolError as msg:
+        log_error("error searching %s: %s" % (args.archive, msg))
+        res = 2
+    return res
+
+
+def run_repack(args):
+    """Repackage one archive in another format."""
+    res = 0
+    try:
+        patoolib.repack_archive(args.archive_src, args.archive_dst, verbosity=args.verbosity, interactive=args.interactive)
+    except PatoolError as msg:
+        log_error("error repacking %s: %s" % (args.archive_src, msg))
+        res = 1
+    return res
+
+
+def run_recompress(args):
+    """Recompress an archive to smaller size."""
+    res = 0
+    try:
+        patoolib.recompress_archive(args.archive, verbosity=args.verbosity, interactive=args.interactive)
+    except PatoolError as msg:
+        log_error("error recompressing %s: %s" % (args.archive, msg))
+        res = 1
+    return res
+
+
+def run_formats (args):
+    """List supported and available archive formats."""
+    patoolib.list_formats()
+    return 0
+
+
+class ArgumentParser(argparse.ArgumentParser):
+    """Custom argument parser."""
+
+    def print_help(self, file=None):
+        """Paginate help message on TTYs."""
+        msg = self.format_help()
+        if file is None:
+            file = sys.stdout
+        if hasattr(file, "isatty") and file.isatty():
+            pydoc.pager(msg)
+        else:
+            print(msg, file=file)
+
+Examples = """\
+EXAMPLES
+  patool extract archive.zip otherarchive.rar
+  patool --verbose test dist.tar.gz
+  patool list package.deb
+  patool --verbose create myfiles.zip file1.txt dir/
+  patool diff release1.0.tar.xz release2.0.zip
+  patool search "def urlopen" python-3.3.tar.gz
+  patool repack linux-2.6.33.tar.gz linux-2.6.33.tar.bz2
+  patool recompress images.zip
+"""
+
+Version = """\
+VERSION
+  %s
+""" % App
+
+def create_argparser():
+    """Construct and return an argument parser."""
+    epilog = Examples + "\n" + Version
+    parser = ArgumentParser(description="An archive file manager.",
+        epilog=epilog, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument('--verbose', '-v', action='count', default=0, dest='verbosity', help="verbose operation; can be given multiple times")
+    parser.add_argument('--non-interactive', dest='interactive', default=True, action='store_false',
+        help="don't query for user input (ie. passwords or when overwriting duplicate files); use with care since overwriting files or ignoring passwords could be unintended")
+    subparsers = parser.add_subparsers(help='the archive command; type "patool COMMAND -h" for command-specific help', dest='command')
+    # extract
+    parser_extract = subparsers.add_parser('extract', help='extract one or more archives')
+    parser_extract.add_argument('--outdir', help="output directory to extract to")
+    parser_extract.add_argument('archive', nargs='+', help="an archive file")
+    # list
+    parser_list = subparsers.add_parser('list', help='list members or one or more archives')
+    parser_list.add_argument('archive', nargs='+', help="an archive file")
+    # create
+    parser_create = subparsers.add_parser('create', help='create an archive')
+    parser_create.add_argument('archive', help="the archive file; the file extension determines the archive program")
+    parser_create.add_argument('filename', nargs='+', help="a file or directory to add to the archive; note that some archive programs do not support directories")
+    # test
+    parser_test = subparsers.add_parser('test', help='test an archive')
+    parser_test.add_argument('archive', nargs='+', help='an archive file')
+    # repack
+    parser_repack = subparsers.add_parser('repack', help='repack an archive to a different format')
+    parser_repack.add_argument('archive_src', help='source archive file')
+    parser_repack.add_argument('archive_dst', help='target archive file')
+    # recompress
+    parser_recompress = subparsers.add_parser('recompress', help='recompress an archive to smaller size')
+    parser_recompress.add_argument('archive', help='an archive file')
+    # diff
+    parser_diff = subparsers.add_parser('diff', help='show differences between two archives')
+    parser_diff.add_argument('archive1', help='the first archive file')
+    parser_diff.add_argument('archive2', help='the second archive file')
+    # search
+    parser_search = subparsers.add_parser('search', help="search contents of archive members")
+    parser_search.add_argument('pattern', help='the grep(1) compatible search pattern')
+    parser_search.add_argument('archive', help='the archive file')
+    # formats
+    subparsers.add_parser('formats', help="show supported archive formats")
+    # optional bash completion
+    try:
+        import argcomplete
+        argcomplete.autocomplete(parser)
+    except ImportError:
+        pass
+    return parser
+
+
+def main():
+    """Parse options and execute commands."""
+    try:
+        argparser = create_argparser()
+        args = argparser.parse_args()
+        if args.command is None:
+            # Python 3.3.1 under linux allows an empty command somehow
+            argparser.error("too few arguments")
+        # run subcommand function
+        res = globals()["run_%s" % args.command](args)
+    except KeyboardInterrupt:
+        log_error("aborted")
+        res = 1
+    except Exception:
+        log_internal_error()
+        res = 2
+    return res
+
+
+if __name__ == '__main__':
+    sys.exit(main())

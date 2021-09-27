@@ -18,12 +18,12 @@
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-UnpackAndUploadToCOS",
-        "version": "1.0.5",
+        "version": "1.0.6",
         "tags": [
             "Python3.6",
             "COS",
             "unzip",
-            "FilePrecess",
+            "FileProcess",
             "hot"
         ]
     }
