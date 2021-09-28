@@ -11,7 +11,6 @@ const {
   getUUID,
   getObject,
   getDiffList,
-  getMetaFromUrl,
   replaceTemplate,
   streamPipelinePromise,
   getRangeStreamFromUrl,
@@ -55,7 +54,9 @@ class CosRenameFileTask {
       status: 'waiting',
       runningTask: {},
       replaceMap: {},
+      cacheData: {},
     });
+    // add retry logic
     for (const method of ['initReplaceMap', 'copyFile', 'deleteFile']) {
       this[`${method}Retry`] = retry({
         func: (...args) => {
@@ -65,6 +66,21 @@ class CosRenameFileTask {
           return this[method](...args);
         },
       });
+    }
+    // add cache logic
+    for (const method of ['headObject']) {
+      this.cosSdkInstance[`inner_${method}`] = this.cosSdkInstance[method];
+      this.cosSdkInstance[method] = async (...args) => {
+        const cacheDataKey = `${method}_${args
+          .map(item => JSON.stringify(item))
+          .join(',')}`;
+        if (this.cacheData[cacheDataKey]) {
+          return this.cacheData[cacheDataKey];
+        }
+        const result = await this.cosSdkInstance[`inner_${method}`](...args);
+        this.cacheData[cacheDataKey] = result;
+        return result;
+      };
     }
   }
   runTask() {
@@ -152,7 +168,11 @@ class CosRenameFileTask {
       Expires: 24 * 60 * 60,
       Sign: true,
     });
-    const metaHeaders = await getMetaFromUrl(url);
+    const { headers: metaHeaders = {} } = await this.cosSdkInstance.headObject({
+      Bucket: bucket,
+      Region: region,
+      Key: key,
+    });
     const lastModifiedTime = this.defaultTimezone
       ? moment(metaHeaders['last-modified']).tz(this.defaultTimezone)
       : moment(metaHeaders['last-modified']);
@@ -204,21 +224,23 @@ class CosRenameFileTask {
       Key,
       Sign: false,
     });
-    const { headers = {} } = await this.cosSdkInstance.headObject({
-      Bucket,
-      Region,
-      Key,
-    });
-    const acls = await this.cosSdkInstance.getObjectAcl({
-      Bucket,
-      Region,
-      Key,
-    });
-    const { Tags = [] } = await this.cosSdkInstance.getObjectTagging({
-      Bucket,
-      Region,
-      Key,
-    });
+    const [{ headers = {} }, acls, { Tags = [] }] = await Promise.all([
+      this.cosSdkInstance.headObject({
+        Bucket,
+        Region,
+        Key,
+      }),
+      this.cosSdkInstance.getObjectAcl({
+        Bucket,
+        Region,
+        Key,
+      }),
+      this.cosSdkInstance.getObjectTagging({
+        Bucket,
+        Region,
+        Key,
+      }),
+    ]);
     const aclParamsKeys = getDiffList(Object.keys(acls), [
       'Grants',
       'headers',
