@@ -1,0 +1,24 @@
+component: scf
+name: ap-guangzhou_third-party_callback
+inputs:
+  name: Receive_third-party_callback_sample_function
+  src:
+    src: ./src
+  type: web
+  runtime: Php7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 5
+  triggers:
+     - type: apigw
+       name: SCF_API_SERVICE
+       protocols:
+        - http
+        - https
+       environment: release
+       netTypes:
+        - OUTER
+       apis:
+        - path: /
+          method: POST
