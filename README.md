@@ -93,7 +93,7 @@ CustomRuntime
                 "name": "English Name"                       # author English Name
             }
         },
-        "runtime": "Python2.7",                      #运行环境，用户可以通过该关键字搜索，请在下述已经支持的运行环境中选择一个填入。前台需要展示，请认真填写。["Python3.6","Python2.7","Node.js12.16","Node.js10.15","Node.js8.9","Nodejs6.10","Php7.2","Php5.6","Java8","Golang1","CustomRuntime"]
+        "runtime": "Python2.7",                      #运行环境，用户可以通过该关键字搜索，请在下述已经支持的运行环境中选择一个填入。前台需要展示，请认真填写。["Python3.6","Python2.7","Node.js12.16","Node.js10.15","Node.js8.9","Nodejs6.10","Php7","Php5","Java8","Golang1","CustomRuntime"]
         "type": "event",                             #模版类型，事件函数填event，web函数填web，应用填app。前台需要展示，请认真填写。填写错误可能导致模版部署异常。
         "readme":"模版的git地址",                      #模版同步的唯一标识，必填。
         "version": "1.0.0",                          #版本号，通过版本号校验模版更新情况，未修改版本号会导致模版无法同步更新到控制台。
