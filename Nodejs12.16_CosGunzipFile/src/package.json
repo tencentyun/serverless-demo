@@ -1,9 +1,10 @@
 {
   "name": "cos-gunzip-file",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "main": "index.js",
   "license": "ISC",
   "dependencies": {
+    "@annexwu-packages/cos-upload-utils": "0.0.5",
     "async": "^3.2.0",
     "cos-nodejs-sdk-v5": "^2.8.3",
     "tar-stream": "^2.2.0",

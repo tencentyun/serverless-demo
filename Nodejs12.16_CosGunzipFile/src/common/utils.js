@@ -19,6 +19,7 @@ function getParams(event) {
     targetRegion,
     targetPrefix = '',
     extraRootDir = 'dirnameAndBasename',
+    defaultHashCheck = 'false',
     parentRequestId,
     ...args
   } = {
@@ -76,6 +77,7 @@ function getParams(event) {
     targetRegion,
     targetPrefix,
     extraRootDir,
+    defaultHashCheck: ['true', true].includes(defaultHashCheck),
     ...args,
   };
 }

@@ -6,11 +6,10 @@ const TrashWriteStream = require('./TrashWriteStream');
 const { PassThrough } = require('stream');
 const { streamPipelinePromise } = require('./utils');
 
-const PUT_OBJECT_LIMIT = 5 * 1024 * 1024 * 1024;
-
 class CosTGunzipFileTask {
   constructor({
     cosInstance,
+    cosUpload,
     bucket,
     region,
     key,
@@ -30,6 +29,7 @@ class CosTGunzipFileTask {
 
     Object.assign(this, {
       cosInstance,
+      cosUpload,
       bucket,
       region,
       key,
@@ -52,13 +52,7 @@ class CosTGunzipFileTask {
         break;
       } catch (error) {
         // if task is canceled or error cause by cancelError, do not retry
-        if (
-          this.cancelError
-          || (error.error
-            && error.error.message
-            && error.error.message.includes
-            && error.error.message.includes('checkFileSize'))
-        ) {
+        if (this.cancelError) {
           break;
         }
       }
@@ -153,35 +147,26 @@ class CosTGunzipFileTask {
     return result;
   }
   async runOneTask({ header, stream }) {
-    try {
-      await this.checkFileSize(header);
-    } catch (error) {
-      throw {
-        trace: 'CosTGunzipFileTask.checkFileSize',
-        error,
-      };
-    }
     const result = await this.uploadToCos({
       targetBucket: this.targetBucket,
       targetRegion: this.targetRegion,
       targetKey: path.join(this.targetPrefix, header.name).replace(/\\/g, '/'),
       stream,
+      header,
     });
     return result;
   }
-  async checkFileSize({ size }) {
-    if (size > PUT_OBJECT_LIMIT) {
-      throw new Error(`checkFileSize error, fileSize(${size}) is larger than PUT_OBJECT_LIMIT(${PUT_OBJECT_LIMIT})`);
-    }
-  }
-  async uploadToCos({ targetBucket, targetRegion, targetKey, stream }) {
+  async uploadToCos({ targetBucket, targetRegion, targetKey, stream, header }) {
     this.passThrough = new PassThrough();
     const result = await Promise.all([
-      this.cosInstance.putObject({
-        Bucket: targetBucket,
-        Region: targetRegion,
-        Key: targetKey,
-        Body: this.passThrough,
+      this.cosUpload.runTask({
+        object: {
+          Bucket: targetBucket,
+          Region: targetRegion,
+          Key: targetKey,
+          ContentLength: header.size,
+        },
+        getReadStream: () => this.passThrough,
       }),
       streamPipelinePromise([stream, this.passThrough]),
     ]);
