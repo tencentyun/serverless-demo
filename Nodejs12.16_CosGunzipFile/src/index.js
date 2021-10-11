@@ -4,6 +4,7 @@
 'use strict';
 
 const CosSdk = require('cos-nodejs-sdk-v5');
+const { CosUpload } = require('@annexwu-packages/cos-upload-utils');
 const TimeoutWatcher = require('./common/TimeoutWatcher');
 const CosGunzipFileTask = require('./common/CosGunzipFileTask');
 const ScfInvokeTask = require('./common/ScfInvokeTask');
@@ -35,6 +36,7 @@ exports.main_handler = async (event, context) => {
     targetRegion,
     targetPrefix,
     extraRootDir,
+    defaultHashCheck,
     secretId,
     secretKey,
     token,
@@ -50,6 +52,7 @@ exports.main_handler = async (event, context) => {
       targetRegion,
       targetPrefix,
       extraRootDir,
+      defaultHashCheck,
       event,
     },
   });
@@ -60,12 +63,24 @@ exports.main_handler = async (event, context) => {
     XCosSecurityToken: token,
   });
 
+  const cosUpload = new CosUpload({
+    cos: {
+      SecretId: secretId,
+      SecretKey: secretKey,
+      XCosSecurityToken: token,
+    },
+    maxTryTimes: 1,
+    putObjectLimit: 5 * 1024 * 1024 * 1024,
+    defaultHashCheck,
+  });
+
   if (/manifest\.json$/.test(key)) {
     runningTask = new ScfInvokeTask({
       secretId,
       secretKey,
       token,
       cosInstance,
+      cosUpload,
       bucket,
       region,
       key,
@@ -73,11 +88,13 @@ exports.main_handler = async (event, context) => {
       targetRegion,
       targetPrefix,
       extraRootDir,
+      defaultHashCheck,
       context,
     });
   } else {
     runningTask = new CosGunzipFileTask({
       cosInstance,
+      cosUpload,
       bucket,
       region,
       key,
@@ -85,6 +102,7 @@ exports.main_handler = async (event, context) => {
       targetRegion,
       targetPrefix,
       extraRootDir,
+      defaultHashCheck,
     });
   }
 

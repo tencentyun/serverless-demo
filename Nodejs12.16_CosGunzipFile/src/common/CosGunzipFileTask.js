@@ -5,6 +5,7 @@ const CosTGunzipFileTask = require('./CosTGunzipFileTask');
 class CosGunzipFileTask {
   constructor({
     cosInstance,
+    cosUpload,
     bucket,
     region,
     key,
@@ -24,6 +25,7 @@ class CosGunzipFileTask {
     };
     Object.assign(this, {
       cosInstance,
+      cosUpload,
       params,
       runningTask: null,
     });
@@ -45,6 +47,7 @@ class CosGunzipFileTask {
     }
     const params = {
       cosInstance: this.cosInstance,
+      cosUpload: this.cosUpload,
       ...this.params,
     };
     if (fileType === '.gz') {

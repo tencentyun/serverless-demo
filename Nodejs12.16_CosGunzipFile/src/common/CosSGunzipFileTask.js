@@ -3,11 +3,10 @@ const zlib = require('zlib');
 const { PassThrough } = require('stream');
 const { streamPipelinePromise } = require('./utils');
 
-const PUT_OBJECT_LIMIT = 5 * 1024 * 1024 * 1024;
-
 class CosSGunzipFileTask {
   constructor({
     cosInstance,
+    cosUpload,
     bucket,
     region,
     key,
@@ -25,9 +24,9 @@ class CosSGunzipFileTask {
     const targetKey = path
       .join(targetPrefix, ...extraPaths, basename)
       .replace(/\\/g, '/');
-
     Object.assign(this, {
       cosInstance,
+      cosUpload,
       maxTryTime,
       passThrough: null,
       cancelError: null,
@@ -109,16 +108,16 @@ class CosSGunzipFileTask {
     const fileSize = parseInt(headers['content-length'], 10);
     if (!fileSize) {
       throw new Error(`checkFileSize error, fileSize(${fileSize}) is not legal`);
-    } else if (fileSize > PUT_OBJECT_LIMIT) {
-      throw new Error(`checkFileSize error, fileSize(${fileSize}) is larger than PUT_OBJECT_LIMIT(${PUT_OBJECT_LIMIT})`);
     }
   }
   async gunzipAndUpload() {
     this.passThrough = new PassThrough();
     const result = await Promise.all([
-      this.cosInstance.putObject({
-        ...this.params.putObject,
-        Body: this.passThrough,
+      this.cosUpload.runTask({
+        object: {
+          ...this.params.putObject,
+        },
+        getReadStream: () => this.passThrough,
       }),
       streamPipelinePromise([
         this.cosInstance.getObjectStream({

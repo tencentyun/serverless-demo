@@ -1,11 +1,12 @@
 {
   "name": "cos-gunzip-file",
-  "version": "1.0.30",
+  "version": "1.0.32",
   "main": "index.js",
   "license": "ISC",
   "dependencies": {
+    "@annexwu-packages/cos-upload-utils": "0.0.6",
     "async": "^3.2.0",
-    "cos-nodejs-sdk-v5": "^2.8.3",
+    "cos-nodejs-sdk-v5": "^2.10.5",
     "tar-stream": "^2.2.0",
     "tencentcloud-sdk-nodejs": "^3.0.131"
   }
