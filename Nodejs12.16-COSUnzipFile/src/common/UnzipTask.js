@@ -9,12 +9,10 @@ const {
   appendRetryPromisify,
 } = require('./utils');
 
-const GB = 1024 * 1024 * 1024;
-const PUT_OBJECT_LIMIT = 5 * GB;
-
 class UnzipTask {
   constructor({
     cosInstance,
+    cosUpload,
     Bucket,
     Region,
     Key,
@@ -30,6 +28,7 @@ class UnzipTask {
     const { dirname, basename, extname } = parseFileName(Key);
     Object.assign(this, {
       cosInstance,
+      cosUpload,
       Bucket,
       Region,
       Key,
@@ -206,7 +205,7 @@ class UnzipTask {
     let error;
     try {
       const {
-        cosInstance,
+        cosUpload,
         targetBucket,
         targetRegion,
         targetPrefix,
@@ -217,9 +216,6 @@ class UnzipTask {
         unzipFile,
       } = this;
 
-      if (task.entry.uncompressedSize > PUT_OBJECT_LIMIT) {
-        throw new Error(`single sub file can not larger than ${PUT_OBJECT_LIMIT / GB} GB`);
-      }
       if (this.cancelError) {
         throw this.cancelError;
       }
@@ -237,17 +233,22 @@ class UnzipTask {
         .join(targetPrefix, ...extraPaths, fileNameStr)
         .replace(/\\/g, '/');
 
-      task.putObjectStream = await unzipFile.getStream(task.entry);
-
-      const { RequestId, Location } = await cosInstance.putObjectPromise({
-        Bucket: targetBucket,
-        Region: targetRegion,
-        Key,
-        Body: task.putObjectStream,
-        Headers: {
-          'x-cos-meta-scf-unzip': 'true',
+      const { RequestId, Location } = await cosUpload.runTask({
+        object: {
+          Bucket: targetBucket,
+          Region: targetRegion,
+          Key,
+          ContentLength: task.entry.uncompressedSize,
+          Headers: {
+            'x-cos-meta-scf-unzip': 'true',
+          },
+        },
+        getReadStream: async () => {
+          task.putObjectStream = await unzipFile.getStream(task.entry);
+          return task.putObjectStream;
         },
       });
+
       result = {
         RequestId,
         Location,

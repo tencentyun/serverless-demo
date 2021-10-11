@@ -5,6 +5,7 @@
 const UnzipTask = require('./common/UnzipTask');
 const ScfInvokeTask = require('./common/ScfInvokeTask');
 const TimeoutWatcher = require('./common/TimeoutWatcher');
+const { CosUpload } = require('@annexwu-packages/cos-upload-utils');
 const {
   getParams,
   initCosInstance,
@@ -40,6 +41,7 @@ exports.main_handler = async (event, context) => {
     extraRootDir,
     pathTraversalProtection,
     targetTriggerForbid,
+    defaultHashCheck,
     rangeLimit,
     currentRange,
     callbackUrl,
@@ -59,6 +61,7 @@ exports.main_handler = async (event, context) => {
       extraRootDir,
       pathTraversalProtection,
       targetTriggerForbid,
+      defaultHashCheck,
       rangeLimit,
       currentRange,
       callbackUrl,
@@ -78,10 +81,23 @@ exports.main_handler = async (event, context) => {
     XCosSecurityToken,
   });
   /**
+   * init CosUpload instance
+   */
+  const cosUpload = new CosUpload({
+    cos: {
+      SecretId,
+      SecretKey,
+      XCosSecurityToken,
+    },
+    putObjectLimit: 5 * 1024 * 1024 * 1024,
+    defaultHashCheck,
+  });
+  /**
    * get unzip tasks
    */
   runningTask = new UnzipTask({
     cosInstance,
+    cosUpload,
     Bucket,
     Region,
     Key,
@@ -91,6 +107,7 @@ exports.main_handler = async (event, context) => {
     extraRootDir,
     pathTraversalProtection,
     targetTriggerForbid,
+    defaultHashCheck,
     rangeLimit,
     currentRange,
   });
