@@ -1,0 +1,23 @@
+component: scf
+name: ap-guangzhou_default_eb2es
+inputs:
+  name: eventbridge_to_elasticsearch
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: python3.6
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3
+  environment:
+    - key: ES_IP_ADDRESS
+      value: 127.0.0.1
+    - key: ES_PORT
+      value: 9200
+    - key: ES_USERNAME
+      value:
+    - key: ES_PASSWORD
+      value:
+    - key: ES_INDEX_NAME
+      value:
