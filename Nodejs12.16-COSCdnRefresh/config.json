@@ -1,0 +1,29 @@
+{
+	"serverless-cloud-function-application": {
+		"Chinese": {
+			"name": "CDN缓存刷新",
+			"description": "本示例使用COS触发器，完成CDN缓存刷新",
+			"attention": "",
+			"author": {
+				"name": "腾讯云"
+			}
+		},
+		"English": {
+			"name": "COSCdnRefresh",
+			"description": "This demo uses cos trigger and SCF to purge cdn urls cache",
+			"attention": "",
+			"author": {
+				"name": "Tencent Cloud"
+			}
+		},
+		"runtime": "Nodejs12.16",
+		"readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSCdnRefresh",
+		"version": "1.0.3",
+		"tags": [
+			"Nodejs12.16",
+			"COS",
+			"cdn refresh",
+			"cos cdn refresh"
+		]
+	}
+}

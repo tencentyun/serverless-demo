@@ -1,0 +1,11 @@
+{
+  "name": "cos-cdn-refresh",
+  "version": "1.0.3",
+  "main": "index.js",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^3.2.0",
+    "cos-nodejs-sdk-v5": "^2.8.3",
+    "tencentcloud-sdk-nodejs": "^3.0.131"
+  }
+}
