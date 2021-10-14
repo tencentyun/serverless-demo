@@ -1,0 +1,31 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "Express框架模版（预集成CIAM登录认证）",
+            "description": "基于API网关和Web函数，快速部署预集成数字身份管控平台（公众版），即CIAM登录认能力的Express示例项目。部署后的Express项目，可直接使用CIAM提供的登录认证能力，无需再开发登录认证能力。",
+            "attention": "1. 本示例提供预集成的CIAM登录认证能力，开发者可以基于现有能力快速实现登录、登出以及获取用户信息等。2. 如果开发者需要定制登录认证能力，可以参考官网产品文档-最佳实践中的开发文档实现。",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "ciamExpressDemo",
+            "description": "An CIAM Express demo for APIGW and Node.js Web Function",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Nodejs12.16",
+        "type": "web",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-CiamExpressDemo",
+        "version": "0.5.2",
+        "tags": [
+            "CIAM",
+            "WebFunc",
+            "Express",
+            "Nodejs12.16",
+            "web"
+        ]
+    }
+}
