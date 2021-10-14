@@ -1,0 +1,24 @@
+component: scf
+name: ws_demo_nodejs
+inputs:
+  name: ws_demo_nodejs
+  src:
+    src: ./src
+  type: web
+  runtime: Nodejs12.16
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 512
+  timeout: 3
+  triggers:
+     - type: apigw
+       name: SCF_API_SERVICE
+       protocols:
+        - wss
+        - ws
+       environment: release
+       netTypes:
+        - OUTER
+       apis:
+        - path: /
+          method: GET
