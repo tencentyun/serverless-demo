@@ -1,0 +1,30 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "WebSocket Server 示例",
+            "description": "基于 API 网关和 Web 函数，快速创建一个 Python 的 WebSocket Server",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "WebSocket Server Demo",
+            "description": "A WebSocket Server demo for APIGW and Python3 Web Function",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Python3.6",
+        "type": "web",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-WSDemo-Python3",
+        "version": "0.1.0",
+        "tags": [
+            "WebFunc",
+            "Websocket",
+            "Python3.6",
+            "web"
+        ]
+    }
+}
