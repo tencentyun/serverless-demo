@@ -69,7 +69,8 @@ class Job:
 
         # action = "DescribeCdnDomainLogs"
         action_params = {
-            'Domain': host,
+            'Domain': host["Domain"],
+            'Area': host["Area"],
             'StartTime': start.strftime("%Y-%m-%d %H:%M:%S"),
             'EndTime': end.strftime("%Y-%m-%d %H:%M:%S"),
         }
@@ -84,11 +85,12 @@ class Job:
         print("resp:%s" % resp.to_json_string())
         data = json.loads(resp.to_json_string())
 
-        urls = [v['LogPath'] for v in data['DomainLogs']]
+        urls = data['DomainLogs']
         if urls:
-            logging.info("time(%s~%s) host[%s] log urls are:\n%s\n." % (start, end, host, "\n".join(urls)))
+            domains = [v['LogPath'] for v in data['DomainLogs']]
+            logging.info("time(%s~%s) host[%s] log urls are:\n%s\n." % (start, end, host["Domain"], "\n".join(domains)))
         else:
-            logging.info("time(%s~%s) host[%s] log urls are empty" % (start, end, host))
+            logging.info("time(%s~%s) host[%s] log urls are empty" % (start, end, host["Domain"]))
         return urls
 
     def get_cdn_hosts(self):
@@ -105,11 +107,46 @@ class Job:
             req.from_json_string(json.dumps(params))
             resp = self.cdn_client.DescribeDomains(req)
             data = json.loads(resp.to_json_string())
-            hosts.extend([v['Domain'] for v in data['Domains']])
+            for v in data['Domains']:
+                tmp = {
+                    "Domain": v["Domain"],
+                    "Area": v["Area"],
+                }
+                hosts.append(tmp)
             total = data['TotalNumber']
             offset = len(hosts)
-        hosts.sort()
+
+        hosts = sorted(hosts, key=lambda x: (x["Domain"], x["Domain"]))
         logging.info("cdn hosts = %s" % hosts)
+        return hosts
+
+
+    def get_cdn_hosts_by_domain(self, domain):
+        '''获取指定hosts的信息'''
+        offset = 0
+        hosts = []
+        while offset < len(domain):
+            _filter = {
+                "Name": "domain",
+                "Value": domain[offset:offset+5],
+                "Fuzzy": False,
+            }
+            req = models.DescribeDomainsRequest()
+            params = {
+                "Filters": [_filter],
+            }
+            req.from_json_string(json.dumps(params))
+            resp = self.cdn_client.DescribeDomains(req)
+            data = json.loads(resp.to_json_string())
+            for v in data['Domains']:
+                tmp = {
+                    "Domain": v["Domain"],
+                    "Area": v["Area"],
+                }
+                hosts.append(tmp)
+            offset += 5
+
+        hosts = sorted(hosts, key=lambda x: (x["Domain"], x["Domain"]))
         return hosts
 
     def get_cos_key(self, url):
@@ -118,30 +155,18 @@ class Job:
         解析URL，生成COS上的存储路径格式
         URL格式为： /day/hour/dayhour-host.gz
         '''
-        parts = urlparse(url)
+        parts = urlparse(url["LogPath"])
         r = r'/(?P<day>[^/]*)/(?P<hour>[^/]*)/(?P<filename>[^-]*-(?P<host>[^/]*).gz)'
         m = re.match(r, parts.path)
         if not m:
-            raise RuntimeError("cdn log url format is not support: %s" % url)
+            raise RuntimeError("cdn log url format is not support: %s" % url["LogPath"])
         v = m.groupdict()
+        v['area'] = url["Area"]
         key = self.cos_path % v
+
         return key
 
-    def invoke_cos_upload(self, url):
-        '''
-        Role: Storing the CDN log to COS.
-        Obtaining the download link of the log on the CDN to check whether the log exists in the COS; if not, upload it to COS.
-        作用：将CDN的日志存储到COS上
-        获取CDN上日志的下载链接，检测COS是否已存在该日志；若无，则上传到COS
-        '''
-        logging.info("Process URL: %s" % url)
-        status = "skip"
-        cos_key = self.get_cos_key(url)
-        if not self.cos_exists(cos_key, url):
-            status = self.download_url_into_cos(cos_key, url)
-        return {"status": status, "url": url, "cos_key": cos_key}
-
-    def cos_exists(self, cos_key, url):
+    def cos_exists(self, cos_key):
         '''Check if the file already exists 检查文件是否已存在'''
         try:
             rsp = self.cos_client.head_object(
@@ -159,7 +184,7 @@ class Job:
 
     def download_url_into_cos(self, cos_key, url):
         '''Uploading files and downloading them to COS by streaming fragment upload 采用流式分片上传的方式，下载文件并存入COS'''
-        response = requests.get(url, stream=True)
+        response = requests.get(url["LogPath"], stream=True)
 
         # start
         rsp = self.cos_client.create_multipart_upload(
@@ -191,9 +216,25 @@ class Job:
         )
         return "success"
 
+    def invoke_cos_upload(self, url):
+        '''
+        Role: Storing the CDN log to COS.
+        Obtaining the download link of the log on the CDN to check whether the log exists in the COS; if not, upload it to COS.
+        作用：将CDN的日志存储到COS上
+        获取CDN上日志的下载链接，检测COS是否已存在该日志；若无，则上传到COS
+        '''
+        logging.info("Process URL: %s" % url["LogPath"])
+        status = "skip"
+        cos_key = self.get_cos_key(url)
+        if not self.cos_exists(cos_key):
+            status = self.download_url_into_cos(cos_key, url)
+        return {"status": status, "url": url, "cos_key": cos_key}
+
     def run(self):
         hosts = self.config['cdn_host']
-        if not hosts:
+        if hosts:
+            hosts = self.get_cdn_hosts_by_domain(hosts)
+        else:
             hosts = self.get_cdn_hosts()
 
         cnt = 0
@@ -238,11 +279,11 @@ def run_app():
         "secret_id": secret_id,
         "secret_key": secret_key,
         "token": token,
-        'cos_region': cos_region,
-        'cos_bucket': cos_bucket,
-        'cos_path': cos_path + '%(host)s/%(day)s/%(filename)s',
-        'scf_region': scf_region,
-        'cdn_host': cdn_hosts,
+        "cos_region": cos_region,
+        "cos_bucket": cos_bucket,
+        "cos_path": "/cdnlog/" + '%(host)s/%(area)s/%(day)s/%(filename)s',
+        "scf_region": scf_region,
+        "cdn_host": cdn_hosts,
     }
 
     job = Job(config)
