@@ -19,7 +19,7 @@
         "runtime": "Nodejs12.16",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-CiamExpressDemo",
-        "version": "0.5.2",
+        "version": "0.1.0",
         "tags": [
             "CIAM",
             "WebFunc",
