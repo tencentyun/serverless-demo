@@ -18,10 +18,9 @@ inputs:
       value: target bucket name
     - key: TARGET_SCF_REGION
       value: the region of target scf
-    - key: TARGET_COS_PATH
-      value: the path of target bucket, default /cdnlog/
+    - key: TARGET_CDN_HOSTS
+      value: host to need store
   triggers:
     - type: timer
       cronExpression: 0 * * * * * *
       enable: true
-      argument: argument
