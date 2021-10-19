@@ -10,7 +10,7 @@
         },
         "English": {
             "name": "eventbridge_to_elasticsearch",
-            "description": "This example consumes eb data and push these data to ElasticSearch.",
+            "description": "This example consumes EventBridge data and push these data to ElasticSearch.",
             "attention": "When using this sample code, you need to pass some env variables to this function.",
             "author": {
                 "name": "Tencent Cloud"
@@ -19,7 +19,7 @@
         "runtime": "Python3.6",
         "type": "event",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-EventBridgeToEs",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "tags": [
             "Python3.6",
             "EventBridge",
