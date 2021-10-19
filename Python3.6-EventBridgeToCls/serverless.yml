@@ -1,0 +1,17 @@
+component: scf
+name: ap-guangzhou_default_eb2cls
+inputs:
+  name: eventbridge_to_cls
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: python3.6
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3
+  environment:
+    - key: CLS_TOPIC_ID
+      value:
+    - key: CLS_REGION
+      value:
