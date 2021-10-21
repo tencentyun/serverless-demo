@@ -28,6 +28,6 @@ inputs:
       value: the hosts need to save, default none
   triggers:
     - type: timer
-      cronExpression: 0 * * * * * *
+      cronExpression: 0 0 */1 * * * *
       enable: true
       argument: argument
