@@ -22,5 +22,5 @@ inputs:
       value: host to need store
   triggers:
     - type: timer
-      cronExpression: 0 * * * * * *
+      cronExpression: 0 0 */1 * * * *
       enable: true
