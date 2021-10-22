@@ -4,8 +4,8 @@
 # 1. 必填环境 TARGET_COS_REGION，填写 cos bucket 所在地区。
 # 2. 必填环境 TARGET_COS_BUCKET，填写 cos bucket 名称。
 # 3. 必填环境 TARGET_SCF_REGION，填写 scf 所在地区。
+# 5. 必填环境 TARGET_CDN_HOSTS，填写需要存储的域名，用英文逗号','分割。
 # 4. 选填环境 TARGET_COS_PATH，填写 cos 路径，默认为 /cdnlog/。
-# 5. 选填环境 TARGET_CDN_HOSTS，填写需要存储的域名，用英文逗号','分割；默认值为空（即保存账号下所有域名的日志）。
 #
 # 注意：
 # 1. 改函数由 CDN 离线日志转存生成，请不要在 SCF 侧手动修改函数的配置, 包括触发器，否则会导致 CDN离线日志转存失败; 如需修改请移步 CDN 控制台 ！！！
@@ -120,9 +120,8 @@ class Job:
         logging.info("cdn hosts = %s" % hosts)
         return hosts
 
-
     def get_cdn_hosts_by_domain(self, domain):
-        '''获取指定hosts的信息'''
+        '''Getting a list of domain specified domain names under the account （获取domain指定的域名信息)'''
         offset = 0
         hosts = []
         while offset < len(domain):
@@ -260,6 +259,8 @@ def run_app():
     if origin_cdn_hosts:
         cdn_hosts = origin_cdn_hosts.split(',')
 
+    if len(cdn_hosts) > 50 or len(cdn_hosts) <= 0:
+        return "length of TARGET_CDN_HOSTS must between 0 and 50"
     if not cos_region:
         return "must assign environment TARGET_COS_REGION"
     if not cos_bucket:
@@ -268,8 +269,6 @@ def run_app():
         return "must assign environment TARGET_SCF_REGION"
     if cos_region != scf_region:
         return "environment TARGET_SCF_REGION must equal TARGET_COS_REGION"
-    if len(cdn_hosts) > 50:
-        return "length of TARGET_CDN_HOSTS must less than 50"
     if not cos_path:
         cos_path = "/cdnlog/"
     if cos_path[-1] != '/':
@@ -281,7 +280,7 @@ def run_app():
         "token": token,
         "cos_region": cos_region,
         "cos_bucket": cos_bucket,
-        "cos_path": "/cdnlog/" + '%(host)s/%(area)s/%(day)s/%(filename)s',
+        "cos_path": cos_path + '%(host)s/%(area)s/%(day)s/%(filename)s',
         "scf_region": scf_region,
         "cdn_host": cdn_hosts,
     }
