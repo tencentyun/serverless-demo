@@ -18,7 +18,7 @@
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-CDNSaveLogsIntoS3",
-        "version": "1.0.1",
+        "version": "1.0.5",
         "tags": [
             "Python3.6",
             "CDN",
