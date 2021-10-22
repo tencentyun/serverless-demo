@@ -22,8 +22,6 @@ inputs:
       value: the name of target bucket
     - key: TARGET_SCF_REGION
       value: the region of target scf
-    - key: TARGET_S3_PATH
-      value: the path of target bucket, default /cdnlog/
     - key: TARGET_CDN_HOSTS
       value: the hosts need to save, default none
   triggers:

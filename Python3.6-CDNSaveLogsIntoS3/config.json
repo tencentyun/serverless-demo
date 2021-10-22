@@ -3,7 +3,7 @@
         "Chinese": {
             "name": "CDN日志转存S3",
             "description": "本函数由CDN日志转存任务创建，请勿删除，否则删除后会导致转存任务同步删除。",
-            "attention": "必须指定环境变量 TARGET_S3_SECRET_ID、TARGET_S3_SECRET_KEY、TARGET_S3_REGION、TARGET_S3_BUCKET、TARGET_SCF_REGION; 可选环境变量 TARGET_S3_PATH TARGET_CDN_HOSTS",
+            "attention": "必须指定环境变量 TARGET_S3_SECRET_ID、TARGET_S3_SECRET_KEY、TARGET_S3_REGION、TARGET_S3_BUCKET、TARGET_SCF_REGION、TARGET_CDN_HOSTS; 可选环境变量 TARGET_S3_PATH",
             "author": {
                 "name": "腾讯云"
             }
@@ -11,14 +11,14 @@
         "English": {
             "name": "CDNSaveLogsIntoS3",
             "description": "Created by the CDN, do not delete it, otherwise causes the cdn log dump task failed.",
-            "attention": "Must assign environment variables:TARGET_S3_SECRET_ID、TARGET_S3_SECRET_KEY、TARGET_S3_REGION、TARGET_S3_BUCKET、TARGET_SCF_REGION; optional environment variables: TARGET_S3_PATH TARGET_CDN_HOSTS",
+            "attention": "Must assign environment variables:TARGET_S3_SECRET_ID、TARGET_S3_SECRET_KEY、TARGET_S3_REGION、TARGET_S3_BUCKET、TARGET_SCF_REGION、TARGET_CDN_HOSTS; optional environment variables: TARGET_S3_PATH",
             "author": {
                 "name": "Tencent Cloud"
             }
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-CDNSaveLogsIntoS3",
-        "version": "1.0.1",
+        "version": "1.0.5",
         "tags": [
             "Python3.6",
             "CDN",

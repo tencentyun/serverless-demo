@@ -66,7 +66,8 @@ class Job:
 
         # action = "DescribeCdnDomainLogs"
         action_params = {
-            'Domain': host,
+            'Domain': host["Domain"],
+            'Area': host["Area"],
             'StartTime': start.strftime("%Y-%m-%d %H:%M:%S"),
             'EndTime': end.strftime("%Y-%m-%d %H:%M:%S"),
         }
@@ -81,11 +82,12 @@ class Job:
         print("resp:%s" % resp.to_json_string())
         data = json.loads(resp.to_json_string())
 
-        urls = [v['LogPath'] for v in data['DomainLogs']]
+        urls = data['DomainLogs']
         if urls:
-            logging.info("time(%s~%s) host[%s] log urls are:\n%s\n." % (start, end, host, "\n".join(urls)))
+            domains = [v['LogPath'] for v in data['DomainLogs']]
+            logging.info("time(%s~%s) host[%s] log urls are:\n%s\n." % (start, end, host["Domain"], "\n".join(domains)))
         else:
-            logging.info("time(%s~%s) host[%s] log urls are empty" % (start, end, host))
+            logging.info("time(%s~%s) host[%s] log urls are empty" % (start, end, host["Domain"]))
         return urls
 
     def get_cdn_hosts(self):
@@ -102,11 +104,45 @@ class Job:
             req.from_json_string(json.dumps(params))
             resp = self.cdn_client.DescribeDomains(req)
             data = json.loads(resp.to_json_string())
-            hosts.extend([v['Domain'] for v in data['Domains']])
+            for v in data['Domains']:
+                tmp = {
+                    "Domain": v["Domain"],
+                    "Area": v["Area"],
+                }
+                hosts.append(tmp)
             total = data['TotalNumber']
             offset = len(hosts)
-        hosts.sort()
+
+        hosts = sorted(hosts, key=lambda x: (x["Domain"], x["Domain"]))
         logging.info("cdn hosts = %s" % hosts)
+        return hosts
+
+    def get_cdn_hosts_by_domain(self, domain):
+        '''Getting a list of domain specified domain names under the account （获取domain指定的域名信息)'''
+        offset = 0
+        hosts = []
+        while offset < len(domain):
+            _filter = {
+                "Name": "domain",
+                "Value": domain[offset:offset + 5],
+                "Fuzzy": False,
+            }
+            req = models.DescribeDomainsRequest()
+            params = {
+                "Filters": [_filter],
+            }
+            req.from_json_string(json.dumps(params))
+            resp = self.cdn_client.DescribeDomains(req)
+            data = json.loads(resp.to_json_string())
+            for v in data['Domains']:
+                tmp = {
+                    "Domain": v["Domain"],
+                    "Area": v["Area"],
+                }
+                hosts.append(tmp)
+            offset += 5
+
+        hosts = sorted(hosts, key=lambda x: (x["Domain"], x["Domain"]))
         return hosts
 
     def get_s3_key(self, url):
@@ -115,30 +151,18 @@ class Job:
         解析URL，生成S3上的存储路径格式
         URL格式为： /day/hour/dayhour-host.gz
         '''
-        parts = urlparse(url)
+        parts = urlparse(url["LogPath"])
         r = r'/(?P<day>[^/]*)/(?P<hour>[^/]*)/(?P<filename>[^-]*-(?P<host>[^/]*).gz)'
         m = re.match(r, parts.path)
         if not m:
-            raise RuntimeError("cdn log url format is not support: %s" % url)
+            raise RuntimeError("cdn log url format is not support: %s" % url["LogPath"])
         v = m.groupdict()
+        v['area'] = url["Area"]
         key = self.s3_path % v
+
         return key
 
-    def invoke_s3_upload(self, url):
-        '''
-        Role: Storing the CDN log to COS.
-        Obtaining the download link of the log on the CDN to check whether the log exists in the COS; if not, upload it to COS.
-        作用：将CDN的日志存储到COS上
-        获取CDN上日志的下载链接，检测COS是否已存在该日志；若无，则上传到COS
-        '''
-        logging.info("Process URL: %s" % url)
-        status = "skip"
-        s3_key = self.get_s3_key(url)
-        if not self.s3_exists(s3_key, url):
-            status = self.download_url_into_s3(s3_key, url)
-        return {"status": status, "url": url, "s3_key": s3_key}
-
-    def s3_exists(self, s3_key, url):
+    def s3_exists(self, s3_key):
         '''Check if the file already exists 检查文件是否已存在'''
         try:
             rsp = self.s3_client.head_object(
@@ -155,8 +179,8 @@ class Job:
                 raise e
 
     def download_url_into_s3(self, s3_key, url):
-        '''Uploading files and downloading them to COS by streaming fragment upload 采用流式分片上传的方式，下载文件并存入COS'''
-        response = requests.get(url, stream=True)
+        '''Uploading files and downloading them to S3 by streaming fragment upload 采用流式分片上传的方式，下载文件并存入S3'''
+        response = requests.get(url["LogPath"], stream=True)
 
         # start
         rsp = self.s3_client.create_multipart_upload(
@@ -188,9 +212,25 @@ class Job:
         )
         return "success"
 
+    def invoke_s3_upload(self, url):
+        '''
+        Role: Storing the CDN log to S3.
+        Obtaining the download link of the log on the CDN to check whether the log exists in the S3; if not, upload it to S3.
+        作用：将CDN的日志存储到S3上
+        获取CDN上日志的下载链接，检测S3是否已存在该日志；若无，则上传到S3
+        '''
+        logging.info("Process URL: %s" % url["LogPath"])
+        status = "skip"
+        s3_key = self.get_s3_key(url)
+        if not self.s3_exists(s3_key):
+            status = self.download_url_into_s3(s3_key, url)
+        return {"status": status, "url": url, "s3_key": s3_key}
+
     def run(self):
         hosts = self.config['cdn_host']
-        if not hosts:
+        if hosts:
+            hosts = self.get_cdn_hosts_by_domain(hosts)
+        else:
             hosts = self.get_cdn_hosts()
 
         cnt = 0
@@ -218,6 +258,8 @@ def run_app():
     if origin_cdn_hosts:
         cdn_hosts = origin_cdn_hosts.split(',')
 
+    if len(cdn_hosts) > 50 or len(cdn_hosts) <= 0:
+        return "length of TARGET_CDN_HOSTS must between 0 and 50"
     if not s3_secret_id:
         return "must assign environment TARGET_S3_SECRET_ID"
     if not s3_secret_key:
@@ -228,8 +270,6 @@ def run_app():
         return "must assign environment TARGET_S3_BUCKET"
     if not scf_region:
         return "must assign environment TARGET_SCF_REGION"
-    if len(cdn_hosts) > 50:
-        return "length of TARGET_CDN_HOSTS must less than 50"
     if not s3_path:
         s3_path = "cdnlog/"
     if s3_path[-1] != '/':
@@ -245,7 +285,7 @@ def run_app():
         "s3_secret_key": s3_secret_key,
         's3_region': s3_region,
         's3_bucket': s3_bucket,
-        's3_path': s3_path + '%(host)s/%(day)s/%(filename)s',
+        "s3_path": s3_path + '%(host)s/%(area)s/%(day)s/%(filename)s',
         'scf_region': scf_region,
         'cdn_host': cdn_hosts,
     }
