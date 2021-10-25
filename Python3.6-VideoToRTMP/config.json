@@ -1,7 +1,7 @@
 {
     "serverless-cloud-function-application": {
         "Chinese": {
-            "name": "视频文件转RTMP推流",
+            "name": "视频或图片转RTMP推流",
             "description": "使用ffmpeg+云函数+API网关，快速构建视频文件转RTMP推流服务。",
             "attention": "1. 本示例需要API网关触发器配合使用；2. 缓存播放进度需要引入持久化存储；",
             "tutorial":"",
