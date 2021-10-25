@@ -17,5 +17,6 @@
         "rtmp_url": "rtmp://xxxx.livepush.myqcloud.com/sls_demo/rtmp_push?xxxxx",
         "width": 1280, # 目标视频的宽度，仅源文件地址为图片的时候生效
         "height": 720, # 目标视频的高度，仅源文件地址为图片的时候生效
-        "duration": 120 # 单位秒，默认1小时
+        "duration": 120, # 单位秒，默认1小时
+        "fps": 30 # 视频帧率，默认为24
     }

@@ -11,11 +11,11 @@ import time
 #视频转flv推流RTMP
 online_video_2rtmp = '/tmp/ffmpeg -re -reconnect 1 -reconnect_at_eof 1 -reconnect_streamed 1 -reconnect_delay_max 2 -progress /dev/stdout -ss %s -i "%s"  -c copy -f flv -flvflags no_duration_filesize "%s" '
 #参数：视频起始时间、Video地址，目标的RTMP
-loop_offline_video_2rtmp = '/tmp/ffmpeg -stream_loop -1 -progress /dev/stdout -ss %s -i "%s"  -c copy -f flv -flvflags no_duration_filesize "%s" '
-#参数：图片地址，时长（如10s），宽，高，输出文件地址（如/tmp/output.mp4）
-image_2video = '/tmp/ffmpeg -y -framerate 1/10 -i "%s" -c:v libx264 -t %s -pix_fmt yuv420p -vf scale=%s:%s  %s'
+loop_offline_video_2rtmp = '/tmp/ffmpeg -re -stream_loop -1 -progress /dev/stdout -ss %s -i "%s"  -c copy -f flv -flvflags no_duration_filesize "%s" '
+#参数：输出帧率，图片地址，时长（如10s），宽，高，输出文件地址（如/tmp/output.mp4）
+image_2video = '/tmp/ffmpeg -y -framerate %s -i "%s" -c:v libx264 -t %s -pix_fmt yuv420p -vf scale=%s:%s  %s'
 ## 默认参数
-default_target_img_width, default_target_img_height, default_img_2_video_duration, default_img_loop_duration = 1280, 720, "10s", "3600"
+default_target_img_width, default_target_img_height, default_img_2_video_duration, default_img_loop_duration, default_img_2_video_framerate = 1280, 720, "10s", "3600", 24
 
 def wait_for_subprocess_command(command, max_duration_in_seconds=None):
     print("Begin to run command in subprocess: {}".format(command))
@@ -68,8 +68,6 @@ def main_handler(event, context):
         return {"code": 410, "errorMsg": "event does not come from APIGW"}
 
     _, video_file_extension = os.path.splitext(video_url)
-    ## 默认的推流命令
-    push_command = online_video_2rtmp %(ss, video_url, rtmp_url)
 
     if video_file_extension.lower() in [ ".png",".jpg", ".jpeg"]:
         # 图片转换为MP4
@@ -78,9 +76,10 @@ def main_handler(event, context):
         print("Begin to generate video to {} from image {}".format(target_output_video_path, video_url))
         target_img_width = ('width' in data and data['width']) or default_target_img_width
         target_img_height = ('height' in data and data['height']) or default_target_img_height
+        target_video_fps = ('fps' in data and data['fps']) or default_img_2_video_framerate
         target_video_duration = default_img_2_video_duration
 
-        transcoding_command = image_2video %( video_url, target_video_duration, target_img_width, target_img_height, target_output_video_path)
+        transcoding_command = image_2video %(target_video_fps ,video_url, target_video_duration, target_img_width, target_img_height, target_output_video_path)
         wait_for_subprocess_command(transcoding_command)
         ## 输入/tmp中生成的临时视频文件
         push_command = loop_offline_video_2rtmp %(ss,target_output_video_path, rtmp_url) 
@@ -93,6 +92,8 @@ def main_handler(event, context):
             os.remove(target_output_video_path)
     else:
         print("Begin to push to rtmp from {}".format(video_url))
+        ## 默认的推流命令
+        push_command = online_video_2rtmp %(ss, video_url, rtmp_url)
         wait_for_subprocess_command(push_command)
     
     return {
