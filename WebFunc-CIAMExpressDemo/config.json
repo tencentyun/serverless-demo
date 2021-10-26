@@ -24,8 +24,7 @@
             "CIAM",
             "WebFunc",
             "Express",
-            "Nodejs12.16",
-            "web"
+            "Nodejs12.16"
         ]
     }
 }
