@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "ciamExpressDemo",
+            "name": "ExpressAuthDemo",
             "description": "A CIAM Express demo for APIGW and Node.js Web Function",
             "attention": "None",
             "author": {
@@ -19,7 +19,7 @@
         "runtime": "Nodejs12.16",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-CIAMExpressDemo",
-        "version": "0.2.8",
+        "version": "0.3.5",
         "tags": [
             "CIAM",
             "WebFunc",
