@@ -2,6 +2,7 @@
 
 component: scf
 name: ciamDemo
+
 inputs: 
   src: 
     src: ./
