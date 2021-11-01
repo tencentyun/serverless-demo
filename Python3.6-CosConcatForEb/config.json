@@ -1,0 +1,30 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "将eb转储的cos文件聚合",
+            "description": "本示例会将eb转储的cos小文件 聚合为大文件",
+            "attention": "在使用本示例代码时需要传递相关的环境变量给函数。",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "concat_cos_file_for_eb",
+            "description": "This example will download file(created by EventBridge) from cos, concat them, and upload to another bucket",
+            "attention": "When using this sample code, you need to pass some env variables to this function.",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Python3.6",
+        "type": "event",
+        "readme": "",
+        "version": "1.0.0",
+        "tags": [
+            "Python3.6",
+            "Ckafka",
+            "EventBridge",
+            "COS"
+        ]
+    }
+}
