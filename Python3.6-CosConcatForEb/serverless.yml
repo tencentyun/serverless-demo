@@ -1,0 +1,19 @@
+component: scf
+name: ap-guangzhou_default_eb2cos
+inputs:
+  name: concat_cos_file_for_eb
+  src:
+    src: .
+  handler: index.main_handler
+  runtime: python3.6
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3
+  environment:
+    - key: COS_REGION
+      value:
+    - key: COS_BUCKET_SRC
+      value:
+    - key: COS_BUCKET_DST
+      value:
