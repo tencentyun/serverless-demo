@@ -1,8 +1,8 @@
 {
     "serverless-cloud-function-application": {
         "Chinese": {
-            "name": "Ckafka EB连接器数据转储存到COS",
-            "description": "本示例会将Ckafka EB连接器的消息转存到COS中。",
+            "name": "EB数据转储存到COS",
+            "description": "本示例会将EB中的消息转存到COS中。",
             "attention": "在使用本示例代码时需要传递相关的环境变量给函数。",
             "author": {
                 "name": "腾讯云"
@@ -19,12 +19,13 @@
         "runtime": "Python3.6",
         "type": "event",
         "readme": "",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "tags": [
             "Python3.6",
-            "Ckafka",
             "EventBridge",
-            "COS"
+            "COS",
+            "eb_to_cos",
+            "EventBridgeToCos"
         ]
     }
 }
