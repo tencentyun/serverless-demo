@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+/* eslint-disable prefer-const */
 /* eslint-disable prefer-destructuring */
 /* eslint-disable no-restricted-syntax */
 'use strict';
@@ -9,32 +11,55 @@ const { inspect } = require('util');
 /**
  * parse params from event and process.env
  */
-function getParams(event) {
-  const {
+function getParams(event, { tencentcloud_appid }) {
+  let body = event;
+  try {
+    if (event.body) {
+      body = JSON.parse(event.body);
+    }
+  } catch (err) {
+    throw new Error('request body is not a json string');
+  }
+
+  let {
     TENCENTCLOUD_SECRETID: secretId,
     TENCENTCLOUD_SECRETKEY: secretKey,
     TENCENTCLOUD_SESSIONTOKEN: token,
     Records = [],
+    bucket,
+    region,
+    key,
     targetBucket,
     targetRegion,
     targetPrefix = '',
-    extraRootDir = 'dirnameAndBasename',
+    extraRootDir,
     defaultHashCheck = 'false',
     parentRequestId,
     ...args
   } = {
     ...process.env,
     ...event,
+    ...body,
   };
 
-  if (!Records.length && !parentRequestId) {
-    throw new Error('this function is not trigger by cos or parent function, refuse to execute');
+  if (!Records.length && !parentRequestId && !event.body && !key) {
+    throw new Error('this function is not trigger by cos, apigateway, scf invoke or parent function, refuse to execute');
   } else if (parentRequestId) {
     logger({
       title: `this function is trigger by parent function, parent request id is ${parentRequestId}`,
     });
   } else if (Records.length) {
     logger({ title: 'this function is trigger by cos' });
+  } else if (event.body) {
+    logger({ title: 'this function is trigger by apigateway' });
+  } else if (key) {
+    logger({ title: 'this function is trigger by scf invoke' });
+  }
+
+  if (Records.length || parentRequestId) {
+    extraRootDir = extraRootDir || 'dirnameAndBasename';
+  } else {
+    extraRootDir = extraRootDir || 'none';
   }
 
   const objects = Records.map((item) => {
@@ -50,7 +75,12 @@ function getParams(event) {
     }
     return parseUrl({ url });
   });
-  const { bucket, region, key } = objects[0] || {};
+
+  if (objects[0]) {
+    bucket = objects[0].bucket;
+    region = objects[0].region;
+    key = objects[0].key;
+  }
 
   const missingParams = [
     { key: 'targetBucket', value: targetBucket },
@@ -64,6 +94,10 @@ function getParams(event) {
 
   if (missingParams.length) {
     throw new Error(`params parsed error, missing params: ${missingParams.join(', ')}`);
+  }
+
+  if (!bucket.endsWith(`${tencentcloud_appid}`)) {
+    throw new Error(`${bucket} does not belong to the owner`);
   }
 
   return {

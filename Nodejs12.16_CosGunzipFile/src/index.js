@@ -12,39 +12,24 @@ const ScfInvokeTask = require('./common/ScfInvokeTask');
 const { getParams, logger, getLogSummary } = require('./common/utils');
 
 exports.main_handler = async (event, context) => {
-  /**
-   * set a timer to terminate the task, ensure log message is printed
-   */
-  let runningTask;
-  const watcher = new TimeoutWatcher({
-    timeLimit: context.time_limit_in_ms,
-    trigger(error) {
-      if (runningTask && runningTask.cancelTask) {
-        runningTask.cancelTask(error);
-      }
-    },
-    error: new Error('task is timeout'),
-  });
-  /**
-   * parse params from event and process.env
-   */
-  const {
-    bucket,
-    region,
-    key,
-    targetBucket,
-    targetRegion,
-    targetPrefix,
-    extraRootDir,
-    defaultHashCheck,
-    secretId,
-    secretKey,
-    token,
-  } = getParams(event);
-
-  logger({
-    title: 'params parsed success, params as follow: ',
-    data: {
+  try {
+    /**
+     * set a timer to terminate the task, ensure log message is printed
+     */
+    let runningTask;
+    const watcher = new TimeoutWatcher({
+      timeLimit: context.time_limit_in_ms,
+      trigger(error) {
+        if (runningTask && runningTask.cancelTask) {
+          runningTask.cancelTask(error);
+        }
+      },
+      error: new Error('task is timeout'),
+    });
+    /**
+     * parse params from event and process.env
+     */
+    const {
       bucket,
       region,
       key,
@@ -53,77 +38,116 @@ exports.main_handler = async (event, context) => {
       targetPrefix,
       extraRootDir,
       defaultHashCheck,
-      event,
-    },
-  });
-
-  const cosInstance = new CosSdk({
-    SecretId: secretId,
-    SecretKey: secretKey,
-    XCosSecurityToken: token,
-  });
-
-  const cosUpload = new CosUpload({
-    cos: {
-      SecretId: secretId,
-      SecretKey: secretKey,
-      XCosSecurityToken: token,
-    },
-    maxTryTimes: 1,
-    putObjectLimit: 5 * 1024 * 1024 * 1024,
-    defaultHashCheck,
-  });
-
-  if (/manifest\.json$/.test(key)) {
-    runningTask = new ScfInvokeTask({
       secretId,
       secretKey,
       token,
-      cosInstance,
-      cosUpload,
-      bucket,
-      region,
-      key,
-      targetBucket,
-      targetRegion,
-      targetPrefix,
-      extraRootDir,
-      defaultHashCheck,
-      context,
+    } = getParams(event, context);
+
+    logger({
+      title: 'params parsed success, params as follow: ',
+      data: {
+        bucket,
+        region,
+        key,
+        targetBucket,
+        targetRegion,
+        targetPrefix,
+        extraRootDir,
+        defaultHashCheck,
+        event,
+      },
     });
-  } else {
-    runningTask = new CosGunzipFileTask({
-      cosInstance,
-      cosUpload,
-      bucket,
-      region,
-      key,
-      targetBucket,
-      targetRegion,
-      targetPrefix,
-      extraRootDir,
+
+    const cosInstance = new CosSdk({
+      SecretId: secretId,
+      SecretKey: secretKey,
+      XCosSecurityToken: token,
+    });
+
+    const cosUpload = new CosUpload({
+      cos: {
+        SecretId: secretId,
+        SecretKey: secretKey,
+        XCosSecurityToken: token,
+      },
+      maxTryTimes: 1,
+      putObjectLimit: 5 * 1024 * 1024 * 1024,
       defaultHashCheck,
     });
-  }
 
-  const taskResults = await runningTask.runTask();
+    if (/manifest\.json$/.test(key)) {
+      runningTask = new ScfInvokeTask({
+        secretId,
+        secretKey,
+        token,
+        cosInstance,
+        cosUpload,
+        bucket,
+        region,
+        key,
+        targetBucket,
+        targetRegion,
+        targetPrefix,
+        extraRootDir,
+        defaultHashCheck,
+        context,
+      });
+    } else {
+      runningTask = new CosGunzipFileTask({
+        cosInstance,
+        cosUpload,
+        bucket,
+        region,
+        key,
+        targetBucket,
+        targetRegion,
+        targetPrefix,
+        extraRootDir,
+        defaultHashCheck,
+      });
+    }
 
-  watcher.clear();
+    const taskResults = await runningTask.runTask();
 
-  const { status, messages } = getLogSummary({
-    name: 'cos gunzip file',
-    results: taskResults,
-  });
+    watcher.clear();
 
-  logger({
-    messages: messages.map(item => item.replace(/, /g, '\n')),
-  });
+    const { status, messages } = getLogSummary({
+      name: 'cos gunzip file',
+      results: taskResults,
+    });
 
-  context.callbackWaitsForEmptyEventLoop = false;
+    logger({
+      messages: messages.map(item => item.replace(/, /g, '\n')),
+    });
 
-  if (status === 'fail') {
-    throw messages.join('; ');
-  } else {
-    return messages.join('; ');
+    let result = taskResults[0] || {};
+    if (status !== 'success') {
+      result = taskResults.find(item => Boolean(item.error)) || {};
+      throw result.error
+        ? result.error.error || result.error.message || result.error
+        : {};
+    }
+
+    return {
+      code: 0,
+      message: 'cos gunzip file success',
+      data: {
+        Bucket: targetBucket,
+        Region: targetRegion,
+      },
+    };
+  } catch (err) {
+    const error = err.stack ? { message: err.message } : err;
+    const response = {
+      code: -1,
+      message: 'cos gunzip file fail',
+      error,
+    };
+    if (process.env.SCF_ASYNC_RUN_ENABLE !== '0') {
+      throw response;
+    }
+    return response;
+  } finally {
+    context.callbackWaitsForEmptyEventLoop = false;
   }
 };
