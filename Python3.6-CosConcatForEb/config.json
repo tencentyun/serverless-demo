@@ -1,8 +1,8 @@
 {
     "serverless-cloud-function-application": {
         "Chinese": {
-            "name": "将eb转储的cos文件聚合",
-            "description": "本示例会将eb转储的cos小文件 聚合为大文件",
+            "name": "将EventBridge转储的cos文件聚合",
+            "description": "本示例会将EventBridge转储的cos小文件 聚合为大文件",
             "attention": "在使用本示例代码时需要传递相关的环境变量给函数。",
             "author": {
                 "name": "腾讯云"
@@ -19,13 +19,12 @@
         "runtime": "Python3.6",
         "type": "event",
         "readme": "",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "tags": [
             "Python3.6",
             "EventBridge",
             "COS",
-            "concat_cos_file_for_eb",
-            "CosConcatForEb"
+            "EventBridgeToCosScheduler"
         ]
     }
 }
