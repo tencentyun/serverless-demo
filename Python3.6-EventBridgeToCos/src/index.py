@@ -11,7 +11,7 @@ from qcloud_cos import CosS3Client
 
 
 logger = logging.getLogger()
-tz = pytz.timezone('Asia/Shanghai')  # 时区以哪里为准 ？
+tz = pytz.timezone('Asia/Shanghai')
 
 
 def build_cos_object_key(timestamp: int, seq: str):
@@ -21,8 +21,8 @@ def build_cos_object_key(timestamp: int, seq: str):
     return object_key
 
 
-def iter_event_data(event):
-    for event_item in event["EventList"]:
+def iter_event_data(event_list):
+    for event_item in event_list:
         tm = event_item.get("time")
         event_id = event_item.get("id")
         data = event_item.get("data")
@@ -57,7 +57,7 @@ def main_handler(event, context):
     seq_str = f"{now}.{rand}"
     cos_object_key = build_cos_object_key(now, seq_str)
     data = ""
-    for event_time, event_id, data_text in iter_event_data(event):
+    for event_time, event_id, data_text in iter_event_data(event_list):
         line = f"{event_time}\t{event_id}\t{data_text}\n"
         data += line
     resp = cos_client.put_object(bucket_upload, data, cos_object_key,

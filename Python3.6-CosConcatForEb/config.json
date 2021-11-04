@@ -19,12 +19,13 @@
         "runtime": "Python3.6",
         "type": "event",
         "readme": "",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "tags": [
             "Python3.6",
-            "Ckafka",
             "EventBridge",
-            "COS"
+            "COS",
+            "concat_cos_file_for_eb",
+            "CosConcatForEb"
         ]
     }
 }

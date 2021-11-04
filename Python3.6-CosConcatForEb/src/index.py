@@ -28,7 +28,7 @@ bucket_src = os.getenv("COS_BUCKET_SRC")
 bucket_dst = os.getenv("COS_BUCKET_DST")
 
 logger = logging.getLogger()
-tz = pytz.timezone('Asia/Shanghai')  # 时区以哪里为准 ？
+tz = pytz.timezone('Asia/Shanghai')
 
 
 def get_time_seq_from_name(file_name: str):
