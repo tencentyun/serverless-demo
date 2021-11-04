@@ -1,7 +1,7 @@
 component: scf
 name: ap-guangzhou_default_eb2cos
 inputs:
-  name: eb_ckafka_target_to_cos
+  name: eb_to_cos
   src:
     src: ./src
   handler: index.main_handler

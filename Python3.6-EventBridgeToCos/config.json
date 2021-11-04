@@ -1,16 +1,16 @@
 {
     "serverless-cloud-function-application": {
         "Chinese": {
-            "name": "EB数据转储存到COS",
-            "description": "本示例会将EB中的消息转存到COS中。",
+            "name": "将EventBridge数据转储存到COS",
+            "description": "本示例会将EventBridge中的消息转存到COS中。",
             "attention": "在使用本示例代码时需要传递相关的环境变量给函数。",
             "author": {
                 "name": "腾讯云"
             }
         },
         "English": {
-            "name": "eb_ckafka_target_to_cos",
-            "description": "This example consumes eb data and push these data to COS.",
+            "name": "eb_to_cos",
+            "description": "This example consumes EventBridge data and push these data to COS.",
             "attention": "When using this sample code, you need to pass some env variables to this function.",
             "author": {
                 "name": "Tencent Cloud"
@@ -19,13 +19,12 @@
         "runtime": "Python3.6",
         "type": "event",
         "readme": "",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "tags": [
             "Python3.6",
             "EventBridge",
             "COS",
-            "eb_to_cos",
-            "EventBridgeToCos"
+            "EventBridgeToCosConsumer"
         ]
     }
 }
