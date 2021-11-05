@@ -20,6 +20,7 @@ SCF_RUNNING_TIME_LIMIT = 11*60*60   # 取较小值12
 TASK_FILE_UPDATE_TIMEOUT = 60*15    # 多长时间不更新updateTime就认为任务挂掉了
 BACKUP_HISTORY_TASKFILE_NUM = 30    # 保留多少个历史任务文件
 WORKER_NUM_LIMIT = 3                # 最多同时运行多少个上传任务
+CONCAT_FILE_SAVE_DIR = "concat_result/"   # 将聚合后的文件保存到哪个目录
 
 cos_client: CosS3Client = None
 
@@ -266,7 +267,7 @@ def do_upload_task(task_file: str):
     # 准备数据
     group_flist = list_object_key_in_taskfile([task_file, ])
     min_seq_num = get_seq_num_from_task_file_name(task_file)
-    concat_dst_file = f"data/{min_seq_num}.txt"   # group对应的 聚合后的文件的文件名.
+    concat_dst_file = os.path.join(CONCAT_FILE_SAVE_DIR, f"{min_seq_num}.txt")   # group对应的 聚合后的文件的文件名.
 
     # 检查目标文件 并上传
     if not cos_client.object_exists(bucket_dst, concat_dst_file):

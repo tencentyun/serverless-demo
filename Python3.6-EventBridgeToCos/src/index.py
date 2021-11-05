@@ -56,10 +56,14 @@ def main_handler(event, context):
     now = int(time.time())
     seq_str = f"{now}.{rand}"
     cos_object_key = build_cos_object_key(now, seq_str)
+
     data = ""
     for event_time, event_id, data_text in iter_event_data(event_list):
         line = f"{event_time}\t{event_id}\t{data_text}\n"
         data += line
+    if not data:
+        return "no data"
+
     resp = cos_client.put_object(bucket_upload, data, cos_object_key,
                           Metadata={
                               "x-cos-meta-seq": seq_str
