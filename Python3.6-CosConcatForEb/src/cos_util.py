@@ -20,18 +20,29 @@ def set_cos_client(cos_client):
 
 
 def _iter_object_data(source_bucket, source_objects, limit_size):
+    """
+    按顺序遍历source_objects列表中的文件内容
+    :param source_bucket:
+    :param source_objects:
+    :param limit_size:
+    :raise CosFileNotExistsError:
+    :return:
+    """
     cos_proxy = CosDownloadProxy(_cos_client, source_bucket, source_objects)
     buff = b""
     index = 0
-    for data in cos_proxy.iter():
-        buff += data
-        if len(buff) > limit_size:
+    try:
+        for data in cos_proxy.iter():
+            buff += data
+            if len(buff) > limit_size:
+                index += 1
+                yield index, buff
+                buff = b""
+        if len(buff) > 0:
             index += 1
             yield index, buff
-            buff = b""
-    if len(buff) > 0:
-        index += 1
-        yield index, buff
+    except FileNotFoundError as e:
+        raise CosFileNotExistsError(e)
 
 
 def part_upload_object_list(source_bucket, source_objects: list, target_bucket, target_object, *, callback=None):
@@ -55,7 +66,7 @@ def part_upload_object_list(source_bucket, source_objects: list, target_bucket, 
         raise ValueError("upload_id is None")
 
     part_infos = []
-    for index, data in _iter_object_data(source_bucket, source_objects, limit_size=32*1024*1024):
+    for index, data in _iter_object_data(source_bucket, source_objects, limit_size=16*1024*1024):
         # https://cloud.tencent.com/document/product/436/14518
         # 分块上传：单个对象最大48.82TB，块大小1MB - 5GB，最后一个块可小于1MB，分块数1 - 10000，详情请参见 分块上传。
         part_number = str(index)
