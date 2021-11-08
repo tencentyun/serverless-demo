@@ -19,7 +19,7 @@
         "runtime": "Python3.6",
         "type": "event",
         "readme": "",
-        "version": "1.0.3",
+        "version": "1.0.4",
         "tags": [
             "Python3.6",
             "EventBridge",
