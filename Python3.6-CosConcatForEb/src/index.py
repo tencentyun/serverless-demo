@@ -27,6 +27,9 @@ cos_client: CosS3Client = None
 cos_region = os.getenv("COS_REGION")    # bucket_src 和 bucket_dst 所在的地区
 bucket_src = os.getenv("COS_BUCKET_SRC")
 bucket_dst = os.getenv("COS_BUCKET_DST")
+env_max_file_size_mb = os.getenv("MAX_FILE_SIZE_MB")          # 文件超过多大就必须拆分， 单位是MB
+env_max_time_range_hours = os.getenv("MAX_TIME_RANGE_HOURS")     # 文件中的时间区间超过多少就必须拆分， 单位： 小时
+
 
 logger = logging.getLogger()
 tz = pytz.timezone('Asia/Shanghai')
@@ -43,19 +46,49 @@ def get_time_seq_from_name(file_name: str):
         return None, None
 
 
-def split_group(sorted_flist: list):
-    def time_greater_than_15min(begin_time, end_time):
-        return (end_time - begin_time) > 15 * 60
+def parse_split_setting_time(env_time_range):
+    if not env_time_range:
+        return None
+    try:
+        time_hour = int(env_time_range)
+        if time_hour > 24 or time_hour < 1:
+            raise ValueError("时间范围错误")
+        time_range_seconds = time_hour * 60 * 60
+        return time_range_seconds
+    except Exception as e:
+        print(f"parse_file_size_time_limit error. env_time_range={env_time_range}", e)
+        raise e
 
-    def time_greater_than_1day(begin_time, end_time):
-        return (end_time - begin_time) > 24*60*60
 
-    def size_greater_than_1MB(size):
-        return size > 1024*1024
+def parse_split_setting_size(env_max_file_size):
+    if not env_max_file_size:
+        return None
+    try:
+        size_mb = int(env_max_file_size)
+        if size_mb > 10000 or size_mb < 1:
+            raise ValueError("文件大小错误")
+        max_size_b = size_mb * 1024 * 1024
+        return max_size_b
+    except Exception as e:
+        print(f"parse_file_size_time_limit error. env_max_file_size={env_max_file_size} ", e)
+        raise e
 
-    def size_greater_than_5GB(size):
-        return size > 5*1024*1024*1024
 
+def split_group(sorted_flist: list, max_time_range_limit, max_file_size_limit):
+    def time_gt_limit(begin_time, end_time, limit):
+        return (end_time - begin_time) > limit
+
+    def size_gt_limit(size, limit):
+        return size > limit
+
+    def time_ge_limit(begin_time, end_time, limit):
+        return (end_time - begin_time) >= limit
+
+    def size_ge_limit(size, limit):
+        return size >= limit
+
+    if (not max_time_range_limit) and (not max_file_size_limit):
+        raise ValueError("时间和文件大小至少需要设置一个")
     groups = []
     tmp_group = []
     tmp_group_size = 0
@@ -64,38 +97,37 @@ def split_group(sorted_flist: list):
         event_time, seq_num = get_time_seq_from_name(file_name)
         if not event_time:
             raise ValueError(file_name)
-        if len(tmp_group) == 0:
-            tmp_group.append((file_name, file_size, event_time, seq_num))
-            tmp_group_size += file_size
-            continue
-        first_event_time = tmp_group[0][2]
-        if time_greater_than_1day(first_event_time, event_time):
-            groups.append(tmp_group)
+        if max_file_size_limit and size_gt_limit(tmp_group_size + file_size, max_file_size_limit):
+            if tmp_group:
+                groups.append(tmp_group)
             tmp_group, tmp_group_size = [], 0
             tmp_group.append((file_name, file_size, event_time, seq_num))
             tmp_group_size += file_size
             continue
-        if size_greater_than_5GB(tmp_group_size + file_size):
-            groups.append(tmp_group)
-            tmp_group, tmp_group_size = [], 0
-            tmp_group.append((file_name, file_size, event_time, seq_num))
-            tmp_group_size += file_size
-            continue
+        if len(tmp_group) >= 1:
+            first_event_time = tmp_group[0][2]
+            if max_time_range_limit and time_gt_limit(first_event_time, event_time, max_time_range_limit):
+                groups.append(tmp_group)
+                tmp_group, tmp_group_size = [], 0
+                tmp_group.append((file_name, file_size, event_time, seq_num))
+                tmp_group_size += file_size
+                continue
         tmp_group.append((file_name, file_size, event_time, seq_num))
         tmp_group_size += file_size
-
     if len(tmp_group) == 0:
         return groups
-    if size_greater_than_1MB(tmp_group_size):
+    if max_file_size_limit and size_ge_limit(tmp_group_size, max_file_size_limit):
         groups.append(tmp_group)
         return groups
-    print("split_group tmp group不足1M， size=%.2f M" % (tmp_group_size/1024/1024))
-    first_event_time = tmp_group[0][2]
-    last_event_time = tmp_group[-1][2]
-    if time_greater_than_15min(first_event_time, last_event_time):
-        groups.append(tmp_group)
-        return groups
-    print("split_group tmp group不超过15min， range=%.2f min" % ((last_event_time - first_event_time)/60))
+    if len(tmp_group) >= 2:
+        first_event_time = tmp_group[0][2]
+        last_event_time = tmp_group[-1][2]
+        if max_time_range_limit and time_ge_limit(first_event_time, last_event_time, max_time_range_limit):
+            groups.append(tmp_group)
+            return groups
+
+    print("split_group tmp_group_size=%.2f M  first=%s last=%s"
+          % (tmp_group_size/1024/1024, tmp_group[0], tmp_group[-1]))
     return groups
 
 
@@ -244,7 +276,11 @@ def create_new_taskfile() -> list:
             continue
         flist.append((fname, size))
     flist.sort(key=lambda finfo: get_time_seq_from_name(finfo[0]))     # 按seq排序
-    groups = split_group(flist)
+
+    max_file_size = parse_split_setting_size(env_max_file_size_mb)
+    max_time_range = parse_split_setting_time(env_max_time_range_hours)
+    groups = split_group(flist, max_time_range, max_file_size)
+
     if not groups:  # 没有待办任务了
         return []
     taskfile_list = []
@@ -314,7 +350,7 @@ def upload_worker(task_file_wait, sem_worker_limit: BoundedSemaphore):
         ret = do_upload_task(task_file_running)
         print("upload_worker: ret=%s taskfile=%s" % (ret, task_file_running))
     except Exception as err:
-        print("upload_worker: taskfile=", task_file_wait, err)
+        print("upload_worker error: taskfile=", task_file_wait, err)
         traceback.print_exc()
     finally:
         sem_worker_limit.release()

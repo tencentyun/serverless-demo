@@ -34,6 +34,8 @@ class CosDownloadProxy(object):
                 print("iter cache miss, key=", key)
                 self._download(key)
             data = self._load_data_from_local(key)
+            if data is None:
+                raise FileNotFoundError(key)
             print(f"iter curIndex={i}/{total}")
             yield data
             self._clean_cache_after_read(key)
@@ -84,5 +86,7 @@ class CosDownloadProxy(object):
 
     def _load_data_from_local(self, key):
         fname = self._get_fname_in_tmp(key)
+        if not os.path.exists(fname):
+            return None
         with open(fname, "rb") as f:
             return f.read()
