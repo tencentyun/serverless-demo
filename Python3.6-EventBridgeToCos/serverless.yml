@@ -9,7 +9,7 @@ inputs:
   namespace: default
   region: ap-guangzhou
   memorySize: 128
-  timeout: 3
+  timeout: 30
   environment:
     - key: COS_REGION
       value:
