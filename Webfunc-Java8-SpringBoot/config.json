@@ -19,7 +19,7 @@
         "runtime": "Java8",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-Java8-SpringBoot",
-        "version": "0.1.1",
+        "version": "0.1.2",
         "tags": [
             "WebFunc",
             "Java8",
