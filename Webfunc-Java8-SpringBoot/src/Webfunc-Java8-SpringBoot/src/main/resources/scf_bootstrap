@@ -1,0 +1,2 @@
+#!/bin/bash
+/var/lang/java8/bin/java -Dserver.port=9000 -jar scf-springboot-java8-0.0.2-SNAPSHOT-all.jar

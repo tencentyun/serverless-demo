@@ -2,23 +2,23 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "SpringBoot",
-            "description": "使用 SCF 部署 Spring Boot 并通过 API 网关测试事件模拟请求和获取 spring 返回的处理结构。请使用 API Gateway 事件模版并将 path 改为 /hello 进行模拟测试。",
-            "attention": "请使用 API Gateway 事件模版并将 path 改为 /hello 进行模拟测试。",
+            "description": "使用 SpringBoot 实现一个待办应用，并通过 API 网关测试事件模拟请求和获取 spring 返回的处理结构。",
+            "attention": " ",
             "author": {
                 "name": "腾讯云"
             }
         },
         "English": {
             "name": "SpringBoot",
-            "description": "Use SCF to deploy Spring Boot and test event simulation requests through the API gateway and obtain the processing structure returned by Spring",
-            "attention": "You can use the API Gateway event template and change the path to /hello for simulation testing.",
+            "description": "Use SpringBoot to implement a to-do application, and use the API gateway to test event simulation requests and obtain the processing structure returned by spring.",
+            "attention": " ",
             "author": {
                 "name": "Tencent Cloud"
             }
         },
         "runtime": "Java8",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Java8-SpringBoot",
-        "version": "1.0.3",
+        "version": "1.0.4",
         "tags": [
             "Java8",
             "springboot",

@@ -1,0 +1,23 @@
+component: scf
+name: ap-guangzhou_springboot_webfunc_demo
+inputs:
+  name: springboot_webfunc_demo
+  src:
+    src: ./src
+  type: web
+  runtime: Java8
+  region: ap-guangzhou
+  memorySize: 512
+  timeout: 3
+  triggers:
+     - type: apigw
+       name: SCF_API_SERVICE
+       protocols:
+        - http
+        - https
+       environment: release
+       netTypes:
+        - OUTER
+       apis:
+        - path: /
+          method: ANY

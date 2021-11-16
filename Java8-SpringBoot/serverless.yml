@@ -6,7 +6,7 @@ inputs:
   region: ap-guangzhou
   name: SpringBoot
   runtime: Java8
-  handler: example.Hello::mainHandler
-  memorySize: 256
+  handler: com.tencent.scfspringbootjava8.ScfHandler::mainHandler
+  memorySize: 512
   timeout: 30
 
