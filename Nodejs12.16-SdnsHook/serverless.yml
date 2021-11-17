@@ -1,0 +1,26 @@
+component: scf
+name: ap-guangzhou_httpdns_sdnsHook
+inputs:
+  name: SDNSook
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Nodejs12.16
+  namespace: httpdns
+  region: ap-guangzhou
+  memorySize: 1024
+  timeout: 3
+  triggers:                                         
+    - type: apigw
+      name: SCF_API_SERVICE
+      protocols:
+        - http
+        - https
+      environment: release
+      netTypes:
+        - INNER
+      apis:
+        - path: test/
+          method: ANY
+          function:
+            isIntegratedResponse: true

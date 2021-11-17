@@ -1,0 +1,27 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese":{
+            "name": "Sdns写缓存",                   
+            "description": "模版中文描述",            
+            "attention": "模版使用的注意事项，中文",    
+            "author": {
+                "name": "作者"                     
+            }
+        },
+        "English":{
+            "name": "SdnsHook",                       
+            "description": "Demo English description.",      
+            "attention": "The description of precautions.",  
+            "author": {
+                "name": "zrayzhou"                       
+            }
+        },
+        "runtime": "Nodejs12.16",                      
+        "type": "event",                          
+        "readme":"https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-SdnsWriteCache",                   
+        "version": "1.0.0",                          
+        "tags":[
+            "Nodejs12.16", "HTTPDNS", "SDNS"
+        ]                                            
+    }
+}
