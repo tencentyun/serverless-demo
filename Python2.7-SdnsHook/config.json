@@ -1,27 +1,27 @@
 {
     "serverless-cloud-function-application": {
         "Chinese": {
-            "name": "helloworld",
-            "description": "helloworld 空白模板函数",
-            "attention": "无",
+            "name": "移动解析HTTPDNS软件自定义解析函数",
+            "description": "基于事件函数和API网关，提供移动解析HTTPDNS软件自定义解析服务，支持自定义参数和返回值。",
+            "attention": "本示例需要配合移动解析HTTPDNS软件自定义解析、API网关使用。",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云DNSPod"
             }
         },
         "English": {
             "name": "SdnsHook",
-            "description": "This is helloworld function",
-            "attention": "None",
+            "description": "This example provides HTTPDNS software DNS service based on event function and API gateway, and supports custom parameters and returned values.",
+            "attention": "This example needs to be used with HTTPDNS software DNS and API gateway trigger.",
+            "tutorial":" ",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud DNSPod"
             }
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-SdnsHook",
         "version": "1.0.0",
         "tags": [
-            "Python2.7",
-            "Sdns"
+            "Python2.7", "HTTPDNS", "SDNS"
         ]
     }
 }
