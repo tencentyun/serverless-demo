@@ -9,7 +9,12 @@ const TimeoutWatcher = require('./common/TimeoutWatcher');
 const CosGunzipFileTask = require('./common/CosGunzipFileTask');
 const ScfInvokeTask = require('./common/ScfInvokeTask');
 
-const { getParams, logger, getLogSummary } = require('./common/utils');
+const {
+  getParams,
+  tryStringify,
+  logger,
+  getLogSummary,
+} = require('./common/utils');
 
 exports.main_handler = async (event, context) => {
   try {
@@ -144,7 +149,7 @@ exports.main_handler = async (event, context) => {
       error,
     };
     if (process.env.SCF_ASYNC_RUN_ENABLE !== '0') {
-      throw response;
+      throw tryStringify(response);
     }
     return response;
   } finally {
