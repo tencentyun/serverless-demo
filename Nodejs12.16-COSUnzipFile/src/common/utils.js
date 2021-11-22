@@ -1,3 +1,5 @@
+/* eslint-disable camelcase */
+/* eslint-disable prefer-const */
 /* eslint-disable no-param-reassign */
 /* eslint-disable no-restricted-syntax */
 'use strict';
@@ -16,42 +18,72 @@ const requestPromiseRetry = retry({ func: requestPromise });
 /**
  * get source and target message from event and process.env
  */
-function getParams({ parentRequestId, ...eventArgs }) {
-  const {
+function getParams(event, { tencentcloud_appid }) {
+  let body = event;
+  try {
+    if (event.body) {
+      body = JSON.parse(event.body);
+    }
+  } catch (err) {
+    throw new Error('request body is not a json string');
+  }
+  let {
     TENCENTCLOUD_SECRETID: SecretId,
     TENCENTCLOUD_SECRETKEY: SecretKey,
     TENCENTCLOUD_SESSIONTOKEN: XCosSecurityToken,
     Records = [],
+    bucket,
+    region,
+    key,
     targetBucket,
     targetRegion,
     targetPrefix = '',
-    extraRootDir = 'basename',
+    extraRootDir,
     pathTraversalProtection = 'true',
     targetTriggerForbid = 'true',
     defaultHashCheck = 'false',
     rangeLimit = '50000',
+    entryCountLimit,
     currentRange,
     callbackUrl,
+    parentRequestId,
   } = {
     ...process.env,
-    ...eventArgs,
+    ...event,
+    ...body,
   };
 
-  if (!Records.length && !parentRequestId) {
-    throw new Error('this function is not trigger by cos or parent function, refuse to execute');
+  if (!Records.length && !parentRequestId && !event.body && !key) {
+    throw new Error('this function is not trigger by cos, apigateway, scf invoke or parent function, refuse to execute');
   } else if (parentRequestId) {
     logger({
       title: `this function is trigger by parent function, parent request id is ${parentRequestId}`,
     });
   } else if (Records.length) {
     logger({ title: 'this function is trigger by cos' });
+  } else if (event.body) {
+    entryCountLimit = entryCountLimit || 50000;
+    logger({ title: 'this function is trigger by apigateway' });
+  } else if (key) {
+    entryCountLimit = entryCountLimit || 50000;
+    logger({ title: 'this function is trigger by scf invoke' });
   }
 
-  const objectList = Records.map(item => parseUrl({
+  if (Records.length || parentRequestId) {
+    extraRootDir = extraRootDir || 'basename';
+  } else {
+    extraRootDir = extraRootDir || 'none';
+  }
+
+  const objects = Records.map(item => parseUrl({
     url: item.cos.cosObject.url,
   }));
 
-  const { Bucket, Region, Key } = objectList[0];
+  if (objects[0]) {
+    bucket = objects[0].Bucket;
+    region = objects[0].Region;
+    key = objects[0].Key;
+  }
 
   const missingParams = [
     { key: 'TENCENTCLOUD_SECRETID', value: SecretId },
@@ -65,10 +97,14 @@ function getParams({ parentRequestId, ...eventArgs }) {
     throw new Error(`params parsed error, missing params: ${missingParams.join(', ')}`);
   }
 
+  if (!bucket.endsWith(`${tencentcloud_appid}`)) {
+    throw new Error(`${bucket} does not belong to the owner`);
+  }
+
   return {
-    Bucket,
-    Region,
-    Key,
+    Bucket: bucket,
+    Region: region,
+    Key: key,
     targetBucket,
     targetRegion,
     targetPrefix,
@@ -77,6 +113,7 @@ function getParams({ parentRequestId, ...eventArgs }) {
     targetTriggerForbid: ['true', true].includes(targetTriggerForbid),
     defaultHashCheck: ['true', true].includes(defaultHashCheck),
     rangeLimit: parseInt(rangeLimit, 10),
+    entryCountLimit: parseInt(entryCountLimit || -1, 10),
     currentRange,
     callbackUrl,
     SecretId,
@@ -211,6 +248,16 @@ function readStreamAddPassThrough(readStream) {
   return readStream.pipe(passThrough);
 }
 /**
+ * try to get stringify string of data
+ */
+function tryStringify(data) {
+  try {
+    return JSON.stringify(data);
+  } catch (err) {
+    return data;
+  }
+}
+/**
  * print log message
  */
 function logger({ messages = [], title = '', data = {} }) {
@@ -272,6 +319,7 @@ module.exports = {
   retry,
   streamPromise,
   readStreamAddPassThrough,
+  tryStringify,
   logger,
   getLogSummary,
 };

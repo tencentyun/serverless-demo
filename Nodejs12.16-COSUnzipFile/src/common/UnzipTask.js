@@ -23,6 +23,7 @@ class UnzipTask {
     pathTraversalProtection,
     targetTriggerForbid,
     rangeLimit,
+    entryCountLimit,
     currentRange,
   }) {
     const { dirname, basename, extname } = parseFileName(Key);
@@ -39,6 +40,7 @@ class UnzipTask {
       pathTraversalProtection,
       targetTriggerForbid,
       rangeLimit,
+      entryCountLimit,
       currentRange,
       dirname,
       basename,
@@ -183,6 +185,13 @@ class UnzipTask {
         end,
       });
       console.log(`zip file entries count is ${length}`);
+      if (
+        this.entryCountLimit
+        && this.entryCountLimit > 0
+        && this.entryCountLimit < length
+      ) {
+        throw new Error(`zip file entries count is larger than ${this.entryCountLimit}`);
+      }
       return {
         tasks: entries,
         length,

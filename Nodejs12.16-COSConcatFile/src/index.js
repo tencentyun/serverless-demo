@@ -7,6 +7,7 @@ const {
   getParams,
   requestPromiseRetry,
   tryAddCosSignature,
+  tryStringify,
   logger,
   getLogSummary,
 } = require('./common/utils');
@@ -99,7 +100,7 @@ exports.main_handler = async (event, context) => {
       error,
     };
     if (process.env.SCF_ASYNC_RUN_ENABLE !== '0') {
-      throw response;
+      throw tryStringify(response);
     }
     return response;
   } finally {

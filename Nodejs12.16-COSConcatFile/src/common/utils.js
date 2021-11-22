@@ -203,6 +203,16 @@ function retry({ maxTryTime = 3, func }) {
   };
 }
 /**
+ * try to get stringify string of data
+ */
+function tryStringify(data) {
+  try {
+    return JSON.stringify(data);
+  } catch (err) {
+    return data;
+  }
+}
+/**
  * print log message
  */
 function logger({ messages = [], title = '', data = {} }) {
@@ -262,6 +272,7 @@ module.exports = {
   getRangeStreamFromUrl,
   sleep,
   retry,
+  tryStringify,
   logger,
   getLogSummary,
 };

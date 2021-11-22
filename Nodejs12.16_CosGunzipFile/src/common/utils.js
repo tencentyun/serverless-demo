@@ -130,6 +130,17 @@ function parseUrl({ url }) {
 }
 
 /**
+ * try to get stringify string of data
+ */
+function tryStringify(data) {
+  try {
+    return JSON.stringify(data);
+  } catch (err) {
+    return data;
+  }
+}
+
+/**
  * print log message
  */
 function logger({ messages = [], title = '', data = {} }) {
@@ -225,6 +236,7 @@ function streamPipelinePromise(streams) {
 
 module.exports = {
   getParams,
+  tryStringify,
   logger,
   retry,
   getLogSummary,
