@@ -234,7 +234,7 @@ exports.main_handler = async (event, context) => {
 
     return {
       code: 0,
-      message: 'cos zip file success',
+      message: 'cos unzip file success',
       data: {
         Bucket: targetBucket,
         Region: targetRegion,
@@ -244,7 +244,7 @@ exports.main_handler = async (event, context) => {
     const error = err.stack ? { message: err.message } : err;
     const response = {
       code: -1,
-      message: 'cos zip file fail',
+      message: 'cos unzip file fail',
       error,
     };
     if (process.env.SCF_ASYNC_RUN_ENABLE !== '0') {
