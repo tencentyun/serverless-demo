@@ -1,6 +1,6 @@
 {
   "name": "cos-unzip-file",
-  "version": "1.0.37",
+  "version": "1.0.38",
   "main": "index.js",
   "license": "ISC",
   "dependencies": {
