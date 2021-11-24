@@ -1,0 +1,21 @@
+component: scf
+name: ap-guangzhou_default_COSSyncData
+inputs:
+  src:
+    src: ./src
+  region: ap-guangzhou
+  name: COSSyncData
+  runtime: Java8
+  handler: com.example.MainHandler::mainHandler
+  memorySize: 512
+  timeout: 59
+  environment:
+    variables:
+      SOURCE_SECRET_ID: source appid secretid
+      SOURCE_SECRET_KEY: source appid secretkey
+      SOURCE_REGION: source bucket region
+      TARGET_SECRET_ID: target appid secretid
+      TARGET_SECRET_KEY: target appid secretkey
+      TARGET_REGION: target bucket region
+      TARGET_BUCKET: target bucket name(xxx-appid)
+
