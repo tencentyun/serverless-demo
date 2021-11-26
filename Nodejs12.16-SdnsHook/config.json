@@ -1,7 +1,7 @@
 {
     "serverless-cloud-function-application": {
         "Chinese": {
-            "name": "移动解析HTTPDNS软件自定义解析函数",
+            "name": "HTTPDNS自定义解析函数",
             "description": "基于事件函数和API网关，提供移动解析HTTPDNS软件自定义解析服务，支持自定义参数和返回值。",
             "attention": "本示例需要配合移动解析HTTPDNS软件自定义解析、API网关使用。",
             "author": {
@@ -20,7 +20,7 @@
         "runtime": "Nodejs12.16",                      
         "type": "event",                          
         "readme":"https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-SdnsHook",                   
-        "version": "1.0.0",                          
+        "version": "1.0.1",                          
         "tags":[
             "Nodejs12.16", "HTTPDNS", "SDNS"
         ]                                            
