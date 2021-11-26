@@ -19,7 +19,7 @@
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-SdnsHook",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "tags": [
             "Python2.7", "HTTPDNS", "SDNS"
         ]
