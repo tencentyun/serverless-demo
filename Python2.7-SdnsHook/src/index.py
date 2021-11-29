@@ -2,28 +2,32 @@
 import json
 
 def main_handler(event, context):
-    response = {}
+    body = json.loads(event['body'])
 
-    if "domainName" in event.keys():
-        response['domainName'] = event['domainName']
-    elif "clientIp" in event.keys():
-        response['clientIp'] = event['clientIp']
-    elif "location" in event.keys():
-        response['location'] = event['location']
-    elif "ttl" in event.keys():
-        response['ttl'] = event['ttl']
-    elif "ips" in event.keys():
-        response['ips'] = event['ips']
-    else:
-        return {"code": 410, "errorMsg": "param error"}
+    print(body)
+    params = {
+        'domainName': body['domainName'],
+        'clientIp': body['clientIp'],
+        'location': body['location'],
+        'hookType': body['hookType'],
+        'ttl': body['ttl'],
+        'ips': body['ips'],
+    }
+    
+    print(params)
+    response = {
+        'ttl': params['ttl'],
+        'ips': params['ips']
+    }
 
-    if event['hookType'] == "BEFORE_WRITE_CACHE": 
-        print("BEFORE_WRITE_CACHE")
+
+    if params['hookType'] == "BEFORE_WRITE_CACHE": 
+        response['ttl'] = 100
+        response['ips'].append('1.1.1.1')
     
-    if event['hookType'] == "BEFORE_WRITE_RESPONSE":  
-        print("BEFORE_WRITE_RESPONSE")
-    
-    response['ttl'] = 180
+    if params['hookType'] == "BEFORE_WRITE_RESPONSE":  
+        response['ttl'] = 200
+        response['ips'].append('2.2.2.2')
 
     return(response)
 

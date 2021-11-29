@@ -20,7 +20,8 @@ inputs:
       netTypes:
         - INNER
       apis:
-        - path: test/
+        - path: release/
           method: ANY
           function:
-            isIntegratedResponse: true
+            isIntegratedResponse: false
+            isBase64Encoded: false
