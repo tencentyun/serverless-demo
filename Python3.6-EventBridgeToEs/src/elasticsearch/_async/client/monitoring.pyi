@@ -15,17 +15,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-from typing import (
-    Any,
-    Collection,
-    Dict,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-)
+from typing import Any, Collection, MutableMapping, Optional, Tuple, Union
 
 from .utils import NamespacedClient
 
@@ -33,7 +23,7 @@ class MonitoringClient(NamespacedClient):
     async def bulk(
         self,
         *,
-        body: Union[Sequence[Mapping[str, Any]], bytes, str],
+        body: Any,
         doc_type: Optional[Any] = ...,
         interval: Optional[Any] = ...,
         system_api_version: Optional[Any] = ...,
@@ -50,4 +40,4 @@ class MonitoringClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...

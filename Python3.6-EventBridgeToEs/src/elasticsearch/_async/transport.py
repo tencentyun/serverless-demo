@@ -18,21 +18,15 @@
 import asyncio
 import logging
 import sys
-import warnings
 from itertools import chain
 
-from ..connection_pool import ConnectionPool
 from ..exceptions import (
-    AuthenticationException,
-    AuthorizationException,
     ConnectionError,
     ConnectionTimeout,
-    ElasticsearchWarning,
     SerializationError,
     TransportError,
 )
-from ..serializer import JSONSerializer
-from ..transport import Transport, _ProductChecker, get_host_info
+from ..transport import Transport
 from .compat import get_running_loop
 from .http_aiohttp import AIOHttpConnection
 
@@ -49,26 +43,7 @@ class AsyncTransport(Transport):
 
     DEFAULT_CONNECTION_CLASS = AIOHttpConnection
 
-    def __init__(
-        self,
-        hosts,
-        connection_class=None,
-        connection_pool_class=ConnectionPool,
-        host_info_callback=get_host_info,
-        sniff_on_start=False,
-        sniffer_timeout=None,
-        sniff_timeout=0.1,
-        sniff_on_connection_fail=False,
-        serializer=JSONSerializer(),
-        serializers=None,
-        default_mimetype="application/json",
-        max_retries=3,
-        retry_on_status=(502, 503, 504),
-        retry_on_timeout=False,
-        send_get_body_as="GET",
-        meta_header=True,
-        **kwargs
-    ):
+    def __init__(self, hosts, *args, sniff_on_start=False, **kwargs):
         """
         :arg hosts: list of dictionaries, each containing keyword arguments to
             create a `connection_class` instance
@@ -101,8 +76,6 @@ class AsyncTransport(Transport):
             don't support passing bodies with GET requests. If you set this to
             'POST' a POST method will be used instead, if to 'source' then the body
             will be serialized and passed as a query parameter `source`.
-        :arg meta_header: If True will send the 'X-Elastic-Client-Meta' HTTP header containing
-            simple client metadata. Setting to False will disable the header. Defaults to True.
 
         Any extra keyword arguments will be passed to the `connection_class`
         when creating and instance unless overridden by that connection's
@@ -111,26 +84,9 @@ class AsyncTransport(Transport):
         self.sniffing_task = None
         self.loop = None
         self._async_init_called = False
-        self._sniff_on_start_event = None  # type: asyncio.Event
 
         super(AsyncTransport, self).__init__(
-            hosts=[],
-            connection_class=connection_class,
-            connection_pool_class=connection_pool_class,
-            host_info_callback=host_info_callback,
-            sniff_on_start=False,
-            sniffer_timeout=sniffer_timeout,
-            sniff_timeout=sniff_timeout,
-            sniff_on_connection_fail=sniff_on_connection_fail,
-            serializer=serializer,
-            serializers=serializers,
-            default_mimetype=default_mimetype,
-            max_retries=max_retries,
-            retry_on_status=retry_on_status,
-            retry_on_timeout=retry_on_timeout,
-            send_get_body_as=send_get_body_as,
-            meta_header=meta_header,
-            **kwargs,
+            *args, hosts=[], sniff_on_start=False, **kwargs
         )
 
         # Don't enable sniffing on Cloud instances.
@@ -156,39 +112,14 @@ class AsyncTransport(Transport):
         self.loop = get_running_loop()
         self.kwargs["loop"] = self.loop
 
-        # Set our 'verified_once' implementation to one that
-        # works with 'asyncio' instead of 'threading'
-        self._verify_elasticsearch_lock = asyncio.Lock()
-
-        # Now that we have a loop we can create all our HTTP connections...
+        # Now that we have a loop we can create all our HTTP connections
         self.set_connections(self.hosts)
         self.seed_connections = list(self.connection_pool.connections[:])
 
         # ... and we can start sniffing in the background.
         if self.sniffing_task is None and self.sniff_on_start:
-
-            # Create an asyncio.Event for future calls to block on
-            # until the initial sniffing task completes.
-            self._sniff_on_start_event = asyncio.Event()
-
-            try:
-                self.last_sniff = self.loop.time()
-                self.create_sniff_task(initial=True)
-
-                # Since this is the first one we wait for it to complete
-                # in case there's an error it'll get raised here.
-                await self.sniffing_task
-
-            # If the task gets cancelled here it likely means the
-            # transport got closed.
-            except asyncio.CancelledError:
-                pass
-
-            # Once we exit this section we want to unblock any _async_calls()
-            # that are blocking on our initial sniff attempt regardless of it
-            # was successful or not.
-            finally:
-                self._sniff_on_start_event.set()
+            self.last_sniff = self.loop.time()
+            self.create_sniff_task(initial=True)
 
     async def _async_call(self):
         """This method is called within any async method of AsyncTransport
@@ -198,14 +129,6 @@ class AsyncTransport(Transport):
         if not self._async_init_called:
             self._async_init_called = True
             await self._async_init()
-
-        # If the initial sniff_on_start hasn't returned yet
-        # then we need to wait for node information to come back
-        # or for the task to be cancelled via AsyncTransport.close()
-        if self._sniff_on_start_event and not self._sniff_on_start_event.is_set():
-            # This is already a no-op if the event is set but we try to
-            # avoid an 'await' by checking 'not event.is_set()' above first.
-            await self._sniff_on_start_event.wait()
 
         if self.sniffer_timeout:
             if self.loop.time() >= self.last_sniff + self.sniffer_timeout:
@@ -264,12 +187,6 @@ class AsyncTransport(Transport):
                 for t in done:
                     try:
                         _, headers, node_info = t.result()
-
-                        # Lowercase all the header names for consistency in accessing them.
-                        headers = {
-                            header.lower(): value for header, value in headers.items()
-                        }
-
                         node_info = self.deserializer.loads(
                             node_info, headers.get("content-type")
                         )
@@ -295,8 +212,6 @@ class AsyncTransport(Transport):
         """
         # Without a loop we can't do anything.
         if not self.loop:
-            if initial:
-                raise RuntimeError("Event loop not running on initial sniffing task")
             return
 
         node_info = await self._get_sniff_data(initial)
@@ -374,19 +289,11 @@ class AsyncTransport(Transport):
             method, headers, params, body
         )
 
-        # Before we make the actual API call we verify the Elasticsearch instance.
-        if self._verified_elasticsearch is None:
-            await self._do_verify_elasticsearch(headers=headers, timeout=timeout)
-
-        # If '_verified_elasticsearch' isn't 'True' then we raise an error.
-        if self._verified_elasticsearch is not True:
-            _ProductChecker.raise_error(self._verified_elasticsearch)
-
         for attempt in range(self.max_retries + 1):
             connection = self.get_connection()
 
             try:
-                status, headers_response, data = await connection.perform_request(
+                status, headers, data = await connection.perform_request(
                     method,
                     url,
                     params,
@@ -395,11 +302,6 @@ class AsyncTransport(Transport):
                     ignore=ignore,
                     timeout=timeout,
                 )
-
-                # Lowercase all the header names for consistency in accessing them.
-                headers_response = {
-                    header.lower(): value for header, value in headers_response.items()
-                }
             except TransportError as e:
                 if method == "HEAD" and e.status_code == 404:
                     return False
@@ -434,9 +336,7 @@ class AsyncTransport(Transport):
                     return 200 <= status < 300
 
                 if data:
-                    data = self.deserializer.loads(
-                        data, headers_response.get("content-type")
-                    )
+                    data = self.deserializer.loads(data, headers.get("content-type"))
                 return data
 
     async def close(self):
@@ -450,87 +350,5 @@ class AsyncTransport(Transport):
             except asyncio.CancelledError:
                 pass
             self.sniffing_task = None
-
         for connection in self.connection_pool.connections:
             await connection.close()
-
-    async def _do_verify_elasticsearch(self, headers, timeout):
-        """Verifies that we're connected to an Elasticsearch cluster.
-        This is done at least once before the first actual API call
-        and makes a single request to the 'GET /' API endpoint and
-        check version along with other details of the response.
-
-        If we're unable to verify we're talking to Elasticsearch
-        but we're also unable to rule it out due to a permission
-        error we instead emit an 'ElasticsearchWarning'.
-        """
-        # Ensure that there's only one async exec within this section
-        # at a time to not emit unnecessary index API calls.
-        async with self._verify_elasticsearch_lock:
-
-            # Product check has already been completed while we were
-            # waiting our turn, no need to do again.
-            if self._verified_elasticsearch is not None:
-                return
-
-            headers = {
-                header.lower(): value for header, value in (headers or {}).items()
-            }
-            # We know we definitely want JSON so request it via 'accept'
-            headers.setdefault("accept", "application/json")
-
-            info_headers = {}
-            info_response = {}
-            error = None
-
-            attempted_conns = []
-            for conn in chain(self.connection_pool.connections, self.seed_connections):
-                # Only attempt once per connection max.
-                if conn in attempted_conns:
-                    continue
-                attempted_conns.append(conn)
-
-                try:
-                    _, info_headers, info_response = await conn.perform_request(
-                        "GET", "/", headers=headers, timeout=timeout
-                    )
-
-                    # Lowercase all the header names for consistency in accessing them.
-                    info_headers = {
-                        header.lower(): value for header, value in info_headers.items()
-                    }
-
-                    info_response = self.deserializer.loads(
-                        info_response, mimetype="application/json"
-                    )
-                    break
-
-                # Previous versions of 7.x Elasticsearch required a specific
-                # permission so if we receive HTTP 401/403 we should warn
-                # instead of erroring out.
-                except (AuthenticationException, AuthorizationException):
-                    warnings.warn(
-                        (
-                            "The client is unable to verify that the server is "
-                            "Elasticsearch due security privileges on the server side"
-                        ),
-                        ElasticsearchWarning,
-                        stacklevel=4,
-                    )
-                    self._verified_elasticsearch = True
-                    return
-
-                # This connection didn't work, we'll try another.
-                except (ConnectionError, SerializationError, TransportError) as err:
-                    if error is None:
-                        error = err
-
-            # If we received a connection error and weren't successful
-            # anywhere then we re-raise the more appropriate error.
-            if error and not info_response:
-                raise error
-
-            # Check the information we got back from the index request.
-            self._verified_elasticsearch = _ProductChecker.check_product(
-                info_headers, info_response
-            )

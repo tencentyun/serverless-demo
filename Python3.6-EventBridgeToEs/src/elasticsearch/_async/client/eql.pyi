@@ -15,27 +15,18 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-from typing import (
-    Any,
-    Collection,
-    Dict,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Tuple,
-    Union,
-)
+from typing import Any, Collection, MutableMapping, Optional, Tuple, Union
 
 from .utils import NamespacedClient
 
 class EqlClient(NamespacedClient):
     async def search(
         self,
-        *,
         index: Any,
-        body: Mapping[str, Any],
+        *,
+        body: Any,
         keep_alive: Optional[Any] = ...,
-        keep_on_completion: Optional[bool] = ...,
+        keep_on_completion: Optional[Any] = ...,
         wait_for_completion_timeout: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
@@ -49,11 +40,11 @@ class EqlClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     async def delete(
         self,
-        *,
         id: Any,
+        *,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -66,11 +57,11 @@ class EqlClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     async def get(
         self,
-        *,
         id: Any,
+        *,
         keep_alive: Optional[Any] = ...,
         wait_for_completion_timeout: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
@@ -85,11 +76,11 @@ class EqlClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     async def get_status(
         self,
-        *,
         id: Any,
+        *,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -102,4 +93,4 @@ class EqlClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...

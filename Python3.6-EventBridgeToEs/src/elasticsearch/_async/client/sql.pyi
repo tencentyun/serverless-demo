@@ -15,16 +15,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-from typing import (
-    Any,
-    Collection,
-    Dict,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Tuple,
-    Union,
-)
+from typing import Any, Collection, MutableMapping, Optional, Tuple, Union
 
 from .utils import NamespacedClient
 
@@ -32,7 +23,7 @@ class SqlClient(NamespacedClient):
     async def clear_cursor(
         self,
         *,
-        body: Mapping[str, Any],
+        body: Any,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -45,11 +36,11 @@ class SqlClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     async def query(
         self,
         *,
-        body: Mapping[str, Any],
+        body: Any,
         format: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
@@ -62,11 +53,11 @@ class SqlClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     async def translate(
         self,
         *,
-        body: Mapping[str, Any],
+        body: Any,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -79,58 +70,4 @@ class SqlClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
-    async def delete_async(
-        self,
-        *,
-        id: Any,
-        pretty: Optional[bool] = ...,
-        human: Optional[bool] = ...,
-        error_trace: Optional[bool] = ...,
-        format: Optional[str] = ...,
-        filter_path: Optional[Union[str, Collection[str]]] = ...,
-        request_timeout: Optional[Union[int, float]] = ...,
-        ignore: Optional[Union[int, Collection[int]]] = ...,
-        opaque_id: Optional[str] = ...,
-        http_auth: Optional[Union[str, Tuple[str, str]]] = ...,
-        api_key: Optional[Union[str, Tuple[str, str]]] = ...,
-        params: Optional[MutableMapping[str, Any]] = ...,
-        headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
-    async def get_async(
-        self,
-        *,
-        id: Any,
-        delimiter: Optional[Any] = ...,
-        format: Optional[Any] = ...,
-        keep_alive: Optional[Any] = ...,
-        wait_for_completion_timeout: Optional[Any] = ...,
-        pretty: Optional[bool] = ...,
-        human: Optional[bool] = ...,
-        error_trace: Optional[bool] = ...,
-        filter_path: Optional[Union[str, Collection[str]]] = ...,
-        request_timeout: Optional[Union[int, float]] = ...,
-        ignore: Optional[Union[int, Collection[int]]] = ...,
-        opaque_id: Optional[str] = ...,
-        http_auth: Optional[Union[str, Tuple[str, str]]] = ...,
-        api_key: Optional[Union[str, Tuple[str, str]]] = ...,
-        params: Optional[MutableMapping[str, Any]] = ...,
-        headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
-    async def get_async_status(
-        self,
-        *,
-        id: Any,
-        pretty: Optional[bool] = ...,
-        human: Optional[bool] = ...,
-        error_trace: Optional[bool] = ...,
-        format: Optional[str] = ...,
-        filter_path: Optional[Union[str, Collection[str]]] = ...,
-        request_timeout: Optional[Union[int, float]] = ...,
-        ignore: Optional[Union[int, Collection[int]]] = ...,
-        opaque_id: Optional[str] = ...,
-        http_auth: Optional[Union[str, Tuple[str, str]]] = ...,
-        api_key: Optional[Union[str, Tuple[str, str]]] = ...,
-        params: Optional[MutableMapping[str, Any]] = ...,
-        headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...

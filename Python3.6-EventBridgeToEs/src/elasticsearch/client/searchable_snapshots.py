@@ -24,14 +24,15 @@ class SearchableSnapshotsClient(NamespacedClient):
         """
         Clear the cache of searchable snapshots.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/searchable-snapshots-apis.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/searchable-snapshots-apis.html>`_
 
         .. warning::
 
             This API is **experimental** so may include breaking changes
             or be removed in a future version
 
-        :arg index: A comma-separated list of index names
+        :arg index: A comma-separated list of index name to limit the
+            operation
         :arg allow_no_indices: Whether to ignore if a wildcard indices
             expression resolves into no concrete indices. (This includes `_all`
             string or when no indices have been specified)
@@ -53,7 +54,7 @@ class SearchableSnapshotsClient(NamespacedClient):
         """
         Mount a snapshot as a searchable index.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/searchable-snapshots-api-mount-snapshot.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/searchable-snapshots-api-mount-snapshot.html>`_
 
         .. warning::
 
@@ -89,7 +90,7 @@ class SearchableSnapshotsClient(NamespacedClient):
         """
         DEPRECATED: This API is replaced by the Repositories Metering API.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/searchable-snapshots-apis.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/searchable-snapshots-apis.html>`_
 
         .. warning::
 
@@ -113,7 +114,7 @@ class SearchableSnapshotsClient(NamespacedClient):
         """
         Retrieve shard-level statistics about searchable snapshots.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/searchable-snapshots-apis.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/searchable-snapshots-apis.html>`_
 
         .. warning::
 
@@ -136,7 +137,7 @@ class SearchableSnapshotsClient(NamespacedClient):
         """
         Retrieve node-level cache statistics about searchable snapshots.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/searchable-snapshots-apis.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/searchable-snapshots-apis.html>`_
 
         .. warning::
 

@@ -18,7 +18,6 @@
 from __future__ import unicode_literals
 
 import base64
-import warnings
 import weakref
 from datetime import date, datetime
 from functools import wraps
@@ -124,23 +123,11 @@ def _make_path(*parts):
 GLOBAL_PARAMS = ("pretty", "human", "error_trace", "format", "filter_path")
 
 
-def query_params(*es_query_params, **kwargs):
+def query_params(*es_query_params):
     """
     Decorator that pops all accepted parameters from method's kwargs and puts
     them in the params argument.
     """
-    body_params = kwargs.pop("body_params", None)
-    body_only_params = set(body_params or ()) - set(es_query_params)
-    body_name = kwargs.pop("body_name", None)
-    body_required = kwargs.pop("body_required", False)
-    type_possible_in_params = "type" in es_query_params
-
-    # There should be no APIs defined with both 'body_params' and a named body.
-    assert not (body_name and body_params)
-
-    # 'body_required' implies there's no named body and that body_params are defined.
-    assert not (body_name and body_required)
-    assert not body_required or body_params
 
     def _wrapper(func):
         @wraps(func)
@@ -156,126 +143,6 @@ def query_params(*es_query_params, **kwargs):
 
             http_auth = kwargs.pop("http_auth", None)
             api_key = kwargs.pop("api_key", None)
-
-            # Detect when we should absorb body parameters into 'body'
-            # We only do this when there's no 'body' parameter, no
-            # positional arguments, and at least one parameter we can
-            # serialize in the body.
-            using_body_kwarg = kwargs.get("body", None) is not None
-            using_positional_args = args and len(args) > 1
-
-            # The 'doc_type' parameter is deprecated in the query
-            # string. This was generated and missed in 7.x so to
-            # push users to use 'type' instead of 'doc_type' in 8.x
-            # we deprecate it here.
-            if type_possible_in_params:
-                doc_type_in_params = params and "doc_type" in params
-                doc_type_in_kwargs = "doc_type" in kwargs
-
-                if doc_type_in_params or doc_type_in_kwargs:
-                    warnings.warn(
-                        "The 'doc_type' parameter is deprecated, use 'type' for this "
-                        "API instead. See https://github.com/elastic/elasticsearch-py/"
-                        "issues/1698 for more information",
-                        category=DeprecationWarning,
-                        stacklevel=2,
-                    )
-                if doc_type_in_params:
-                    params["type"] = params.pop("doc_type")
-                if doc_type_in_kwargs:
-                    kwargs["type"] = kwargs.pop("doc_type")
-
-            if using_body_kwarg or using_positional_args:
-                # If there are any body-only parameters then we raise a 'TypeError'
-                # to alert the user they have to either not use a 'body' parameter
-                # or to put the parameter into the body.
-                body_only_params_in_use = body_only_params.intersection(kwargs)
-                if body_only_params_in_use:
-                    # Make sure the error message prose makes sense!
-                    params_prose = "', '".join(sorted(body_only_params_in_use))
-                    plural_params = len(body_only_params_in_use) > 1
-
-                    raise TypeError(
-                        "The '%s' parameter%s %s only serialized in the request body "
-                        "and can't be combined with the 'body' parameter. Either stop using the "
-                        "'body' parameter and use keyword-arguments only or move the specified "
-                        "parameters into the 'body'. See https://github.com/elastic/elasticsearch-py/"
-                        "issues/1698 for more information"
-                        % (
-                            params_prose,
-                            "s" if plural_params else "",
-                            "are" if plural_params else "is",
-                        )
-                    )
-
-                # If there's no parameter overlap we still warn the user
-                # that the 'body' parameter is deprecated for this API.
-                if using_body_kwarg and body_params:
-                    warnings.warn(
-                        "The 'body' parameter is deprecated for the '%s' API and "
-                        "will be removed in 8.0.0. Instead use API parameters directly. "
-                        "See https://github.com/elastic/elasticsearch-py/issues/1698 for "
-                        "more information" % str(func.__name__),
-                        DeprecationWarning,
-                        stacklevel=2,
-                    )
-
-                # If positional arguments are being used we also warn about that being deprecated.
-                if using_positional_args:
-                    warnings.warn(
-                        "Using positional arguments for APIs is deprecated and will be "
-                        "disabled in 8.0.0. Instead use only keyword arguments for all APIs. "
-                        "See https://github.com/elastic/elasticsearch-py/issues/1698 for "
-                        "more information",
-                        DeprecationWarning,
-                        stacklevel=2,
-                    )
-
-            # We need to serialize all these parameters into a JSON body.
-            elif set(body_params or ()).intersection(kwargs):
-                body = {}
-                for param in body_params:
-                    value = kwargs.pop(param, None)
-                    if value is not None:
-                        body[param.rstrip("_")] = value
-                kwargs["body"] = body
-
-            # Since we've deprecated 'body' we set body={} if there
-            # should be a body on JSON-field APIs but none of those fields
-            # are filled.
-            elif body_required:
-                kwargs["body"] = {}
-
-            # If there's a named body parameter then we transform it to 'body'
-            # for backwards compatibility with libraries like APM.
-            # Otherwise we warn the user about 'body' being deprecated.
-            if body_name:
-                if body_name in kwargs:
-                    # If passed both 'body' and the named body param we raise an error.
-                    if using_body_kwarg:
-                        raise TypeError(
-                            "Can't use '%s' and 'body' parameters together because '%s' "
-                            "is an alias for 'body'. Instead you should only use the "
-                            "'%s' parameter. See https://github.com/elastic/elasticsearch-py/"
-                            "issues/1698 for more information"
-                            % (
-                                body_name,
-                                body_name,
-                                body_name,
-                            )
-                        )
-                    kwargs["body"] = kwargs.pop(body_name)
-
-                # Warn if user passes 'body' but should be using the named body parameter.
-                elif using_body_kwarg:
-                    warnings.warn(
-                        "The 'body' parameter is deprecated for the '%s' API and "
-                        "will be removed in 8.0.0. Instead use the '%s' parameter. "
-                        "See https://github.com/elastic/elasticsearch-py/issues/1698 "
-                        "for more information" % (str(func.__name__), body_name),
-                        category=DeprecationWarning,
-                        stacklevel=2,
-                    )
 
             if http_auth is not None and api_key is not None:
                 raise ValueError(

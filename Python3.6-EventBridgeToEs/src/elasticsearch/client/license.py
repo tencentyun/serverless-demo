@@ -24,7 +24,7 @@ class LicenseClient(NamespacedClient):
         """
         Deletes licensing information for the cluster
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/delete-license.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/delete-license.html>`_
         """
         return self.transport.perform_request(
             "DELETE", "/_license", params=params, headers=headers
@@ -35,7 +35,7 @@ class LicenseClient(NamespacedClient):
         """
         Retrieves licensing information for the cluster
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/get-license.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/get-license.html>`_
 
         :arg accept_enterprise: If the active license is an enterprise
             license, return type as 'enterprise' (default: false)
@@ -51,7 +51,7 @@ class LicenseClient(NamespacedClient):
         """
         Retrieves information about the status of the basic license.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/get-basic-status.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/get-basic-status.html>`_
         """
         return self.transport.perform_request(
             "GET", "/_license/basic_status", params=params, headers=headers
@@ -62,7 +62,7 @@ class LicenseClient(NamespacedClient):
         """
         Retrieves information about the status of the trial license.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/get-trial-status.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/get-trial-status.html>`_
         """
         return self.transport.perform_request(
             "GET", "/_license/trial_status", params=params, headers=headers
@@ -73,7 +73,7 @@ class LicenseClient(NamespacedClient):
         """
         Updates the license for the cluster.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/update-license.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/update-license.html>`_
 
         :arg body: licenses to be installed
         :arg acknowledge: whether the user has acknowledged acknowledge
@@ -88,7 +88,7 @@ class LicenseClient(NamespacedClient):
         """
         Starts an indefinite basic license.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/start-basic.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/start-basic.html>`_
 
         :arg acknowledge: whether the user has acknowledged acknowledge
             messages (default: false)
@@ -97,18 +97,22 @@ class LicenseClient(NamespacedClient):
             "POST", "/_license/start_basic", params=params, headers=headers
         )
 
-    @query_params("acknowledge", "type")
+    @query_params("acknowledge", "doc_type")
     def post_start_trial(self, params=None, headers=None):
         """
         starts a limited time trial license.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/start-trial.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/start-trial.html>`_
 
         :arg acknowledge: whether the user has acknowledged acknowledge
             messages (default: false)
-        :arg type: The type of trial license to generate (default:
+        :arg doc_type: The type of trial license to generate (default:
             "trial")
         """
+        # type is a reserved word so it cannot be used, use doc_type instead
+        if "doc_type" in params:
+            params["type"] = params.pop("doc_type")
+
         return self.transport.perform_request(
             "POST", "/_license/start_trial", params=params, headers=headers
         )

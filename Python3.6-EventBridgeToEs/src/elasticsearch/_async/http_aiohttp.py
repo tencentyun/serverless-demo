@@ -77,8 +77,6 @@ class AIOHttpConnection(AsyncConnection):
         self,
         host="localhost",
         port=None,
-        url_prefix="",
-        timeout=10,
         http_auth=None,
         use_ssl=False,
         verify_certs=VERIFY_CERTS_DEFAULT,
@@ -140,8 +138,6 @@ class AIOHttpConnection(AsyncConnection):
         super().__init__(
             host=host,
             port=port,
-            url_prefix=url_prefix,
-            timeout=timeout,
             use_ssl=use_ssl,
             headers=headers,
             http_compress=http_compress,
@@ -300,21 +296,11 @@ class AIOHttpConnection(AsyncConnection):
                 timeout=timeout,
                 fingerprint=self.ssl_assert_fingerprint,
             ) as response:
-                response_headers = {
-                    header.lower(): value for header, value in response.headers.items()
-                }
                 if is_head:  # We actually called 'GET' so throw away the data.
                     await response.release()
                     raw_data = ""
                 else:
-                    raw_data = await response.read()
-                    content_type = response_headers.get("content-type", "")
-
-                    # The 'application/vnd.mapbox-vector-file' type shouldn't be
-                    # decoded into text, instead should be forwarded as bytes.
-                    if content_type != "application/vnd.mapbox-vector-tile":
-                        raw_data = raw_data.decode("utf-8", "surrogatepass")
-
+                    raw_data = await response.text()
                 duration = self.loop.time() - start
 
         # We want to reraise a cancellation or recursion error.
@@ -358,7 +344,7 @@ class AIOHttpConnection(AsyncConnection):
             method, str(url), url_path, orig_body, response.status, raw_data, duration
         )
 
-        return response.status, response_headers, raw_data
+        return response.status, response.headers, raw_data
 
     async def close(self):
         """

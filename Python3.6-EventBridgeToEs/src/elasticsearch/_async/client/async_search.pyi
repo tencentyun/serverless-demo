@@ -15,24 +15,15 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-from typing import (
-    Any,
-    Collection,
-    Dict,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Tuple,
-    Union,
-)
+from typing import Any, Collection, MutableMapping, Optional, Tuple, Union
 
 from .utils import NamespacedClient
 
 class AsyncSearchClient(NamespacedClient):
     async def delete(
         self,
-        *,
         id: Any,
+        *,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -45,13 +36,13 @@ class AsyncSearchClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     async def get(
         self,
-        *,
         id: Any,
+        *,
         keep_alive: Optional[Any] = ...,
-        typed_keys: Optional[bool] = ...,
+        typed_keys: Optional[Any] = ...,
         wait_for_completion_timeout: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
@@ -65,38 +56,38 @@ class AsyncSearchClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     async def submit(
         self,
         *,
-        body: Optional[Mapping[str, Any]] = ...,
+        body: Optional[Any] = ...,
         index: Optional[Any] = ...,
         _source: Optional[Any] = ...,
         _source_excludes: Optional[Any] = ...,
         _source_includes: Optional[Any] = ...,
-        allow_no_indices: Optional[bool] = ...,
-        allow_partial_search_results: Optional[bool] = ...,
-        analyze_wildcard: Optional[bool] = ...,
+        allow_no_indices: Optional[Any] = ...,
+        allow_partial_search_results: Optional[Any] = ...,
+        analyze_wildcard: Optional[Any] = ...,
         analyzer: Optional[Any] = ...,
         batched_reduce_size: Optional[Any] = ...,
         default_operator: Optional[Any] = ...,
         df: Optional[Any] = ...,
         docvalue_fields: Optional[Any] = ...,
         expand_wildcards: Optional[Any] = ...,
-        explain: Optional[bool] = ...,
+        explain: Optional[Any] = ...,
         from_: Optional[Any] = ...,
-        ignore_throttled: Optional[bool] = ...,
-        ignore_unavailable: Optional[bool] = ...,
+        ignore_throttled: Optional[Any] = ...,
+        ignore_unavailable: Optional[Any] = ...,
         keep_alive: Optional[Any] = ...,
-        keep_on_completion: Optional[bool] = ...,
-        lenient: Optional[bool] = ...,
+        keep_on_completion: Optional[Any] = ...,
+        lenient: Optional[Any] = ...,
         max_concurrent_shard_requests: Optional[Any] = ...,
         preference: Optional[Any] = ...,
         q: Optional[Any] = ...,
-        request_cache: Optional[bool] = ...,
+        request_cache: Optional[Any] = ...,
         routing: Optional[Any] = ...,
         search_type: Optional[Any] = ...,
-        seq_no_primary_term: Optional[bool] = ...,
+        seq_no_primary_term: Optional[Any] = ...,
         size: Optional[Any] = ...,
         sort: Optional[Any] = ...,
         stats: Optional[Any] = ...,
@@ -107,10 +98,10 @@ class AsyncSearchClient(NamespacedClient):
         suggest_text: Optional[Any] = ...,
         terminate_after: Optional[Any] = ...,
         timeout: Optional[Any] = ...,
-        track_scores: Optional[bool] = ...,
-        track_total_hits: Optional[bool] = ...,
-        typed_keys: Optional[bool] = ...,
-        version: Optional[bool] = ...,
+        track_scores: Optional[Any] = ...,
+        track_total_hits: Optional[Any] = ...,
+        typed_keys: Optional[Any] = ...,
+        version: Optional[Any] = ...,
         wait_for_completion_timeout: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
@@ -124,11 +115,11 @@ class AsyncSearchClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     async def status(
         self,
-        *,
         id: Any,
+        *,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -141,4 +132,4 @@ class AsyncSearchClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...

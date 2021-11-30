@@ -15,16 +15,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-from typing import (
-    Any,
-    Collection,
-    Dict,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Tuple,
-    Union,
-)
+from typing import Any, Collection, MutableMapping, Optional, Tuple, Union
 
 from .utils import NamespacedClient
 
@@ -34,7 +25,7 @@ class IngestClient(NamespacedClient):
         *,
         id: Optional[Any] = ...,
         master_timeout: Optional[Any] = ...,
-        summary: Optional[bool] = ...,
+        summary: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -47,12 +38,12 @@ class IngestClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     def put_pipeline(
         self,
-        *,
         id: Any,
-        body: Mapping[str, Any],
+        *,
+        body: Any,
         master_timeout: Optional[Any] = ...,
         timeout: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
@@ -67,11 +58,11 @@ class IngestClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     def delete_pipeline(
         self,
-        *,
         id: Any,
+        *,
         master_timeout: Optional[Any] = ...,
         timeout: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
@@ -86,13 +77,13 @@ class IngestClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     def simulate(
         self,
         *,
-        body: Mapping[str, Any],
+        body: Any,
         id: Optional[Any] = ...,
-        verbose: Optional[bool] = ...,
+        verbose: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -105,7 +96,7 @@ class IngestClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     def processor_grok(
         self,
         *,
@@ -121,7 +112,7 @@ class IngestClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     def geo_ip_stats(
         self,
         *,
@@ -137,4 +128,4 @@ class IngestClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...

@@ -24,7 +24,7 @@ class SnapshotClient(NamespacedClient):
         """
         Creates a snapshot in a repository.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/modules-snapshots.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-snapshots.html>`_
 
         :arg repository: A repository name
         :arg snapshot: A snapshot name
@@ -51,7 +51,7 @@ class SnapshotClient(NamespacedClient):
         """
         Deletes a snapshot.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/modules-snapshots.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-snapshots.html>`_
 
         :arg repository: A repository name
         :arg snapshot: A snapshot name
@@ -69,26 +69,18 @@ class SnapshotClient(NamespacedClient):
             headers=headers,
         )
 
-    @query_params(
-        "ignore_unavailable",
-        "include_repository",
-        "index_details",
-        "master_timeout",
-        "verbose",
-    )
+    @query_params("ignore_unavailable", "index_details", "master_timeout", "verbose")
     def get(self, repository, snapshot, params=None, headers=None):
         """
         Returns information about a snapshot.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/modules-snapshots.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-snapshots.html>`_
 
         :arg repository: A repository name
         :arg snapshot: A comma-separated list of snapshot names
         :arg ignore_unavailable: Whether to ignore unavailable
             snapshots, defaults to false which means a SnapshotMissingException is
             thrown
-        :arg include_repository: Whether to include the repository name
-            in the snapshot info. Defaults to true.
         :arg index_details: Whether to include details of each index in
             the snapshot, if those details are available. Defaults to false.
         :arg master_timeout: Explicit operation timeout for connection
@@ -112,7 +104,7 @@ class SnapshotClient(NamespacedClient):
         """
         Deletes a repository.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/modules-snapshots.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-snapshots.html>`_
 
         :arg repository: Name of the snapshot repository to unregister.
             Wildcard (`*`) patterns are supported.
@@ -135,7 +127,7 @@ class SnapshotClient(NamespacedClient):
         """
         Returns information about a repository.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/modules-snapshots.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-snapshots.html>`_
 
         :arg repository: A comma-separated list of repository names
         :arg local: Return local information, do not retrieve the state
@@ -152,7 +144,7 @@ class SnapshotClient(NamespacedClient):
         """
         Creates a repository.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/modules-snapshots.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-snapshots.html>`_
 
         :arg repository: A repository name
         :arg body: The repository definition
@@ -178,7 +170,7 @@ class SnapshotClient(NamespacedClient):
         """
         Restores a snapshot.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/modules-snapshots.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-snapshots.html>`_
 
         :arg repository: A repository name
         :arg snapshot: A snapshot name
@@ -205,7 +197,7 @@ class SnapshotClient(NamespacedClient):
         """
         Returns information about the status of a snapshot.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/modules-snapshots.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-snapshots.html>`_
 
         :arg repository: A repository name
         :arg snapshot: A comma-separated list of snapshot names
@@ -227,7 +219,7 @@ class SnapshotClient(NamespacedClient):
         """
         Verifies a repository.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/modules-snapshots.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-snapshots.html>`_
 
         :arg repository: A repository name
         :arg master_timeout: Explicit operation timeout for connection
@@ -249,7 +241,7 @@ class SnapshotClient(NamespacedClient):
         """
         Removes stale data from repository.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/clean-up-snapshot-repo-api.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/clean-up-snapshot-repo-api.html>`_
 
         :arg repository: A repository name
         :arg master_timeout: Explicit operation timeout for connection
@@ -273,7 +265,7 @@ class SnapshotClient(NamespacedClient):
         """
         Clones indices from one snapshot into another snapshot in the same repository.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/modules-snapshots.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-snapshots.html>`_
 
         :arg repository: A repository name
         :arg snapshot: The name of the snapshot to clone from
@@ -302,7 +294,6 @@ class SnapshotClient(NamespacedClient):
         "max_blob_size",
         "max_total_data_size",
         "rare_action_probability",
-        "rarely_abort_writes",
         "read_node_count",
         "seed",
         "timeout",
@@ -311,7 +302,7 @@ class SnapshotClient(NamespacedClient):
         """
         Analyzes a repository for correctness and performance
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/modules-snapshots.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/modules-snapshots.html>`_
 
         :arg repository: A repository name
         :arg blob_count: Number of blobs to create during the test.
@@ -330,8 +321,6 @@ class SnapshotClient(NamespacedClient):
             create during the test, e.g '1tb' or '100gb'. Defaults to '1gb'.
         :arg rare_action_probability: Probability of taking a rare
             action such as an early read or an overwrite. Defaults to 0.02.
-        :arg rarely_abort_writes: Whether to rarely abort writes before
-            they complete. Defaults to 'true'.
         :arg read_node_count: Number of nodes on which to read a blob
             after writing. Defaults to 10.
         :arg seed: Seed for the random number generator used to create
