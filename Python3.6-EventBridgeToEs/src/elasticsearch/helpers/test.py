@@ -19,7 +19,6 @@
 
 import os
 import time
-from os.path import abspath, dirname, join
 from unittest import SkipTest, TestCase
 
 from elasticsearch import Elasticsearch
@@ -30,12 +29,10 @@ if "ELASTICSEARCH_URL" in os.environ:
 else:
     ELASTICSEARCH_URL = "https://elastic:changeme@localhost:9200"
 
-CA_CERTS = join(dirname(dirname(dirname(abspath(__file__)))), ".ci/certs/ca.pem")
-
 
 def get_test_client(nowait=False, **kwargs):
     # construct kwargs from the environment
-    kw = {"timeout": 30, "ca_certs": CA_CERTS}
+    kw = {"timeout": 30, "ca_certs": ".ci/certs/ca.pem"}
 
     if "PYTHON_CONNECTION_CLASS" in os.environ:
         from elasticsearch import connection
@@ -59,6 +56,13 @@ def get_test_client(nowait=False, **kwargs):
         raise SkipTest("Elasticsearch failed to start.")
 
 
+def _get_version(version_string):
+    if "." not in version_string:
+        return ()
+    version = version_string.strip().split(".")
+    return tuple(int(v) if v.isdigit() else 999 for v in version)
+
+
 class ElasticsearchTestCase(TestCase):
     @staticmethod
     def _get_client():
@@ -74,9 +78,6 @@ class ElasticsearchTestCase(TestCase):
         if self.es_version() >= (7, 7):
             expand_wildcards.append("hidden")
 
-        self.client.indices.delete_data_stream(
-            name="*", ignore=404, expand_wildcards=expand_wildcards
-        )
         self.client.indices.delete(
             index="*", ignore=404, expand_wildcards=expand_wildcards
         )
@@ -84,16 +85,6 @@ class ElasticsearchTestCase(TestCase):
 
     def es_version(self):
         if not hasattr(self, "_es_version"):
-            self._es_version = es_version(self.client)
+            version_string = self.client.info()["version"]["number"]
+            self._es_version = _get_version(version_string)
         return self._es_version
-
-
-def _get_version(version_string):
-    if "." not in version_string:
-        return ()
-    version = version_string.strip().split(".")
-    return tuple(int(v) if v.isdigit() else 999 for v in version)
-
-
-def es_version(client):
-    return _get_version(client.info()["version"]["number"])

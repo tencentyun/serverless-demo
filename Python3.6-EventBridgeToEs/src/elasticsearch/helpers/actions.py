@@ -20,7 +20,7 @@ import time
 from operator import methodcaller
 
 from ..compat import Mapping, Queue, map, string_types
-from ..exceptions import NotFoundError, TransportError
+from ..exceptions import TransportError
 from .errors import BulkIndexError, ScanError
 
 logger = logging.getLogger("elasticsearch.helpers")
@@ -237,7 +237,7 @@ def _process_bulk_chunk(
 
     try:
         # send the actual request
-        resp = client.bulk(*args, body="\n".join(bulk_actions) + "\n", **kwargs)
+        resp = client.bulk("\n".join(bulk_actions) + "\n", *args, **kwargs)
     except TransportError as e:
         gen = _process_bulk_chunk_error(
             error=e,
@@ -550,26 +550,9 @@ def scan(
         query = query.copy() if query else {}
         query["sort"] = "_doc"
 
-    # Grab options that should be propagated to every
-    # API call within this helper instead of just 'search()'
-    transport_kwargs = {}
-    for key in ("headers", "api_key", "http_auth"):
-        if key in kwargs:
-            transport_kwargs[key] = kwargs[key]
-
-    # If the user is using 'scroll_kwargs' we want
-    # to propagate there too, but to not break backwards
-    # compatibility we'll not override anything already given.
-    if scroll_kwargs is not None and transport_kwargs:
-        for key, val in transport_kwargs.items():
-            scroll_kwargs.setdefault(key, val)
-
     # initial search
-    search_kwargs = kwargs.copy()
-    if query:
-        search_kwargs.update(query)
     resp = client.search(
-        scroll=scroll, size=size, request_timeout=request_timeout, **search_kwargs
+        body=query, scroll=scroll, size=size, request_timeout=request_timeout, **kwargs
     )
     scroll_id = resp.get("_scroll_id")
 
@@ -602,16 +585,17 @@ def scan(
                             shards_total,
                         ),
                     )
-            resp = client.scroll(scroll_id=scroll_id, scroll=scroll, **scroll_kwargs)
+            resp = client.scroll(
+                body={"scroll_id": scroll_id, "scroll": scroll}, **scroll_kwargs
+            )
             scroll_id = resp.get("_scroll_id")
 
     finally:
         if scroll_id and clear_scroll:
             client.clear_scroll(
-                scroll_id=scroll_id,
+                body={"scroll_id": [scroll_id]},
                 ignore=(404,),
                 params={"__elastic_client_meta": (("h", "s"),)},
-                **transport_kwargs
             )
 
 
@@ -623,7 +607,6 @@ def reindex(
     target_client=None,
     chunk_size=500,
     scroll="5m",
-    op_type=None,
     scan_kwargs={},
     bulk_kwargs={},
 ):
@@ -653,9 +636,6 @@ def reindex(
     :arg chunk_size: number of docs in one chunk sent to es (default: 500)
     :arg scroll: Specify how long a consistent view of the index should be
         maintained for scrolled search
-    :arg op_type: Explicit operation type. Defaults to '_index'. Data streams must
-        be set to 'create'. If not specified, will auto-detect if target_index is a
-        data stream.
     :arg scan_kwargs: additional kwargs to be passed to
         :func:`~elasticsearch.helpers.scan`
     :arg bulk_kwargs: additional kwargs to be passed to
@@ -664,41 +644,18 @@ def reindex(
     target_client = client if target_client is None else target_client
     docs = scan(client, query=query, index=source_index, scroll=scroll, **scan_kwargs)
 
-    def _change_doc_index(hits, index, op_type):
+    def _change_doc_index(hits, index):
         for h in hits:
             h["_index"] = index
-            if op_type is not None:
-                h["_op_type"] = op_type
             if "fields" in h:
                 h.update(h.pop("fields"))
             yield h
 
     kwargs = {"stats_only": True}
     kwargs.update(bulk_kwargs)
-
-    is_data_stream = False
-    try:
-        # Verify if the target_index is data stream or index
-        data_streams = target_client.indices.get_data_stream(
-            target_index, expand_wildcards="all"
-        )
-        is_data_stream = any(
-            data_stream["name"] == target_index
-            for data_stream in data_streams["data_streams"]
-        )
-    except (TransportError, KeyError, NotFoundError):
-        # If its not data stream, might be index
-        pass
-
-    if is_data_stream:
-        if op_type not in (None, "create"):
-            raise ValueError("Data streams must have 'op_type' set to 'create'")
-        else:
-            op_type = "create"
-
     return bulk(
         target_client,
-        _change_doc_index(docs, target_index, op_type),
+        _change_doc_index(docs, target_index),
         chunk_size=chunk_size,
         **kwargs
     )

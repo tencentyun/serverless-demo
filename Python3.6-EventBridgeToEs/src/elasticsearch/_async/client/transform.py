@@ -24,7 +24,7 @@ class TransformClient(NamespacedClient):
         """
         Deletes an existing transform.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/delete-transform.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/delete-transform.html>`_
 
         :arg transform_id: The id of the transform to delete
         :arg force: When `true`, the transform is deleted regardless of
@@ -48,7 +48,7 @@ class TransformClient(NamespacedClient):
         """
         Retrieves configuration information for transforms.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/get-transform.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/get-transform.html>`_
 
         :arg transform_id: The id or comma delimited list of id
             expressions of the transforms to get, '_all' or '*' implies get all
@@ -62,6 +62,7 @@ class TransformClient(NamespacedClient):
         :arg size: specifies a max number of transforms to get, defaults
             to 100
         """
+        # from is a reserved word so it cannot be used, use from_ instead
         if "from_" in params:
             params["from"] = params.pop("from_")
 
@@ -77,7 +78,7 @@ class TransformClient(NamespacedClient):
         """
         Retrieves usage information for transforms.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/get-transform-stats.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/get-transform-stats.html>`_
 
         :arg transform_id: The id of the transform for which to get
             stats. '_all' or '*' implies all transforms
@@ -88,6 +89,7 @@ class TransformClient(NamespacedClient):
         :arg size: specifies a max number of transform stats to get,
             defaults to 100
         """
+        # from is a reserved word so it cannot be used, use from_ instead
         if "from_" in params:
             params["from"] = params.pop("from_")
 
@@ -108,7 +110,7 @@ class TransformClient(NamespacedClient):
         """
         Previews a transform.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/preview-transform.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/preview-transform.html>`_
 
         :arg body: The definition for the transform to preview
         """
@@ -124,7 +126,7 @@ class TransformClient(NamespacedClient):
         """
         Instantiates a transform.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/put-transform.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/put-transform.html>`_
 
         :arg transform_id: The id of the new transform.
         :arg body: The transform definition
@@ -148,7 +150,7 @@ class TransformClient(NamespacedClient):
         """
         Starts one or more transforms.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/start-transform.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/start-transform.html>`_
 
         :arg transform_id: The id of the transform to start
         :arg timeout: Controls the time to wait for the transform to
@@ -177,7 +179,7 @@ class TransformClient(NamespacedClient):
         """
         Stops one or more transforms.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/stop-transform.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/stop-transform.html>`_
 
         :arg transform_id: The id of the transform to stop
         :arg allow_no_match: Whether to ignore if a wildcard expression
@@ -209,7 +211,7 @@ class TransformClient(NamespacedClient):
         """
         Updates certain properties of a transform.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/update-transform.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/update-transform.html>`_
 
         :arg transform_id: The id of the transform.
         :arg body: The update transform definition

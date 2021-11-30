@@ -29,6 +29,9 @@ def main_handler(event, context):
     es_pswd = os.getenv("ES_PASSWORD")
     es_index_name = os.getenv("ES_INDEX_NAME")
 
+    if not es_index_name:
+        raise ValueError("ES_INDEX_NAME is empty")
+
     print("Received event: " + json.dumps(event, indent=4))
     print("Received context: " + str(context))
     event_list = []
@@ -40,7 +43,11 @@ def main_handler(event, context):
         return "error, empty event"
 
     iplist = es_address.split(",")
-    es = Elasticsearch(iplist, port=es_port, http_auth=(es_user, es_pswd))
+    if es_user and es_pswd:
+        auth_info = (es_user, es_pswd)
+    else:
+        auth_info = None
+    es = Elasticsearch(iplist, port=es_port, http_auth=auth_info)
 
     bulk(es, gen_index(event_list, es_index_name))
     return 'ok'

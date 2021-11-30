@@ -15,17 +15,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-from typing import (
-    Any,
-    Collection,
-    Dict,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Sequence,
-    Tuple,
-    Union,
-)
+from typing import Any, Collection, MutableMapping, Optional, Tuple, Union
 
 from .utils import NamespacedClient
 
@@ -33,18 +23,18 @@ class TextStructureClient(NamespacedClient):
     def find_structure(
         self,
         *,
-        body: Union[Sequence[Mapping[str, Any]], bytes, str],
+        body: Any,
         charset: Optional[Any] = ...,
         column_names: Optional[Any] = ...,
         delimiter: Optional[Any] = ...,
-        explain: Optional[bool] = ...,
+        explain: Optional[Any] = ...,
         format: Optional[Any] = ...,
         grok_pattern: Optional[Any] = ...,
-        has_header_row: Optional[bool] = ...,
+        has_header_row: Optional[Any] = ...,
         line_merge_size_limit: Optional[Any] = ...,
         lines_to_sample: Optional[Any] = ...,
         quote: Optional[Any] = ...,
-        should_trim_fields: Optional[bool] = ...,
+        should_trim_fields: Optional[Any] = ...,
         timeout: Optional[Any] = ...,
         timestamp_field: Optional[Any] = ...,
         timestamp_format: Optional[Any] = ...,
@@ -59,4 +49,4 @@ class TextStructureClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...

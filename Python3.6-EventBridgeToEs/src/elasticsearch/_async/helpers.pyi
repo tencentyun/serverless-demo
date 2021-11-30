@@ -100,7 +100,6 @@ async def async_reindex(
     target_client: Optional[AsyncElasticsearch] = ...,
     chunk_size: int = ...,
     scroll: str = ...,
-    op_type: str = ...,
     scan_kwargs: Optional[Mapping[str, Any]] = ...,
     bulk_kwargs: Optional[Mapping[str, Any]] = ...,
 ) -> Tuple[int, Union[int, List[Any]]]: ...

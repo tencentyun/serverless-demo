@@ -15,7 +15,7 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-from .utils import SKIP_IN_PATH, NamespacedClient, _make_path, query_params
+from .utils import NamespacedClient, _make_path, query_params
 
 
 class NodesClient(NamespacedClient):
@@ -26,7 +26,7 @@ class NodesClient(NamespacedClient):
         """
         Reloads secure settings.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/secure-settings.html#reloadable-secure-settings>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/secure-settings.html#reloadable-secure-settings>`_
 
         :arg body: An object containing the password for the
             elasticsearch keystore
@@ -48,7 +48,7 @@ class NodesClient(NamespacedClient):
         """
         Returns information about nodes in the cluster.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/cluster-nodes-info.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/cluster-nodes-info.html>`_
 
         :arg node_id: A comma-separated list of node IDs or names to
             limit the returned information; use `_local` to return information from
@@ -82,7 +82,7 @@ class NodesClient(NamespacedClient):
         """
         Returns statistical information about nodes in the cluster.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/cluster-nodes-stats.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/cluster-nodes-stats.html>`_
 
         :arg node_id: A comma-separated list of node IDs or names to
             limit the returned information; use `_local` to return information from
@@ -95,7 +95,7 @@ class NodesClient(NamespacedClient):
             metric to the specific index metrics. Isn't used if `indices` (or `all`)
             metric isn't specified.  Valid choices: _all, completion, docs,
             fielddata, query_cache, flush, get, indexing, merge, request_cache,
-            refresh, search, segments, store, warmer, suggest, shards
+            refresh, search, segments, store, warmer, suggest
         :arg completion_fields: A comma-separated list of fields for
             `fielddata` and `suggest` index metric (supports wildcards)
         :arg fielddata_fields: A comma-separated list of fields for
@@ -124,18 +124,20 @@ class NodesClient(NamespacedClient):
         )
 
     @query_params(
-        "ignore_idle_threads", "interval", "snapshots", "threads", "timeout", "type"
+        "doc_type", "ignore_idle_threads", "interval", "snapshots", "threads", "timeout"
     )
     def hot_threads(self, node_id=None, params=None, headers=None):
         """
         Returns information about hot threads on each node in the cluster.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/cluster-nodes-hot-threads.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/cluster-nodes-hot-threads.html>`_
 
         :arg node_id: A comma-separated list of node IDs or names to
             limit the returned information; use `_local` to return information from
             the node you're connecting to, leave empty to get information from all
             nodes
+        :arg doc_type: The type to sample (default: cpu)  Valid choices:
+            cpu, wait, block
         :arg ignore_idle_threads: Don't show threads that are in known-
             idle places, such as waiting on a socket select or pulling from an empty
             task queue (default: true)
@@ -145,9 +147,11 @@ class NodesClient(NamespacedClient):
         :arg threads: Specify the number of threads to provide
             information for (default: 3)
         :arg timeout: Explicit operation timeout
-        :arg type: The type to sample (default: cpu)  Valid choices:
-            cpu, wait, block
         """
+        # type is a reserved word so it cannot be used, use doc_type instead
+        if "doc_type" in params:
+            params["type"] = params.pop("doc_type")
+
         return self.transport.perform_request(
             "GET",
             _make_path("_nodes", node_id, "hot_threads"),
@@ -160,7 +164,7 @@ class NodesClient(NamespacedClient):
         """
         Returns low-level information about REST actions usage on nodes.
 
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/cluster-nodes-usage.html>`_
+        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.13/cluster-nodes-usage.html>`_
 
         :arg node_id: A comma-separated list of node IDs or names to
             limit the returned information; use `_local` to return information from
@@ -173,63 +177,6 @@ class NodesClient(NamespacedClient):
         return self.transport.perform_request(
             "GET",
             _make_path("_nodes", node_id, "usage", metric),
-            params=params,
-            headers=headers,
-        )
-
-    @query_params()
-    def clear_repositories_metering_archive(
-        self, node_id, max_archive_version, params=None, headers=None
-    ):
-        """
-        Removes the archived repositories metering information present in the cluster.
-
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/clear-repositories-metering-archive-api.html>`_
-
-        .. warning::
-
-            This API is **experimental** so may include breaking changes
-            or be removed in a future version
-
-        :arg node_id: Comma-separated list of node IDs or names used to
-            limit returned information.
-        :arg max_archive_version: Specifies the maximum archive_version
-            to be cleared from the archive.
-        """
-        for param in (node_id, max_archive_version):
-            if param in SKIP_IN_PATH:
-                raise ValueError("Empty value passed for a required argument.")
-
-        return self.transport.perform_request(
-            "DELETE",
-            _make_path(
-                "_nodes", node_id, "_repositories_metering", max_archive_version
-            ),
-            params=params,
-            headers=headers,
-        )
-
-    @query_params()
-    def get_repositories_metering_info(self, node_id, params=None, headers=None):
-        """
-        Returns cluster repositories metering information.
-
-        `<https://www.elastic.co/guide/en/elasticsearch/reference/7.15/get-repositories-metering-api.html>`_
-
-        .. warning::
-
-            This API is **experimental** so may include breaking changes
-            or be removed in a future version
-
-        :arg node_id: A comma-separated list of node IDs or names to
-            limit the returned information.
-        """
-        if node_id in SKIP_IN_PATH:
-            raise ValueError("Empty value passed for a required argument 'node_id'.")
-
-        return self.transport.perform_request(
-            "GET",
-            _make_path("_nodes", node_id, "_repositories_metering"),
             params=params,
             headers=headers,
         )

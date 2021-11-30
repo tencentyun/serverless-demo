@@ -15,25 +15,16 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-from typing import (
-    Any,
-    Collection,
-    Dict,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Tuple,
-    Union,
-)
+from typing import Any, Collection, MutableMapping, Optional, Tuple, Union
 
 from .utils import NamespacedClient
 
 class TransformClient(NamespacedClient):
     async def delete_transform(
         self,
-        *,
         transform_id: Any,
-        force: Optional[bool] = ...,
+        *,
+        force: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -46,13 +37,13 @@ class TransformClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     async def get_transform(
         self,
         *,
         transform_id: Optional[Any] = ...,
-        allow_no_match: Optional[bool] = ...,
-        exclude_generated: Optional[bool] = ...,
+        allow_no_match: Optional[Any] = ...,
+        exclude_generated: Optional[Any] = ...,
         from_: Optional[Any] = ...,
         size: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
@@ -67,12 +58,12 @@ class TransformClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     async def get_transform_stats(
         self,
-        *,
         transform_id: Any,
-        allow_no_match: Optional[bool] = ...,
+        *,
+        allow_no_match: Optional[Any] = ...,
         from_: Optional[Any] = ...,
         size: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
@@ -87,11 +78,11 @@ class TransformClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     async def preview_transform(
         self,
         *,
-        body: Mapping[str, Any],
+        body: Any,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -104,13 +95,13 @@ class TransformClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     async def put_transform(
         self,
-        *,
         transform_id: Any,
-        body: Mapping[str, Any],
-        defer_validation: Optional[bool] = ...,
+        *,
+        body: Any,
+        defer_validation: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -123,11 +114,11 @@ class TransformClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     async def start_transform(
         self,
-        *,
         transform_id: Any,
+        *,
         timeout: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
@@ -141,16 +132,16 @@ class TransformClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     async def stop_transform(
         self,
-        *,
         transform_id: Any,
-        allow_no_match: Optional[bool] = ...,
-        force: Optional[bool] = ...,
+        *,
+        allow_no_match: Optional[Any] = ...,
+        force: Optional[Any] = ...,
         timeout: Optional[Any] = ...,
-        wait_for_checkpoint: Optional[bool] = ...,
-        wait_for_completion: Optional[bool] = ...,
+        wait_for_checkpoint: Optional[Any] = ...,
+        wait_for_completion: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -163,13 +154,13 @@ class TransformClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     async def update_transform(
         self,
-        *,
         transform_id: Any,
-        body: Mapping[str, Any],
-        defer_validation: Optional[bool] = ...,
+        *,
+        body: Any,
+        defer_validation: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -182,4 +173,4 @@ class TransformClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...

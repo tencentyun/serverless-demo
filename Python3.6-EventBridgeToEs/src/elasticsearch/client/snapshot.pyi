@@ -15,28 +15,19 @@
 #  specific language governing permissions and limitations
 #  under the License.
 
-from typing import (
-    Any,
-    Collection,
-    Dict,
-    Mapping,
-    MutableMapping,
-    Optional,
-    Tuple,
-    Union,
-)
+from typing import Any, Collection, MutableMapping, Optional, Tuple, Union
 
 from .utils import NamespacedClient
 
 class SnapshotClient(NamespacedClient):
     def create(
         self,
-        *,
         repository: Any,
         snapshot: Any,
-        body: Optional[Mapping[str, Any]] = ...,
+        *,
+        body: Optional[Any] = ...,
         master_timeout: Optional[Any] = ...,
-        wait_for_completion: Optional[bool] = ...,
+        wait_for_completion: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -49,12 +40,12 @@ class SnapshotClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     def delete(
         self,
-        *,
         repository: Any,
         snapshot: Any,
+        *,
         master_timeout: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
@@ -68,17 +59,16 @@ class SnapshotClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     def get(
         self,
-        *,
         repository: Any,
         snapshot: Any,
-        ignore_unavailable: Optional[bool] = ...,
-        include_repository: Optional[bool] = ...,
-        index_details: Optional[bool] = ...,
+        *,
+        ignore_unavailable: Optional[Any] = ...,
+        index_details: Optional[Any] = ...,
         master_timeout: Optional[Any] = ...,
-        verbose: Optional[bool] = ...,
+        verbose: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -91,11 +81,11 @@ class SnapshotClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     def delete_repository(
         self,
-        *,
         repository: Any,
+        *,
         master_timeout: Optional[Any] = ...,
         timeout: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
@@ -110,12 +100,12 @@ class SnapshotClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     def get_repository(
         self,
         *,
         repository: Optional[Any] = ...,
-        local: Optional[bool] = ...,
+        local: Optional[Any] = ...,
         master_timeout: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
@@ -129,15 +119,15 @@ class SnapshotClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     def create_repository(
         self,
-        *,
         repository: Any,
-        body: Mapping[str, Any],
+        *,
+        body: Any,
         master_timeout: Optional[Any] = ...,
         timeout: Optional[Any] = ...,
-        verify: Optional[bool] = ...,
+        verify: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -150,15 +140,15 @@ class SnapshotClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     def restore(
         self,
-        *,
         repository: Any,
         snapshot: Any,
-        body: Optional[Mapping[str, Any]] = ...,
+        *,
+        body: Optional[Any] = ...,
         master_timeout: Optional[Any] = ...,
-        wait_for_completion: Optional[bool] = ...,
+        wait_for_completion: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
         error_trace: Optional[bool] = ...,
@@ -171,13 +161,13 @@ class SnapshotClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     def status(
         self,
         *,
         repository: Optional[Any] = ...,
         snapshot: Optional[Any] = ...,
-        ignore_unavailable: Optional[bool] = ...,
+        ignore_unavailable: Optional[Any] = ...,
         master_timeout: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
@@ -191,11 +181,11 @@ class SnapshotClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     def verify_repository(
         self,
-        *,
         repository: Any,
+        *,
         master_timeout: Optional[Any] = ...,
         timeout: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
@@ -210,11 +200,11 @@ class SnapshotClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     def cleanup_repository(
         self,
-        *,
         repository: Any,
+        *,
         master_timeout: Optional[Any] = ...,
         timeout: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
@@ -229,14 +219,14 @@ class SnapshotClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     def clone(
         self,
-        *,
         repository: Any,
         snapshot: Any,
         target_snapshot: Any,
-        body: Mapping[str, Any],
+        *,
+        body: Any,
         master_timeout: Optional[Any] = ...,
         pretty: Optional[bool] = ...,
         human: Optional[bool] = ...,
@@ -250,19 +240,18 @@ class SnapshotClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
     def repository_analyze(
         self,
-        *,
         repository: Any,
+        *,
         blob_count: Optional[Any] = ...,
         concurrency: Optional[Any] = ...,
-        detailed: Optional[bool] = ...,
+        detailed: Optional[Any] = ...,
         early_read_node_count: Optional[Any] = ...,
         max_blob_size: Optional[Any] = ...,
         max_total_data_size: Optional[Any] = ...,
         rare_action_probability: Optional[Any] = ...,
-        rarely_abort_writes: Optional[bool] = ...,
         read_node_count: Optional[Any] = ...,
         seed: Optional[Any] = ...,
         timeout: Optional[Any] = ...,
@@ -278,4 +267,4 @@ class SnapshotClient(NamespacedClient):
         api_key: Optional[Union[str, Tuple[str, str]]] = ...,
         params: Optional[MutableMapping[str, Any]] = ...,
         headers: Optional[MutableMapping[str, str]] = ...,
-    ) -> Dict[str, Any]: ...
+    ) -> Any: ...
