@@ -19,7 +19,7 @@
         "runtime": "Python3.6",
         "type": "event",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-EventBridgeToEs",
-        "version": "1.0.4",
+        "version": "1.0.5",
         "tags": [
             "Python3.6",
             "EventBridge",
