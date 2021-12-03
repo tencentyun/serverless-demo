@@ -2,6 +2,7 @@
 'use strict';
 
 const CosSdk = require('cos-nodejs-sdk-v5');
+const { CosUpload } = require('@annexwu-packages/cos-upload-utils');
 const CosConcatFileTask = require('./common/CosConcatFileTask');
 const {
   getParams,
@@ -26,6 +27,7 @@ exports.main_handler = async (event, context) => {
       key,
       sourceList,
       sourceConfigList,
+      defaultHashCheck,
     } = getParams(event, context);
 
     logger({
@@ -37,6 +39,17 @@ exports.main_handler = async (event, context) => {
       SecretId: secretId,
       SecretKey: secretKey,
       XCosSecurityToken: token,
+    });
+
+    const cosUpload = new CosUpload({
+      cos: {
+        SecretId: secretId,
+        SecretKey: secretKey,
+        XCosSecurityToken: token,
+      },
+      putObjectLimit: 8 * 1024 * 1024,
+      defaultChunkSize: 8 * 1024 * 1024,
+      defaultHashCheck,
     });
 
     for (const { url } of sourceConfigList) {
@@ -53,6 +66,7 @@ exports.main_handler = async (event, context) => {
 
     const task = new CosConcatFileTask({
       cosSdkInstance,
+      cosUpload,
       sourceList,
       targetBucket: bucket,
       targetRegion: region,

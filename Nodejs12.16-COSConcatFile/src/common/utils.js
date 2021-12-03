@@ -32,6 +32,7 @@ function getParams(event, { tencentcloud_appid }) {
     key,
     sourceList = [],
     sourceConfigList = [],
+    defaultHashCheck = 'false',
     ...args
   } = {
     ...process.env,
@@ -78,6 +79,7 @@ function getParams(event, { tencentcloud_appid }) {
     key,
     sourceList,
     sourceConfigList,
+    defaultHashCheck: ['true', true].includes(defaultHashCheck),
     ...args,
   };
 }

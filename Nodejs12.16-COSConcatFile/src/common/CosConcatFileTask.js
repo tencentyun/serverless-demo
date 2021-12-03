@@ -1,6 +1,5 @@
 /* eslint-disable no-param-reassign */
 const Async = require('async');
-const CosMultiUpload = require('./CosMultiUpload');
 const getMultipleReadStream = require('./getMultipleReadStream');
 const {
   getMetaFromUrl,
@@ -11,6 +10,7 @@ const {
 class CosConcatFileTask {
   constructor({
     cosSdkInstance,
+    cosUpload,
     sourceList,
     targetBucket,
     targetRegion,
@@ -18,6 +18,7 @@ class CosConcatFileTask {
   }) {
     Object.assign(this, {
       cosSdkInstance,
+      cosUpload,
       sourceList,
       targetBucket,
       targetRegion,
@@ -31,25 +32,26 @@ class CosConcatFileTask {
     try {
       await this.initSourceSize();
       await this.initSourceOffset();
-      const cosMultiUpload = new CosMultiUpload({
-        cosSdkInstance: this.cosSdkInstance,
-        mode: 'NEW_UPLOAD_ID_ONLY',
-      });
-      result = await cosMultiUpload.runTask({
+      result = await this.cosUpload.runTask({
         object: {
           Bucket: this.targetBucket,
           Region: this.targetRegion,
           Key: this.targetKey,
           ContentLength: this.totalSize,
         },
-        getReadStream: (start, end) => this.getReadStream(start, end),
+        getRangeReadStream: (start, end) => this.getReadStream(start, end),
+        getReadStream: () => this.getReadStream(0, this.totalSize),
       });
     } catch (err) {
       error = err;
     }
     return {
       params: {
-        sourceList: this.sourceList,
+        sourceList:
+          this.sourceList.length > 20
+            ? this.sourceList.slice(0, 20)
+            : this.sourceList,
+        sourceListLength: this.sourceList.length,
         targetBucket: this.targetBucket,
         targetRegion: this.targetRegion,
         targetKey: this.targetKey,
