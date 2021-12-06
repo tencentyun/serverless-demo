@@ -19,12 +19,13 @@
         "runtime": "Python3.6",
         "type": "event",
         "readme": "",
-        "version": "1.0.4",
+        "version": "1.0.5",
         "tags": [
             "Python3.6",
             "EventBridge",
             "COS",
-            "EventBridgeToCosConsumer"
+            "EventBridgeToCosConsumer",
+            "EB"
         ]
     }
 }

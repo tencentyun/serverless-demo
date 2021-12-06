@@ -5,5 +5,5 @@
     + ES_PORT es服务器端口
     + ES_USERNAME 用户名. (如果es服务器没有用户名密码， 则不传)
     + ES_PASSWORD 密码. (如果es服务器没有用户名密码， 则不传)
-    + ES_INDEX_NAME es创建的索引名称。 例如： es-index-demo
+    + ES_INDEX_NAME es创建的索引名称。 例如： es-index-demo ,(注意：不能包含大写字母)
 4. 在EventBridge中创建rule， 并将本函数作为target。 在eb接收到指定事件时，即可触发函数

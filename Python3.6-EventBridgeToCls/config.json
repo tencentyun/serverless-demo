@@ -19,12 +19,13 @@
         "runtime": "Python3.6",
         "type": "event",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-EventBridgeToCls",
-        "version": "1.0.2",
+        "version": "1.0.3",
         "tags": [
             "Python3.6",
             "EventBridge",
             "CLS",
-            "EventBridgeToCloudLogService"
+            "EventBridgeToCloudLogService",
+            "EB"
         ]
     }
 }

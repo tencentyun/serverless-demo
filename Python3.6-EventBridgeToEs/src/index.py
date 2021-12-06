@@ -31,6 +31,8 @@ def main_handler(event, context):
 
     if not es_index_name:
         raise ValueError("ES_INDEX_NAME is empty")
+    if not es_index_name.islower():
+        raise ValueError("ES_INDEX_NAME must be lowercase")
 
     print("Received event: " + json.dumps(event, indent=4))
     print("Received context: " + str(context))

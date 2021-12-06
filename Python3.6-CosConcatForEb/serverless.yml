@@ -17,3 +17,7 @@ inputs:
       value:
     - key: COS_BUCKET_DST
       value:
+    - key: MAX_FILE_SIZE_MB
+      value:
+    - key: MAX_TIME_RANGE_HOURS
+      value:
