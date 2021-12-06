@@ -46,17 +46,30 @@ def get_time_seq_from_name(file_name: str):
         return None, None
 
 
+def _is_int(text):
+    try:
+        int(text)
+        return True
+    except Exception:
+        return False
+
+
 def parse_split_setting_time(env_time_range):
     if not env_time_range:
         return None
     try:
-        time_hour = int(env_time_range)
-        if time_hour > 24 or time_hour < 1:
+        time_hour_float = float(env_time_range)
+        if time_hour_float < 0.25 or time_hour_float > 24:
             raise ValueError("时间范围错误")
-        time_range_seconds = time_hour * 60 * 60
-        return time_range_seconds
+        if time_hour_float >= 1:      # 1-24小时只允许整数小时
+            if not _is_int(env_time_range):
+                raise ValueError("1小时以上只允许填写整数")
+            time_hour = int(env_time_range)
+            return time_hour * 60 * 60
+        else:
+            return int(time_hour_float * 60 * 60)
     except Exception as e:
-        print(f"parse_file_size_time_limit error. env_time_range={env_time_range}", e)
+        print(f"parse_split_setting_time error. env_time_range={env_time_range}", e)
         raise e
 
 
