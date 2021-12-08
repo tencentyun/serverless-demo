@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "helloworld",
+            "description": "helloworld 空白模板函数",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "helloworld",
+            "description": "This is helloworld function.",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Nodejs14.18",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs14.18-helloworld",
+        "version": "1.0.0",
+        "tags": [
+            "Nodejs14.18",
+            "helloworld",
+            "new"
+        ]
+    }
+}
