@@ -27,6 +27,7 @@ function getParams({
     targetRegion,
     targetPrefix = '',
     backTrackDays = '3', // please do not set backTrackDays too large, it may cause scf timeout
+    subTaskDelay = '5000', // please do not set subTaskDelay too large, it may cause sub task delay too long
     ...args
   } = {
     ...process.env,
@@ -75,6 +76,7 @@ function getParams({
     targetRegion,
     targetPrefix,
     backTrackDays: parseInt(backTrackDays, 10),
+    subTaskDelay: parseInt(subTaskDelay, 10),
     triggerTime,
     triggerType,
     ...args,
