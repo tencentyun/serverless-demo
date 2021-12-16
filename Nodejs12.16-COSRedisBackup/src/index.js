@@ -35,6 +35,7 @@ exports.main_handler = async (event, context) => {
     targetRegion,
     targetPrefix,
     backTrackDays,
+    subTaskDelay,
     triggerTime,
     triggerType,
   } = getParams(event);
@@ -93,6 +94,7 @@ exports.main_handler = async (event, context) => {
         }),
         Namespace: context.namespace,
       },
+      subTaskDelay,
     }));
   } else {
     taskList = backupSplitInstanceList.map(({

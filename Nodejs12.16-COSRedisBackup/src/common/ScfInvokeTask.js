@@ -2,11 +2,12 @@ const ScfSdk = require('./ScfSdk');
 const { sleep } = require('./utils');
 
 class ScfInvokeTask {
-  constructor({ secretId, secretKey, token, params, ...args }) {
+  constructor({ secretId, secretKey, token, params, subTaskDelay, ...args }) {
     this.scfSdkInstance = new ScfSdk({ secretId, secretKey, token });
     Object.assign(this, {
       ...args,
       params,
+      subTaskDelay,
       status: 'waiting',
       cancelError: null,
     });
@@ -22,7 +23,7 @@ class ScfInvokeTask {
         action: 'Invoke',
         params: this.params,
       });
-      await sleep(5000);
+      await sleep(this.subTaskDelay);
     } catch (err) {
       error = err;
     }

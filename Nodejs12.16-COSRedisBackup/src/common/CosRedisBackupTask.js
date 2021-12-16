@@ -2,13 +2,12 @@
 /* eslint-disable no-param-reassign */
 const CosSdk = require('cos-nodejs-sdk-v5');
 const RedisSdk = require('./RedisSdk');
-const CosMultiUploadTask = require('./CosMultiUploadTask');
 const Async = require('async');
 const moment = require('moment');
+const { CosUpload } = require('@annexwu-packages/cos-upload-utils');
 const { crc64StreamPromise } = require('./crc64/index');
 const {
   retry,
-  getUUID,
   parseUrl,
   getMetaFromUrl,
   getRangeStreamFromUrl,
@@ -37,6 +36,15 @@ class CosRedisBackupTask {
       SecretKey: secretKey,
       XCosSecurityToken: token,
     });
+    this.cosUpload = new CosUpload({
+      cos: {
+        SecretId: secretId,
+        SecretKey: secretKey,
+        XCosSecurityToken: token,
+      },
+      putObjectLimit: 8 * 1024 * 1024,
+      defaultHashCheck: false,
+    });
     this.renewBackupUrlRetry = retry({
       func: (...args) => this.renewBackupUrl(...args),
     });
@@ -52,7 +60,6 @@ class CosRedisBackupTask {
         .format('YYYY-MM-DD HH:mm:ss'),
       status: 'waiting',
       cancelError: null,
-      runningUploadTask: {},
       backupUrlExpireTime: 5 * 60 * 60 * 1000,
     });
   }
@@ -80,17 +87,8 @@ class CosRedisBackupTask {
   async cancelTask(err = new Error('task is canceled')) {
     this.status = 'canceled';
     this.cancelError = err;
-    const taskIds = Object.keys(this.runningUploadTask);
-    for (const taskId of taskIds) {
-      try {
-        const task = this.runningUploadTask[taskId];
-        delete this.runningUploadTask[taskId];
-        await task.cancelTask(this.cancelError);
-      } catch (err) {}
-    }
   }
   async runOneTask(sourceUrl) {
-    const taskId = getUUID();
     let result;
     let error;
     // update sourceUrl to prevent expiration
@@ -127,23 +125,22 @@ class CosRedisBackupTask {
         if (this.status === 'canceled') {
           throw this.cancelError;
         }
-        const task = new CosMultiUploadTask({
-          cosSdkInstance: this.cosSdkInstance,
+        result = await this.cosUpload.runTask({
           object: {
             Bucket: this.targetBucket,
             Region: this.targetRegion,
             Key: targetKey,
             ContentLength: sourceMeta['content-length'],
-            Hash: sourceMeta['x-cos-hash-crc64ecma'],
           },
-          getReadStream: (start, end) => getRangeStreamFromUrl({
+          getRangeReadStream: (start, end) => getRangeStreamFromUrl({
             url: sourceUrl,
             start,
             end,
           }),
+          getReadStream: () => getRangeStreamFromUrl({
+            url: sourceUrl,
+          }),
         });
-        this.runningUploadTask[taskId] = task;
-        result = await task.runTask();
         await this.checkFileSame({
           sourceUrl,
           targetUrl,
@@ -155,7 +152,6 @@ class CosRedisBackupTask {
       error = err;
     } finally {
       clearInterval(renewInterval);
-      delete this.runningUploadTask[taskId];
     }
     return {
       params: {
@@ -279,7 +275,7 @@ class CosRedisBackupTask {
       await getMetaFromUrl(renewUrl);
       return renewUrl;
     }
-    throw new Error('get renew backup url error');
+    return sourceUrl;
   }
   getTargetKey({ sourceUrl, instanceId, instanceStartTime, instanceBackupId }) {
     const { key } = parseUrl(sourceUrl);
