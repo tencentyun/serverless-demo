@@ -10,17 +10,17 @@
         },
         "English": {
             "name": "helloworld",
-            "description": "This is helloworld function.",
+            "description": "This is helloworld function",
             "attention": "None",
             "author": {
                 "name": "Tencent Cloud"
             }
         },
-        "runtime": "Nodejs14.18",
-        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs14.18-helloworld",
+        "runtime": "Python3.7",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.7-helloworld",
         "version": "1.0.0",
         "tags": [
-            "Nodejs14.18",
+            "Python3.7",
             "helloworld"
         ]
     }
