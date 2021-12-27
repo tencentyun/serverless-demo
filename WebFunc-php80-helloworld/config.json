@@ -1,0 +1,30 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "Php8 Web 函数模版",
+            "description": "基于 Php8.0，使用 API 网关和 Web 函数，快速部署 Hello world 示例项目",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "Php80-WebDemo",
+            "description": "A HelloWorld demo for APIGW and php8.0 Web Function",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Php8.0",
+        "type": "web",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-php80-helloworld",
+        "version": "1.0.0",
+        "tags": [
+            "WebFunc",
+            "helloworld",
+            "Php8.0",
+            "web"
+        ]
+    }
+}

@@ -18,8 +18,8 @@
         },
         "runtime": "Go1",
         "type": "web",
-        "readme": "/Webfunc-Go1-HttpForwarding",
-        "version": "1.0.4",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-Go1-HttpForwarding",
+        "version": "1.0.5",
         "tags": [
             "WebFunc",
             "DataForwarding",

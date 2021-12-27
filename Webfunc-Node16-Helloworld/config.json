@@ -1,0 +1,30 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "Node16 Web 模版",
+            "description": "基于 Node.js 16，使用 API 网关和 Web 函数，快速部署 Hello world 示例项目",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "Node16-Demo",
+            "description": "A HelloWorld demo for APIGW and python Web Function",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Nodejs16.13",
+        "type": "web",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-Node16-Helloworld",
+        "version": "1.0.0",
+        "tags": [
+            "WebFunc",
+            "helloworld",
+            "Nodejs16.13",
+            "web"
+        ]
+    }
+}

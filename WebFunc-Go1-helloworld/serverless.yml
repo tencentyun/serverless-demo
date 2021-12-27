@@ -1,0 +1,24 @@
+component: scf
+name: ap-guangzhou_helloworld_demo_go1
+inputs:
+  name: Go1-WebDemo
+  src:
+    src: ./src
+  type: web
+  runtime: Go1
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 512
+  timeout: 3
+  triggers:
+     - type: apigw
+       name: SCF_API_SERVICE
+       protocols:
+        - http
+        - https
+       environment: release
+       netTypes:
+        - OUTER
+       apis:
+        - path: /
+          method: ANY
