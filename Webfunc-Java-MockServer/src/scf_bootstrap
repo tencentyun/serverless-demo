@@ -1,0 +1,2 @@
+#!/bin/bash
+/var/lang/java8/bin/java -jar moco-runner-1.2.0-standalone.jar http -p 9000 -c foo.json
