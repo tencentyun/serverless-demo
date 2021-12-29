@@ -18,8 +18,8 @@
         },
         "runtime": "Java8",
         "type": "web",
-        "readme": "https://github.com/dreamhead/moco",
-        "version": "0.1.2",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-Java-MockServer",
+        "version": "0.0.1",
         "tags": [
             "WebFunc",
             "Java8",
