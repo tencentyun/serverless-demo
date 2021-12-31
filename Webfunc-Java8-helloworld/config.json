@@ -1,0 +1,29 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "Java8 Web 函数模板",
+            "description": "基于 Java8，使用 API 网关和 Web 函数，快速部署 Hello world 示例项目。Get 方法，Path 为 /hello",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "Java8-WebDemo",
+            "description": "A HelloWorld demo for APIGW and Java8 Web Function.",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Java8",
+        "type": "web",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-Java8-helloworld",
+        "version": "1.0.0",
+        "tags": [
+            "WebFunc",
+            "Java8",
+            "helloworld"
+        ]
+    }
+}
