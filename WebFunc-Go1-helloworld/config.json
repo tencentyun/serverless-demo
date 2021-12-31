@@ -19,7 +19,7 @@
         "runtime": "Go1",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/WebFunc-Go1-helloworld",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "tags": [
             "WebFunc",
             "helloworld",
