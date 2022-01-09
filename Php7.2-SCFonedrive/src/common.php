@@ -572,7 +572,7 @@ function config_oauth()
         //$_SERVER['client_id'] = '4da3e7f2-bf6d-467c-aaf0-578078f0bf7c';
         //$_SERVER['client_secret'] = '7/+ykq2xkfx:.DWjacuIRojIaaWL0QI6';
         $_SERVER['client_id'] = '734ef928-d74c-4555-8d1b-d942fa0a1a41';
-        $_SERVER['client_secret'] = ':EK[e0/4vQ@mQgma8LmnWb6j4_C1CSIW';
+        $_SERVER['client_secret'] = '_I5gOpmG5vTC2Ts_K._wCW4nN1km~4Pk52';
         $_SERVER['oauth_url'] = 'https://login.microsoftonline.com/common/oauth2/v2.0/';
         $_SERVER['api_url'] = 'https://graph.microsoft.com/v1.0/me/drive/root';
         $_SERVER['scope'] = 'https://graph.microsoft.com/Files.ReadWrite.All offline_access';
@@ -581,8 +581,8 @@ function config_oauth()
     if (getConfig('Drive_ver')=='CN') {
         // CN
         // https://portal.azure.cn
-        $_SERVER['client_id'] = '04c3ca0b-8d07-4773-85ad-98b037d25631';
-        $_SERVER['client_secret'] = 'h8@B7kFVOmj0+8HKBWeNTgl@pU/z4yLB';
+        $_SERVER['client_id'] = '31f3bed5-b9d9-4173-86a4-72c73d278617';
+        $_SERVER['client_secret'] = 'P5-ZNtFK-tT90J.We_-DcsuB8uV7AfjL8Y';
         $_SERVER['oauth_url'] = 'https://login.partner.microsoftonline.cn/common/oauth2/v2.0/';
         $_SERVER['api_url'] = 'https://microsoftgraph.chinacloudapi.cn/v1.0/me/drive/root';
         $_SERVER['scope'] = 'https://microsoftgraph.chinacloudapi.cn/Files.ReadWrite.All offline_access';
@@ -1010,7 +1010,7 @@ function adminform($name = '', $pass = '', $path = '')
         $statusCode = 302;
         date_default_timezone_set('UTC');
         $header = [
-            'Set-Cookie' => $name.'='.$pass.'; path=/; expires='.date(DATE_COOKIE,strtotime('+1hour')),
+            'Set-Cookie' => $name.'='.$pass.'; path=' . $_SERVER['base_path'] . '; expires='.date(DATE_COOKIE,strtotime('+1hour')),
             'Location' => $path,
             'Content-Type' => 'text/html'
         ];
@@ -1677,7 +1677,7 @@ function EnvOpt($needUpdate = 0)
     asort($ShowedInnerEnv);
     $html = '<title>OneManager '.getconstStr('Setup').'</title>';
     if (isset($_POST['updateProgram'])&&$_POST['updateProgram']==getconstStr('updateProgram')) {
-        $response = setConfigResponse(OnekeyUpate($_POST['auth'], $_POST['project'], $_POST['branch']));
+        $response = setConfigResponse(OnekeyUpate($_POST['GitSource'], $_POST['auth'], $_POST['project'], $_POST['branch']));
         if (api_error($response)) {
             $html = api_error_msg($response);
             $title = 'Error';
@@ -1849,23 +1849,39 @@ function EnvOpt($needUpdate = 0)
         $html .= '
 '.getconstStr('CannotOneKeyUpate').'<br>';
     } else {
-        $html .= '
+        $html .= '<a href="https://github.com/qkqpttgf/OneManager-php" target="_blank">Github</a>
+<a href="https://git.hit.edu.cn/ysun/OneManager-php" target="_blank">HIT Gitlab</a><br><br>
 <form name="updateform" action="" method="post">
+    <input name="_admin" type="hidden" value="">
+    Update from
+    <select name="GitSource" onchange="changeGitSource(this)">
+        <option value="Github" selected>Github</option>
+        <option value="HITGitlab">HIT Gitlab</option>
+    </select>
     <input type="text" name="auth" size="6" placeholder="auth" value="qkqpttgf">
     <input type="text" name="project" size="12" placeholder="project" value="OneManager-php">
-    <button name="QueryBranchs" onclick="querybranchs();return false">'.getconstStr('QueryBranchs').'</button>
+    <button name="QueryBranchs" onclick="querybranchs(this);return false;">' . getconstStr('QueryBranchs') . '</button>
     <select name="branch">
         <option value="master">master</option>
     </select>
-    <input type="submit" name="updateProgram" value="'.getconstStr('updateProgram').'">
+    <input type="submit" name="updateProgram" value="' . getconstStr('updateProgram') . '">
 </form>
 <script>
-    function querybranchs()
-    {
+    function changeGitSource(d) {
+        if (d.options[d.options.selectedIndex].value=="Github") document.updateform.auth.value = "qkqpttgf";
+        if (d.options[d.options.selectedIndex].value=="HITGitlab") document.updateform.auth.value = "ysun";
+        document.updateform.QueryBranchs.style.display = null;
+        document.updateform.branch.options.length = 0;
+        document.updateform.branch.options.add(new Option("master", "master"));
+    }
+    function querybranchs(b) {
+        if (document.updateform.GitSource.options[document.updateform.GitSource.options.selectedIndex].value=="Github") return Githubquerybranchs(b);
+        if (document.updateform.GitSource.options[document.updateform.GitSource.options.selectedIndex].value=="HITGitlab") return HITquerybranchs(b);
+    }
+    function Githubquerybranchs(b) {
         var xhr = new XMLHttpRequest();
         xhr.open("GET", "https://api.github.com/repos/"+document.updateform.auth.value+"/"+document.updateform.project.value+"/branches");
         //xhr.setRequestHeader("User-Agent","qkqpttgf/OneManager");
-        xhr.send(null);
         xhr.onload = function(e){
             console.log(xhr.responseText+","+xhr.status);
             if (xhr.status==200) {
@@ -1874,7 +1890,8 @@ function EnvOpt($needUpdate = 0)
                     document.updateform.branch.options.add(new Option(e.name,e.name));
                     if ("master"==e.name) document.updateform.branch.options[document.updateform.branch.options.length-1].selected = true; 
                 });
-                document.updateform.QueryBranchs.style.display="none";
+                //document.updateform.QueryBranchs.style.display="none";
+                b.style.display="none";
             } else {
                 alert(xhr.responseText+"\n"+xhr.status);
             }
@@ -1882,6 +1899,49 @@ function EnvOpt($needUpdate = 0)
         xhr.onerror = function(e){
             alert("Network Error "+xhr.status);
         }
+        xhr.send(null);
+    }
+    function HITquerybranchs(b) {
+        // https://git.hit.edu.cn/api/v4/projects/383/repository/branches/
+        var pro_id;
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "https://git.hit.edu.cn/api/v4/projects");
+        //xhr.setRequestHeader("User-Agent","qkqpttgf/OneManager");
+        xhr.onload = function(e){
+            //console.log(xhr.responseText+","+xhr.status);
+            if (xhr.status==200) {
+                //document.updateform.branch.options.length=0;
+                JSON.parse(xhr.responseText).forEach( function (e) {
+                    if (e.name===document.updateform.project.value && e.namespace.path===document.updateform.auth.value) {
+                        //console.log(e.id);
+                        pro_id = e.id;
+                    }
+                });
+                //console.log(pro_id);
+                var xhr1 = new XMLHttpRequest();
+                xhr1.open("GET", "https://git.hit.edu.cn/api/v4/projects/"+pro_id+"/repository/branches");
+                xhr1.onload = function(e){
+                    if (xhr1.status==200) {
+                        document.updateform.branch.options.length=0;
+                        JSON.parse(xhr1.responseText).forEach( function (e) {
+                            document.updateform.branch.options.add(new Option(e.name,e.name));
+                            if ("master"==e.name) document.updateform.branch.options[document.updateform.branch.options.length-1].selected = true; 
+                        });
+                    } else {
+                        alert(xhr1.responseText+"\n"+xhr1.status);
+                    }
+                }
+                xhr1.send(null);
+                //document.updateform.QueryBranchs.style.display="none";
+                b.style.display="none";
+            } else {
+                alert(xhr.responseText+"\n"+xhr.status);
+            }
+        }
+        xhr.onerror = function(e){
+            alert("Network Error "+xhr.status);
+        }
+        xhr.send(null);
     }
 </script>
 ';
