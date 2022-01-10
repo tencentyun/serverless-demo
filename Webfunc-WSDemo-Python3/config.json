@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "WebSocket Server Demo",
+            "name": "WebSocketServerDemo",
             "description": "A WebSocket Server demo for APIGW and Python3 Web Function",
             "attention": "None",
             "author": {
@@ -19,7 +19,7 @@
         "runtime": "Python3.6",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-WSDemo-Python3",
-        "version": "0.1.0",
+        "version": "0.1.5",
         "tags": [
             "WebFunc",
             "Websocket",
