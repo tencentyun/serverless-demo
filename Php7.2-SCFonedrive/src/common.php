@@ -871,7 +871,7 @@ function needUpdate()
     $current_ver = explode(urldecode('%0A'),$current_ver)[0];
     $current_ver = explode(urldecode('%0D'),$current_ver)[0];
     //$github_version = file_get_contents('https://raw.githubusercontent.com/qkqpttgf/OneManager-php/master/version');
-    $tmp = curl_request('https://raw.githubusercontent.com/qkqpttgf/OneManager-php/master/version');
+    $tmp = curl_request('https://git.hit.edu.cn/ysun/OneManager-php/-/raw/master/version');
     if ($tmp['stat']==0) return 0;
     $github_version = $tmp['body'];
     $github_ver = substr($github_version, strpos($github_version, '.')+1);
