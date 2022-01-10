@@ -21,9 +21,9 @@
         "version": "1.0.0",
         "tags": [
             "Python2.7",
-            "Ckafka",
+            "Kafka",
             "COS",
-            "CkafkaToCos"
+            "KafkaToCos"
         ]
     }
 }
