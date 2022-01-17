@@ -10,7 +10,7 @@
             }
         },
         "English": {
-            "name": "Transcode",
+            "name": "TranscodeIntel",
             "description": "This example demonstrates triggering a cloud function from COS or a gateway, obtaining the source file download address, and transcoding based on ffmpeg using HTTP read stream, and this ffmpeg is intel version which will more fast than before.",
             "attention": "This example needs to configure the COS bucket information in the environment variable, and set the COS trigger or API gateway trigger to cooperate with.",
             "tutorial":" ",
