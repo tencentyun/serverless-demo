@@ -1,0 +1,33 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "音视频转码-Intel版",
+            "description": "使用COS+云函数+CFS（可选），快速构建音视频转码服务；此版本的ffmpeg是经过Intel优化的，在Intel CPU下能有更好的效率表现。",
+            "attention": "1. 本示例需要在环境变量配置COS的bucket信息，并设置COS触发器或者API网关触发器配合使用；2. 另外在函数配置中会使用运行角色来操作COS资源，需要确保有cos bucket的对象上传权限；3. 源文件所在bucket需要设置为公有读私有写。4. 此模版用于生产环境前请先自行编写业务代码。",
+            "tutorial":"https://cloud.tencent.com/document/product/583/47071",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "TranscodeIntel",
+            "description": "This example demonstrates triggering a cloud function from COS or a gateway, obtaining the source file download address, and transcoding based on ffmpeg using HTTP read stream, and this ffmpeg is intel version which will more fast than before.",
+            "attention": "This example needs to configure the COS bucket information in the environment variable, and set the COS trigger or API gateway trigger to cooperate with.",
+            "tutorial":" ",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Python3.6",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-TranscodeIntel",
+        "version": "1.0.2",
+        "tags": [
+            "Python3.6",
+            "COS",
+            "ffmpeg",
+            "Intel",
+            "CFS",
+            "Transcode"
+        ]
+    }
+}
