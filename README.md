@@ -86,7 +86,7 @@ CustomRuntime
             }
         },
         "English":{
-            "name": "DemoEnglishName",                       # This is the English name of demo. If it is java demo. Please keep the same name with jar package. No restrictions for non-java demos. Please do not add runtime information in the name.
+            "name": "DemoEnglishName",                       # 英文名称确定后不可修改且需要所有 demo 唯一，建议填写文件夹名称（去掉runtime）信息。例如：文件夹名称“Python3.6-newdemo”，英文名称为“newdemo”。This is the English name of demo. If it is java demo. Please keep the same name with jar package. No restrictions for non-java demos. Please do not add runtime information in the name.
             "description": "Demo English description.",      # The description of demo. You can describe the detail function.
             "attention": "The description of precautions.",  # The precautions for using the template will be shown in the view details.
             "author": {
