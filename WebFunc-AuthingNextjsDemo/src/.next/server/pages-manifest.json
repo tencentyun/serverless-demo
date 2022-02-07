@@ -1,0 +1,13 @@
+{
+  "/_app": "pages/_app.js",
+  "/api/callback": "pages/api/callback.js",
+  "/api/login": "pages/api/login.js",
+  "/api/logout": "pages/api/logout.js",
+  "/api/me": "pages/api/me.js",
+  "/": "pages/index.html",
+  "/ssg": "pages/ssg.html",
+  "/ssr": "pages/ssr.js",
+  "/_error": "pages/_error.js",
+  "/_document": "pages/_document.js",
+  "/404": "pages/404.html"
+}

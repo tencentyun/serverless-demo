@@ -1,0 +1,25 @@
+# 此 yml 仅做参考，请按照您的函数实际信息进行配置
+
+component: scf
+name: webDemo
+inputs: 
+  src: 
+    src: ./
+    exclude: 
+      - .env
+  # 指定 SCF 类型为 Web 类型
+  type: web
+  name: ${name} # 填入您的函数名称
+  region: ap-guangzhou
+  runtime: Nodejs16.13
+  memorySize: 512 # 内存大小，为保证性能，web 函数请配置 512 MB 及以上
+  events: 
+    - apigw: 
+        parameters: 
+          protocols: 
+            - http
+            - https
+          environment: release
+          endpoints: 
+            - path: /
+              method: ANY
