@@ -1,0 +1,23 @@
+component: scf
+name: ap-guangzhou_default_COSSCFCkafka
+inputs:
+  name: COSSCFCkafka
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Python3.6
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 5
+  environment:
+    - key: kafka_address
+      value: ckafka address
+    - key: kafka_topic_name
+      value: ckafka topic name
+  triggers:
+    - cos: # cos触发器
+      parameters:
+        qualifier: $DEFAULT
+        events: 'cos:ObjectCreated:*'
+        enable: true

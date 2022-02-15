@@ -1,0 +1,31 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "COS 消息转储至 Ckafka",
+            "description": "使用 COS 触发器将消息转储至指定的 CKafka",
+            "attention": "如需访问VPC内Kafka，需要为函数配置VPC网络并通过环境变量设置 kafka_address 和 kafka_topic_name",
+            "tutorial":" ",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "COSSCFCKafka",
+            "description": "This demo will forward the COS event to Ckafka as message",
+            "tutorial":" ",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Python3.6",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-COSSCFCkafka",
+        "version": "1.4.3",
+        "tags": [
+            "Python3.6",
+            "Ckafka",
+            "COS",
+            "consumer",
+            "ETL"
+        ]
+    }
+}
