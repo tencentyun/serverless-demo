@@ -15,9 +15,8 @@ inputs:
       value: ckafka address
     - key: kafka_topic_name
       value: ckafka topic name
-  triggers:
-    - cos: # cos触发器
-      parameters:
-        qualifier: $DEFAULT
-        events: 'cos:ObjectCreated:*'
-        enable: true
+  triggers: 
+    - type: cos                                    #COS触发器配置，选填，如模版代码运行依赖触发器则需要填写，会作为使用该模版创建函数时的默认触发器配置
+      enable: true
+      bucket: 
+      events: 'cos:ObjectCreated:*' 
