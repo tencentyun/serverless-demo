@@ -1,0 +1,60 @@
+app: nextjsAuthingAppName
+stage: dev
+component: nextjs
+name: nextjsInstance
+inputs:
+  region: ap-guangzhou
+  runtime: Nodejs16.13
+  entryFile: sls.js
+  src:
+    src: ./
+    dist: ./
+    hook: npm run build
+    exclude:
+      - .env
+      - node_modules/**
+  layers:
+    - name: layerName
+      version: 1
+  functionConf:
+    timeout: 3
+    eip: false
+    memorySize: 128
+  apigatewayConf:
+    customDomains:
+      - domain: abc.com
+        certificateId: abcdefg
+        isDefaultMapping: false
+        pathMappingSet:
+          - path: /
+            environment: release
+        protocols:
+          - http
+          - https
+    protocols:
+      - http
+      - https
+    environment: release
+    serviceTimeout: 60
+  staticConf:
+    cosConf:
+      bucket: static-bucket
+      acl:
+        permissions: public-read
+      sources:
+        - src: .next/static
+          targetDir: /_next/static
+        - src: public
+          targetDir: /
+    cdnConf:
+      area: mainland
+      domain: xxxx.xxx
+      autoRefresh: true
+      refreshType: delete
+      forceRedirect:
+        switch: on
+        redirectType: https
+        redirectStatusCode: 301
+      https:
+        http2: on
+        certId: "abc"

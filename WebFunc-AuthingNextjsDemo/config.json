@@ -1,0 +1,33 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "Authing Nextjs 框架模版",
+            "description": "基于 API 网关和 Web 函数，快速部署 Authing SSO 的 Nextjs 示例项目",
+            "attention": "无",
+            "author": {
+                "name": "Authing"
+            }
+        },
+        "English": {
+            "name": "Authing Nextjs Demo",
+            "description": "A Nextjs demo for APIGW and Node.js Web Function, implement Authing SSO",
+            "attention": "None",
+            "author": {
+                "name": "Authing"
+            }
+        },
+        "runtime": "Nodejs16.13",
+        "type": "web",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-AuthingNextjsDemo",
+        "version": "0.3.5",
+        "tags": [
+            "WebFunc",
+            "Nextjs",
+            "Nodejs12.16",
+            "SSR",
+            "web",
+            "SSO",
+            "Authing"
+        ]
+    }
+}

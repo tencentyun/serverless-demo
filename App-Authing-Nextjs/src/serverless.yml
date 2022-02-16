@@ -1,0 +1,17 @@
+component: nextjs
+name: nextjsAuthingDemo
+app: appDemo
+
+inputs:
+  src:
+    dist: ./
+    hook: npm run build
+    exclude:
+      - .env
+  region: ap-guangzhou
+  runtime: Nodejs16.13
+  apigatewayConf:
+    protocols:
+      - http
+      - https
+    environment: release
