@@ -19,7 +19,7 @@
         "runtime": "Nodejs16.13",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-AuthingNextjsDemo",
-        "version": "0.3.5",
+        "version": "1.3.5",
         "tags": [
             "WebFunc",
             "Nextjs",
