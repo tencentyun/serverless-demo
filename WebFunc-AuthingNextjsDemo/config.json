@@ -19,11 +19,11 @@
         "runtime": "Nodejs16.13",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-AuthingNextjsDemo",
-        "version": "1.3.5",
+        "version": "1.0.0",
         "tags": [
             "WebFunc",
             "Nextjs",
-            "Nodejs12.16",
+            "Nodejs16.13",
             "SSR",
             "web",
             "SSO",
