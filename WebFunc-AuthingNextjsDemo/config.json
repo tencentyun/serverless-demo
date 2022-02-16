@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "Authing Nextjs Demo",
+            "name": "AuthingNextjsDemo",
             "description": "A Nextjs demo for APIGW and Node.js Web Function, implement Authing SSO",
             "attention": "None",
             "author": {
