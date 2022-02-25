@@ -17,8 +17,13 @@ def main_handler(event, context):
     print(params)
     response = {
         'ttl': params['ttl'],
-        'ips': params['ips']
+        'ips': []
     }
+    # 当解析一个不存在的域名或者解析失败时，默认为0或空串，
+    # 而通过自定义解析功能，可将0排除，获取自定义的解析记录
+    for ip in params['ips']:
+        if ip != 0 and ip != '0' and ip != '':
+            response['ips'].append(ip)
 
 
     if params['hookType'] == "BEFORE_WRITE_CACHE": 
@@ -30,4 +35,5 @@ def main_handler(event, context):
         response['ips'].append('2.2.2.2')
 
     return(response)
+
 
