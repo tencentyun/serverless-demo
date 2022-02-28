@@ -9,4 +9,15 @@ inputs:
   handler: com.tencent.scfspringbootjava8.ScfHandler::mainHandler
   memorySize: 512
   timeout: 30
+  triggers:
+    - type: apigw
+      name: SCF_API_SERVICE
+      protocols:
+        - http
+      environment: release
+      apis:
+        - path: /todos
+          method: ANY
+          function:
+            isIntegratedResponse: true
 

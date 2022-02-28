@@ -51,7 +51,7 @@ public class ScfHandler {
         RestTemplate client = new RestTemplate();
         HttpEntity<String> entity = new HttpEntity<>(body, headers);
 
-        String url = "http://127.0.0.1:8080" + path;
+        String url = "http://127.0.0.1:8080" + path;//请保持端口号与服务端口号一致
 
         System.out.println("send request");
         ResponseEntity<String> response = client.exchange(url, httpMethod != null ? httpMethod : HttpMethod.GET, entity, String.class);
