@@ -2,7 +2,10 @@
 
 exports.main_handler = async (event, context, callback) => {
     const body=event['body']
-    var params = JSON.parse(body)
+    var params = null
+    // 底层的类型是string
+    if(typeof body === 'string') params = JSON.parse(body)
+    else params = body
 
     var {domainName, clientIp, location, hookType, ttl, ips} = params
 
