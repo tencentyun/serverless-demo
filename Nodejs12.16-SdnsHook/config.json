@@ -20,7 +20,7 @@
         "runtime": "Nodejs12.16",                      
         "type": "event",                          
         "readme":"https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-SdnsHook",                   
-        "version": "1.0.3",                          
+        "version": "1.0.5",                          
         "tags":[
             "Nodejs12.16", "HTTPDNS", "SDNS"
         ]                                            
