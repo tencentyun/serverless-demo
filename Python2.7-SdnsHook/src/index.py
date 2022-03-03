@@ -2,7 +2,11 @@
 import json
 
 def main_handler(event, context):
-    body = json.loads(event['body'])
+    body = None
+    if(type("") == type(event['body'])) :
+        body = json.loads(event['body'])
+    else :
+        body = event['body']
 
     print(body)
     params = {
