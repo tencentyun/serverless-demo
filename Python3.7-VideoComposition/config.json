@@ -1,0 +1,32 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "视频剪辑",
+            "description": "本示例使用API网关触发器和云函数快速构建视频剪辑服务，实现对单个视频的各种视频处理流程。并通过回调返回处理结果。",
+            "attention": "本示例使用到了API网关触发器，返回值需要构造为Json格式。此模版用于生产环境前请先确保代码符合业务需求。",
+            "tutorial": "https://cloud.tencent.com/document/product/583/30590",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "VideoComposition",
+            "description": "This demo uses API GW trigger and SCF to build video composition service. ",
+            "attention": "This demo has been used api gw. So the return value should be json format based on the requirement. Please make sure that the code meets your business requirements.",
+            "tutorial": " ",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Python3.7",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.7-VideoComposition",
+        "version": "1.1.3",
+        "tags": [
+            "Python3.7",
+            "APIGW",
+            "Video",
+            "FFmpeg",
+            "VOD"
+        ]
+    }
+}
