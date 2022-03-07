@@ -1,42 +1,25 @@
- create mode 100644 Python3.7-VideoComposition/urllib3/util/request.py
-app: ffmpeg-composition
 component: scf
+name: ap-guangzhou_default_VideoComposition
 inputs:
-  asyncRunEnable: true
-  description: 视频处理云函数
-  eip: false
-  events:
-    - apigw:
-        parameters:
-          endpoints:
-            - path: /ffmpeg-composition
-              enableCORS: false
-              function:
-                functionQualifier: $DEFAULT
-                isIntegratedResponse: false
-              isBase64Encoded: false
-              method: ANY
-              serviceTimeout: 30
-          environment: release
-          protocols:
-            - http
-            - https
-          serviceName: SCF_API_SERVICE
-  handler: index.main_handler
-  initTimeout: 65
-  memorySize: 3072
-  msgTTL: 21600
-  name: ffmpeg-composition
-  namespace: default
-  publicAccess: true
-  region: ap-chengdu
-  retryNum: 2
-  role: SCF_ExecuteRole
+  name: VideoComposition
+  src:
+    src: ./src
   runtime: Python3.7
-  src: ./src
+  region: ap-guangzhou
+  handler: index.main_handler
+  memorySize: 3072
   timeout: 30
-  type: event
-name: ap-chengdu_ffmpeg-composition
-stage: dev
-# When using this configuration file for deployment, make sure the file name is "serverless.yml".
-# For more information: https://github.com/serverless-components/tencent-scf/blob/master/docs/configure.md
+  triggers:
+    - type: apigw
+      name: SCF_API_SERVICE
+      protocols:
+        - http
+        - https
+      environment: release
+      netTypes:
+        - OUTER
+      apis:
+        - path: /video-composition
+          method: ANY
+          function:
+            isIntegratedResponse: false
