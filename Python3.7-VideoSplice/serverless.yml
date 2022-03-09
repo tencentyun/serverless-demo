@@ -1,0 +1,26 @@
+component: scf
+name: ap-guangzhou_default_VideoSplice
+inputs:
+  asyncRunEnable: true
+  name: VideoSplice
+  src:
+    src: ./src
+  runtime: Python3.7
+  region: ap-guangzhou
+  handler: index.main_handler
+  memorySize: 3072
+  timeout: 30
+  triggers:
+    - type: apigw
+      name: SCF_API_SERVICE
+      protocols:
+        - http
+        - https
+      environment: release
+      netTypes:
+        - OUTER
+      apis:
+        - path: /video-splice
+          method: ANY
+          function:
+            isIntegratedResponse: false
