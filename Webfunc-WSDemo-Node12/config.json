@@ -1,7 +1,7 @@
 {
     "serverless-cloud-function-application": {
         "Chinese": {
-            "name": "WebSocket Server 示例",
+            "name": "WebSocketServer示例_Node12",
             "description": "基于 API 网关和 Web 函数，快速创建一个 Node.js 的 WebSocket Server",
             "attention": "无",
             "author": {
@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "WebSocketServerDemo",
+            "name": "WebSocketServerDemoNode12",
             "description": "A WebSocket Server demo for APIGW and Node.js Web Function",
             "attention": "None",
             "author": {
@@ -19,7 +19,7 @@
         "runtime": "Nodejs12.16",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-WSDemo-Node12",
-        "version": "0.1.5",
+        "version": "0.1.8",
         "tags": [
             "WebFunc",
             "Websocket",
