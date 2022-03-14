@@ -5,6 +5,7 @@ inputs:
   src:
     src: ./src
   type: web
+  protocolType: WS
   runtime: Nodejs12.16
   namespace: default
   region: ap-guangzhou
