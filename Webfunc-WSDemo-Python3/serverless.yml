@@ -5,6 +5,7 @@ inputs:
   src:
     src: ./src
   type: web
+  protocolType: WS
   runtime: Python3.6
   namespace: default
   region: ap-guangzhou
