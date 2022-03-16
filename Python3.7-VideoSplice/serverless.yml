@@ -1,7 +1,7 @@
 component: scf
 name: ap-guangzhou_default_VideoSplice
 inputs:
-  asyncRunEnable: true
+  asyncRunEnable: TRUE
   name: VideoSplice
   src:
     src: ./src
@@ -23,4 +23,4 @@ inputs:
         - path: /video-splice
           method: ANY
           function:
-            isIntegratedResponse: false
+            isIntegratedResponse: FALSE
