@@ -1,0 +1,41 @@
+app: video-splice
+component: scf
+inputs:
+  asyncRunEnable: true
+  description: 视频处理云函数
+  eip: false
+  events:
+    - apigw:
+        parameters:
+          endpoints:
+            - path: /video-splice
+              enableCORS: false
+              function:
+                functionQualifier: $DEFAULT
+                isIntegratedResponse: false
+              isBase64Encoded: false
+              method: ANY
+              serviceTimeout: 30
+          environment: release
+          protocols:
+            - http
+            - https
+          serviceName: SCF_API_SERVICE
+  handler: index.main_handler
+  initTimeout: 65
+  memorySize: 3072
+  msgTTL: 21600
+  name: video-splice
+  namespace: default
+  publicAccess: true
+  region: ap-chengdu
+  retryNum: 2
+  role: SCF_ExecuteRole
+  runtime: Python3.7
+  src: ./
+  timeout: 30
+  type: event
+name: ap-chengdu_video-splice
+stage: dev
+# When using this configuration file for deployment, make sure the file name is "serverless.yml".
+# For more information: https://github.com/serverless-components/tencent-scf/blob/master/docs/configure.md
