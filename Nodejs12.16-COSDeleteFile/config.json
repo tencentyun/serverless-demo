@@ -1,0 +1,29 @@
+{
+	"serverless-cloud-function-application": {
+		"Chinese": {
+			"name": "COS对象删除",
+			"description": "本示例使用COS触发器，完成COS对象删除",
+			"attention": "该函数模板仅供 COS 控制台使用，请勿自行创建",
+			"author": {
+				"name": "腾讯云"
+			}
+		},
+		"English": {
+			"name": "COSDeleteFile",
+			"description": "This demo uses cos trigger and SCF to delete cos object from source bucket",
+			"attention": "This function template is only provided to COS console, please do not use it by yourself",
+			"author": {
+				"name": "Tencent Cloud"
+			}
+		},
+		"runtime": "Nodejs12.16",
+		"readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSDeleteFile",
+		"version": "1.0.2",
+		"tags": [
+			"Nodejs12.16",
+			"cos",
+			"delete file",
+			"cos delete file"
+		]
+	}
+}

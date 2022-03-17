@@ -1,0 +1,13 @@
+component: scf
+name: ap-guangzhou_default_COSDeleteFile
+inputs:
+  src:
+    src: ./src
+  handler: index.main_handler
+  memorySize: 512
+  name: COSDeleteFile
+  region: ap-guangzhou
+  runtime: Nodejs12.16
+  asyncRunEnable: TRUE
+  traceEnable: TRUE
+  timeout: 86400
