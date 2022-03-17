@@ -1,7 +1,7 @@
 {
     "serverless-cloud-function-application": {
         "Chinese": {
-            "name": "Express框架模版(Auth)",
+            "name": "Express框架模板(Auth)",
             "description": "基于CIAM登录认证能力和 Web 函数，快速部署预集成数字身份管控平台（公众版），即CIAM登录认能力的Express示例项目。部署后的Express项目，可直接使用CIAM提供的登录认证能力，无需再开发登录认证能力。",
             "attention": "1. 本示例提供预集成的CIAM登录认证能力，开发者可以基于现有能力快速实现登录、登出以及获取用户信息等。2. 如果开发者需要定制登录认证能力，可以参考官网产品文档-最佳实践中的开发文档实现。",
             "author": {
