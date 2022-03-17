@@ -3,10 +3,10 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  const user = req.session.user;
-  const isLogin = !!user;
-  const displayName = isLogin ? user.nickname || user.userName ||  user.email || user.phoneNumber  || 'Sample' : '';
-  res.render('index', { isLogin, displayName });
+  if (!req.cookies['CIAM_ACCESS_TOKEN']) {
+    res.render('index', { isLogin: false });
+  }
+  res.render('index', { isLogin: true });
 });
 
 module.exports = router;
