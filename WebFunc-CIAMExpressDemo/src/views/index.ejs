@@ -29,16 +29,53 @@
       <% if (!isLogin) { %>
         <button class="ciam-button" onclick="loginHandle()">登录</button>
       <% } else { %>
-        <div>
-          你好， <a href="/userinfo"><%= displayName %></a>
-        </div>
+        <div id="ciam-user"></div>
         <a class="ciam-logout" href="/logout">退出</a>
       <% } %>
     </div>
   </body>
   <script>
+    const parseCookie = str =>
+      str
+      .split(';')
+      .map(v => v.split('='))
+      .reduce((acc, v) => {
+        acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
+        return acc;
+      }, {});
+
+    let cookieObj = {};
+    if (document.cookie) {
+      cookieObj = parseCookie(document.cookie)
+    }
+    const ciamAccessToken = cookieObj.CIAM_ACCESS_TOKEN;
+    const ciamDisplayName = cookieObj.CIAM_DISPLAY_NAME;
+
+    const A_TAG_ID = "ciam-user-link";
+    const createATag = () => {
+      const link = document.createElement("a");
+      link.setAttribute("href", `/userinfo?ciamAccessToken=${ciamAccessToken}`);
+      link.setAttribute("id", A_TAG_ID)
+      const text=document.createTextNode('你好，' + ciamDisplayName);
+      link.appendChild(text);
+      return link;
+    }
+
+    const main = () => {
+      if (!!ciamAccessToken) {
+        if (document.getElementById(A_TAG_ID)) {
+          document.getElementById("ciam-user").removeChild(document.getElementById(A_TAG_ID));
+        }
+        const aTag = createATag();
+        document.getElementById("ciam-user").appendChild(aTag);
+      }
+    }
+
+    main();
+
     function loginHandle() {
       window.location.href = "/login";
     }
+    
   </script>
 </html>
