@@ -7,11 +7,11 @@ from os import getenv
 from pymysql.err import OperationalError
 
 # 从函数环境变量获取数据库信息
-DB_HOST = os.getenv('dbhost') #'sh-cdb-irye027y.sql.tencentcdb.com:63374'
-DB_USER = os.getenv('dbuser') #'root'
-DB_USER_PASSWORD = os.getenv('dbpwd')  #'abc123!@#'
-DB_DATABASE = os.getenv('dbdatabase') #'testDB'
-DB_TABLE = os.getenv('dbtable') #'table'
+DB_HOST = os.getenv('dbhost')
+DB_USER = os.getenv('dbuser')
+DB_USER_PASSWORD = os.getenv('dbpwd')
+DB_DATABASE = os.getenv('dbdatabase') 
+DB_TABLE = os.getenv('dbtable')
 
 logger = logging.getLogger()
 logger.setLevel(level=logging.INFO)
