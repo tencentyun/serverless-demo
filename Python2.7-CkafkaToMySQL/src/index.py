@@ -1,5 +1,9 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
+
+# 请确保使用的数据库网络与 SCF 网络互通，比如为 SCF 配置数据库所在的私有网络，或者配置可以与数据库网络互通的私有网络。
+
+
 import pymysql
 import os
 import logging
