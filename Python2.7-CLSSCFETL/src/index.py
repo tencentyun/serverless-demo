@@ -21,7 +21,7 @@ Clean_Word = {""}
 def cleanData(data):
     try:
         for word in Clean_Word:
-            data = record['content'].replace(word, "***")
+            data = data['content'].replace(word, "***")
         return data
     except:
         logger.error("Error occured when cleanning data")
@@ -31,7 +31,7 @@ def cleanData(data):
 def printData(records):
     for record in records:
         # 处理数据再写入
-        data = cleanData(data)
+        data = cleanData(record)
         # 打印结果
         try:
             print(data)
