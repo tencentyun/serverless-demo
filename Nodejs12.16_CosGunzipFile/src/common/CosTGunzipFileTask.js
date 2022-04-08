@@ -4,7 +4,14 @@ const tar = require('tar-stream');
 const EventEmitter = require('events');
 const TrashWriteStream = require('./TrashWriteStream');
 const { PassThrough } = require('stream');
-const { streamPipelinePromise } = require('./utils');
+const { inspect } = require('util');
+const {
+  streamPipelinePromise,
+  getMetaFromUrl,
+  getRangeStreamFromUrl,
+} = require('./utils');
+
+const DataCacheReadStream = require('./DataCacheReadStream');
 
 class CosTGunzipFileTask {
   constructor({
@@ -60,10 +67,11 @@ class CosTGunzipFileTask {
     return this.results;
   }
   runTaskOnce() {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const emitter = new EventEmitter();
       emitter.once('resolve', resolve);
       emitter.once('reject', (error) => {
+        console.log(inspect(error, { depth: 10 }));
         // ensure results constain error
         if (this.results.filter(item => item.error).length === 0) {
           this.results.push({
@@ -82,12 +90,23 @@ class CosTGunzipFileTask {
       let index = -1;
       let sourceEnded = false;
       let lastEntryTimer;
-      this.cosInstance
-        .getObjectStream({
-          Bucket: bucket,
-          Region: region,
-          Key: key,
-        })
+
+      const url = this.cosInstance.getObjectUrl({
+        Bucket: bucket,
+        Region: region,
+        Key: key,
+        Sign: true,
+        Expires: 24 * 60 * 60,
+      });
+      const meta = await getMetaFromUrl(url);
+      const dataCacheReadStream = new DataCacheReadStream({
+        totalSize: meta['content-length'] * 1,
+        blockSize: 8 * 1024 * 1024,
+        maxTaskSize: 10,
+        getRangeReadStream: ({ start, end }) => getRangeStreamFromUrl({ url, start, end }),
+      });
+
+      dataCacheReadStream
         .on('error', error => emitter.emit('reject', error))
         .on('end', () => (sourceEnded = true))
         .pipe(decompressStream, { end: false })
@@ -128,6 +147,7 @@ class CosTGunzipFileTask {
               next();
             }
           } catch (error) {
+            console.log(inspect(error, { depth: 10 }));
             this.results.push({
               params,
               error,

@@ -4,9 +4,12 @@
 /* eslint-disable no-restricted-syntax */
 'use strict';
 
+const request = require('request');
+const requestPromise = require('request-promise');
 const { URL } = require('url');
-const { pipeline } = require('stream');
+const { pipeline, PassThrough } = require('stream');
 const { inspect } = require('util');
+const requestPromiseRetry = retry({ func: requestPromise });
 
 /**
  * parse params from event and process.env
@@ -130,6 +133,92 @@ function parseUrl({ url }) {
 }
 
 /**
+ * get meta headers from url
+ */
+async function getMetaFromUrl(url) {
+  let meta;
+  try {
+    const { headers } = await requestPromiseRetry({
+      uri: url,
+      method: 'GET',
+      headers: {
+        range: 'bytes=0-0',
+      },
+      transform: (body, response) => response,
+    });
+    meta = headers;
+  } catch (err) {
+    if (err.statusCode !== 416) {
+      throw err;
+    }
+    // if response http code is 416, assume that file size is 0
+    const { headers } = await requestPromiseRetry({
+      uri: url,
+      method: 'GET',
+      transform: (body, response) => response,
+    });
+    meta = headers;
+  }
+  meta['content-length'] = meta['content-range']
+    ? parseInt(meta['content-range'].split('/')[1], 10)
+    : 0;
+  return meta;
+}
+/**
+ * get request stream with range
+ */
+function getRangeStreamFromUrl({ url, start, end, timeout = 5 * 60 * 1000 }) {
+  const headers =    start || end
+    ? {
+      range: `bytes=${start}-${end - 1}`,
+    }
+    : {};
+  let req = request({
+    url,
+    timeout,
+    headers,
+    forever: false,
+    agentOptions: {
+      keepAlive: false,
+    },
+  }).on('response', (response) => {
+    if (!`${response.statusCode}`.startsWith('2')) {
+      req.emit('error', {
+        url: url.replace(/(\?[\s\S]*)/g, ''),
+        statusCode: response.statusCode,
+        headers: response.headers || {},
+      });
+    }
+    req = null;
+  });
+  return readStreamAddPassThrough(req);
+}
+/**
+ * ReadStream add PassThrough, when ReadStream emit error, proxy error to PassThrough
+ */
+function readStreamAddPassThrough(readStream) {
+  const passThrough = new PassThrough();
+  readStream.on('error', err => passThrough.emit('error', err));
+  return readStream.pipe(passThrough);
+}
+/**
+ * cache all content of ReadStream to Buffer
+ */
+function readStreamToBuffer(stream) {
+  return new Promise((resolve, reject) => {
+    const buffers = [];
+    stream.on('error', reject);
+    stream.on('data', chunk => buffers.push(chunk));
+    stream.on('end', () => resolve(Buffer.concat(buffers)));
+  });
+}
+/**
+ * get an unique id
+ */
+function getUUID() {
+  return `${Date.now()}_${Math.random() * 1000}`;
+}
+/**
  * try to get stringify string of data
  */
 function tryStringify(data) {
@@ -236,6 +325,11 @@ function streamPipelinePromise(streams) {
 
 module.exports = {
   getParams,
+  getMetaFromUrl,
+  getRangeStreamFromUrl,
+  readStreamAddPassThrough,
+  readStreamToBuffer,
+  getUUID,
   tryStringify,
   logger,
   retry,
