@@ -1,7 +1,14 @@
 const path = require('path');
 const zlib = require('zlib');
 const { PassThrough } = require('stream');
-const { streamPipelinePromise } = require('./utils');
+const { inspect } = require('util');
+const {
+  streamPipelinePromise,
+  getMetaFromUrl,
+  getRangeStreamFromUrl,
+} = require('./utils');
+
+const DataCacheReadStream = require('./DataCacheReadStream');
 
 class CosSGunzipFileTask {
   constructor({
@@ -62,6 +69,7 @@ class CosSGunzipFileTask {
         break;
       } catch (err) {
         error = err;
+        console.log(inspect(error, { depth: 10 }));
         // if task is canceled or error cause by cancelError, do not retry
         if (
           this.cancelError
@@ -112,6 +120,19 @@ class CosSGunzipFileTask {
   }
   async gunzipAndUpload() {
     this.passThrough = new PassThrough();
+    const url = this.cosInstance.getObjectUrl({
+      ...this.params.getObjectStream,
+      Sign: true,
+      Expires: 24 * 60 * 60,
+    });
+    const meta = await getMetaFromUrl(url);
+    const dataCacheReadStream = new DataCacheReadStream({
+      totalSize: meta['content-length'] * 1,
+      blockSize: 8 * 1024 * 1024,
+      maxTaskSize: 10,
+      getRangeReadStream: ({ start, end }) => getRangeStreamFromUrl({ url, start, end }),
+    });
+
     const result = await Promise.all([
       this.cosUpload.runTask({
         object: {
@@ -120,9 +141,7 @@ class CosSGunzipFileTask {
         getReadStream: () => this.passThrough,
       }),
       streamPipelinePromise([
-        this.cosInstance.getObjectStream({
-          ...this.params.getObjectStream,
-        }),
+        dataCacheReadStream,
         zlib.createGunzip(),
         this.passThrough,
       ]),
