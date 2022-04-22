@@ -11,7 +11,9 @@ inputs:
   memorySize: 128
   timeout: 30
   environment:
-    variables:
-      ES_Address: ES_Address
-      ES_User: ES_User
-      ES_Password: ES_Password
+    - key: ES_Address
+      value: ES_Address
+    - key: ES_User
+      value: ES_User
+    - key: ES_Password
+      value: ES_Password
