@@ -1,0 +1,31 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "COS 文件内容通过公网转储至 Ckafka",
+            "description": "使用 COS 触发器将COS 文件内容通过公网转储至指定的 CKafka",
+            "attention": "COS和CKafka无须在同一个账户中,环境变量设置Ckafka相关信息：kafka_address、kafka_username、kafka_password、kafka_instanceId,kafka_topic_name，COS相关信息：appid、region、secret_id、secret_key",
+            "tutorial":" ",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "COSSCFCKafkaAcrossAccount",
+            "description": "This demo will forward the COS content to Ckafka as message by sasl",
+            "tutorial":" ",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Python3.6",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-COSSCFCkafkaAcrossAccount",
+        "version": "1.0.0",
+        "tags": [
+            "Python3.6",
+            "Ckafka",
+            "COS",
+            "consumer",
+            "ETL"
+        ]
+    }
+}
