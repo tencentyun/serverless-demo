@@ -1,0 +1,12 @@
+component: scf
+name: ap-guangzhou_default_CosExporter
+inputs:
+  name: CosExporter
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Nodejs12.16
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 512
+  timeout: 86400

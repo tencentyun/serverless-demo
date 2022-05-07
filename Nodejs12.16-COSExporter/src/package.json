@@ -1,0 +1,22 @@
+{
+  "name": "cos-exporter",
+  "version": "1.0.2",
+  "main": "index.js",
+  "license": "ISC",
+  "dependencies": {
+    "@annexwu-packages/cos-upload-utils": "0.0.8",
+    "async": "^3.2.0",
+    "camelcase": "^6.3.0",
+    "cos-nodejs-sdk-v5": "^2.9.13",
+    "es6": "npm:@elastic/elasticsearch@^6.8.8",
+    "es7": "npm:@elastic/elasticsearch@^7.17.0",
+    "fast-folder-size": "^1.6.1",
+    "fs-extra": "^10.0.0",
+    "jsonata": "^1.8.5",
+    "kafkajs": "^1.15.0",
+    "moment": "^2.29.1",
+    "request": "^2.88.0",
+    "request-promise": "^4.2.6",
+    "unbzip2-stream": "^1.4.3"
+  }
+}

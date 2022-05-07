@@ -1,0 +1,24 @@
+{
+  "serverless-cloud-function-application": {
+    "Chinese": {
+      "name": "COS 数据导出",
+      "description": "本函数将源 bucket 中的文件内容进行简易处理，处理后将结果导出",
+      "attention": "该函数模板仅供 COS 控制台使用，请勿自行创建",
+      "author": {
+        "name": "腾讯云"
+      }
+    },
+    "English": {
+      "name": "CosExporter",
+      "description": "This function will download cos files from source bucket, transform them, and export result",
+      "attention": "This function template is only provided to COS console, please do not use it by yourself",
+      "author": {
+        "name": "Tencent Cloud"
+      }
+    },
+    "runtime": "Nodejs12.16",
+    "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSExporter",
+    "version": "1.0.2",
+    "tags": ["Nodejs12.16", "exporter", "cos exporter"]
+  }
+}
