@@ -1,22 +1,25 @@
 const {
   cdn: {
-    v20180606: { Client: CdnClient, Models: CdnModels },
+    v20180606: { Client: CdnClient },
   },
-  common: { Credential },
 } = require('tencentcloud-sdk-nodejs');
 
 const { sleep, getMatchNumber, logger } = require('./utils');
 
 class CdnSdk {
   constructor({ secretId, secretKey, token }) {
-    this.credential = new Credential(secretId, secretKey, token);
+    this.credential = {
+      secretId,
+      secretKey,
+      token,
+    };
   }
   request({ action, params = {} }) {
     return new Promise((resolve, reject) => {
-      const client = new CdnClient(this.credential);
-      const req = new CdnModels[`${action}Request`]();
-      Object.assign(req, params);
-      client[action](req, (err, response) => {
+      const client = new CdnClient({
+        credential: this.credential,
+      });
+      client.request(action, params, (err, response) => {
         if (err) {
           return reject(err);
         }

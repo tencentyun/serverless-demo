@@ -98,7 +98,7 @@ class CosCdnRefreshTask {
   async purgeUrlsCache({ urls }) {
     try {
       const result = await this.cdnSdkInstance.requestRetry({
-        action: 'PurgeUrlsCache',
+        action: 'PurgeUrlsCacheAsync',
         params: {
           Urls: urls,
         },
