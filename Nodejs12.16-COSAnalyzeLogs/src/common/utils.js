@@ -187,7 +187,11 @@ function getParams(event, { function_name, tencentcloud_appid }) {
   }
 
   if (!bucket.endsWith(`${tencentcloud_appid}`)) {
-    throw new Error(`${bucket} does not belong to the owner`);
+    const appid = bucket.split('-').pop();
+    const isProjectId = /^(10\d{6}|20\d{4})$/.test(appid);
+    if (!isProjectId) {
+      throw new Error(`${bucket} does not belong to the owner`);
+    }
   }
 
   return {
