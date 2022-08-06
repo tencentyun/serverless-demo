@@ -10,15 +10,17 @@ inputs:
   region: ap-guangzhou
   memorySize: 512
   timeout: 3
-  triggers:
-     - type: apigw
-       name: SCF_API_SERVICE
-       protocols:
-        - http
-        - https
-       environment: release
-       netTypes:
-        - OUTER
-       apis:
-        - path: /
-          method: ANY
+  events:
+    - apigw:
+        parameters:
+          serviceName: SCF_API_SERVICE
+          protocols:
+            - http
+            - https
+          netTypes:
+            - OUTER
+          environment: release
+          endpoints:
+            - path: /
+              method: ANY
+              apiName: ${name}
