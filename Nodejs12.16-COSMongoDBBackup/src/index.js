@@ -63,6 +63,8 @@ exports.main_handler = async (event, context) => {
       targetRegion,
       targetPrefix,
       backTrackDays,
+      triggerTime,
+      triggerType,
     });
     const splitTaskResultList = await cosMongodbBackupTask.runBackupSplitTask({
       instanceList,
