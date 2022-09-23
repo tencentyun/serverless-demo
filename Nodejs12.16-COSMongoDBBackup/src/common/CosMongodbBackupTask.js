@@ -38,10 +38,13 @@ class CosMongodbBackupTask {
       triggerTime,
       backTrackDays,
       startTime: moment(triggerTime)
+        .utcOffset('+08:00')
         .subtract(backTrackDays, 'days')
         .startOf('day')
         .format('YYYY-MM-DD HH:mm:ss'),
-      endTime: moment(triggerTime).endOf('day')
+      endTime: moment(triggerTime)
+        .utcOffset('+08:00')
+        .endOf('day')
         .format('YYYY-MM-DD HH:mm:ss'),
       status: 'waiting',
       cancelError: null,
@@ -248,6 +251,12 @@ class CosMongodbBackupTask {
             InstanceId: instanceId,
             BackupMethod: 2,
           },
+        });
+        console.log({
+          triggerTime: this.triggerTime,
+          startTime: this.startTime,
+          endTime: this.endTime,
+          backupsLength: backups.length,
         });
         const availableBackups = backups.filter(item => item.Status === 2
             && moment(this.startTime).unix() <= moment(item.StartTime).unix()
