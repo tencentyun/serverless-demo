@@ -11,7 +11,7 @@ const generationAPI = new TLSSigAPIv2.Api(sdkappid, secret);
 
 app.use(bodyParser.json());
 
-// Routes-usa
+// Routes
 app.post("/", function (req, res) {
   const userID = `${req.body.userID}`;
   const userSig = generationAPI.genUserSig(userID, 600000);
