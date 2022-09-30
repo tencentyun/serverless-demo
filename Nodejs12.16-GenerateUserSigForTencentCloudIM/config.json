@@ -16,7 +16,7 @@
                 "name": "Tencent Cloud"
             }
         },
-        "runtime": "Node.js12.16",
+        "runtime": "Nodejs12.16",
         "type": "event",
         "readme":"generate-usersig-for-tencent-cloud-im",
         "version": "1.0.0",
