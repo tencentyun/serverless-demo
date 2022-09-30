@@ -1,0 +1,35 @@
+component: http
+name: http-express-flH3In19xx
+inputs:
+  src:
+    src: ./
+    exclude:
+      - .env
+  faas:
+    framework: express
+    name: '${name}'
+    runtime: Nodejs12.16
+    eip: false
+    timeout: 3
+    memorySize: 512
+    tags: []
+    environments:
+      - key: SDK_APP_ID
+        value: '1400187352'
+      - key: SECRET
+        value: f442d0cca069bbcc8ced55f4f113b965999b928c78e3cd83495728133a06f4cb
+    layers:
+      - name: '${output:${stage}:${app}:generate-usersig-layer.name}'
+        version: '${output:${stage}:${app}:generate-usersig-layer.version}'
+  apigw:
+    protocols:
+      - http
+      - https
+    timeout: 60
+    environment: release
+    customDomains: []
+  region: na-siliconvalley
+  isAutoCiDeploy: false
+org: '1258710235'
+app: generate-usersig
+stage: prod

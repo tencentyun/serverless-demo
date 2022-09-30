@@ -1,0 +1,15 @@
+{
+  "name": "express-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sls.js",
+  "scripts": {
+    "dev": "NODE_ENV=development node app.js"
+  },
+  "author": "yugasun",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1",
+    "tls-sig-api-v2": "^1.0.2"
+  }
+}
