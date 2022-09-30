@@ -17,9 +17,9 @@
             }
         },
         "runtime": "Nodejs12.16",
-        "type": "event",
+        "type": "web",
         "readme":"generate-usersig-for-tencent-cloud-im",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "tags":[
             "Node.js12.16", "Tencent Cloud IM", "Tencent Cloud Chat"
         ]
