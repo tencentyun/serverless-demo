@@ -1,0 +1,11 @@
+component: scf
+name: GenerateUserSigForTencentCloudIM
+inputs:
+  name: generate-usersig-for-tencent-cloud-im
+  src:
+    src: ./src
+  runtime: Nodejs12.16
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 3
