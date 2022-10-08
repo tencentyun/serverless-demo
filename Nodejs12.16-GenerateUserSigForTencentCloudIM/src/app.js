@@ -1,6 +1,7 @@
 const bodyParser = require('body-parser');
 const express = require("express");
 const path = require("path");
+const cors = require('cors');
 const TLSSigAPIv2 = require('tls-sig-api-v2');
 
 const sdkappid = process.env.SDK_APP_ID;
@@ -10,6 +11,9 @@ const app = express();
 const generationAPI = new TLSSigAPIv2.Api(sdkappid, secret);
 
 app.use(bodyParser.json());
+app.use(cors({
+  origin: '*'
+}));
 
 // Routes
 app.post("/", function (req, res) {
