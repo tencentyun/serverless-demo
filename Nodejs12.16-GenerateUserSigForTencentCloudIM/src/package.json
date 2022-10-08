@@ -4,7 +4,7 @@
   "description": "",
   "main": "sls.js",
   "scripts": {
-    "dev": "NODE_ENV=development node app.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "yugasun",
   "license": "MIT",
