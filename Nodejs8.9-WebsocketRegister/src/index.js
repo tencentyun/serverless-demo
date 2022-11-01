@@ -5,6 +5,7 @@ Reference: https://cloud.tencent.com/document/product/583/32553
 ***************************************************/
 
 // The url of API gateway's send back host, API网关的反向推送链接
+const sendBackHost = "**";
 // The information of MySql host, you need to build the database and forms in priority, there are 2 columns: `ConnectionID`, `Date`
 // MySql数据库账号信息,需要提前创建好数据库和表单,表单中新建2列：`ConnectionID`, `Date`
 const Host = "**";
