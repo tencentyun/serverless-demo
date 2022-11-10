@@ -1,5 +1,6 @@
 # -*- coding: utf8 -*-
 import json
+import requests
 
 def main_handler(event, context):
     body = None
@@ -8,17 +9,25 @@ def main_handler(event, context):
     else :
         body = event['body']
 
-    print(body)
     params = {
         'domainName': body['domainName'],
         'clientIp': body['clientIp'],
-        'location': body['location'],
         'hookType': body['hookType'],
         'ttl': body['ttl'],
         'ips': body['ips'],
     }
     
     print(params)
+
+    getIpInfoUrl = 'http://cip.cc/' + params['clientIp']
+    header={"User-Agent": "curl"}
+    res = requests.get(getIpInfoUrl, headers=header)
+
+    ipInfo = ''
+    if res.status_code == 200:
+        ipInfo = res.text    
+    print(ipInfo)
+
     response = {
         'ttl': params['ttl'],
         'ips': []

@@ -7,7 +7,21 @@ exports.main_handler = async (event, context, callback) => {
     if(typeof body === 'string') params = JSON.parse(body)
     else params = body
 
-    var {domainName, clientIp, location, hookType, ttl, ips} = params
+    var {domainName, clientIp, hookType, ttl, ips} = params
+
+    //打印客户端出口IP的具体信息
+    //此处为示例代码，可以根据具体使用场景进行调整
+
+    var request = require('request');
+    const getIpInfo_url = 'http://cip.cc/' + params.clientIp;
+    var IpInfo = null;
+
+    request.post({url:getIpInfo_url , headers: {"User-Agent": "curl"}}, function(error, response, body) {
+    if(!error && response.statusCode == 200){
+    IpInfo = body;
+    }
+    console.log(IpInfo);
+    })
 
     var response = {
         ttl: ttl,
