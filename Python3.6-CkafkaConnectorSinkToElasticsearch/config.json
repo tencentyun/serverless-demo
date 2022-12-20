@@ -1,0 +1,34 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "Ckafka 连接器实时消息转储至 ES",
+            "description": "使用Ckafka 连接器+云函数+ES+Kibana，提供日志转存和清洗能力，替代Logstash，成本更低，支持功能自定义。",
+            "attention": "本示例需在 Ckafka 连接器数据目标中使用，请在 CKafka 连接器数据目标中，选择本函数模板使用，注意由于入参的差别，本模板不可直接用于触发器场景。在使用本示例代码时需要在函数配置里添加环境变量和VPC配置；环境变量：ES_Address，ES_User，ES_Password，ES_Index_KeyWord，可选填入ES_Log_IgnoreWord，ES_Index_TimeFormat。",
+            "tutorial":"https://cloud.tencent.com/document/product/583/47077",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "CkafkaConnectorSinkToElasticsearch",
+            "description": "This demo will receive messages from Ckafka Connector sink and load messages to ElasticSearch automatically.",
+            "attention": "When using this demo, you need to add environment variables and VPC configuration in the function configuration; environment variables: ES_Address, ES_User, ES_Password, ES_Index_KeyWord; optional: ES_Log_IgnoreWord, ES_Index_TimeFormat.",
+            "tutorial":" ",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Python3.6",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-CkafkaConnectorSinkToElasticsearch",
+        "version": "1.0.0",
+        "tags": [
+            "Python3.6",
+            "Ckafka",
+            "Connector",
+            "sink",
+            "ES",
+            "Logstash",
+            "ETL"
+        ]
+    }
+}
