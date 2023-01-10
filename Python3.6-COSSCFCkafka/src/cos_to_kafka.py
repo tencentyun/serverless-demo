@@ -45,15 +45,13 @@ class CosToKafka(object):
                     key = None
                     value = json.dumps(data).encode('utf-8')
                     self.producer.send(topic, key = key, value = value).add_callback(on_send_success).add_errback(on_send_error)
-
                 # block until all async messages are sent
                 self.producer.flush()
         except KafkaError as e:
             return e
-        finally:
-            if self.producer is not None:
-                self.producer.close()
-
         e_time = time.time()
-
         return "{} messages delivered in {}s".format(count, e_time - s_time)
+    def close(self):
+        if self.producer is not None:
+            self.producer.flush()
+            self.producer.close()
