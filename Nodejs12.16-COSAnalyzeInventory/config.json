@@ -1,0 +1,24 @@
+{
+  "serverless-cloud-function-application": {
+    "Chinese": {
+      "name": "COS 清单文件简易分析",
+      "description": "本函数将源 bucket 中的 COS 清单文件进行简易分析，处理后将结果上传到指定 bucket",
+      "attention": "该函数模板仅供 COS 控制台使用，请勿自行创建",
+      "author": {
+        "name": "腾讯云"
+      }
+    },
+    "English": {
+      "name": "CosAnalyzeInventory",
+      "description": "This function will download cos inventory files from source bucket, analyze them, and upload result file to target bucket",
+      "attention": "This function template is only provided to COS console, please do not use it by yourself",
+      "author": {
+        "name": "Tencent Cloud"
+      }
+    },
+    "runtime": "Nodejs12.16",
+    "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSAnalyzeInventory",
+    "version": "1.0.8",
+    "tags": ["Nodejs12.16", "analyze inventory", "cos analyze inventory"]
+  }
+}
