@@ -46,8 +46,11 @@ class SqlserverSdk {
       list.push(...parts);
       if (parseInt(TotalCount, 10) === list.length) {
         break;
+      } else if (parts.length === 0) {
+        // 兜底措施，如果最近拉取到的页资源数为空，则不再进一步拉取，防止无限拉取
+        break;
       } else {
-        Offset += Limit;
+        Offset += 1;
       }
     }
     return list;
