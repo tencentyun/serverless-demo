@@ -5,7 +5,7 @@
             "description": "本示例会将EventBridge中的消息转存到COS中。",
             "attention": "在使用本示例代码时需要传递相关的环境变量给函数。",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,13 +13,13 @@
             "description": "This example consumes EventBridge data and push these data to COS.",
             "attention": "When using this sample code, you need to pass some env variables to this function.",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python3.6",
         "type": "event",
         "readme": "",
-        "version": "1.0.5",
+        "version": "1.0.6",
         "tags": [
             "Python3.6",
             "EventBridge",

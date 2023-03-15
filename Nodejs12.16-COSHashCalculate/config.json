@@ -5,7 +5,7 @@
 			"description": "本示例使用COS触发器，完成计算COS对象的哈希值，并添加到COS对象的自定义头部中",
 			"attention": "",
 			"author": {
-				"name": "腾讯云"
+				"name": "腾讯云社区开发者"
 			}
 		},
 		"English": {
@@ -13,12 +13,12 @@
 			"description": "This demo uses cos trigger and SCF to calculate hash of cos object, and add result to it's meta headers",
 			"attention": "",
 			"author": {
-				"name": "Tencent Cloud"
+				"name": "Tencent Cloud Community"
 			}
 		},
 		"runtime": "Nodejs12.16",
 		"readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSHashCalculate",
-		"version": "1.0.7",
+		"version": "1.0.8",
 		"tags": [
 			"Nodejs12.16",
 			"Hash",

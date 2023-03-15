@@ -5,7 +5,7 @@
             "description": "本示例演示了如何下载CDN的日志文件，使用流式分片的方式，存储到COS存储桶。该函数可以用于实现CDN日志定时存档等需求。",
             "attention": "无",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "Get logs by url and upload to COS by streaming.",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-CDNSaveLogIntoCOS",
-        "version": "1.6.5",
+        "version": "1.6.6",
         "tags": [
             "Python2.7",
             "CDN",

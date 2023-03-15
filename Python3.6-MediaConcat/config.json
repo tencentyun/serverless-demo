@@ -13,13 +13,13 @@
         "description": "This example demonstrates media files concat based on ffmpeg, and push media file to VOD service.",
         "attention": "This example needs to configure the API gateway trigger.",
         "author": {
-            "name": "Tencent Cloud"
+            "name": "Tencent Cloud Community"
         }
       },
       "runtime": "Python3.6",
       "handler": "index.main_handler",
       "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-MediaConcat",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "tags":[
             "Python3.6", "VOD", "media", "CFS", "video", "ffmpeg"
       ]

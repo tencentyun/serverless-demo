@@ -6,7 +6,7 @@
             "attention": "1. 本示例需要在环境变量配置COS的bucket信息，并设置API网关触发器配合使用；2. 另外在函数配置中会使用运行角色来操作COS资源，需要确保有cos bucket的对象上传权限；3. 源文件所在bucket需要设置为公有读私有写。",
             "tutorial":"https://cloud.tencent.com/document/product/583/47075",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -15,12 +15,12 @@
             "attention": "1. This example needs to configure the COS bucket information in the environment variables, and set the API gateway trigger to use; 2. In addition, in the function configuration, the operating role will be used to operate the COS resources, and the object upload permission of the cos bucket needs to be ensured; 3 . The bucket where the source file is located needs to be set to public read and private write.",
             "tutorial":" ",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-AddTextToPictures",
-        "version": "1.4.4",
+        "version": "1.4.5",
         "tags": [
             "Python2.7",
             "HTTP",

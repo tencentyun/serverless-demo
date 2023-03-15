@@ -5,7 +5,7 @@
       "description": "使用时间触发器定时调用函数对TDMQ消息进行消费，并将消息投递至指定COS Bucket。",
       "attention": "在使用本示例代码时需要传递相关函数的环境变量。",
       "author": {
-        "name": "腾讯云"
+        "name": "腾讯云社区开发者"
       }
     },
     "English": {
@@ -13,12 +13,12 @@
       "description": "TDMQ messages backup to COS",
       "attention": "When using this sample code, you need to pass the environment variables of related functions.",
       "author": {
-        "name": "Tencent Cloud"
+        "name": "Tencent Cloud Community"
       }
     },
     "runtime": "Go1",
     "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Go1-TDMQToCOS",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "tags": [
       "Go1",
       "TDMQ",

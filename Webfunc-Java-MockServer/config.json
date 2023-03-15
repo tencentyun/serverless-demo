@@ -5,7 +5,7 @@
             "description": "基于Moco实现的Mock server demo，如果要用于生产环境，请参考readme完成相关配置。",
             "attention": "无",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,13 +13,13 @@
             "description": "Based on the API gateway and Web functions, use Java&Moco to implement a Mock server.",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Java8",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-Java-MockServer",
-        "version": "0.0.1",
+        "version": "0.0.2",
         "tags": [
             "WebFunc",
             "Java8",

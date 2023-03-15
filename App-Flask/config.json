@@ -5,7 +5,7 @@
             "description": "本示例展示如何快速部署一个 Flask 应用服务。",
             "attention": "无",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,13 +13,13 @@
             "description": "This example shows how to deploy an Flask demo to Serverless",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python3.6",
         "type": "app",
         "readme": "https://github.com/serverless-components/tencent-examples/tree/master/flask-starter",
-        "version": "1.3.0",
+        "version": "1.3.1",
         "tags": [
             "Flask",
             "APIGW",

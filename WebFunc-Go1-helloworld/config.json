@@ -5,7 +5,7 @@
             "description": "基于 Go1，使用 API 网关和 Web 函数，快速部署 Hello world 示例项目",
             "attention": "无",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,13 +13,13 @@
             "description": "A HelloWorld demo for APIGW and Go1 Web Function",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Go1",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/WebFunc-Go1-helloworld",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "tags": [
             "WebFunc",
             "helloworld",

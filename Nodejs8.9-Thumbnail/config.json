@@ -6,7 +6,7 @@
             "attention": "该云函数需要配置 COS 触发器，另外在使用本示例代码时需要在函数里修改 appid、secret_id、secret_key、需要接收压缩后图片的bucket。",
             "tutorial":"https://cloud.tencent.com/document/product/583/9736",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -15,12 +15,12 @@
             "attention": "You should config COS trigger before you use it. Please change the appid,secret_id,secret_key",
             "tutorial":" ",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Nodejs8.9",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-Thumbnail",
-        "version": "1.1.8",
+        "version": "1.1.9",
         "tags": [
             "Nodejs8.9",
             "COS",

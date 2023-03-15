@@ -6,7 +6,7 @@
             "attention": "无。",
             "tutorial":"https://cloud.tencent.com/document/product/583/50724",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -15,12 +15,12 @@
             "attention": "None.",
             "tutorial":" ",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Nodejs8.9",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-TimerTask",
-        "version": "1.1.2",
+        "version": "1.1.3",
         "tags": [
             "Nodejs8.9",
             "timer task",

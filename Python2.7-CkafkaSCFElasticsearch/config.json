@@ -6,7 +6,7 @@
             "attention": "在使用本示例代码时需要在函数配置里添加环境变量和VPC配置；环境变量：ES_Address，ES_User，ES_Password。",
             "tutorial":"https://cloud.tencent.com/document/product/583/47077",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -15,12 +15,12 @@
             "attention": "Please change before you use it.",
             "tutorial":" ",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-CkafkaSCFElasticsearch",
-        "version": "1.13.3",
+        "version": "1.13.4",
         "tags": [
             "Python2.7",
             "Ckafka",

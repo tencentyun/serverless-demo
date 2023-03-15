@@ -5,7 +5,7 @@
 			"description": "本示例使用定时触发器，完成 CDN 日志文件备份到 COS",
 			"attention": "",
 			"author": {
-				"name": "腾讯云"
+				"name": "腾讯云社区开发者"
 			}
 		},
 		"English": {
@@ -13,12 +13,12 @@
 			"description": "This demo uses scheduled trigger and SCF to copy CDN log file to COS automaticly",
 			"attention": "",
 			"author": {
-				"name": "Tencent Cloud"
+				"name": "Tencent Cloud Community"
 			}
 		},
 		"runtime": "Nodejs12.16",
 		"readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSCDNLogBackup",
-		"version": "1.0.9",
+		"version": "1.0.10",
 		"tags": [
 			"Nodejs12.16",
 			"CDN",

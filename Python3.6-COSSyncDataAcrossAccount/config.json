@@ -5,7 +5,7 @@
             "description": "本示例使用 COS 触发器，完成COS跨账号不同bucket的增量数据同步。即当COS上有文件上传时，会自动触发函数完成不同bucket的实时数据同步。",
             "attention": "在使用本示例代码时需要在函数环境变量里配置源地域、目的地域、目的bucket、目标账号的秘钥对信息，另外会使用到源账号的运行角色，需要确保角色有源COS的对象下载和上传接口权限。",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This example uses COS triggers to complete the incremental data synchronization of COS across different buckets. That is, when there is a file upload on COS, it will automatically trigger the function to complete the real-time data synchronization of different buckets.",
             "attention": "When using this sample code, you need to configure the source region, destination region, and destination bucket information in the function environment variable. In addition, you will use the running role. You need to ensure that the role has COS object download and upload interface permissions.",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-COSSyncDataAcrossAccount",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "tags": [
             "Python3.6",
             "COS",

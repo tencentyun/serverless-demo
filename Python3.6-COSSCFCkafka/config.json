@@ -6,7 +6,7 @@
             "attention": "如需访问VPC内Kafka，需要为函数配置VPC网络并通过环境变量设置 kafka_address 和 kafka_topic_name",
             "tutorial":" ",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -14,12 +14,12 @@
             "description": "This demo will forward the COS event to Ckafka as message",
             "tutorial":" ",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-COSSCFCkafka",
-        "version": "1.4.3",
+        "version": "1.4.4",
         "tags": [
             "Python3.6",
             "Ckafka",

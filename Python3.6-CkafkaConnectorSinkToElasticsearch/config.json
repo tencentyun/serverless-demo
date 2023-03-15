@@ -6,7 +6,7 @@
             "attention": "本示例需在 Ckafka 连接器数据目标中使用，请在 CKafka 连接器数据目标中，选择本函数模板使用，注意由于入参的差别，本模板不可直接用于触发器场景。在使用本示例代码时需要在函数配置里添加环境变量和VPC配置；环境变量：ES_Address，ES_User，ES_Password，ES_Index_KeyWord，可选填入ES_Log_IgnoreWord，ES_Index_TimeFormat。",
             "tutorial":"https://cloud.tencent.com/document/product/583/47077",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -15,12 +15,12 @@
             "attention": "When using this demo, you need to add environment variables and VPC configuration in the function configuration; environment variables: ES_Address, ES_User, ES_Password, ES_Index_KeyWord; optional: ES_Log_IgnoreWord, ES_Index_TimeFormat.",
             "tutorial":" ",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-CkafkaConnectorSinkToElasticsearch",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "tags": [
             "Python3.6",
             "Ckafka",

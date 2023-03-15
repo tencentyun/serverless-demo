@@ -5,7 +5,7 @@
             "description": "基于 API 网关和 Web 函数，快速创建一个 Node.js 的 WebSocket Server",
             "attention": "无",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,13 +13,13 @@
             "description": "A WebSocket Server demo for APIGW and Node.js Web Function",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Nodejs12.16",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-WSDemo-Node12",
-        "version": "0.1.8",
+        "version": "0.1.9",
         "tags": [
             "WebFunc",
             "Websocket",

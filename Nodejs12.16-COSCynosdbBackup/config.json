@@ -5,7 +5,7 @@
       "description": "本示例使用定时触发器，完成 TDSQL-C MySQL 备份文件同步到 COS",
       "attention": "该函数模板仅供 COS 控制台使用，请勿自行创建",
       "author": {
-        "name": "腾讯云"
+        "name": "腾讯云社区开发者"
       }
     },
     "English": {
@@ -13,12 +13,12 @@
       "description": "This demo uses scheduled trigger and SCF to copy TDSQL-C MySQL backup file to COS automaticly",
       "attention": "This function template is only provided to COS console, please do not use it by yourself",
       "author": {
-        "name": "Tencent Cloud"
+        "name": "Tencent Cloud Community"
       }
     },
     "runtime": "Nodejs12.16",
     "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSCynosdbBackup",
-    "version": "1.0.5",
+    "version": "1.0.6",
     "tags": ["Nodejs12.16", "cynosdb backup", "cos cynosdb backup"]
   }
 }

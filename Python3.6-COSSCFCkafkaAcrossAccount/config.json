@@ -6,7 +6,7 @@
             "attention": "COS和CKafka无须在同一个账户中,环境变量设置Ckafka相关信息：kafka_address、kafka_username、kafka_password、kafka_instanceId,kafka_topic_name，COS相关信息：appid、region、secret_id、secret_key",
             "tutorial":" ",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -14,12 +14,12 @@
             "description": "This demo will forward the COS content to Ckafka as message by sasl",
             "tutorial":" ",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-COSSCFCkafkaAcrossAccount",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "tags": [
             "Python3.6",
             "Ckafka",

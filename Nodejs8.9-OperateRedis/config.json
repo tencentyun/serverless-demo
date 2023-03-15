@@ -5,7 +5,7 @@
             "description": "本示例通过 redis node 客户端，操作 credis 数据库",
             "attention": "需要先购买 redis 实例",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This function use redis node client to operate CRedis",
             "attention": "you need to buy redis instance first",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Nodejs8.9",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-OperateRedis",
-        "version": "1.0.5",
+        "version": "1.0.6",
         "tags": [
             "Nodejs8.9",
             "CRedis"
