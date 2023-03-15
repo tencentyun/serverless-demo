@@ -6,7 +6,7 @@
             "attention": "需要配置 CMQ 触发器、配置发送邮箱、修改接收邮件的邮箱列表，注意CMQ的消息体结构，已经在代码中注明。",
             "tutorial":"https://cloud.tencent.com/document/product/583/35400",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -15,12 +15,12 @@
             "attention": "Please config the CMQ trigger and change the email host,email notification list before you use it.",
             "tutorial":" ",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-SendEmailByCMQ",
-        "version": "1.0.7",
+        "version": "1.0.8",
         "tags": [
             "Python2.7",
             "CMQ",

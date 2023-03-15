@@ -5,7 +5,7 @@
             "description": "CLS 触发器获取日志内容模版。",
             "attention": "配置CLS触发器日志主题时，请避免选择函数调用日志投递主题，该操作会循环调用函数且可能造成不必要的资源浪费。",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "CLS trigger to get logs.",
             "attention": "When configuring the CLS trigger log topic, please avoid selecting the function call log delivery topic. This operation will call the function circularly and may cause unnecessary waste of resources.",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Php7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Php7.2-CLSTrigger",
-        "version": "1.0.3",
+        "version": "1.0.4",
         "tags": [
             "Php7",
             "CLS",

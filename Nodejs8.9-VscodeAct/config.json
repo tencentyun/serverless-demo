@@ -5,7 +5,7 @@
             "description": "本示例主要演示如何配置 API 网关触发器返回自定义 html 页面。",
             "attention": "无",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This demo is mainly to show how to return custom html in serverless.",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Nodejs8.9",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-VscodeAct",
-        "version": "1.0.6",
+        "version": "1.0.7",
         "tags": [
             "Nodejs8.9",
             "Vscode"

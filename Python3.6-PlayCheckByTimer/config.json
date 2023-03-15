@@ -6,7 +6,7 @@
             "attention": "在使用本示例代码时，需要设置定时触发器，并修改拨测列表、配置发送邮箱、修改接收邮箱的地址。",
             "tutorial":"https://cloud.tencent.com/document/product/583/35399",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -15,12 +15,12 @@
             "attention": "When you use this demo, you should change the url list,email host,email notfiication list.",
             "tutorial":" ",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-PlayCheckByTimer",
-        "version": "1.0.5",
+        "version": "1.0.6",
         "tags": [
             "Python3.6",
             "URL",

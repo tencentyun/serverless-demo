@@ -5,7 +5,7 @@
 			"description": "本示例使用COS触发器，完成文件重命名",
 			"attention": "",
 			"author": {
-				"name": "腾讯云"
+				"name": "腾讯云社区开发者"
 			}
 		},
 		"English": {
@@ -13,12 +13,12 @@
 			"description": "This demo uses cos trigger and SCF to rename cos object",
 			"attention": "",
 			"author": {
-				"name": "Tencent Cloud"
+				"name": "Tencent Cloud Community"
 			}
 		},
 		"runtime": "Nodejs12.16",
 		"readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSRenameFile",
-		"version": "1.0.6",
+		"version": "1.0.7",
 		"tags": [
 			"Nodejs12.16",
 			"Rename",

@@ -5,7 +5,7 @@
             "description": "定时配置云函数SCF预置并发，保障活动等业务突发高峰",
             "attention": "无",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "Timing configuration provisioned concurrency",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-TimingProvisioned",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "tags": [
             "Python3.6",
             "timer"

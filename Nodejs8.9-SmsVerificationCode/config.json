@@ -5,7 +5,7 @@
             "description": "本示例通过腾讯云短信实现发送验证码，并校验验证码以实现登录。",
             "attention": "无",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This example uses Tencent cloud SMS to send verification code, and verify the verification code to achieve login.",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Nodejs8.9",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-SmsVerificationCode",
-        "version": "1.0.10",
+        "version": "1.0.11",
         "tags": [
             "Nodejs8.9",
             "Sms"

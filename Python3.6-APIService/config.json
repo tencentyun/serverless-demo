@@ -6,7 +6,7 @@
             "attention": "无",
             "tutorial":"https://cloud.tencent.com/document/product/583/13198",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -15,12 +15,12 @@
             "attention": "None",
             "tutorial":" ",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-APIService",
-        "version": "1.5.2",
+        "version": "1.5.3",
         "tags": [
             "Python3.6",
             "Web",

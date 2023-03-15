@@ -5,7 +5,7 @@
             "description": "本示例通过 Mysql Node客户端，操作云MySQL",
             "attention": "无",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This function will operate MySQL by client for Node.js",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Nodejs8.9",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs8.9-MySQL",
-        "version": "1.0.5",
+        "version": "1.0.6",
         "tags": [
             "Nodejs8.9",
             "MySQL"

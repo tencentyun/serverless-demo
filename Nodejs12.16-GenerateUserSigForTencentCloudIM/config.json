@@ -5,7 +5,7 @@
             "description": "快速为User ID生成腾讯云IM Usersig。",
             "attention": "使用前，请配置环境变量”SDK_APP_ID“及”SECRET“，这两个字段可在腾讯云IM应用控制台首页找到。",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English":{
@@ -13,13 +13,13 @@
             "description": "Generating the Usersig for each userID of Tencent Cloud IM.",
             "attention": "Please specify `SDK_APP_ID` and `SECRET`, which can be found on the console of your APP of Tencent Cloud IM.",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Nodejs12.16",
         "type": "web",
         "readme":"generate-usersig-for-tencent-cloud-im",
-        "version": "1.0.2",
+        "version": "1.0.3",
         "tags":[
             "Node.js12.16", "Tencent Cloud IM", "Tencent Cloud Chat"
         ]

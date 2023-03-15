@@ -5,7 +5,7 @@
             "description": "本示例演示MongoDB的基础使用方法。",
             "attention": "无",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This demo demonstrates the basic usage of MongoDB.",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-MongoDBBasicDemo",
-        "version": "1.1.1",
+        "version": "1.1.2",
         "tags": [
             "Python2.7",
             "MongoDB",

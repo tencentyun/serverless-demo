@@ -5,7 +5,7 @@
             "description": "本示例使用 COS 触发器，完成CDN自动化预热。即当COS上有文件上传时，会自动触发函数完成CDN的预热。",
             "attention": "在使用本示例代码时需要在函数环境变量里配置加速域名和地域信息，另外会使用到运行角色，需要确保角色有CDN的预热接口权限。",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This example uses a COS trigger to complete CDN automatic warm-up. That is, when there is a file upload on COS, it will automatically trigger the function to complete the warm-up of the CDN.",
             "attention": "When using this sample code, you need to configure the acceleration domain name and region information in the function environment variable. In addition, you will use the running role. You need to ensure that the role has the CDN warm-up interface permission.",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-CDNPushUrlsCache",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "tags": [
             "Python3.6",
             "CDN",

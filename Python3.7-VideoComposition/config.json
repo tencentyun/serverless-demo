@@ -6,7 +6,7 @@
             "attention": "本示例使用到了API网关触发器，返回值需要构造为Json格式。此模版用于生产环境前请先确保代码符合业务需求。",
             "tutorial": "https://cloud.tencent.com/document/product/583/30590",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -15,12 +15,12 @@
             "attention": "This demo has been used api gw. So the return value should be json format based on the requirement. Please make sure that the code meets your business requirements.",
             "tutorial": " ",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python3.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.7-VideoComposition",
-        "version": "1.2.3",
+        "version": "1.2.4",
         "tags": [
             "Python3.7",
             "APIGW",

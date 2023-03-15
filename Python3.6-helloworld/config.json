@@ -5,7 +5,7 @@
             "description": "helloworld 空白模板函数",
             "attention": "无",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This is helloworld function",
             "attention": "None",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-helloworld",
-        "version": "1.1.4",
+        "version": "1.1.5",
         "tags": [
             "Python3.6",
             "helloworld",

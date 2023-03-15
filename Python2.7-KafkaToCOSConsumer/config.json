@@ -5,7 +5,7 @@
             "description": "本示例会根据Ckafka分区Id去消费Kafka数据，每次运行都会创建一个以TopicID，时间戳归档命名的文本文件，并把拉取到的 Ckafca 消息写入文本文件。最后把写好的文件上传到COS bucket，并以一定的时间粒度在COS bucket中创建文件夹。",
             "attention": "在使用本示例代码时需要传递相关函数的环境变量,本实例由两个函数组成。",
             "author": {
-                "name": "腾讯云"
+                "name": "腾讯云社区开发者"
             }
         },
         "English": {
@@ -13,12 +13,12 @@
             "description": "This example consumes Kafka data based on the Ckafka partition Id. Each time it runs, it creates a text file named TopicID, timestamp archive, and writes the pulled Ckafca message to the text file. Finally, upload the written file to the COS bucket, and create a folder in the COS bucket with a certain time granularity.",
             "attention": "When using this sample code, you need to pass the environment variables of related functions. This example consists of two functions.",
             "author": {
-                "name": "Tencent Cloud"
+                "name": "Tencent Cloud Community"
             }
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-KafkaToCOSConsumer",
-        "version": "1.11.2",
+        "version": "1.11.3",
         "tags": [
             "Python2.7",
             "Ckafka",
