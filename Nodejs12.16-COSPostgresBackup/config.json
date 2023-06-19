@@ -1,0 +1,24 @@
+{
+  "serverless-cloud-function-application": {
+    "Chinese": {
+      "name": "PostgreSQL 备份文件同步到 COS",
+      "description": "本示例使用定时触发器，完成 PostgreSQL 备份文件同步到 COS",
+      "attention": "该函数模板仅供 COS 控制台使用，请勿自行创建",
+      "author": {
+        "name": "腾讯云"
+      }
+    },
+    "English": {
+      "name": "CosPostgresBackup",
+      "description": "This demo uses scheduled trigger and SCF to copy PostgreSQL backup file to COS automaticly",
+      "attention": "This function template is only provided to COS console, please do not use it by yourself",
+      "author": {
+        "name": "Tencent Cloud"
+      }
+    },
+    "runtime": "Nodejs12.16",
+    "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSPostgresBackup",
+    "version": "1.0.10",
+    "tags": ["Nodejs12.16", "postgres backup", "cos postgres backup"]
+  }
+}
