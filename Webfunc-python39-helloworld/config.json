@@ -1,0 +1,30 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "Python3.9 Web 函数模版",
+            "description": "基于 Python3.9，使用 API 网关和 Web 函数，快速部署 Hello world 示例项目",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云社区开发者"
+            }
+        },
+        "English": {
+            "name": "Python39-WebDemo",
+            "description": "A HelloWorld demo for APIGW and python Web Function",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud Community"
+            }
+        },
+        "runtime": "Python3.9",
+        "type": "web",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-python39-helloworld",
+        "version": "1.0.1",
+        "tags": [
+            "WebFunc",
+            "helloworld",
+            "Python3.9",
+            "web"
+        ]
+    }
+}
