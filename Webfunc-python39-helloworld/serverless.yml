@@ -1,0 +1,24 @@
+component: scf
+name: ap-guangzhou_helloworld_demo_py39
+inputs:
+  name: helloworld_demo_py39
+  src:
+    src: ./src
+  type: web
+  runtime: Python3.9
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 512
+  timeout: 3
+  triggers:
+     - type: apigw
+       name: SCF_API_SERVICE
+       protocols:
+        - http
+        - https
+       environment: release
+       netTypes:
+        - OUTER
+       apis:
+        - path: /
+          method: ANY
