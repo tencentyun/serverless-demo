@@ -1,0 +1,28 @@
+{
+  "serverless-cloud-function-application": {
+      "Chinese": {
+          "name": "EdgeOne自动预热",
+          "description": "本示例使用 COS 触发器，完成EdgeOne自动化预热。即当COS上有文件上传时，会自动触发函数完成EdgeOne的预热。",
+          "attention": "在使用本示例代码时需要在函数环境变量里配置加速域名和站点 ID，另外会使用到运行角色，需要确保角色有EdgeOne的预热接口权限。",
+          "author": {
+              "name": "腾讯云社区开发者"
+          }
+      },
+      "English": {
+          "name": "COSEdgeOnePrefetch",
+          "description": "todo",
+          "attention": "todo",
+          "author": {
+              "name": "Tencent Cloud Community"
+          }
+      },
+      "runtime": "Nodejs16.13",
+      "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs16.13-COSEdgeOnePrefetch",
+      "version": "1.0.0",
+      "tags": [
+        "Nodejs16.13",
+        "EdgeOne",
+        "COS EdgeOne Prefetch"
+      ]
+  }
+}
