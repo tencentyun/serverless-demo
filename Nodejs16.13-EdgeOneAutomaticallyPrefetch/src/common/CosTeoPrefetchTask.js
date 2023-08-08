@@ -6,7 +6,7 @@ class CosTeoPrefetchTask {
     urls = [],
     zoneId,
     region,
-    prefetchLimit = 1000, // todo 是否需要？？？
+    prefetchLimit = 1000,
   }) {
     Object.assign(this, { teoSdkInstance });
     this.prefetchTasks = this.getPrefetchTasks({
