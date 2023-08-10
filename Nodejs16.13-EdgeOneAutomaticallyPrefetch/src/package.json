@@ -1,0 +1,10 @@
+{
+  "name": "edgeone-automatically-prefetch",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "ISC",
+  "dependencies": {
+    "cos-nodejs-sdk-v5": "^2.12.3",
+    "tencentcloud-sdk-nodejs": "^4.0.652"
+  }
+}

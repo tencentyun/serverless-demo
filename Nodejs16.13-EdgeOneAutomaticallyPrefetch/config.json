@@ -1,0 +1,28 @@
+{
+  "serverless-cloud-function-application": {
+      "Chinese": {
+          "name": "EdgeOne 自动预热",
+          "description": "本示例使用 COS 作为触发器，如COS文件上传时，触发云函数执行完成 EdgeOne 自动化预热文件到边缘节点。",
+          "attention": "在使用本示例代码时需要在函数环境变量里配置 EdgeOne ZoneID和待预热域名eoDomains，另外会使用到运行角色，需要确保角色有EdgeOne的预热接口权限。",
+          "author": {
+              "name": "腾讯云社区开发者"
+          }
+      },
+      "English": {
+          "name": "EdgeOneAutomaticallyPrefetch",
+          "description": "This example uses COS as the trigger. For instance, when a file is uploaded to COS, it triggers the cloud function to automatically prefetch the file to the edge nodes of EdgeOne.",
+          "attention": "When using this example code, you need to configure the EdgeOne ZoneID and the eoDomains in the function environment variables. In addition, the execution role will be used, so make sure that the role has prefetch API permissions for EdgeOne.",
+          "author": {
+              "name": "Tencent Cloud Community"
+          }
+      },
+      "runtime": "Nodejs16.13",
+      "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs16.13-COSEdgeOnePrefetch",
+      "version": "1.0.0",
+      "tags": [
+        "Nodejs16.13",
+        "EdgeOne",
+        "COS EdgeOne Prefetch"
+      ]
+  }
+}
