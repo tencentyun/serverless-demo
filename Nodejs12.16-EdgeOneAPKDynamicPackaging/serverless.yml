@@ -1,0 +1,34 @@
+component: scf
+app: eo-edgepack-template
+name: ap-guangzhou_default_eo-edgepack-template
+inputs:
+  name: eo-edgepack-template
+  type: event
+  description: EdgeOne APK 动态打包
+  src: ./src
+  handler: index.main_handler
+  runtime: Nodejs12.16
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 3072
+  timeout: 1800
+  initTimeout: 300
+  msgTTL: 21600
+  role: SCF_ExecuteRole
+  eip: false
+  retryNum: 2
+  environment:
+    variables:
+      outputPath: 
+      packVersion: 
+  events:
+    - cos:
+        parameters:
+          bucket: 
+          enable: true
+          events: cos:ObjectCreated:*
+          filter:
+            prefix: 
+            suffix: .apk
+          qualifier: $DEFAULT
+  publicAccess: true
