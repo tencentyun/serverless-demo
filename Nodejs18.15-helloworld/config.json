@@ -16,11 +16,11 @@
                 "name": "Tencent Cloud Community"
             }
         },
-        "runtime": "Nodejs18.17",
-        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs18.17-helloworld",
+        "runtime": "Nodejs18.15",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs18.15-helloworld",
         "version": "1.0.1",
         "tags": [
-            "Nodejs18.17",
+            "Nodejs18.15",
             "helloworld"
         ]
     }
