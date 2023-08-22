@@ -18,17 +18,11 @@ inputs:
   eip: false
   retryNum: 2
   environment:
-    variables:
-      outputPath: 
-      packVersion: 
-  events:
-    - cos:
-        parameters:
-          bucket: 
-          enable: true
-          events: cos:ObjectCreated:*
-          filter:
-            prefix: 
-            suffix: .apk
-          qualifier: $DEFAULT
-  publicAccess: true
+    - key: packVersion
+      value: apk signing version
+    - key: outputPath
+      value: apk output path
+  triggers:
+    - type: cos
+      enable: true
+      events: cos:ObjectCreated:*
