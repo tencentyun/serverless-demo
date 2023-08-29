@@ -1,36 +1,27 @@
-# -*- coding: utf-8 -*-
-"""
-    werkzeug.wsgi
-    ~~~~~~~~~~~~~
+from __future__ import annotations
 
-    This module implements WSGI related helpers.
-
-    :copyright: 2007 Pallets
-    :license: BSD-3-Clause
-"""
 import io
 import re
+import typing as t
+import warnings
 from functools import partial
 from functools import update_wrapper
 from itertools import chain
 
-from ._compat import BytesIO
-from ._compat import implements_iterator
-from ._compat import make_literal_wrapper
-from ._compat import string_types
-from ._compat import text_type
-from ._compat import to_bytes
-from ._compat import to_unicode
-from ._compat import try_coerce_native
-from ._compat import wsgi_get_bytes
-from ._internal import _encode_idna
-from .urls import uri_to_iri
-from .urls import url_join
-from .urls import url_parse
-from .urls import url_quote
+from ._internal import _make_encode_wrapper
+from ._internal import _to_bytes
+from ._internal import _to_str
+from .exceptions import ClientDisconnected
+from .exceptions import RequestEntityTooLarge
+from .sansio import utils as _sansio_utils
+from .sansio.utils import host_is_trusted  # noqa: F401 # Imported as part of API
+
+if t.TYPE_CHECKING:
+    from _typeshed.wsgi import WSGIApplication
+    from _typeshed.wsgi import WSGIEnvironment
 
 
-def responder(f):
+def responder(f: t.Callable[..., WSGIApplication]) -> WSGIApplication:
     """Marks a function as responder.  Decorate a function with it and it
     will automatically call the return value as WSGI application.
 
@@ -44,426 +35,205 @@ def responder(f):
 
 
 def get_current_url(
-    environ,
-    root_only=False,
-    strip_querystring=False,
-    host_only=False,
-    trusted_hosts=None,
-):
-    """A handy helper function that recreates the full URL as IRI for the
-    current request or parts of it.  Here's an example:
+    environ: WSGIEnvironment,
+    root_only: bool = False,
+    strip_querystring: bool = False,
+    host_only: bool = False,
+    trusted_hosts: t.Iterable[str] | None = None,
+) -> str:
+    """Recreate the URL for a request from the parts in a WSGI
+    environment.
 
-    >>> from werkzeug.test import create_environ
-    >>> env = create_environ("/?param=foo", "http://localhost/script")
-    >>> get_current_url(env)
-    'http://localhost/script/?param=foo'
-    >>> get_current_url(env, root_only=True)
-    'http://localhost/script/'
-    >>> get_current_url(env, host_only=True)
-    'http://localhost/'
-    >>> get_current_url(env, strip_querystring=True)
-    'http://localhost/script/'
+    The URL is an IRI, not a URI, so it may contain Unicode characters.
+    Use :func:`~werkzeug.urls.iri_to_uri` to convert it to ASCII.
 
-    This optionally it verifies that the host is in a list of trusted hosts.
-    If the host is not in there it will raise a
-    :exc:`~werkzeug.exceptions.SecurityError`.
-
-    Note that the string returned might contain unicode characters as the
-    representation is an IRI not an URI.  If you need an ASCII only
-    representation you can use the :func:`~werkzeug.urls.iri_to_uri`
-    function:
-
-    >>> from werkzeug.urls import iri_to_uri
-    >>> iri_to_uri(get_current_url(env))
-    'http://localhost/script/?param=foo'
-
-    :param environ: the WSGI environment to get the current URL from.
-    :param root_only: set `True` if you only want the root URL.
-    :param strip_querystring: set to `True` if you don't want the querystring.
-    :param host_only: set to `True` if the host URL should be returned.
-    :param trusted_hosts: a list of trusted hosts, see :func:`host_is_trusted`
-                          for more information.
+    :param environ: The WSGI environment to get the URL parts from.
+    :param root_only: Only build the root path, don't include the
+        remaining path or query string.
+    :param strip_querystring: Don't include the query string.
+    :param host_only: Only build the scheme and host.
+    :param trusted_hosts: A list of trusted host names to validate the
+        host against.
     """
-    tmp = [environ["wsgi.url_scheme"], "://", get_host(environ, trusted_hosts)]
-    cat = tmp.append
-    if host_only:
-        return uri_to_iri("".join(tmp) + "/")
-    cat(url_quote(wsgi_get_bytes(environ.get("SCRIPT_NAME", ""))).rstrip("/"))
-    cat("/")
-    if not root_only:
-        cat(url_quote(wsgi_get_bytes(environ.get("PATH_INFO", "")).lstrip(b"/")))
-        if not strip_querystring:
-            qs = get_query_string(environ)
-            if qs:
-                cat("?" + qs)
-    return uri_to_iri("".join(tmp))
+    parts = {
+        "scheme": environ["wsgi.url_scheme"],
+        "host": get_host(environ, trusted_hosts),
+    }
+
+    if not host_only:
+        parts["root_path"] = environ.get("SCRIPT_NAME", "")
+
+        if not root_only:
+            parts["path"] = environ.get("PATH_INFO", "")
+
+            if not strip_querystring:
+                parts["query_string"] = environ.get("QUERY_STRING", "").encode("latin1")
+
+    return _sansio_utils.get_current_url(**parts)
 
 
-def host_is_trusted(hostname, trusted_list):
-    """Checks if a host is trusted against a list.  This also takes care
-    of port normalization.
+def _get_server(
+    environ: WSGIEnvironment,
+) -> tuple[str, int | None] | None:
+    name = environ.get("SERVER_NAME")
 
-    .. versionadded:: 0.9
-
-    :param hostname: the hostname to check
-    :param trusted_list: a list of hostnames to check against.  If a
-                         hostname starts with a dot it will match against
-                         all subdomains as well.
-    """
-    if not hostname:
-        return False
-
-    if isinstance(trusted_list, string_types):
-        trusted_list = [trusted_list]
-
-    def _normalize(hostname):
-        if ":" in hostname:
-            hostname = hostname.rsplit(":", 1)[0]
-        return _encode_idna(hostname)
+    if name is None:
+        return None
 
     try:
-        hostname = _normalize(hostname)
-    except UnicodeError:
-        return False
-    for ref in trusted_list:
-        if ref.startswith("."):
-            ref = ref[1:]
-            suffix_match = True
-        else:
-            suffix_match = False
-        try:
-            ref = _normalize(ref)
-        except UnicodeError:
-            return False
-        if ref == hostname:
-            return True
-        if suffix_match and hostname.endswith(b"." + ref):
-            return True
-    return False
+        port: int | None = int(environ.get("SERVER_PORT", None))
+    except (TypeError, ValueError):
+        # unix socket
+        port = None
+
+    return name, port
 
 
-def get_host(environ, trusted_hosts=None):
-    """Return the host for the given WSGI environment. This first checks
-    the ``Host`` header. If it's not present, then ``SERVER_NAME`` and
-    ``SERVER_PORT`` are used. The host will only contain the port if it
-    is different than the standard port for the protocol.
+def get_host(
+    environ: WSGIEnvironment, trusted_hosts: t.Iterable[str] | None = None
+) -> str:
+    """Return the host for the given WSGI environment.
+
+    The ``Host`` header is preferred, then ``SERVER_NAME`` if it's not
+    set. The returned host will only contain the port if it is different
+    than the standard port for the protocol.
 
     Optionally, verify that the host is trusted using
     :func:`host_is_trusted` and raise a
     :exc:`~werkzeug.exceptions.SecurityError` if it is not.
 
-    :param environ: The WSGI environment to get the host from.
-    :param trusted_hosts: A list of trusted hosts.
+    :param environ: A WSGI environment dict.
+    :param trusted_hosts: A list of trusted host names.
+
     :return: Host, with port if necessary.
     :raise ~werkzeug.exceptions.SecurityError: If the host is not
         trusted.
     """
-    if "HTTP_HOST" in environ:
-        rv = environ["HTTP_HOST"]
-        if environ["wsgi.url_scheme"] == "http" and rv.endswith(":80"):
-            rv = rv[:-3]
-        elif environ["wsgi.url_scheme"] == "https" and rv.endswith(":443"):
-            rv = rv[:-4]
-    else:
-        rv = environ["SERVER_NAME"]
-        if (environ["wsgi.url_scheme"], environ["SERVER_PORT"]) not in (
-            ("https", "443"),
-            ("http", "80"),
-        ):
-            rv += ":" + environ["SERVER_PORT"]
-    if trusted_hosts is not None:
-        if not host_is_trusted(rv, trusted_hosts):
-            from .exceptions import SecurityError
-
-            raise SecurityError('Host "%s" is not trusted' % rv)
-    return rv
+    return _sansio_utils.get_host(
+        environ["wsgi.url_scheme"],
+        environ.get("HTTP_HOST"),
+        _get_server(environ),
+        trusted_hosts,
+    )
 
 
-def get_content_length(environ):
-    """Returns the content length from the WSGI environment as
-    integer. If it's not available or chunked transfer encoding is used,
-    ``None`` is returned.
+def get_content_length(environ: WSGIEnvironment) -> int | None:
+    """Return the ``Content-Length`` header value as an int. If the header is not given
+    or the ``Transfer-Encoding`` header is ``chunked``, ``None`` is returned to indicate
+    a streaming request. If the value is not an integer, or negative, 0 is returned.
+
+    :param environ: The WSGI environ to get the content length from.
 
     .. versionadded:: 0.9
-
-    :param environ: the WSGI environ to fetch the content length from.
     """
-    if environ.get("HTTP_TRANSFER_ENCODING", "") == "chunked":
-        return None
-
-    content_length = environ.get("CONTENT_LENGTH")
-    if content_length is not None:
-        try:
-            return max(0, int(content_length))
-        except (ValueError, TypeError):
-            pass
+    return _sansio_utils.get_content_length(
+        http_content_length=environ.get("CONTENT_LENGTH"),
+        http_transfer_encoding=environ.get("HTTP_TRANSFER_ENCODING"),
+    )
 
 
-def get_input_stream(environ, safe_fallback=True):
-    """Returns the input stream from the WSGI environment and wraps it
-    in the most sensible way possible. The stream returned is not the
-    raw WSGI stream in most cases but one that is safe to read from
-    without taking into account the content length.
+def get_input_stream(
+    environ: WSGIEnvironment,
+    safe_fallback: bool = True,
+    max_content_length: int | None = None,
+) -> t.IO[bytes]:
+    """Return the WSGI input stream, wrapped so that it may be read safely without going
+    past the ``Content-Length`` header value or ``max_content_length``.
 
-    If content length is not set, the stream will be empty for safety reasons.
-    If the WSGI server supports chunked or infinite streams, it should set
-    the ``wsgi.input_terminated`` value in the WSGI environ to indicate that.
+    If ``Content-Length`` exceeds ``max_content_length``, a
+    :exc:`RequestEntityTooLarge`` ``413 Content Too Large`` error is raised.
+
+    If the WSGI server sets ``environ["wsgi.input_terminated"]``, it indicates that the
+    server handles terminating the stream, so it is safe to read directly. For example,
+    a server that knows how to handle chunked requests safely would set this.
+
+    If ``max_content_length`` is set, that limit is used even if ``Content-Length`` or
+    ``wsgi.input_terminated`` are set. If none of these are set, then an empty stream is
+    returned unless the user explicitly disables this safe fallback.
+
+    If the limit is reached before the underlying stream is exhausted (such as a file
+    that is too large, or an infinite stream), the remaining contents of the stream
+    cannot be read safely. Depending on how the server handles this, clients may show a
+    "connection reset" failure instead of seeing the 413 response.
+
+    :param environ: The WSGI environ containing the stream.
+    :param safe_fallback: Return an empty stream when ``Content-Length`` is not set.
+        Disabling this allows infinite streams, which can be a denial-of-service risk.
+    :param max_content_length: The maximum length that content-length or streaming
+        requests may not exceed.
+
+    .. versionchanged:: 2.3
+        Check ``max_content_length`` and raise an error if it is exceeded.
 
     .. versionadded:: 0.9
-
-    :param environ: the WSGI environ to fetch the stream from.
-    :param safe_fallback: use an empty stream as a safe fallback when the
-        content length is not set. Disabling this allows infinite streams,
-        which can be a denial-of-service risk.
     """
-    stream = environ["wsgi.input"]
+    stream = t.cast(t.IO[bytes], environ["wsgi.input"])
     content_length = get_content_length(environ)
 
-    # A wsgi extension that tells us if the input is terminated.  In
-    # that case we return the stream unchanged as we know we can safely
-    # read it until the end.
-    if environ.get("wsgi.input_terminated"):
-        return stream
-
-    # If the request doesn't specify a content length, returning the stream is
-    # potentially dangerous because it could be infinite, malicious or not. If
-    # safe_fallback is true, return an empty stream instead for safety.
-    if content_length is None:
-        return BytesIO() if safe_fallback else stream
-
-    # Otherwise limit the stream to the content length
-    return LimitedStream(stream, content_length)
-
-
-def get_query_string(environ):
-    """Returns the `QUERY_STRING` from the WSGI environment.  This also takes
-    care about the WSGI decoding dance on Python 3 environments as a
-    native string.  The string returned will be restricted to ASCII
-    characters.
-
-    .. versionadded:: 0.9
-
-    :param environ: the WSGI environment object to get the query string from.
-    """
-    qs = wsgi_get_bytes(environ.get("QUERY_STRING", ""))
-    # QUERY_STRING really should be ascii safe but some browsers
-    # will send us some unicode stuff (I am looking at you IE).
-    # In that case we want to urllib quote it badly.
-    return try_coerce_native(url_quote(qs, safe=":&%=+$!*'(),"))
-
-
-def get_path_info(environ, charset="utf-8", errors="replace"):
-    """Returns the `PATH_INFO` from the WSGI environment and properly
-    decodes it.  This also takes care about the WSGI decoding dance
-    on Python 3 environments.  if the `charset` is set to `None` a
-    bytestring is returned.
-
-    .. versionadded:: 0.9
-
-    :param environ: the WSGI environment object to get the path from.
-    :param charset: the charset for the path info, or `None` if no
-                    decoding should be performed.
-    :param errors: the decoding error handling.
-    """
-    path = wsgi_get_bytes(environ.get("PATH_INFO", ""))
-    return to_unicode(path, charset, errors, allow_none_charset=True)
-
-
-def get_script_name(environ, charset="utf-8", errors="replace"):
-    """Returns the `SCRIPT_NAME` from the WSGI environment and properly
-    decodes it.  This also takes care about the WSGI decoding dance
-    on Python 3 environments.  if the `charset` is set to `None` a
-    bytestring is returned.
-
-    .. versionadded:: 0.9
-
-    :param environ: the WSGI environment object to get the path from.
-    :param charset: the charset for the path, or `None` if no
-                    decoding should be performed.
-    :param errors: the decoding error handling.
-    """
-    path = wsgi_get_bytes(environ.get("SCRIPT_NAME", ""))
-    return to_unicode(path, charset, errors, allow_none_charset=True)
-
-
-def pop_path_info(environ, charset="utf-8", errors="replace"):
-    """Removes and returns the next segment of `PATH_INFO`, pushing it onto
-    `SCRIPT_NAME`.  Returns `None` if there is nothing left on `PATH_INFO`.
-
-    If the `charset` is set to `None` a bytestring is returned.
-
-    If there are empty segments (``'/foo//bar``) these are ignored but
-    properly pushed to the `SCRIPT_NAME`:
-
-    >>> env = {'SCRIPT_NAME': '/foo', 'PATH_INFO': '/a/b'}
-    >>> pop_path_info(env)
-    'a'
-    >>> env['SCRIPT_NAME']
-    '/foo/a'
-    >>> pop_path_info(env)
-    'b'
-    >>> env['SCRIPT_NAME']
-    '/foo/a/b'
-
-    .. versionadded:: 0.5
-
-    .. versionchanged:: 0.9
-       The path is now decoded and a charset and encoding
-       parameter can be provided.
-
-    :param environ: the WSGI environment that is modified.
-    """
-    path = environ.get("PATH_INFO")
-    if not path:
-        return None
-
-    script_name = environ.get("SCRIPT_NAME", "")
-
-    # shift multiple leading slashes over
-    old_path = path
-    path = path.lstrip("/")
-    if path != old_path:
-        script_name += "/" * (len(old_path) - len(path))
-
-    if "/" not in path:
-        environ["PATH_INFO"] = ""
-        environ["SCRIPT_NAME"] = script_name + path
-        rv = wsgi_get_bytes(path)
-    else:
-        segment, path = path.split("/", 1)
-        environ["PATH_INFO"] = "/" + path
-        environ["SCRIPT_NAME"] = script_name + segment
-        rv = wsgi_get_bytes(segment)
-
-    return to_unicode(rv, charset, errors, allow_none_charset=True)
-
-
-def peek_path_info(environ, charset="utf-8", errors="replace"):
-    """Returns the next segment on the `PATH_INFO` or `None` if there
-    is none.  Works like :func:`pop_path_info` without modifying the
-    environment:
-
-    >>> env = {'SCRIPT_NAME': '/foo', 'PATH_INFO': '/a/b'}
-    >>> peek_path_info(env)
-    'a'
-    >>> peek_path_info(env)
-    'a'
-
-    If the `charset` is set to `None` a bytestring is returned.
-
-    .. versionadded:: 0.5
-
-    .. versionchanged:: 0.9
-       The path is now decoded and a charset and encoding
-       parameter can be provided.
-
-    :param environ: the WSGI environment that is checked.
-    """
-    segments = environ.get("PATH_INFO", "").lstrip("/").split("/", 1)
-    if segments:
-        return to_unicode(
-            wsgi_get_bytes(segments[0]), charset, errors, allow_none_charset=True
+    if content_length is not None and max_content_length is not None:
+        if content_length > max_content_length:
+            raise RequestEntityTooLarge()
+    elif max_content_length is not None:
+        return t.cast(
+            t.IO[bytes], LimitedStream(stream, max_content_length, is_max=True)
         )
 
+    # A WSGI server can set this to indicate that it terminates the input stream. In
+    # that case the stream is safe without wrapping.
+    if "wsgi.input_terminated" in environ:
+        return stream
 
-def extract_path_info(
-    environ_or_baseurl,
-    path_or_url,
-    charset="utf-8",
-    errors="werkzeug.url_quote",
-    collapse_http_schemes=True,
-):
-    """Extracts the path info from the given URL (or WSGI environment) and
-    path.  The path info returned is a unicode string, not a bytestring
-    suitable for a WSGI environment.  The URLs might also be IRIs.
+    # No limit given, return an empty stream unless the user explicitly allows the
+    # potentially infinite stream. An infinite stream is dangerous if it's not expected,
+    # as it can tie up a worker indefinitely.
+    if content_length is None:
+        return io.BytesIO() if safe_fallback else stream
 
-    If the path info could not be determined, `None` is returned.
+    return t.cast(t.IO[bytes], LimitedStream(stream, content_length))
 
-    Some examples:
 
-    >>> extract_path_info('http://example.com/app', '/app/hello')
-    u'/hello'
-    >>> extract_path_info('http://example.com/app',
-    ...                   'https://example.com/app/hello')
-    u'/hello'
-    >>> extract_path_info('http://example.com/app',
-    ...                   'https://example.com/app/hello',
-    ...                   collapse_http_schemes=False) is None
-    True
+def get_path_info(
+    environ: WSGIEnvironment,
+    charset: t.Any = ...,
+    errors: str | None = None,
+) -> str:
+    """Return ``PATH_INFO`` from  the WSGI environment.
 
-    Instead of providing a base URL you can also pass a WSGI environment.
+    :param environ: WSGI environment to get the path from.
 
-    :param environ_or_baseurl: a WSGI environment dict, a base URL or
-                               base IRI.  This is the root of the
-                               application.
-    :param path_or_url: an absolute path from the server root, a
-                        relative path (in which case it's the path info)
-                        or a full URL.  Also accepts IRIs and unicode
-                        parameters.
-    :param charset: the charset for byte data in URLs
-    :param errors: the error handling on decode
-    :param collapse_http_schemes: if set to `False` the algorithm does
-                                  not assume that http and https on the
-                                  same server point to the same
-                                  resource.
+    .. versionchanged:: 2.3
+        The ``charset`` and ``errors`` parameters are deprecated and will be removed in
+        Werkzeug 2.4.
 
-    .. versionchanged:: 0.15
-        The ``errors`` parameter defaults to leaving invalid bytes
-        quoted instead of replacing them.
-
-    .. versionadded:: 0.6
+    .. versionadded:: 0.9
     """
+    if charset is not ...:
+        warnings.warn(
+            "The 'charset' parameter is deprecated and will be removed"
+            " in Werkzeug 2.4.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
-    def _normalize_netloc(scheme, netloc):
-        parts = netloc.split(u"@", 1)[-1].split(u":", 1)
-        if len(parts) == 2:
-            netloc, port = parts
-            if (scheme == u"http" and port == u"80") or (
-                scheme == u"https" and port == u"443"
-            ):
-                port = None
-        else:
-            netloc = parts[0]
-            port = None
-        if port is not None:
-            netloc += u":" + port
-        return netloc
-
-    # make sure whatever we are working on is a IRI and parse it
-    path = uri_to_iri(path_or_url, charset, errors)
-    if isinstance(environ_or_baseurl, dict):
-        environ_or_baseurl = get_current_url(environ_or_baseurl, root_only=True)
-    base_iri = uri_to_iri(environ_or_baseurl, charset, errors)
-    base_scheme, base_netloc, base_path = url_parse(base_iri)[:3]
-    cur_scheme, cur_netloc, cur_path, = url_parse(url_join(base_iri, path))[:3]
-
-    # normalize the network location
-    base_netloc = _normalize_netloc(base_scheme, base_netloc)
-    cur_netloc = _normalize_netloc(cur_scheme, cur_netloc)
-
-    # is that IRI even on a known HTTP scheme?
-    if collapse_http_schemes:
-        for scheme in base_scheme, cur_scheme:
-            if scheme not in (u"http", u"https"):
-                return None
+        if charset is None:
+            charset = "utf-8"
     else:
-        if not (base_scheme in (u"http", u"https") and base_scheme == cur_scheme):
-            return None
+        charset = "utf-8"
 
-    # are the netlocs compatible?
-    if base_netloc != cur_netloc:
-        return None
+    if errors is not None:
+        warnings.warn(
+            "The 'errors' parameter is deprecated and will be removed in Werkzeug 2.4",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+    else:
+        errors = "replace"
 
-    # are we below the application path?
-    base_path = base_path.rstrip(u"/")
-    if not cur_path.startswith(base_path):
-        return None
-
-    return u"/" + cur_path[len(base_path) :].lstrip(u"/")
+    path = environ.get("PATH_INFO", "").encode("latin1")
+    return path.decode(charset, errors)  # type: ignore[no-any-return]
 
 
-@implements_iterator
-class ClosingIterator(object):
+class ClosingIterator:
     """The WSGI specification requires that all middlewares and gateways
     respect the `close` callback of the iterable returned by the application.
     Because it is useful to add another close action to a returned iterable
@@ -485,9 +255,14 @@ class ClosingIterator(object):
             cleanup_locals()
     """
 
-    def __init__(self, iterable, callbacks=None):
+    def __init__(
+        self,
+        iterable: t.Iterable[bytes],
+        callbacks: None
+        | (t.Callable[[], None] | t.Iterable[t.Callable[[], None]]) = None,
+    ) -> None:
         iterator = iter(iterable)
-        self._next = partial(next, iterator)
+        self._next = t.cast(t.Callable[[], bytes], partial(next, iterator))
         if callbacks is None:
             callbacks = []
         elif callable(callbacks):
@@ -499,18 +274,20 @@ class ClosingIterator(object):
             callbacks.insert(0, iterable_close)
         self._callbacks = callbacks
 
-    def __iter__(self):
+    def __iter__(self) -> ClosingIterator:
         return self
 
-    def __next__(self):
+    def __next__(self) -> bytes:
         return self._next()
 
-    def close(self):
+    def close(self) -> None:
         for callback in self._callbacks:
             callback()
 
 
-def wrap_file(environ, file, buffer_size=8192):
+def wrap_file(
+    environ: WSGIEnvironment, file: t.IO[bytes], buffer_size: int = 8192
+) -> t.Iterable[bytes]:
     """Wraps a file.  This uses the WSGI server's file wrapper if available
     or otherwise the generic :class:`FileWrapper`.
 
@@ -519,18 +296,19 @@ def wrap_file(environ, file, buffer_size=8192):
     If the file wrapper from the WSGI server is used it's important to not
     iterate over it from inside the application but to pass it through
     unchanged.  If you want to pass out a file wrapper inside a response
-    object you have to set :attr:`~BaseResponse.direct_passthrough` to `True`.
+    object you have to set :attr:`Response.direct_passthrough` to `True`.
 
     More information about file wrappers are available in :pep:`333`.
 
     :param file: a :class:`file`-like object with a :meth:`~file.read` method.
     :param buffer_size: number of bytes for one iteration.
     """
-    return environ.get("wsgi.file_wrapper", FileWrapper)(file, buffer_size)
+    return environ.get("wsgi.file_wrapper", FileWrapper)(  # type: ignore
+        file, buffer_size
+    )
 
 
-@implements_iterator
-class FileWrapper(object):
+class FileWrapper:
     """This class can be used to convert a :class:`file`-like object into
     an iterable.  It yields `buffer_size` blocks until the file is fully
     read.
@@ -541,49 +319,48 @@ class FileWrapper(object):
 
     .. versionadded:: 0.5
 
-    If you're using this object together with a :class:`BaseResponse` you have
+    If you're using this object together with a :class:`Response` you have
     to use the `direct_passthrough` mode.
 
     :param file: a :class:`file`-like object with a :meth:`~file.read` method.
     :param buffer_size: number of bytes for one iteration.
     """
 
-    def __init__(self, file, buffer_size=8192):
+    def __init__(self, file: t.IO[bytes], buffer_size: int = 8192) -> None:
         self.file = file
         self.buffer_size = buffer_size
 
-    def close(self):
+    def close(self) -> None:
         if hasattr(self.file, "close"):
             self.file.close()
 
-    def seekable(self):
+    def seekable(self) -> bool:
         if hasattr(self.file, "seekable"):
             return self.file.seekable()
         if hasattr(self.file, "seek"):
             return True
         return False
 
-    def seek(self, *args):
+    def seek(self, *args: t.Any) -> None:
         if hasattr(self.file, "seek"):
             self.file.seek(*args)
 
-    def tell(self):
+    def tell(self) -> int | None:
         if hasattr(self.file, "tell"):
             return self.file.tell()
         return None
 
-    def __iter__(self):
+    def __iter__(self) -> FileWrapper:
         return self
 
-    def __next__(self):
+    def __next__(self) -> bytes:
         data = self.file.read(self.buffer_size)
         if data:
             return data
         raise StopIteration()
 
 
-@implements_iterator
-class _RangeWrapper(object):
+class _RangeWrapper:
     # private for now, but should we make it public in the future ?
 
     """This class can be used to convert an iterable object into
@@ -592,7 +369,7 @@ class _RangeWrapper(object):
     The yielded blocks will have a size that can't exceed the original
     iterator defined block size, but that can be smaller.
 
-    If you're using this object together with a :class:`BaseResponse` you have
+    If you're using this object together with a :class:`Response` you have
     to use the `direct_passthrough` mode.
 
     :param iterable: an iterable object with a :meth:`__next__` method.
@@ -600,21 +377,28 @@ class _RangeWrapper(object):
     :param byte_range: how many bytes to read.
     """
 
-    def __init__(self, iterable, start_byte=0, byte_range=None):
+    def __init__(
+        self,
+        iterable: t.Iterable[bytes] | t.IO[bytes],
+        start_byte: int = 0,
+        byte_range: int | None = None,
+    ):
         self.iterable = iter(iterable)
         self.byte_range = byte_range
         self.start_byte = start_byte
         self.end_byte = None
+
         if byte_range is not None:
-            self.end_byte = self.start_byte + self.byte_range
+            self.end_byte = start_byte + byte_range
+
         self.read_length = 0
         self.seekable = hasattr(iterable, "seekable") and iterable.seekable()
         self.end_reached = False
 
-    def __iter__(self):
+    def __iter__(self) -> _RangeWrapper:
         return self
 
-    def _next_chunk(self):
+    def _next_chunk(self) -> bytes:
         try:
             chunk = next(self.iterable)
             self.read_length += len(chunk)
@@ -623,11 +407,11 @@ class _RangeWrapper(object):
             self.end_reached = True
             raise
 
-    def _first_iteration(self):
+    def _first_iteration(self) -> tuple[bytes | None, int]:
         chunk = None
         if self.seekable:
-            self.iterable.seek(self.start_byte)
-            self.read_length = self.iterable.tell()
+            self.iterable.seek(self.start_byte)  # type: ignore
+            self.read_length = self.iterable.tell()  # type: ignore
             contextual_read_length = self.read_length
         else:
             while self.read_length <= self.start_byte:
@@ -637,7 +421,7 @@ class _RangeWrapper(object):
             contextual_read_length = self.start_byte
         return chunk, contextual_read_length
 
-    def _next(self):
+    def _next(self) -> bytes:
         if self.end_reached:
             raise StopIteration()
         chunk = None
@@ -651,21 +435,31 @@ class _RangeWrapper(object):
             return chunk[: self.end_byte - contextual_read_length]
         return chunk
 
-    def __next__(self):
+    def __next__(self) -> bytes:
         chunk = self._next()
         if chunk:
             return chunk
         self.end_reached = True
         raise StopIteration()
 
-    def close(self):
+    def close(self) -> None:
         if hasattr(self.iterable, "close"):
             self.iterable.close()
 
 
-def _make_chunk_iter(stream, limit, buffer_size):
+def _make_chunk_iter(
+    stream: t.Iterable[bytes] | t.IO[bytes],
+    limit: int | None,
+    buffer_size: int,
+) -> t.Iterator[bytes]:
     """Helper for the line and chunk iter functions."""
-    if isinstance(stream, (bytes, bytearray, text_type)):
+    warnings.warn(
+        "'_make_chunk_iter' is deprecated and will be removed in Werkzeug 2.4.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
+    if isinstance(stream, (bytes, bytearray, str)):
         raise TypeError(
             "Passed a string or byte object instead of true iterator or stream."
         )
@@ -674,17 +468,23 @@ def _make_chunk_iter(stream, limit, buffer_size):
             if item:
                 yield item
         return
+    stream = t.cast(t.IO[bytes], stream)
     if not isinstance(stream, LimitedStream) and limit is not None:
-        stream = LimitedStream(stream, limit)
+        stream = t.cast(t.IO[bytes], LimitedStream(stream, limit))
     _read = stream.read
-    while 1:
+    while True:
         item = _read(buffer_size)
         if not item:
             break
         yield item
 
 
-def make_line_iter(stream, limit=None, buffer_size=10 * 1024, cap_at_buffer=False):
+def make_line_iter(
+    stream: t.Iterable[bytes] | t.IO[bytes],
+    limit: int | None = None,
+    buffer_size: int = 10 * 1024,
+    cap_at_buffer: bool = False,
+) -> t.Iterator[bytes]:
     """Safely iterates line-based over an input stream.  If the input stream
     is not a :class:`LimitedStream` the `limit` parameter is mandatory.
 
@@ -697,14 +497,17 @@ def make_line_iter(stream, limit=None, buffer_size=10 * 1024, cap_at_buffer=Fals
     If you need line-by-line processing it's strongly recommended to iterate
     over the input stream using this helper function.
 
-    .. versionchanged:: 0.8
-       This function now ensures that the limit was reached.
+    .. deprecated:: 2.3
+        Will be removed in Werkzeug 2.4.
+
+    .. versionadded:: 0.11
+       added support for the `cap_at_buffer` parameter.
 
     .. versionadded:: 0.9
        added support for iterators as input stream.
 
-    .. versionadded:: 0.11.10
-       added support for the `cap_at_buffer` parameter.
+    .. versionchanged:: 0.8
+       This function now ensures that the limit was reached.
 
     :param stream: the stream or iterate to iterate over.
     :param limit: the limit in bytes for the stream.  (Usually
@@ -716,30 +519,40 @@ def make_line_iter(stream, limit=None, buffer_size=10 * 1024, cap_at_buffer=Fals
                           that the buffer size might be exhausted by a factor
                           of two however.
     """
+    warnings.warn(
+        "'make_line_iter' is deprecated and will be removed in Werkzeug 2.4.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     _iter = _make_chunk_iter(stream, limit, buffer_size)
 
-    first_item = next(_iter, "")
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", "'_make_chunk_iter", DeprecationWarning)
+        first_item = next(_iter, "")
+
     if not first_item:
         return
 
-    s = make_literal_wrapper(first_item)
-    empty = s("")
-    cr = s("\r")
-    lf = s("\n")
-    crlf = s("\r\n")
+    s = _make_encode_wrapper(first_item)
+    empty = t.cast(bytes, s(""))
+    cr = t.cast(bytes, s("\r"))
+    lf = t.cast(bytes, s("\n"))
+    crlf = t.cast(bytes, s("\r\n"))
 
-    _iter = chain((first_item,), _iter)
+    _iter = t.cast(t.Iterator[bytes], chain((first_item,), _iter))
 
-    def _iter_basic_lines():
+    def _iter_basic_lines() -> t.Iterator[bytes]:
         _join = empty.join
-        buffer = []
-        while 1:
+        buffer: list[bytes] = []
+        while True:
             new_data = next(_iter, "")
             if not new_data:
                 break
-            new_buf = []
+            new_buf: list[bytes] = []
             buf_size = 0
-            for item in chain(buffer, new_data.splitlines(True)):
+            for item in t.cast(
+                t.Iterator[bytes], chain(buffer, new_data.splitlines(True))
+            ):
                 new_buf.append(item)
                 buf_size += len(item)
                 if item and item[-1:] in crlf:
@@ -770,20 +583,27 @@ def make_line_iter(stream, limit=None, buffer_size=10 * 1024, cap_at_buffer=Fals
 
 
 def make_chunk_iter(
-    stream, separator, limit=None, buffer_size=10 * 1024, cap_at_buffer=False
-):
+    stream: t.Iterable[bytes] | t.IO[bytes],
+    separator: bytes,
+    limit: int | None = None,
+    buffer_size: int = 10 * 1024,
+    cap_at_buffer: bool = False,
+) -> t.Iterator[bytes]:
     """Works like :func:`make_line_iter` but accepts a separator
     which divides chunks.  If you want newline based processing
     you should use :func:`make_line_iter` instead as it
     supports arbitrary newline markers.
 
-    .. versionadded:: 0.8
+    .. deprecated:: 2.3
+        Will be removed in Werkzeug 2.4.
 
-    .. versionadded:: 0.9
+    .. versionchanged:: 0.11
+       added support for the `cap_at_buffer` parameter.
+
+    .. versionchanged:: 0.9
        added support for iterators as input stream.
 
-    .. versionadded:: 0.11.10
-       added support for the `cap_at_buffer` parameter.
+    .. versionadded:: 0.8
 
     :param stream: the stream or iterate to iterate over.
     :param separator: the separator that divides chunks.
@@ -796,29 +616,37 @@ def make_chunk_iter(
                           that the buffer size might be exhausted by a factor
                           of two however.
     """
+    warnings.warn(
+        "'make_chunk_iter' is deprecated and will be removed in Werkzeug 2.4.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
     _iter = _make_chunk_iter(stream, limit, buffer_size)
 
-    first_item = next(_iter, "")
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", "'_make_chunk_iter", DeprecationWarning)
+        first_item = next(_iter, b"")
+
     if not first_item:
         return
 
-    _iter = chain((first_item,), _iter)
-    if isinstance(first_item, text_type):
-        separator = to_unicode(separator)
-        _split = re.compile(r"(%s)" % re.escape(separator)).split
-        _join = u"".join
+    _iter = t.cast(t.Iterator[bytes], chain((first_item,), _iter))
+    if isinstance(first_item, str):
+        separator = _to_str(separator)
+        _split = re.compile(f"({re.escape(separator)})").split
+        _join = "".join
     else:
-        separator = to_bytes(separator)
+        separator = _to_bytes(separator)
         _split = re.compile(b"(" + re.escape(separator) + b")").split
         _join = b"".join
 
-    buffer = []
-    while 1:
-        new_data = next(_iter, "")
+    buffer: list[bytes] = []
+    while True:
+        new_data = next(_iter, b"")
         if not new_data:
             break
         chunks = _split(new_data)
-        new_buf = []
+        new_buf: list[bytes] = []
         buf_size = 0
         for item in chain(buffer, chunks):
             if item == separator:
@@ -842,172 +670,174 @@ def make_chunk_iter(
         yield _join(buffer)
 
 
-@implements_iterator
-class LimitedStream(io.IOBase):
-    """Wraps a stream so that it doesn't read more than n bytes.  If the
-    stream is exhausted and the caller tries to get more bytes from it
-    :func:`on_exhausted` is called which by default returns an empty
-    string.  The return value of that function is forwarded
-    to the reader function.  So if it returns an empty string
-    :meth:`read` will return an empty string as well.
+class LimitedStream(io.RawIOBase):
+    """Wrap a stream so that it doesn't read more than a given limit. This is used to
+    limit ``wsgi.input`` to the ``Content-Length`` header value or
+    :attr:`.Request.max_content_length`.
 
-    The limit however must never be higher than what the stream can
-    output.  Otherwise :meth:`readlines` will try to read past the
-    limit.
+    When attempting to read after the limit has been reached, :meth:`on_exhausted` is
+    called. When the limit is a maximum, this raises :exc:`.RequestEntityTooLarge`.
 
-    .. admonition:: Note on WSGI compliance
+    If reading from the stream returns zero bytes or raises an error,
+    :meth:`on_disconnect` is called, which raises :exc:`.ClientDisconnected`. When the
+    limit is a maximum and zero bytes were read, no error is raised, since it may be the
+    end of the stream.
 
-       calls to :meth:`readline` and :meth:`readlines` are not
-       WSGI compliant because it passes a size argument to the
-       readline methods.  Unfortunately the WSGI PEP is not safely
-       implementable without a size argument to :meth:`readline`
-       because there is no EOF marker in the stream.  As a result
-       of that the use of :meth:`readline` is discouraged.
+    If the limit is reached before the underlying stream is exhausted (such as a file
+    that is too large, or an infinite stream), the remaining contents of the stream
+    cannot be read safely. Depending on how the server handles this, clients may show a
+    "connection reset" failure instead of seeing the 413 response.
 
-       For the same reason iterating over the :class:`LimitedStream`
-       is not portable.  It internally calls :meth:`readline`.
+    :param stream: The stream to read from. Must be a readable binary IO object.
+    :param limit: The limit in bytes to not read past. Should be either the
+        ``Content-Length`` header value or ``request.max_content_length``.
+    :param is_max: Whether the given ``limit`` is ``request.max_content_length`` instead
+        of the ``Content-Length`` header value. This changes how exhausted and
+        disconnect events are handled.
 
-       We strongly suggest using :meth:`read` only or using the
-       :func:`make_line_iter` which safely iterates line-based
-       over a WSGI input stream.
+    .. versionchanged:: 2.3
+        Handle ``max_content_length`` differently than ``Content-Length``.
 
-    :param stream: the stream to wrap.
-    :param limit: the limit for the stream, must not be longer than
-                  what the string can provide if the stream does not
-                  end with `EOF` (like `wsgi.input`)
+    .. versionchanged:: 2.3
+        Implements ``io.RawIOBase`` rather than ``io.IOBase``.
     """
 
-    def __init__(self, stream, limit):
-        self._read = stream.read
-        self._readline = stream.readline
+    def __init__(self, stream: t.IO[bytes], limit: int, is_max: bool = False) -> None:
+        self._stream = stream
         self._pos = 0
         self.limit = limit
-
-    def __iter__(self):
-        return self
+        self._limit_is_max = is_max
 
     @property
-    def is_exhausted(self):
-        """If the stream is exhausted this attribute is `True`."""
+    def is_exhausted(self) -> bool:
+        """Whether the current stream position has reached the limit."""
         return self._pos >= self.limit
 
-    def on_exhausted(self):
-        """This is called when the stream tries to read past the limit.
-        The return value of this function is returned from the reading
-        function.
+    def on_exhausted(self) -> None:
+        """Called when attempting to read after the limit has been reached.
+
+        The default behavior is to do nothing, unless the limit is a maximum, in which
+        case it raises :exc:`.RequestEntityTooLarge`.
+
+        .. versionchanged:: 2.3
+            Raises ``RequestEntityTooLarge`` if the limit is a maximum.
+
+        .. versionchanged:: 2.3
+            Any return value is ignored.
         """
-        # Read null bytes from the stream so that we get the
-        # correct end of stream marker.
-        return self._read(0)
+        if self._limit_is_max:
+            raise RequestEntityTooLarge()
 
-    def on_disconnect(self):
-        """What should happen if a disconnect is detected?  The return
-        value of this function is returned from read functions in case
-        the client went away.  By default a
-        :exc:`~werkzeug.exceptions.ClientDisconnected` exception is raised.
+    def on_disconnect(self, error: Exception | None = None) -> None:
+        """Called when an attempted read receives zero bytes before the limit was
+        reached. This indicates that the client disconnected before sending the full
+        request body.
+
+        The default behavior is to raise :exc:`.ClientDisconnected`, unless the limit is
+        a maximum and no error was raised.
+
+        .. versionchanged:: 2.3
+            Added the ``error`` parameter. Do nothing if the limit is a maximum and no
+            error was raised.
+
+        .. versionchanged:: 2.3
+            Any return value is ignored.
         """
-        from .exceptions import ClientDisconnected
+        if not self._limit_is_max or error is not None:
+            raise ClientDisconnected()
 
-        raise ClientDisconnected()
+        # If the limit is a maximum, then we may have read zero bytes because the
+        # streaming body is complete. There's no way to distinguish that from the
+        # client disconnecting early.
 
-    def exhaust(self, chunk_size=1024 * 64):
-        """Exhaust the stream.  This consumes all the data left until the
-        limit is reached.
+    def exhaust(self) -> bytes:
+        """Exhaust the stream by reading until the limit is reached or the client
+        disconnects, returning the remaining data.
 
-        :param chunk_size: the size for a chunk.  It will read the chunk
-                           until the stream is exhausted and throw away
-                           the results.
+        .. versionchanged:: 2.3
+            Return the remaining data.
+
+        .. versionchanged:: 2.2.3
+            Handle case where wrapped stream returns fewer bytes than requested.
         """
-        to_read = self.limit - self._pos
-        chunk = chunk_size
-        while to_read > 0:
-            chunk = min(to_read, chunk)
-            self.read(chunk)
-            to_read -= chunk
+        if not self.is_exhausted:
+            return self.readall()
 
-    def read(self, size=None):
-        """Read `size` bytes or if size is not provided everything is read.
+        return b""
 
-        :param size: the number of bytes read.
-        """
-        if self._pos >= self.limit:
-            return self.on_exhausted()
-        if size is None or size == -1:  # -1 is for consistence with file
-            size = self.limit
-        to_read = min(self.limit - self._pos, size)
-        try:
-            read = self._read(to_read)
-        except (IOError, ValueError):
-            return self.on_disconnect()
-        if to_read and len(read) != to_read:
-            return self.on_disconnect()
-        self._pos += len(read)
-        return read
+    def readinto(self, b: bytearray) -> int | None:  # type: ignore[override]
+        size = len(b)
+        remaining = self.limit - self._pos
 
-    def readline(self, size=None):
-        """Reads one line from the stream."""
-        if self._pos >= self.limit:
-            return self.on_exhausted()
-        if size is None:
-            size = self.limit - self._pos
+        if remaining <= 0:
+            self.on_exhausted()
+            return 0
+
+        if hasattr(self._stream, "readinto"):
+            # Use stream.readinto if it's available.
+            if size <= remaining:
+                # The size fits in the remaining limit, use the buffer directly.
+                try:
+                    out_size: int | None = self._stream.readinto(b)
+                except (OSError, ValueError) as e:
+                    self.on_disconnect(error=e)
+                    return 0
+            else:
+                # Use a temp buffer with the remaining limit as the size.
+                temp_b = bytearray(remaining)
+
+                try:
+                    out_size = self._stream.readinto(temp_b)
+                except (OSError, ValueError) as e:
+                    self.on_disconnect(error=e)
+                    return 0
+
+                if out_size:
+                    b[:out_size] = temp_b
         else:
-            size = min(size, self.limit - self._pos)
-        try:
-            line = self._readline(size)
-        except (ValueError, IOError):
-            return self.on_disconnect()
-        if size and not line:
-            return self.on_disconnect()
-        self._pos += len(line)
-        return line
+            # WSGI requires that stream.read is available.
+            try:
+                data = self._stream.read(min(size, remaining))
+            except (OSError, ValueError) as e:
+                self.on_disconnect(error=e)
+                return 0
 
-    def readlines(self, size=None):
-        """Reads a file into a list of strings.  It calls :meth:`readline`
-        until the file is read to the end.  It does support the optional
-        `size` argument if the underlaying stream supports it for
-        `readline`.
-        """
-        last_pos = self._pos
-        result = []
-        if size is not None:
-            end = min(self.limit, last_pos + size)
-        else:
-            end = self.limit
-        while 1:
-            if size is not None:
-                size -= last_pos - self._pos
-            if self._pos >= end:
+            out_size = len(data)
+            b[:out_size] = data
+
+        if not out_size:
+            # Read zero bytes from the stream.
+            self.on_disconnect()
+            return 0
+
+        self._pos += out_size
+        return out_size
+
+    def readall(self) -> bytes:
+        if self.is_exhausted:
+            self.on_exhausted()
+            return b""
+
+        out = bytearray()
+
+        # The parent implementation uses "while True", which results in an extra read.
+        while not self.is_exhausted:
+            data = self.read(1024 * 64)
+
+            # Stream may return empty before a max limit is reached.
+            if not data:
                 break
-            result.append(self.readline(size))
-            if size is not None:
-                last_pos = self._pos
-        return result
 
-    def tell(self):
-        """Returns the position of the stream.
+            out.extend(data)
+
+        return bytes(out)
+
+    def tell(self) -> int:
+        """Return the current stream position.
 
         .. versionadded:: 0.9
         """
         return self._pos
 
-    def __next__(self):
-        line = self.readline()
-        if not line:
-            raise StopIteration()
-        return line
-
-    def readable(self):
+    def readable(self) -> bool:
         return True
-
-
-from werkzeug import _DeprecatedImportModule
-
-_DeprecatedImportModule(
-    __name__,
-    {
-        ".middleware.dispatcher": ["DispatcherMiddleware"],
-        ".middleware.http_proxy": ["ProxyMiddleware"],
-        ".middleware.shared_data": ["SharedDataMiddleware"],
-    },
-    "Werkzeug 1.0",
-)

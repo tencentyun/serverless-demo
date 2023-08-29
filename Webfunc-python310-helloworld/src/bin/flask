@@ -1,4 +1,4 @@
-#!/usr/local/opt/python@3.8/bin/python3.8
+#!/var/lang/python310/bin/python3.10
 # -*- coding: utf-8 -*-
 import re
 import sys

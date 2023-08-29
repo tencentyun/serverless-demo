@@ -2,7 +2,6 @@
 options.
 """
 import os
-import sys
 import typing
 import typing as t
 import weakref
@@ -282,6 +281,8 @@ class Environment:
     #: :class:`~jinja2.compiler.CodeGenerator` for more information.
     code_generator_class: t.Type["CodeGenerator"] = CodeGenerator
 
+    concat = "".join
+
     #: the context class that is used for templates.  See
     #: :class:`~jinja2.runtime.Context` for more information.
     context_class: t.Type[Context] = Context
@@ -392,6 +393,8 @@ class Environment:
         line_comment_prefix: t.Optional[str] = missing,
         trim_blocks: bool = missing,
         lstrip_blocks: bool = missing,
+        newline_sequence: "te.Literal['\\n', '\\r\\n', '\\r']" = missing,
+        keep_trailing_newline: bool = missing,
         extensions: t.Sequence[t.Union[str, t.Type["Extension"]]] = missing,
         optimized: bool = missing,
         undefined: t.Type[Undefined] = missing,
@@ -401,6 +404,7 @@ class Environment:
         cache_size: int = missing,
         auto_reload: bool = missing,
         bytecode_cache: t.Optional["BytecodeCache"] = missing,
+        enable_async: bool = False,
     ) -> "Environment":
         """Create a new overlay environment that shares all the data with the
         current environment except for cache and the overridden attributes.
@@ -412,9 +416,13 @@ class Environment:
         up completely.  Not all attributes are truly linked, some are just
         copied over so modifications on the original environment may not shine
         through.
+
+        .. versionchanged:: 3.1.2
+            Added the ``newline_sequence``,, ``keep_trailing_newline``,
+            and ``enable_async`` parameters to match ``__init__``.
         """
         args = dict(locals())
-        del args["self"], args["cache_size"], args["extensions"]
+        del args["self"], args["cache_size"], args["extensions"], args["enable_async"]
 
         rv = object.__new__(self.__class__)
         rv.__dict__.update(self.__dict__)
@@ -435,6 +443,9 @@ class Environment:
             rv.extensions[key] = value.bind(rv)
         if extensions is not missing:
             rv.extensions.update(load_extensions(rv, extensions))
+
+        if enable_async is not missing:
+            rv.is_async = enable_async
 
         return _environment_config_check(rv)
 
@@ -938,7 +949,7 @@ class Environment:
 
     @internalcode
     def _load_template(
-        self, name: str, globals: t.Optional[t.Mapping[str, t.Any]]
+        self, name: str, globals: t.Optional[t.MutableMapping[str, t.Any]]
     ) -> "Template":
         if self.loader is None:
             raise TypeError("no loader for this environment specified")
@@ -966,13 +977,15 @@ class Environment:
         self,
         name: t.Union[str, "Template"],
         parent: t.Optional[str] = None,
-        globals: t.Optional[t.Mapping[str, t.Any]] = None,
+        globals: t.Optional[t.MutableMapping[str, t.Any]] = None,
     ) -> "Template":
         """Load a template by name with :attr:`loader` and return a
         :class:`Template`. If the template does not exist a
         :exc:`TemplateNotFound` exception is raised.
 
-        :param name: Name of the template to load.
+        :param name: Name of the template to load. When loading
+            templates from the filesystem, "/" is used as the path
+            separator, even on Windows.
         :param parent: The name of the parent template importing this
             template. :meth:`join_path` can be used to implement name
             transformations with this.
@@ -1001,7 +1014,7 @@ class Environment:
         self,
         names: t.Iterable[t.Union[str, "Template"]],
         parent: t.Optional[str] = None,
-        globals: t.Optional[t.Mapping[str, t.Any]] = None,
+        globals: t.Optional[t.MutableMapping[str, t.Any]] = None,
     ) -> "Template":
         """Like :meth:`get_template`, but tries loading multiple names.
         If none of the names can be loaded a :exc:`TemplatesNotFound`
@@ -1057,7 +1070,7 @@ class Environment:
             str, "Template", t.List[t.Union[str, "Template"]]
         ],
         parent: t.Optional[str] = None,
-        globals: t.Optional[t.Mapping[str, t.Any]] = None,
+        globals: t.Optional[t.MutableMapping[str, t.Any]] = None,
     ) -> "Template":
         """Use :meth:`select_template` if an iterable of template names
         is given, or :meth:`get_template` if one name is given.
@@ -1073,7 +1086,7 @@ class Environment:
     def from_string(
         self,
         source: t.Union[str, nodes.Template],
-        globals: t.Optional[t.Mapping[str, t.Any]] = None,
+        globals: t.Optional[t.MutableMapping[str, t.Any]] = None,
         template_class: t.Optional[t.Type["Template"]] = None,
     ) -> "Template":
         """Load a template from a source string without using
@@ -1092,7 +1105,7 @@ class Environment:
         return cls.from_code(self, self.compile(source), gs, None)
 
     def make_globals(
-        self, d: t.Optional[t.Mapping[str, t.Any]]
+        self, d: t.Optional[t.MutableMapping[str, t.Any]]
     ) -> t.MutableMapping[str, t.Any]:
         """Make the globals map for a template. Any given template
         globals overlay the environment :attr:`globals`.
@@ -1115,33 +1128,20 @@ class Environment:
 
 
 class Template:
-    """The central template object.  This class represents a compiled template
-    and is used to evaluate it.
+    """A compiled template that can be rendered.
 
-    Normally the template object is generated from an :class:`Environment` but
-    it also has a constructor that makes it possible to create a template
-    instance directly using the constructor.  It takes the same arguments as
-    the environment constructor but it's not possible to specify a loader.
+    Use the methods on :class:`Environment` to create or load templates.
+    The environment is used to configure how templates are compiled and
+    behave.
 
-    Every template object has a few methods and members that are guaranteed
-    to exist.  However it's important that a template object should be
-    considered immutable.  Modifications on the object are not supported.
+    It is also possible to create a template object directly. This is
+    not usually recommended. The constructor takes most of the same
+    arguments as :class:`Environment`. All templates created with the
+    same environment arguments share the same ephemeral ``Environment``
+    instance behind the scenes.
 
-    Template objects created from the constructor rather than an environment
-    do have an `environment` attribute that points to a temporary environment
-    that is probably shared with other templates created with the constructor
-    and compatible settings.
-
-    >>> template = Template('Hello {{ name }}!')
-    >>> template.render(name='John Doe') == u'Hello John Doe!'
-    True
-    >>> stream = template.stream(name='John Doe')
-    >>> next(stream) == u'Hello John Doe!'
-    True
-    >>> next(stream)
-    Traceback (most recent call last):
-        ...
-    StopIteration
+    A template object should be considered immutable. Modifications on
+    the object are not supported.
     """
 
     #: Type of environment to create when creating a template directly
@@ -1281,14 +1281,11 @@ class Template:
 
             close = False
 
-            if sys.version_info < (3, 7):
-                loop = asyncio.get_event_loop()
-            else:
-                try:
-                    loop = asyncio.get_running_loop()
-                except RuntimeError:
-                    loop = asyncio.new_event_loop()
-                    close = True
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                close = True
 
             try:
                 return loop.run_until_complete(self.render_async(*args, **kwargs))
@@ -1299,7 +1296,7 @@ class Template:
         ctx = self.new_context(dict(*args, **kwargs))
 
         try:
-            return concat(self.root_render_func(ctx))  # type: ignore
+            return self.environment.concat(self.root_render_func(ctx))  # type: ignore
         except Exception:
             self.environment.handle_exception()
 
@@ -1320,7 +1317,9 @@ class Template:
         ctx = self.new_context(dict(*args, **kwargs))
 
         try:
-            return concat([n async for n in self.root_render_func(ctx)])  # type: ignore
+            return self.environment.concat(  # type: ignore
+                [n async for n in self.root_render_func(ctx)]  # type: ignore
+            )
         except Exception:
             return self.environment.handle_exception()
 
@@ -1344,13 +1343,7 @@ class Template:
             async def to_list() -> t.List[str]:
                 return [x async for x in self.generate_async(*args, **kwargs)]
 
-            if sys.version_info < (3, 7):
-                loop = asyncio.get_event_loop()
-                out = loop.run_until_complete(to_list())
-            else:
-                out = asyncio.run(to_list())
-
-            yield from out
+            yield from asyncio.run(to_list())
             return
 
         ctx = self.new_context(dict(*args, **kwargs))

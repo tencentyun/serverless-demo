@@ -3,6 +3,7 @@ sources.
 """
 import importlib.util
 import os
+import posixpath
 import sys
 import typing as t
 import weakref
@@ -193,7 +194,9 @@ class FileSystemLoader(BaseLoader):
     ) -> t.Tuple[str, str, t.Callable[[], bool]]:
         pieces = split_template_path(template)
         for searchpath in self.searchpath:
-            filename = os.path.join(searchpath, *pieces)
+            # Use posixpath even on Windows to avoid "drive:" or UNC
+            # segments breaking out of the search directory.
+            filename = posixpath.join(searchpath, *pieces)
             f = open_if_exists(filename)
             if f is None:
                 continue
@@ -210,7 +213,8 @@ class FileSystemLoader(BaseLoader):
                 except OSError:
                     return False
 
-            return contents, filename, uptodate
+            # Use normpath to convert Windows altsep to sep.
+            return contents, os.path.normpath(filename), uptodate
         raise TemplateNotFound(template)
 
     def list_templates(self) -> t.List[str]:
@@ -270,12 +274,14 @@ class PackageLoader(BaseLoader):
         package_path: "str" = "templates",
         encoding: str = "utf-8",
     ) -> None:
+        package_path = os.path.normpath(package_path).rstrip(os.path.sep)
+
+        # normpath preserves ".", which isn't valid in zip paths.
         if package_path == os.path.curdir:
             package_path = ""
         elif package_path[:2] == os.path.curdir + os.path.sep:
             package_path = package_path[2:]
 
-        package_path = os.path.normpath(package_path).rstrip(os.path.sep)
         self.package_path = package_path
         self.package_name = package_name
         self.encoding = encoding
@@ -294,11 +300,19 @@ class PackageLoader(BaseLoader):
         if isinstance(loader, zipimport.zipimporter):
             self._archive = loader.archive
             pkgdir = next(iter(spec.submodule_search_locations))  # type: ignore
-            template_root = os.path.join(pkgdir, package_path)
-        elif spec.submodule_search_locations:
-            # This will be one element for regular packages and multiple
-            # for namespace packages.
-            for root in spec.submodule_search_locations:
+            template_root = os.path.join(pkgdir, package_path).rstrip(os.path.sep)
+        else:
+            roots: t.List[str] = []
+
+            # One element for regular packages, multiple for namespace
+            # packages, or None for single module file.
+            if spec.submodule_search_locations:
+                roots.extend(spec.submodule_search_locations)
+            # A single module file, use the parent directory instead.
+            elif spec.origin is not None:
+                roots.append(os.path.dirname(spec.origin))
+
+            for root in roots:
                 root = os.path.join(root, package_path)
 
                 if os.path.isdir(root):
@@ -316,7 +330,12 @@ class PackageLoader(BaseLoader):
     def get_source(
         self, environment: "Environment", template: str
     ) -> t.Tuple[str, str, t.Optional[t.Callable[[], bool]]]:
-        p = os.path.join(self._template_root, *split_template_path(template))
+        # Use posixpath even on Windows to avoid "drive:" or UNC
+        # segments breaking out of the search directory. Use normpath to
+        # convert Windows altsep to sep.
+        p = os.path.normpath(
+            posixpath.join(self._template_root, *split_template_path(template))
+        )
         up_to_date: t.Optional[t.Callable[[], bool]]
 
         if self._archive is None:
@@ -336,8 +355,8 @@ class PackageLoader(BaseLoader):
             # Package is a zip file.
             try:
                 source = self._loader.get_data(p)  # type: ignore
-            except OSError:
-                raise TemplateNotFound(template)
+            except OSError as e:
+                raise TemplateNotFound(template) from e
 
             # Could use the zip's mtime for all template mtimes, but
             # would need to safely reload the module if it's out of
@@ -476,8 +495,8 @@ class PrefixLoader(BaseLoader):
         try:
             prefix, name = template.split(self.delimiter, 1)
             loader = self.mapping[prefix]
-        except (ValueError, KeyError):
-            raise TemplateNotFound(template)
+        except (ValueError, KeyError) as e:
+            raise TemplateNotFound(template) from e
         return loader, name
 
     def get_source(
@@ -486,10 +505,10 @@ class PrefixLoader(BaseLoader):
         loader, name = self.get_loader(template)
         try:
             return loader.get_source(environment, name)
-        except TemplateNotFound:
+        except TemplateNotFound as e:
             # re-raise the exception with the correct filename here.
             # (the one that includes the prefix)
-            raise TemplateNotFound(template)
+            raise TemplateNotFound(template) from e
 
     @internalcode
     def load(
@@ -501,10 +520,10 @@ class PrefixLoader(BaseLoader):
         loader, local_name = self.get_loader(name)
         try:
             return loader.load(environment, local_name, globals)
-        except TemplateNotFound:
+        except TemplateNotFound as e:
             # re-raise the exception with the correct filename here.
             # (the one that includes the prefix)
-            raise TemplateNotFound(name)
+            raise TemplateNotFound(name) from e
 
     def list_templates(self) -> t.List[str]:
         result = []
@@ -593,7 +612,7 @@ class ModuleLoader(BaseLoader):
         if not isinstance(path, abc.Iterable) or isinstance(path, str):
             path = [path]
 
-        mod.__path__ = [os.fspath(p) for p in path]  # type: ignore
+        mod.__path__ = [os.fspath(p) for p in path]
 
         sys.modules[package_name] = weakref.proxy(
             mod, lambda x: sys.modules.pop(package_name, None)
@@ -627,8 +646,8 @@ class ModuleLoader(BaseLoader):
         if mod is None:
             try:
                 mod = __import__(module, None, None, ["root"])
-            except ImportError:
-                raise TemplateNotFound(name)
+            except ImportError as e:
+                raise TemplateNotFound(name) from e
 
             # remove the entry from sys.modules, we only want the attribute
             # on the module object we have stored on the loader.

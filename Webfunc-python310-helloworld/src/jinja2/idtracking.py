@@ -84,7 +84,7 @@ class Symbols:
         return rv
 
     def copy(self) -> "Symbols":
-        rv = t.cast(Symbols, object.__new__(self.__class__))
+        rv = object.__new__(self.__class__)
         rv.__dict__.update(self.__dict__)
         rv.refs = self.refs.copy()
         rv.loads = self.loads.copy()
@@ -149,7 +149,7 @@ class Symbols:
         node: t.Optional["Symbols"] = self
 
         while node is not None:
-            for name in node.stores:
+            for name in sorted(node.stores):
                 if name not in rv:
                     rv[name] = self.find_ref(name)  # type: ignore
 

@@ -1,4 +1,3 @@
-import typing
 import typing as t
 from threading import local
 
@@ -9,12 +8,12 @@ if t.TYPE_CHECKING:
 _local = local()
 
 
-@typing.overload
+@t.overload
 def get_current_context(silent: "te.Literal[False]" = False) -> "Context":
     ...
 
 
-@typing.overload
+@t.overload
 def get_current_context(silent: bool = ...) -> t.Optional["Context"]:
     ...
 
@@ -36,9 +35,9 @@ def get_current_context(silent: bool = False) -> t.Optional["Context"]:
     """
     try:
         return t.cast("Context", _local.stack[-1])
-    except (AttributeError, IndexError):
+    except (AttributeError, IndexError) as e:
         if not silent:
-            raise RuntimeError("There is no active click context.")
+            raise RuntimeError("There is no active click context.") from e
 
     return None
 
