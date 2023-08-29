@@ -1,15 +1,12 @@
 import inspect
 import io
 import itertools
-import os
 import sys
-import typing
 import typing as t
 from gettext import gettext as _
 
 from ._compat import isatty
 from ._compat import strip_ansi
-from ._compat import WIN
 from .exceptions import Abort
 from .exceptions import UsageError
 from .globals import resolve_color_default
@@ -74,7 +71,7 @@ def _build_prompt(
 
 def _format_default(default: t.Any) -> t.Any:
     if isinstance(default, (io.IOBase, LazyFile)) and hasattr(default, "name"):
-        return default.name  # type: ignore
+        return default.name
 
     return default
 
@@ -84,7 +81,7 @@ def prompt(
     default: t.Optional[t.Any] = None,
     hide_input: bool = False,
     confirmation_prompt: t.Union[bool, str] = False,
-    type: t.Optional[ParamType] = None,
+    type: t.Optional[t.Union[ParamType, t.Any]] = None,
     value_proc: t.Optional[t.Callable[[str], t.Any]] = None,
     prompt_suffix: str = ": ",
     show_default: bool = True,
@@ -94,7 +91,7 @@ def prompt(
     """Prompts a user for input.  This is a convenience function that can
     be used to prompt a user for input later.
 
-    If the user aborts the input by sending a interrupt signal, this
+    If the user aborts the input by sending an interrupt signal, this
     function will catch it and raise a :exc:`Abort` exception.
 
     :param text: the text to show for the prompt.
@@ -147,7 +144,7 @@ def prompt(
             # A doc bug has been filed at https://bugs.python.org/issue24711
             if hide_input:
                 echo(None, err=err)
-            raise Abort()
+            raise Abort() from None
 
     if value_proc is None:
         value_proc = convert_type(type, default)
@@ -160,7 +157,6 @@ def prompt(
         if confirmation_prompt is True:
             confirmation_prompt = _("Repeat for confirmation")
 
-        confirmation_prompt = t.cast(str, confirmation_prompt)
         confirmation_prompt = _build_prompt(confirmation_prompt, prompt_suffix)
 
     while True:
@@ -182,9 +178,9 @@ def prompt(
         if not confirmation_prompt:
             return result
         while True:
-            confirmation_prompt = t.cast(str, confirmation_prompt)
             value2 = prompt_func(confirmation_prompt)
-            if value2:
+            is_empty = not value and not value2
+            if value2 or is_empty:
                 break
         if value == value2:
             return result
@@ -231,10 +227,12 @@ def confirm(
         try:
             # Write the prompt separately so that we get nice
             # coloring through colorama on Windows
-            echo(prompt, nl=False, err=err)
-            value = visible_prompt_func("").lower().strip()
+            echo(prompt.rstrip(" "), nl=False, err=err)
+            # Echo a space to stdout to work around an issue where
+            # readline causes backspace to clear the whole line.
+            value = visible_prompt_func(" ").lower().strip()
         except (KeyboardInterrupt, EOFError):
-            raise Abort()
+            raise Abort() from None
         if value in ("y", "yes"):
             rv = True
         elif value in ("n", "no"):
@@ -248,26 +246,6 @@ def confirm(
     if abort and not rv:
         raise Abort()
     return rv
-
-
-def get_terminal_size() -> os.terminal_size:
-    """Returns the current size of the terminal as tuple in the form
-    ``(width, height)`` in columns and rows.
-
-    .. deprecated:: 8.0
-        Will be removed in Click 8.1. Use
-        :func:`shutil.get_terminal_size` instead.
-    """
-    import shutil
-    import warnings
-
-    warnings.warn(
-        "'click.get_terminal_size()' is deprecated and will be removed"
-        " in Click 8.1. Use 'shutil.get_terminal_size()' instead.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
-    return shutil.get_terminal_size()
 
 
 def echo_via_pager(
@@ -463,10 +441,9 @@ def clear() -> None:
     """
     if not isatty(sys.stdout):
         return
-    if WIN:
-        os.system("cls")
-    else:
-        sys.stdout.write("\033[2J\033[1;1H")
+
+    # ANSI escape \033[2J clears the screen, \033[1;1H moves the cursor
+    echo("\033[2J\033[1;1H", nl=False)
 
 
 def _interpret_color(
@@ -581,13 +558,13 @@ def style(
         try:
             bits.append(f"\033[{_interpret_color(fg)}m")
         except KeyError:
-            raise TypeError(f"Unknown color {fg!r}")
+            raise TypeError(f"Unknown color {fg!r}") from None
 
     if bg:
         try:
             bits.append(f"\033[{_interpret_color(bg, 10)}m")
         except KeyError:
-            raise TypeError(f"Unknown color {bg!r}")
+            raise TypeError(f"Unknown color {bg!r}") from None
 
     if bold is not None:
         bits.append(f"\033[{1 if bold else 22}m")
@@ -596,9 +573,9 @@ def style(
     if underline is not None:
         bits.append(f"\033[{4 if underline else 24}m")
     if overline is not None:
-        bits.append(f"\033[{53 if underline else 55}m")
+        bits.append(f"\033[{53 if overline else 55}m")
     if italic is not None:
-        bits.append(f"\033[{5 if underline else 23}m")
+        bits.append(f"\033[{3 if italic else 23}m")
     if blink is not None:
         bits.append(f"\033[{5 if blink else 25}m")
     if reverse is not None:
@@ -625,7 +602,7 @@ def unstyle(text: str) -> str:
 
 def secho(
     message: t.Optional[t.Any] = None,
-    file: t.Optional[t.IO] = None,
+    file: t.Optional[t.IO[t.AnyStr]] = None,
     nl: bool = True,
     err: bool = False,
     color: t.Optional[bool] = None,

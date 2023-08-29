@@ -1,21 +1,10 @@
-# -*- coding: utf-8 -*-
-"""
-    flask.debughelpers
-    ~~~~~~~~~~~~~~~~~~
+from __future__ import annotations
 
-    Various helpers to make the development experience better.
+import typing as t
 
-    :copyright: © 2010 by the Pallets team.
-    :license: BSD, see LICENSE for more details.
-"""
-
-import os
-from warnings import warn
-
-from ._compat import implements_to_string, text_type
 from .app import Flask
 from .blueprints import Blueprint
-from .globals import _request_ctx_stack
+from .globals import request_ctx
 
 
 class UnexpectedUnicodeError(AssertionError, UnicodeError):
@@ -24,7 +13,6 @@ class UnexpectedUnicodeError(AssertionError, UnicodeError):
     """
 
 
-@implements_to_string
 class DebugFilesKeyError(KeyError, AssertionError):
     """Raised from request.files during debugging.  The idea is that it can
     provide a better error message than just a generic KeyError/BadRequest.
@@ -32,137 +20,141 @@ class DebugFilesKeyError(KeyError, AssertionError):
 
     def __init__(self, request, key):
         form_matches = request.form.getlist(key)
-        buf = ['You tried to access the file "%s" in the request.files '
-               'dictionary but it does not exist.  The mimetype for the request '
-               'is "%s" instead of "multipart/form-data" which means that no '
-               'file contents were transmitted.  To fix this error you should '
-               'provide enctype="multipart/form-data" in your form.' %
-               (key, request.mimetype)]
+        buf = [
+            f"You tried to access the file {key!r} in the request.files"
+            " dictionary but it does not exist. The mimetype for the"
+            f" request is {request.mimetype!r} instead of"
+            " 'multipart/form-data' which means that no file contents"
+            " were transmitted. To fix this error you should provide"
+            ' enctype="multipart/form-data" in your form.'
+        ]
         if form_matches:
-            buf.append('\n\nThe browser instead transmitted some file names. '
-                       'This was submitted: %s' % ', '.join('"%s"' % x
-                            for x in form_matches))
-        self.msg = ''.join(buf)
+            names = ", ".join(repr(x) for x in form_matches)
+            buf.append(
+                "\n\nThe browser instead transmitted some file names. "
+                f"This was submitted: {names}"
+            )
+        self.msg = "".join(buf)
 
     def __str__(self):
         return self.msg
 
 
 class FormDataRoutingRedirect(AssertionError):
-    """This exception is raised by Flask in debug mode if it detects a
-    redirect caused by the routing system when the request method is not
-    GET, HEAD or OPTIONS.  Reasoning: form data will be dropped.
+    """This exception is raised in debug mode if a routing redirect
+    would cause the browser to drop the method or body. This happens
+    when method is not GET, HEAD or OPTIONS and the status code is not
+    307 or 308.
     """
 
     def __init__(self, request):
         exc = request.routing_exception
-        buf = ['A request was sent to this URL (%s) but a redirect was '
-               'issued automatically by the routing system to "%s".'
-               % (request.url, exc.new_url)]
+        buf = [
+            f"A request was sent to '{request.url}', but routing issued"
+            f" a redirect to the canonical URL '{exc.new_url}'."
+        ]
 
-        # In case just a slash was appended we can be extra helpful
-        if request.base_url + '/' == exc.new_url.split('?')[0]:
-            buf.append('  The URL was defined with a trailing slash so '
-                       'Flask will automatically redirect to the URL '
-                       'with the trailing slash if it was accessed '
-                       'without one.')
+        if f"{request.base_url}/" == exc.new_url.partition("?")[0]:
+            buf.append(
+                " The URL was defined with a trailing slash. Flask"
+                " will redirect to the URL with a trailing slash if it"
+                " was accessed without one."
+            )
 
-        buf.append('  Make sure to directly send your %s-request to this URL '
-                   'since we can\'t make browsers or HTTP clients redirect '
-                   'with form data reliably or without user interaction.' %
-                   request.method)
-        buf.append('\n\nNote: this exception is only raised in debug mode')
-        AssertionError.__init__(self, ''.join(buf).encode('utf-8'))
+        buf.append(
+            " Send requests to the canonical URL, or use 307 or 308 for"
+            " routing redirects. Otherwise, browsers will drop form"
+            " data.\n\n"
+            "This exception is only raised in debug mode."
+        )
+        super().__init__("".join(buf))
 
 
 def attach_enctype_error_multidict(request):
-    """Since Flask 0.8 we're monkeypatching the files object in case a
-    request is detected that does not use multipart form data but the files
-    object is accessed.
+    """Patch ``request.files.__getitem__`` to raise a descriptive error
+    about ``enctype=multipart/form-data``.
+
+    :param request: The request to patch.
+    :meta private:
     """
     oldcls = request.files.__class__
+
     class newcls(oldcls):
         def __getitem__(self, key):
             try:
-                return oldcls.__getitem__(self, key)
-            except KeyError:
+                return super().__getitem__(key)
+            except KeyError as e:
                 if key not in request.form:
                     raise
-                raise DebugFilesKeyError(request, key)
+
+                raise DebugFilesKeyError(request, key).with_traceback(
+                    e.__traceback__
+                ) from None
+
     newcls.__name__ = oldcls.__name__
     newcls.__module__ = oldcls.__module__
     request.files.__class__ = newcls
 
 
-def _dump_loader_info(loader):
-    yield 'class: %s.%s' % (type(loader).__module__, type(loader).__name__)
+def _dump_loader_info(loader) -> t.Generator:
+    yield f"class: {type(loader).__module__}.{type(loader).__name__}"
     for key, value in sorted(loader.__dict__.items()):
-        if key.startswith('_'):
+        if key.startswith("_"):
             continue
         if isinstance(value, (tuple, list)):
-            if not all(isinstance(x, (str, text_type)) for x in value):
+            if not all(isinstance(x, str) for x in value):
                 continue
-            yield '%s:' % key
+            yield f"{key}:"
             for item in value:
-                yield '  - %s' % item
+                yield f"  - {item}"
             continue
-        elif not isinstance(value, (str, text_type, int, float, bool)):
+        elif not isinstance(value, (str, int, float, bool)):
             continue
-        yield '%s: %r' % (key, value)
+        yield f"{key}: {value!r}"
 
 
-def explain_template_loading_attempts(app, template, attempts):
+def explain_template_loading_attempts(app: Flask, template, attempts) -> None:
     """This should help developers understand what failed"""
-    info = ['Locating template "%s":' % template]
+    info = [f"Locating template {template!r}:"]
     total_found = 0
     blueprint = None
-    reqctx = _request_ctx_stack.top
-    if reqctx is not None and reqctx.request.blueprint is not None:
-        blueprint = reqctx.request.blueprint
+    if request_ctx and request_ctx.request.blueprint is not None:
+        blueprint = request_ctx.request.blueprint
 
     for idx, (loader, srcobj, triple) in enumerate(attempts):
         if isinstance(srcobj, Flask):
-            src_info = 'application "%s"' % srcobj.import_name
+            src_info = f"application {srcobj.import_name!r}"
         elif isinstance(srcobj, Blueprint):
-            src_info = 'blueprint "%s" (%s)' % (srcobj.name,
-                                                srcobj.import_name)
+            src_info = f"blueprint {srcobj.name!r} ({srcobj.import_name})"
         else:
             src_info = repr(srcobj)
 
-        info.append('% 5d: trying loader of %s' % (
-            idx + 1, src_info))
+        info.append(f"{idx + 1:5}: trying loader of {src_info}")
 
         for line in _dump_loader_info(loader):
-            info.append('       %s' % line)
+            info.append(f"       {line}")
 
         if triple is None:
-            detail = 'no match'
+            detail = "no match"
         else:
-            detail = 'found (%r)' % (triple[1] or '<string>')
+            detail = f"found ({triple[1] or '<string>'!r})"
             total_found += 1
-        info.append('       -> %s' % detail)
+        info.append(f"       -> {detail}")
 
     seems_fishy = False
     if total_found == 0:
-        info.append('Error: the template could not be found.')
+        info.append("Error: the template could not be found.")
         seems_fishy = True
     elif total_found > 1:
-        info.append('Warning: multiple loaders returned a match for the template.')
+        info.append("Warning: multiple loaders returned a match for the template.")
         seems_fishy = True
 
     if blueprint is not None and seems_fishy:
-        info.append('  The template was looked up from an endpoint that '
-                    'belongs to the blueprint "%s".' % blueprint)
-        info.append('  Maybe you did not place a template in the right folder?')
-        info.append('  See http://flask.pocoo.org/docs/blueprints/#templates')
+        info.append(
+            "  The template was looked up from an endpoint that belongs"
+            f" to the blueprint {blueprint!r}."
+        )
+        info.append("  Maybe you did not place a template in the right folder?")
+        info.append("  See https://flask.palletsprojects.com/blueprints/#templates")
 
-    app.logger.info('\n'.join(info))
-
-
-def explain_ignored_app_run():
-    if os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
-        warn(Warning('Silently ignoring app.run() because the '
-                     'application is run from the flask command line '
-                     'executable.  Consider putting app.run() behind an '
-                     'if __name__ == "__main__" guard to silence this '
-                     'warning.'), stacklevel=3)
+    app.logger.info("\n".join(info))

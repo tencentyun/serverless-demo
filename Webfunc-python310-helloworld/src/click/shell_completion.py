@@ -16,7 +16,7 @@ from .utils import echo
 
 def shell_complete(
     cli: BaseCommand,
-    ctx_args: t.Dict[str, t.Any],
+    ctx_args: t.MutableMapping[str, t.Any],
     prog_name: str,
     complete_var: str,
     instruction: str,
@@ -80,9 +80,9 @@ class CompletionItem:
         help: t.Optional[str] = None,
         **kwargs: t.Any,
     ) -> None:
-        self.value = value
-        self.type = type
-        self.help = help
+        self.value: t.Any = value
+        self.type: str = type
+        self.help: t.Optional[str] = help
         self._info = kwargs
 
     def __getattr__(self, name: str) -> t.Any:
@@ -102,10 +102,10 @@ _SOURCE_BASH = """\
         IFS=',' read type value <<< "$completion"
 
         if [[ $type == 'dir' ]]; then
-            COMREPLY=()
+            COMPREPLY=()
             compopt -o dirnames
         elif [[ $type == 'file' ]]; then
-            COMREPLY=()
+            COMPREPLY=()
             compopt -o default
         elif [[ $type == 'plain' ]]; then
             COMPREPLY+=($value)
@@ -157,17 +157,19 @@ _SOURCE_ZSH = """\
     fi
 }
 
-compdef %(complete_func)s %(prog_name)s;
+if [[ $zsh_eval_context[-1] == loadautofunc ]]; then
+    # autoload from fpath, call function directly
+    %(complete_func)s "$@"
+else
+    # eval/source/. command, register function for later
+    compdef %(complete_func)s %(prog_name)s
+fi
 """
 
 _SOURCE_FISH = """\
 function %(complete_func)s;
-    set -l response;
-
-    for value in (env %(complete_var)s=fish_complete COMP_WORDS=(commandline -cp) \
+    set -l response (env %(complete_var)s=fish_complete COMP_WORDS=(commandline -cp) \
 COMP_CWORD=(commandline -t) %(prog_name)s);
-        set response $response $value;
-    end;
 
     for completion in $response;
         set -l metadata (string split "," $completion);
@@ -214,7 +216,7 @@ class ShellComplete:
     def __init__(
         self,
         cli: BaseCommand,
-        ctx_args: t.Dict[str, t.Any],
+        ctx_args: t.MutableMapping[str, t.Any],
         prog_name: str,
         complete_var: str,
     ) -> None:
@@ -228,7 +230,7 @@ class ShellComplete:
         """The name of the shell function defined by the completion
         script.
         """
-        safe_name = re.sub(r"\W*", "", self.prog_name.replace("-", "_"), re.ASCII)
+        safe_name = re.sub(r"\W*", "", self.prog_name.replace("-", "_"), flags=re.ASCII)
         return f"_{safe_name}_completion"
 
     def source_vars(self) -> t.Dict[str, t.Any]:
@@ -299,25 +301,30 @@ class BashComplete(ShellComplete):
     name = "bash"
     source_template = _SOURCE_BASH
 
-    def _check_version(self) -> None:
+    @staticmethod
+    def _check_version() -> None:
         import subprocess
 
-        output = subprocess.run(["bash", "--version"], stdout=subprocess.PIPE)
-        match = re.search(r"version (\d)\.(\d)\.\d", output.stdout.decode())
+        output = subprocess.run(
+            ["bash", "-c", 'echo "${BASH_VERSION}"'], stdout=subprocess.PIPE
+        )
+        match = re.search(r"^(\d+)\.(\d+)\.\d+", output.stdout.decode())
 
         if match is not None:
             major, minor = match.groups()
 
             if major < "4" or major == "4" and minor < "4":
-                raise RuntimeError(
+                echo(
                     _(
                         "Shell completion is not supported for Bash"
                         " versions older than 4.4."
-                    )
+                    ),
+                    err=True,
                 )
         else:
-            raise RuntimeError(
-                _("Couldn't detect Bash version, shell completion is not supported.")
+            echo(
+                _("Couldn't detect Bash version, shell completion is not supported."),
+                err=True,
             )
 
     def source(self) -> str:
@@ -387,6 +394,9 @@ class FishComplete(ShellComplete):
         return f"{item.type},{item.value}"
 
 
+ShellCompleteType = t.TypeVar("ShellCompleteType", bound=t.Type[ShellComplete])
+
+
 _available_shells: t.Dict[str, t.Type[ShellComplete]] = {
     "bash": BashComplete,
     "fish": FishComplete,
@@ -395,8 +405,8 @@ _available_shells: t.Dict[str, t.Type[ShellComplete]] = {
 
 
 def add_completion_class(
-    cls: t.Type[ShellComplete], name: t.Optional[str] = None
-) -> None:
+    cls: ShellCompleteType, name: t.Optional[str] = None
+) -> ShellCompleteType:
     """Register a :class:`ShellComplete` subclass under the given name.
     The name will be provided by the completion instruction environment
     variable during completion.
@@ -410,6 +420,8 @@ def add_completion_class(
         name = cls.name
 
     _available_shells[name] = cls
+
+    return cls
 
 
 def get_completion_class(shell: str) -> t.Optional[t.Type[ShellComplete]]:
@@ -434,7 +446,8 @@ def _is_incomplete_argument(ctx: Context, param: Parameter) -> bool:
         return False
 
     assert param.name is not None
-    value = ctx.params[param.name]
+    # Will be None if expose_value is False.
+    value = ctx.params.get(param.name)
     return (
         param.nargs == -1
         or ctx.get_parameter_source(param.name) is not ParameterSource.COMMANDLINE
@@ -446,12 +459,16 @@ def _is_incomplete_argument(ctx: Context, param: Parameter) -> bool:
     )
 
 
-def _start_of_option(value: str) -> bool:
+def _start_of_option(ctx: Context, value: str) -> bool:
     """Check if the value looks like the start of an option."""
-    return not value[0].isalnum() if value else False
+    if not value:
+        return False
+
+    c = value[0]
+    return c in ctx._opt_prefixes
 
 
-def _is_incomplete_option(args: t.List[str], param: Parameter) -> bool:
+def _is_incomplete_option(ctx: Context, args: t.List[str], param: Parameter) -> bool:
     """Determine if the given parameter is an option that needs a value.
 
     :param args: List of complete args before the incomplete value.
@@ -460,7 +477,7 @@ def _is_incomplete_option(args: t.List[str], param: Parameter) -> bool:
     if not isinstance(param, Option):
         return False
 
-    if param.is_flag:
+    if param.is_flag or param.count:
         return False
 
     last_option = None
@@ -469,14 +486,17 @@ def _is_incomplete_option(args: t.List[str], param: Parameter) -> bool:
         if index + 1 > param.nargs:
             break
 
-        if _start_of_option(arg):
+        if _start_of_option(ctx, arg):
             last_option = arg
 
     return last_option is not None and last_option in param.opts
 
 
 def _resolve_context(
-    cli: BaseCommand, ctx_args: t.Dict[str, t.Any], prog_name: str, args: t.List[str]
+    cli: BaseCommand,
+    ctx_args: t.MutableMapping[str, t.Any],
+    prog_name: str,
+    args: t.List[str],
 ) -> Context:
     """Produce the context hierarchy starting with the command and
     traversing the complete arguments. This only follows the commands,
@@ -503,6 +523,8 @@ def _resolve_context(
                 ctx = cmd.make_context(name, args, parent=ctx, resilient_parsing=True)
                 args = ctx.protected_args + ctx.args
             else:
+                sub_ctx = ctx
+
                 while args:
                     name, cmd, args = command.resolve_command(ctx, args)
 
@@ -544,7 +566,7 @@ def _resolve_incomplete(
     # split and discard the "=" to make completion easier.
     if incomplete == "=":
         incomplete = ""
-    elif "=" in incomplete and _start_of_option(incomplete):
+    elif "=" in incomplete and _start_of_option(ctx, incomplete):
         name, _, incomplete = incomplete.partition("=")
         args.append(name)
 
@@ -552,7 +574,7 @@ def _resolve_incomplete(
     # even if they start with the option character. If it hasn't been
     # given and the incomplete arg looks like an option, the current
     # command will provide option name completions.
-    if "--" not in args and _start_of_option(incomplete):
+    if "--" not in args and _start_of_option(ctx, incomplete):
         return ctx.command, incomplete
 
     params = ctx.command.get_params(ctx)
@@ -560,7 +582,7 @@ def _resolve_incomplete(
     # If the last complete arg is an option name with an incomplete
     # value, the option will provide value completions.
     for param in params:
-        if _is_incomplete_option(args, param):
+        if _is_incomplete_option(ctx, args, param):
             return param, incomplete
 
     # It's not an option name or value. The first argument without a

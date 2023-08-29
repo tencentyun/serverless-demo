@@ -1,100 +1,127 @@
-# -*- coding: utf-8 -*-
-"""
-    werkzeug.utils
-    ~~~~~~~~~~~~~~
+from __future__ import annotations
 
-    This module implements various utilities for WSGI applications.  Most of
-    them are used by the request and response wrappers but especially for
-    middleware development it makes sense to use them without the wrappers.
-
-    :copyright: 2007 Pallets
-    :license: BSD-3-Clause
-"""
-import codecs
+import io
+import mimetypes
 import os
 import pkgutil
 import re
 import sys
+import typing as t
+import unicodedata
+from datetime import datetime
+from time import time
+from urllib.parse import quote
+from zlib import adler32
 
-from ._compat import iteritems
-from ._compat import PY2
-from ._compat import reraise
-from ._compat import string_types
-from ._compat import text_type
-from ._compat import unichr
+from markupsafe import escape
+
 from ._internal import _DictAccessorProperty
 from ._internal import _missing
-from ._internal import _parse_signature
+from ._internal import _TAccessorValue
+from .datastructures import Headers
+from .exceptions import NotFound
+from .exceptions import RequestedRangeNotSatisfiable
+from .security import safe_join
+from .wsgi import wrap_file
 
-try:
-    from html.entities import name2codepoint
-except ImportError:
-    from htmlentitydefs import name2codepoint
+if t.TYPE_CHECKING:
+    from _typeshed.wsgi import WSGIEnvironment
+    from .wrappers.request import Request
+    from .wrappers.response import Response
 
+_T = t.TypeVar("_T")
 
-_format_re = re.compile(r"\$(?:(%s)|\{(%s)\})" % (("[a-zA-Z_][a-zA-Z0-9_]*",) * 2))
 _entity_re = re.compile(r"&([^;]+);")
 _filename_ascii_strip_re = re.compile(r"[^A-Za-z0-9_.-]")
-_windows_device_files = (
+_windows_device_files = {
     "CON",
-    "AUX",
-    "COM1",
-    "COM2",
-    "COM3",
-    "COM4",
-    "LPT1",
-    "LPT2",
-    "LPT3",
     "PRN",
+    "AUX",
     "NUL",
-)
+    *(f"COM{i}" for i in range(10)),
+    *(f"LPT{i}" for i in range(10)),
+}
 
 
-class cached_property(property):
-    """A decorator that converts a function into a lazy property.  The
-    function wrapped is called the first time to retrieve the result
-    and then that calculated result is used the next time you access
-    the value::
+class cached_property(property, t.Generic[_T]):
+    """A :func:`property` that is only evaluated once. Subsequent access
+    returns the cached value. Setting the property sets the cached
+    value. Deleting the property clears the cached value, accessing it
+    again will evaluate it again.
 
-        class Foo(object):
+    .. code-block:: python
 
+        class Example:
             @cached_property
-            def foo(self):
+            def value(self):
                 # calculate something important here
                 return 42
 
-    The class has to have a `__dict__` in order for this property to
-    work.
+        e = Example()
+        e.value  # evaluates
+        e.value  # uses cache
+        e.value = 16  # sets cache
+        del e.value  # clears cache
+
+    If the class defines ``__slots__``, it must add ``_cache_{name}`` as
+    a slot. Alternatively, it can add ``__dict__``, but that's usually
+    not desirable.
+
+    .. versionchanged:: 2.1
+        Works with ``__slots__``.
+
+    .. versionchanged:: 2.0
+        ``del obj.name`` clears the cached value.
     """
 
-    # implementation detail: A subclass of python's builtin property
-    # decorator, we override __get__ to check for a cached value. If one
-    # chooses to invoke __get__ by hand the property will still work as
-    # expected because the lookup logic is replicated in __get__ for
-    # manual invocation.
+    def __init__(
+        self,
+        fget: t.Callable[[t.Any], _T],
+        name: str | None = None,
+        doc: str | None = None,
+    ) -> None:
+        super().__init__(fget, doc=doc)
+        self.__name__ = name or fget.__name__
+        self.slot_name = f"_cache_{self.__name__}"
+        self.__module__ = fget.__module__
 
-    def __init__(self, func, name=None, doc=None):
-        self.__name__ = name or func.__name__
-        self.__module__ = func.__module__
-        self.__doc__ = doc or func.__doc__
-        self.func = func
-
-    def __set__(self, obj, value):
-        obj.__dict__[self.__name__] = value
-
-    def __get__(self, obj, type=None):
-        if obj is None:
-            return self
-        value = obj.__dict__.get(self.__name__, _missing)
-        if value is _missing:
-            value = self.func(obj)
+    def __set__(self, obj: object, value: _T) -> None:
+        if hasattr(obj, "__dict__"):
             obj.__dict__[self.__name__] = value
+        else:
+            setattr(obj, self.slot_name, value)
+
+    def __get__(self, obj: object, type: type = None) -> _T:  # type: ignore
+        if obj is None:
+            return self  # type: ignore
+
+        obj_dict = getattr(obj, "__dict__", None)
+
+        if obj_dict is not None:
+            value: _T = obj_dict.get(self.__name__, _missing)
+        else:
+            value = getattr(obj, self.slot_name, _missing)  # type: ignore[arg-type]
+
+        if value is _missing:
+            value = self.fget(obj)  # type: ignore
+
+            if obj_dict is not None:
+                obj.__dict__[self.__name__] = value
+            else:
+                setattr(obj, self.slot_name, value)
+
         return value
 
+    def __delete__(self, obj: object) -> None:
+        if hasattr(obj, "__dict__"):
+            del obj.__dict__[self.__name__]
+        else:
+            setattr(obj, self.slot_name, _missing)
 
-class environ_property(_DictAccessorProperty):
+
+class environ_property(_DictAccessorProperty[_TAccessorValue]):
     """Maps request attributes to environment variables. This works not only
-    for the Werzeug request object, but also any other class with an
+    for the Werkzeug request object, but also any other class with an
     environ attribute:
 
     >>> class Test(object):
@@ -115,140 +142,16 @@ class environ_property(_DictAccessorProperty):
 
     read_only = True
 
-    def lookup(self, obj):
+    def lookup(self, obj: Request) -> WSGIEnvironment:
         return obj.environ
 
 
-class header_property(_DictAccessorProperty):
+class header_property(_DictAccessorProperty[_TAccessorValue]):
     """Like `environ_property` but for headers."""
 
-    def lookup(self, obj):
+    def lookup(self, obj: Request | Response) -> Headers:
         return obj.headers
 
-
-class HTMLBuilder(object):
-    """Helper object for HTML generation.
-
-    Per default there are two instances of that class.  The `html` one, and
-    the `xhtml` one for those two dialects.  The class uses keyword parameters
-    and positional parameters to generate small snippets of HTML.
-
-    Keyword parameters are converted to XML/SGML attributes, positional
-    arguments are used as children.  Because Python accepts positional
-    arguments before keyword arguments it's a good idea to use a list with the
-    star-syntax for some children:
-
-    >>> html.p(class_='foo', *[html.a('foo', href='foo.html'), ' ',
-    ...                        html.a('bar', href='bar.html')])
-    u'<p class="foo"><a href="foo.html">foo</a> <a href="bar.html">bar</a></p>'
-
-    This class works around some browser limitations and can not be used for
-    arbitrary SGML/XML generation.  For that purpose lxml and similar
-    libraries exist.
-
-    Calling the builder escapes the string passed:
-
-    >>> html.p(html("<foo>"))
-    u'<p>&lt;foo&gt;</p>'
-    """
-
-    _entity_re = re.compile(r"&([^;]+);")
-    _entities = name2codepoint.copy()
-    _entities["apos"] = 39
-    _empty_elements = {
-        "area",
-        "base",
-        "basefont",
-        "br",
-        "col",
-        "command",
-        "embed",
-        "frame",
-        "hr",
-        "img",
-        "input",
-        "keygen",
-        "isindex",
-        "link",
-        "meta",
-        "param",
-        "source",
-        "wbr",
-    }
-    _boolean_attributes = {
-        "selected",
-        "checked",
-        "compact",
-        "declare",
-        "defer",
-        "disabled",
-        "ismap",
-        "multiple",
-        "nohref",
-        "noresize",
-        "noshade",
-        "nowrap",
-    }
-    _plaintext_elements = {"textarea"}
-    _c_like_cdata = {"script", "style"}
-
-    def __init__(self, dialect):
-        self._dialect = dialect
-
-    def __call__(self, s):
-        return escape(s)
-
-    def __getattr__(self, tag):
-        if tag[:2] == "__":
-            raise AttributeError(tag)
-
-        def proxy(*children, **arguments):
-            buffer = "<" + tag
-            for key, value in iteritems(arguments):
-                if value is None:
-                    continue
-                if key[-1] == "_":
-                    key = key[:-1]
-                if key in self._boolean_attributes:
-                    if not value:
-                        continue
-                    if self._dialect == "xhtml":
-                        value = '="' + key + '"'
-                    else:
-                        value = ""
-                else:
-                    value = '="' + escape(value) + '"'
-                buffer += " " + key + value
-            if not children and tag in self._empty_elements:
-                if self._dialect == "xhtml":
-                    buffer += " />"
-                else:
-                    buffer += ">"
-                return buffer
-            buffer += ">"
-
-            children_as_string = "".join(
-                [text_type(x) for x in children if x is not None]
-            )
-
-            if children_as_string:
-                if tag in self._plaintext_elements:
-                    children_as_string = escape(children_as_string)
-                elif tag in self._c_like_cdata and self._dialect == "xhtml":
-                    children_as_string = (
-                        "/*<![CDATA[*/" + children_as_string + "/*]]>*/"
-                    )
-            buffer += children_as_string + "</" + tag + ">"
-            return buffer
-
-        return proxy
-
-    def __repr__(self):
-        return "<%s for %r>" % (self.__class__.__name__, self._dialect)
-
-
-html = HTMLBuilder("html")
-xhtml = HTMLBuilder("xhtml")
 
 # https://cgit.freedesktop.org/xdg/shared-mime-info/tree/freedesktop.org.xml.in
 # https://www.iana.org/assignments/media-types/media-types.xhtml
@@ -263,7 +166,7 @@ _charset_mimetypes = {
 }
 
 
-def get_content_type(mimetype, charset):
+def get_content_type(mimetype: str, charset: str) -> str:
     """Returns the full content type string with charset for a mimetype.
 
     If the mimetype represents text, the charset parameter will be
@@ -273,7 +176,7 @@ def get_content_type(mimetype, charset):
     :param charset: The charset to be appended for text mimetypes.
     :return: The content type.
 
-    .. verionchanged:: 0.15
+    .. versionchanged:: 0.15
         Any type that ends with ``+xml`` gets a charset, not just those
         that start with ``application/``. Known text types such as
         ``application/javascript`` are also given charsets.
@@ -283,81 +186,12 @@ def get_content_type(mimetype, charset):
         or mimetype in _charset_mimetypes
         or mimetype.endswith("+xml")
     ):
-        mimetype += "; charset=" + charset
+        mimetype += f"; charset={charset}"
 
     return mimetype
 
 
-def detect_utf_encoding(data):
-    """Detect which UTF encoding was used to encode the given bytes.
-
-    The latest JSON standard (:rfc:`8259`) suggests that only UTF-8 is
-    accepted. Older documents allowed 8, 16, or 32. 16 and 32 can be big
-    or little endian. Some editors or libraries may prepend a BOM.
-
-    :internal:
-
-    :param data: Bytes in unknown UTF encoding.
-    :return: UTF encoding name
-
-    .. versionadded:: 0.15
-    """
-    head = data[:4]
-
-    if head[:3] == codecs.BOM_UTF8:
-        return "utf-8-sig"
-
-    if b"\x00" not in head:
-        return "utf-8"
-
-    if head in (codecs.BOM_UTF32_BE, codecs.BOM_UTF32_LE):
-        return "utf-32"
-
-    if head[:2] in (codecs.BOM_UTF16_BE, codecs.BOM_UTF16_LE):
-        return "utf-16"
-
-    if len(head) == 4:
-        if head[:3] == b"\x00\x00\x00":
-            return "utf-32-be"
-
-        if head[::2] == b"\x00\x00":
-            return "utf-16-be"
-
-        if head[1:] == b"\x00\x00\x00":
-            return "utf-32-le"
-
-        if head[1::2] == b"\x00\x00":
-            return "utf-16-le"
-
-    if len(head) == 2:
-        return "utf-16-be" if head.startswith(b"\x00") else "utf-16-le"
-
-    return "utf-8"
-
-
-def format_string(string, context):
-    """String-template format a string:
-
-    >>> format_string('$foo and ${foo}s', dict(foo=42))
-    '42 and 42s'
-
-    This does not do any attribute lookup etc.  For more advanced string
-    formattings have a look at the `werkzeug.template` module.
-
-    :param string: the format string.
-    :param context: a dict with the variables to insert.
-    """
-
-    def lookup_arg(match):
-        x = context[match.group(1) or match.group(2)]
-        if not isinstance(x, string_types):
-            x = type(string)(x)
-        return x
-
-    return _format_re.sub(lookup_arg, string)
-
-
-def secure_filename(filename):
+def secure_filename(filename: str) -> str:
     r"""Pass it a filename and it will return a secure version of it.  This
     filename can then safely be stored on a regular file system and passed
     to :func:`os.path.join`.  The filename returned is an ASCII only string
@@ -370,7 +204,7 @@ def secure_filename(filename):
     'My_cool_movie.mov'
     >>> secure_filename("../../../etc/passwd")
     'etc_passwd'
-    >>> secure_filename(u'i contain cool \xfcml\xe4uts.txt')
+    >>> secure_filename('i contain cool \xfcml\xe4uts.txt')
     'i_contain_cool_umlauts.txt'
 
     The function might return an empty filename.  It's your responsibility
@@ -381,13 +215,10 @@ def secure_filename(filename):
 
     :param filename: the filename to secure
     """
-    if isinstance(filename, text_type):
-        from unicodedata import normalize
+    filename = unicodedata.normalize("NFKD", filename)
+    filename = filename.encode("ascii", "ignore").decode("ascii")
 
-        filename = normalize("NFKD", filename).encode("ascii", "ignore")
-        if not PY2:
-            filename = filename.decode("ascii")
-    for sep in os.path.sep, os.path.altsep:
+    for sep in os.sep, os.path.altsep:
         if sep:
             filename = filename.replace(sep, " ")
     filename = str(_filename_ascii_strip_re.sub("", "_".join(filename.split()))).strip(
@@ -402,70 +233,14 @@ def secure_filename(filename):
         and filename
         and filename.split(".")[0].upper() in _windows_device_files
     ):
-        filename = "_" + filename
+        filename = f"_{filename}"
 
     return filename
 
 
-def escape(s, quote=None):
-    """Replace special characters "&", "<", ">" and (") to HTML-safe sequences.
-
-    There is a special handling for `None` which escapes to an empty string.
-
-    .. versionchanged:: 0.9
-       `quote` is now implicitly on.
-
-    :param s: the string to escape.
-    :param quote: ignored.
-    """
-    if s is None:
-        return ""
-    elif hasattr(s, "__html__"):
-        return text_type(s.__html__())
-    elif not isinstance(s, string_types):
-        s = text_type(s)
-    if quote is not None:
-        from warnings import warn
-
-        warn(
-            "The 'quote' parameter is no longer used as of version 0.9"
-            " and will be removed in version 1.0.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-    s = (
-        s.replace("&", "&amp;")
-        .replace("<", "&lt;")
-        .replace(">", "&gt;")
-        .replace('"', "&quot;")
-    )
-    return s
-
-
-def unescape(s):
-    """The reverse function of `escape`.  This unescapes all the HTML
-    entities, not only the XML entities inserted by `escape`.
-
-    :param s: the string to unescape.
-    """
-
-    def handle_match(m):
-        name = m.group(1)
-        if name in HTMLBuilder._entities:
-            return unichr(HTMLBuilder._entities[name])
-        try:
-            if name[:2] in ("#x", "#X"):
-                return unichr(int(name[2:], 16))
-            elif name.startswith("#"):
-                return unichr(int(name[1:]))
-        except ValueError:
-            pass
-        return u""
-
-    return _entity_re.sub(handle_match, s)
-
-
-def redirect(location, code=302, Response=None):
+def redirect(
+    location: str, code: int = 302, Response: type[Response] | None = None
+) -> Response:
     """Returns a response object (a WSGI application) that, if called,
     redirects the client to the target location. Supported codes are
     301, 302, 303, 305, 307, and 308. 300 is not supported because
@@ -485,23 +260,21 @@ def redirect(location, code=302, Response=None):
         response. The default is :class:`werkzeug.wrappers.Response` if
         unspecified.
     """
+    from .urls import iri_to_uri
+
     if Response is None:
         from .wrappers import Response
 
     display_location = escape(location)
-    if isinstance(location, text_type):
-        # Safe conversion is necessary here as we might redirect
-        # to a broken URI scheme (for instance itms-services).
-        from .urls import iri_to_uri
-
-        location = iri_to_uri(location, safe_conversion=True)
-    response = Response(
-        '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">\n'
+    location = iri_to_uri(location)
+    response = Response(  # type: ignore[misc]
+        "<!doctype html>\n"
+        "<html lang=en>\n"
         "<title>Redirecting...</title>\n"
         "<h1>Redirecting...</h1>\n"
-        "<p>You should be redirected automatically to target URL: "
-        '<a href="%s">%s</a>.  If not click the link.'
-        % (escape(location), display_location),
+        "<p>You should be redirected automatically to the target URL: "
+        f'<a href="{escape(location)}">{display_location}</a>. If'
+        " not, click the link.\n",
         code,
         mimetype="text/html",
     )
@@ -509,22 +282,305 @@ def redirect(location, code=302, Response=None):
     return response
 
 
-def append_slash_redirect(environ, code=301):
-    """Redirects to the same URL but with a slash appended.  The behavior
-    of this function is undefined if the path ends with a slash already.
+def append_slash_redirect(environ: WSGIEnvironment, code: int = 308) -> Response:
+    """Redirect to the current URL with a slash appended.
 
-    :param environ: the WSGI environment for the request that triggers
-                    the redirect.
+    If the current URL is ``/user/42``, the redirect URL will be
+    ``42/``. When joined to the current URL during response
+    processing or by the browser, this will produce ``/user/42/``.
+
+    The behavior is undefined if the path ends with a slash already. If
+    called unconditionally on a URL, it may produce a redirect loop.
+
+    :param environ: Use the path and query from this WSGI environment
+        to produce the redirect URL.
     :param code: the status code for the redirect.
+
+    .. versionchanged:: 2.1
+        Produce a relative URL that only modifies the last segment.
+        Relevant when the current path has multiple segments.
+
+    .. versionchanged:: 2.1
+        The default status code is 308 instead of 301. This preserves
+        the request method and body.
     """
-    new_path = environ["PATH_INFO"].strip("/") + "/"
+    tail = environ["PATH_INFO"].rpartition("/")[2]
+
+    if not tail:
+        new_path = "./"
+    else:
+        new_path = f"{tail}/"
+
     query_string = environ.get("QUERY_STRING")
+
     if query_string:
-        new_path += "?" + query_string
+        new_path = f"{new_path}?{query_string}"
+
     return redirect(new_path, code)
 
 
-def import_string(import_name, silent=False):
+def send_file(
+    path_or_file: os.PathLike | str | t.IO[bytes],
+    environ: WSGIEnvironment,
+    mimetype: str | None = None,
+    as_attachment: bool = False,
+    download_name: str | None = None,
+    conditional: bool = True,
+    etag: bool | str = True,
+    last_modified: datetime | int | float | None = None,
+    max_age: None | (int | t.Callable[[str | None], int | None]) = None,
+    use_x_sendfile: bool = False,
+    response_class: type[Response] | None = None,
+    _root_path: os.PathLike | str | None = None,
+) -> Response:
+    """Send the contents of a file to the client.
+
+    The first argument can be a file path or a file-like object. Paths
+    are preferred in most cases because Werkzeug can manage the file and
+    get extra information from the path. Passing a file-like object
+    requires that the file is opened in binary mode, and is mostly
+    useful when building a file in memory with :class:`io.BytesIO`.
+
+    Never pass file paths provided by a user. The path is assumed to be
+    trusted, so a user could craft a path to access a file you didn't
+    intend. Use :func:`send_from_directory` to safely serve user-provided paths.
+
+    If the WSGI server sets a ``file_wrapper`` in ``environ``, it is
+    used, otherwise Werkzeug's built-in wrapper is used. Alternatively,
+    if the HTTP server supports ``X-Sendfile``, ``use_x_sendfile=True``
+    will tell the server to send the given path, which is much more
+    efficient than reading it in Python.
+
+    :param path_or_file: The path to the file to send, relative to the
+        current working directory if a relative path is given.
+        Alternatively, a file-like object opened in binary mode. Make
+        sure the file pointer is seeked to the start of the data.
+    :param environ: The WSGI environ for the current request.
+    :param mimetype: The MIME type to send for the file. If not
+        provided, it will try to detect it from the file name.
+    :param as_attachment: Indicate to a browser that it should offer to
+        save the file instead of displaying it.
+    :param download_name: The default name browsers will use when saving
+        the file. Defaults to the passed file name.
+    :param conditional: Enable conditional and range responses based on
+        request headers. Requires passing a file path and ``environ``.
+    :param etag: Calculate an ETag for the file, which requires passing
+        a file path. Can also be a string to use instead.
+    :param last_modified: The last modified time to send for the file,
+        in seconds. If not provided, it will try to detect it from the
+        file path.
+    :param max_age: How long the client should cache the file, in
+        seconds. If set, ``Cache-Control`` will be ``public``, otherwise
+        it will be ``no-cache`` to prefer conditional caching.
+    :param use_x_sendfile: Set the ``X-Sendfile`` header to let the
+        server to efficiently send the file. Requires support from the
+        HTTP server. Requires passing a file path.
+    :param response_class: Build the response using this class. Defaults
+        to :class:`~werkzeug.wrappers.Response`.
+    :param _root_path: Do not use. For internal use only. Use
+        :func:`send_from_directory` to safely send files under a path.
+
+    .. versionchanged:: 2.0.2
+        ``send_file`` only sets a detected ``Content-Encoding`` if
+        ``as_attachment`` is disabled.
+
+    .. versionadded:: 2.0
+        Adapted from Flask's implementation.
+
+    .. versionchanged:: 2.0
+        ``download_name`` replaces Flask's ``attachment_filename``
+         parameter. If ``as_attachment=False``, it is passed with
+         ``Content-Disposition: inline`` instead.
+
+    .. versionchanged:: 2.0
+        ``max_age`` replaces Flask's ``cache_timeout`` parameter.
+        ``conditional`` is enabled and ``max_age`` is not set by
+        default.
+
+    .. versionchanged:: 2.0
+        ``etag`` replaces Flask's ``add_etags`` parameter. It can be a
+        string to use instead of generating one.
+
+    .. versionchanged:: 2.0
+        If an encoding is returned when guessing ``mimetype`` from
+        ``download_name``, set the ``Content-Encoding`` header.
+    """
+    if response_class is None:
+        from .wrappers import Response
+
+        response_class = Response
+
+    path: str | None = None
+    file: t.IO[bytes] | None = None
+    size: int | None = None
+    mtime: float | None = None
+    headers = Headers()
+
+    if isinstance(path_or_file, (os.PathLike, str)) or hasattr(
+        path_or_file, "__fspath__"
+    ):
+        path_or_file = t.cast(t.Union[os.PathLike, str], path_or_file)
+
+        # Flask will pass app.root_path, allowing its send_file wrapper
+        # to not have to deal with paths.
+        if _root_path is not None:
+            path = os.path.join(_root_path, path_or_file)
+        else:
+            path = os.path.abspath(path_or_file)
+
+        stat = os.stat(path)
+        size = stat.st_size
+        mtime = stat.st_mtime
+    else:
+        file = path_or_file
+
+    if download_name is None and path is not None:
+        download_name = os.path.basename(path)
+
+    if mimetype is None:
+        if download_name is None:
+            raise TypeError(
+                "Unable to detect the MIME type because a file name is"
+                " not available. Either set 'download_name', pass a"
+                " path instead of a file, or set 'mimetype'."
+            )
+
+        mimetype, encoding = mimetypes.guess_type(download_name)
+
+        if mimetype is None:
+            mimetype = "application/octet-stream"
+
+        # Don't send encoding for attachments, it causes browsers to
+        # save decompress tar.gz files.
+        if encoding is not None and not as_attachment:
+            headers.set("Content-Encoding", encoding)
+
+    if download_name is not None:
+        try:
+            download_name.encode("ascii")
+        except UnicodeEncodeError:
+            simple = unicodedata.normalize("NFKD", download_name)
+            simple = simple.encode("ascii", "ignore").decode("ascii")
+            # safe = RFC 5987 attr-char
+            quoted = quote(download_name, safe="!#$&+-.^_`|~")
+            names = {"filename": simple, "filename*": f"UTF-8''{quoted}"}
+        else:
+            names = {"filename": download_name}
+
+        value = "attachment" if as_attachment else "inline"
+        headers.set("Content-Disposition", value, **names)
+    elif as_attachment:
+        raise TypeError(
+            "No name provided for attachment. Either set"
+            " 'download_name' or pass a path instead of a file."
+        )
+
+    if use_x_sendfile and path is not None:
+        headers["X-Sendfile"] = path
+        data = None
+    else:
+        if file is None:
+            file = open(path, "rb")  # type: ignore
+        elif isinstance(file, io.BytesIO):
+            size = file.getbuffer().nbytes
+        elif isinstance(file, io.TextIOBase):
+            raise ValueError("Files must be opened in binary mode or use BytesIO.")
+
+        data = wrap_file(environ, file)
+
+    rv = response_class(
+        data, mimetype=mimetype, headers=headers, direct_passthrough=True
+    )
+
+    if size is not None:
+        rv.content_length = size
+
+    if last_modified is not None:
+        rv.last_modified = last_modified  # type: ignore
+    elif mtime is not None:
+        rv.last_modified = mtime  # type: ignore
+
+    rv.cache_control.no_cache = True
+
+    # Flask will pass app.get_send_file_max_age, allowing its send_file
+    # wrapper to not have to deal with paths.
+    if callable(max_age):
+        max_age = max_age(path)
+
+    if max_age is not None:
+        if max_age > 0:
+            rv.cache_control.no_cache = None
+            rv.cache_control.public = True
+
+        rv.cache_control.max_age = max_age
+        rv.expires = int(time() + max_age)  # type: ignore
+
+    if isinstance(etag, str):
+        rv.set_etag(etag)
+    elif etag and path is not None:
+        check = adler32(path.encode("utf-8")) & 0xFFFFFFFF
+        rv.set_etag(f"{mtime}-{size}-{check}")
+
+    if conditional:
+        try:
+            rv = rv.make_conditional(environ, accept_ranges=True, complete_length=size)
+        except RequestedRangeNotSatisfiable:
+            if file is not None:
+                file.close()
+
+            raise
+
+        # Some x-sendfile implementations incorrectly ignore the 304
+        # status code and send the file anyway.
+        if rv.status_code == 304:
+            rv.headers.pop("x-sendfile", None)
+
+    return rv
+
+
+def send_from_directory(
+    directory: os.PathLike | str,
+    path: os.PathLike | str,
+    environ: WSGIEnvironment,
+    **kwargs: t.Any,
+) -> Response:
+    """Send a file from within a directory using :func:`send_file`.
+
+    This is a secure way to serve files from a folder, such as static
+    files or uploads. Uses :func:`~werkzeug.security.safe_join` to
+    ensure the path coming from the client is not maliciously crafted to
+    point outside the specified directory.
+
+    If the final path does not point to an existing regular file,
+    returns a 404 :exc:`~werkzeug.exceptions.NotFound` error.
+
+    :param directory: The directory that ``path`` must be located under. This *must not*
+        be a value provided by the client, otherwise it becomes insecure.
+    :param path: The path to the file to send, relative to ``directory``. This is the
+        part of the path provided by the client, which is checked for security.
+    :param environ: The WSGI environ for the current request.
+    :param kwargs: Arguments to pass to :func:`send_file`.
+
+    .. versionadded:: 2.0
+        Adapted from Flask's implementation.
+    """
+    path = safe_join(os.fspath(directory), os.fspath(path))
+
+    if path is None:
+        raise NotFound()
+
+    # Flask will pass app.root_path, allowing its send_from_directory
+    # wrapper to not have to deal with paths.
+    if "_root_path" in kwargs:
+        path = os.path.join(kwargs["_root_path"], path)
+
+    if not os.path.isfile(path):
+        raise NotFound()
+
+    return send_file(path, environ, **kwargs)
+
+
+def import_string(import_name: str, silent: bool = False) -> t.Any:
     """Imports an object based on a string.  This is useful if you want to
     use import paths as endpoints or something similar.  An import path can
     be specified either in dotted notation (``xml.sax.saxutils.escape``)
@@ -537,10 +593,7 @@ def import_string(import_name, silent=False):
                    `None` is returned instead.
     :return: imported object
     """
-    # force the import name to automatically convert to strings
-    # __import__ is not able to handle unicode strings in the fromlist
-    # if the module is a package
-    import_name = str(import_name).replace(":", ".")
+    import_name = import_name.replace(":", ".")
     try:
         try:
             __import__(import_name)
@@ -555,16 +608,20 @@ def import_string(import_name, silent=False):
         try:
             return getattr(module, obj_name)
         except AttributeError as e:
-            raise ImportError(e)
+            raise ImportError(e) from None
 
     except ImportError as e:
         if not silent:
-            reraise(
-                ImportStringError, ImportStringError(import_name, e), sys.exc_info()[2]
-            )
+            raise ImportStringError(import_name, e).with_traceback(
+                sys.exc_info()[2]
+            ) from None
+
+    return None
 
 
-def find_modules(import_path, include_packages=False, recursive=False):
+def find_modules(
+    import_path: str, include_packages: bool = False, recursive: bool = False
+) -> t.Iterator[str]:
     """Finds all the modules below a package.  This can be useful to
     automatically import all views / controllers so that their metaclasses /
     function decorators have a chance to register themselves on the
@@ -582,193 +639,56 @@ def find_modules(import_path, include_packages=False, recursive=False):
     module = import_string(import_path)
     path = getattr(module, "__path__", None)
     if path is None:
-        raise ValueError("%r is not a package" % import_path)
-    basename = module.__name__ + "."
+        raise ValueError(f"{import_path!r} is not a package")
+    basename = f"{module.__name__}."
     for _importer, modname, ispkg in pkgutil.iter_modules(path):
         modname = basename + modname
         if ispkg:
             if include_packages:
                 yield modname
             if recursive:
-                for item in find_modules(modname, include_packages, True):
-                    yield item
+                yield from find_modules(modname, include_packages, True)
         else:
             yield modname
-
-
-def validate_arguments(func, args, kwargs, drop_extra=True):
-    """Checks if the function accepts the arguments and keyword arguments.
-    Returns a new ``(args, kwargs)`` tuple that can safely be passed to
-    the function without causing a `TypeError` because the function signature
-    is incompatible.  If `drop_extra` is set to `True` (which is the default)
-    any extra positional or keyword arguments are dropped automatically.
-
-    The exception raised provides three attributes:
-
-    `missing`
-        A set of argument names that the function expected but where
-        missing.
-
-    `extra`
-        A dict of keyword arguments that the function can not handle but
-        where provided.
-
-    `extra_positional`
-        A list of values that where given by positional argument but the
-        function cannot accept.
-
-    This can be useful for decorators that forward user submitted data to
-    a view function::
-
-        from werkzeug.utils import ArgumentValidationError, validate_arguments
-
-        def sanitize(f):
-            def proxy(request):
-                data = request.values.to_dict()
-                try:
-                    args, kwargs = validate_arguments(f, (request,), data)
-                except ArgumentValidationError:
-                    raise BadRequest('The browser failed to transmit all '
-                                     'the data expected.')
-                return f(*args, **kwargs)
-            return proxy
-
-    :param func: the function the validation is performed against.
-    :param args: a tuple of positional arguments.
-    :param kwargs: a dict of keyword arguments.
-    :param drop_extra: set to `False` if you don't want extra arguments
-                       to be silently dropped.
-    :return: tuple in the form ``(args, kwargs)``.
-    """
-    parser = _parse_signature(func)
-    args, kwargs, missing, extra, extra_positional = parser(args, kwargs)[:5]
-    if missing:
-        raise ArgumentValidationError(tuple(missing))
-    elif (extra or extra_positional) and not drop_extra:
-        raise ArgumentValidationError(None, extra, extra_positional)
-    return tuple(args), kwargs
-
-
-def bind_arguments(func, args, kwargs):
-    """Bind the arguments provided into a dict.  When passed a function,
-    a tuple of arguments and a dict of keyword arguments `bind_arguments`
-    returns a dict of names as the function would see it.  This can be useful
-    to implement a cache decorator that uses the function arguments to build
-    the cache key based on the values of the arguments.
-
-    :param func: the function the arguments should be bound for.
-    :param args: tuple of positional arguments.
-    :param kwargs: a dict of keyword arguments.
-    :return: a :class:`dict` of bound keyword arguments.
-    """
-    (
-        args,
-        kwargs,
-        missing,
-        extra,
-        extra_positional,
-        arg_spec,
-        vararg_var,
-        kwarg_var,
-    ) = _parse_signature(func)(args, kwargs)
-    values = {}
-    for (name, _has_default, _default), value in zip(arg_spec, args):
-        values[name] = value
-    if vararg_var is not None:
-        values[vararg_var] = tuple(extra_positional)
-    elif extra_positional:
-        raise TypeError("too many positional arguments")
-    if kwarg_var is not None:
-        multikw = set(extra) & set([x[0] for x in arg_spec])
-        if multikw:
-            raise TypeError(
-                "got multiple values for keyword argument " + repr(next(iter(multikw)))
-            )
-        values[kwarg_var] = extra
-    elif extra:
-        raise TypeError("got unexpected keyword argument " + repr(next(iter(extra))))
-    return values
-
-
-class ArgumentValidationError(ValueError):
-
-    """Raised if :func:`validate_arguments` fails to validate"""
-
-    def __init__(self, missing=None, extra=None, extra_positional=None):
-        self.missing = set(missing or ())
-        self.extra = extra or {}
-        self.extra_positional = extra_positional or []
-        ValueError.__init__(
-            self,
-            "function arguments invalid. (%d missing, %d additional)"
-            % (len(self.missing), len(self.extra) + len(self.extra_positional)),
-        )
 
 
 class ImportStringError(ImportError):
     """Provides information about a failed :func:`import_string` attempt."""
 
     #: String in dotted notation that failed to be imported.
-    import_name = None
+    import_name: str
     #: Wrapped exception.
-    exception = None
+    exception: BaseException
 
-    def __init__(self, import_name, exception):
+    def __init__(self, import_name: str, exception: BaseException) -> None:
         self.import_name = import_name
         self.exception = exception
-
-        msg = (
-            "import_string() failed for %r. Possible reasons are:\n\n"
-            "- missing __init__.py in a package;\n"
-            "- package or module path not included in sys.path;\n"
-            "- duplicated package or module name taking precedence in "
-            "sys.path;\n"
-            "- missing module, class, function or variable;\n\n"
-            "Debugged import:\n\n%s\n\n"
-            "Original exception:\n\n%s: %s"
-        )
-
+        msg = import_name
         name = ""
         tracked = []
         for part in import_name.replace(":", ".").split("."):
-            name += (name and ".") + part
+            name = f"{name}.{part}" if name else part
             imported = import_string(name, silent=True)
             if imported:
                 tracked.append((name, getattr(imported, "__file__", None)))
             else:
-                track = ["- %r found in %r." % (n, i) for n, i in tracked]
-                track.append("- %r not found." % name)
-                msg = msg % (
-                    import_name,
-                    "\n".join(track),
-                    exception.__class__.__name__,
-                    str(exception),
+                track = [f"- {n!r} found in {i!r}." for n, i in tracked]
+                track.append(f"- {name!r} not found.")
+                track_str = "\n".join(track)
+                msg = (
+                    f"import_string() failed for {import_name!r}. Possible reasons"
+                    f" are:\n\n"
+                    "- missing __init__.py in a package;\n"
+                    "- package or module path not included in sys.path;\n"
+                    "- duplicated package or module name taking precedence in"
+                    " sys.path;\n"
+                    "- missing module, class, function or variable;\n\n"
+                    f"Debugged import:\n\n{track_str}\n\n"
+                    f"Original exception:\n\n{type(exception).__name__}: {exception}"
                 )
                 break
 
-        ImportError.__init__(self, msg)
+        super().__init__(msg)
 
-    def __repr__(self):
-        return "<%s(%r, %r)>" % (
-            self.__class__.__name__,
-            self.import_name,
-            self.exception,
-        )
-
-
-from werkzeug import _DeprecatedImportModule
-
-_DeprecatedImportModule(
-    __name__,
-    {
-        ".datastructures": [
-            "CombinedMultiDict",
-            "EnvironHeaders",
-            "Headers",
-            "MultiDict",
-        ],
-        ".http": ["dump_cookie", "parse_cookie"],
-    },
-    "Werkzeug 1.0",
-)
-del _DeprecatedImportModule
+    def __repr__(self) -> str:
+        return f"<{type(self).__name__}({self.import_name!r}, {self.exception!r})>"

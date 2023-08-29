@@ -1,24 +1,19 @@
-# -*- coding: utf-8 -*-
-"""
-flask.logging
-~~~~~~~~~~~~~
-
-:copyright: © 2010 by the Pallets team.
-:license: BSD, see LICENSE for more details.
-"""
-
-from __future__ import absolute_import
+from __future__ import annotations
 
 import logging
 import sys
+import typing as t
 
 from werkzeug.local import LocalProxy
 
 from .globals import request
 
+if t.TYPE_CHECKING:  # pragma: no cover
+    from .app import Flask
+
 
 @LocalProxy
-def wsgi_errors_stream():
+def wsgi_errors_stream() -> t.TextIO:
     """Find the most appropriate error stream for the application. If a request
     is active, log to ``wsgi.errors``, otherwise use ``sys.stderr``.
 
@@ -27,10 +22,10 @@ def wsgi_errors_stream():
     can't import this directly, you can refer to it as
     ``ext://flask.logging.wsgi_errors_stream``.
     """
-    return request.environ['wsgi.errors'] if request else sys.stderr
+    return request.environ["wsgi.errors"] if request else sys.stderr
 
 
-def has_level_handler(logger):
+def has_level_handler(logger: logging.Logger) -> bool:
     """Check if there is a handler in the logging chain that will handle the
     given logger's :meth:`effective level <~logging.Logger.getEffectiveLevel>`.
     """
@@ -44,21 +39,24 @@ def has_level_handler(logger):
         if not current.propagate:
             break
 
-        current = current.parent
+        current = current.parent  # type: ignore
 
     return False
 
 
 #: Log messages to :func:`~flask.logging.wsgi_errors_stream` with the format
 #: ``[%(asctime)s] %(levelname)s in %(module)s: %(message)s``.
-default_handler = logging.StreamHandler(wsgi_errors_stream)
-default_handler.setFormatter(logging.Formatter(
-    '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
-))
+default_handler = logging.StreamHandler(wsgi_errors_stream)  # type: ignore
+default_handler.setFormatter(
+    logging.Formatter("[%(asctime)s] %(levelname)s in %(module)s: %(message)s")
+)
 
 
-def create_logger(app):
-    """Get the ``'flask.app'`` logger and configure it if needed.
+def create_logger(app: Flask) -> logging.Logger:
+    """Get the Flask app's logger and configure it if needed.
+
+    The logger name will be the same as
+    :attr:`app.import_name <flask.Flask.name>`.
 
     When :attr:`~flask.Flask.debug` is enabled, set the logger level to
     :data:`logging.DEBUG` if it is not set.
@@ -67,9 +65,9 @@ def create_logger(app):
     :class:`~logging.StreamHandler` for
     :func:`~flask.logging.wsgi_errors_stream` with a basic format.
     """
-    logger = logging.getLogger('flask.app')
+    logger = logging.getLogger(app.name)
 
-    if app.debug and logger.level == logging.NOTSET:
+    if app.debug and not logger.level:
         logger.setLevel(logging.DEBUG)
 
     if not has_level_handler(logger):
