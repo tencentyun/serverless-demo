@@ -1,0 +1,24 @@
+component: scf
+name: ap-guangzhou_HTTP_Forward_Node16
+inputs:
+  name: IoTExplorerDataForwarding
+  src:
+    src: ./src
+  type: web
+  runtime: Nodejs16.13
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 512
+  timeout: 3
+  triggers:
+     - type: apigw
+       name: SCF_API_SERVICE
+       protocols:
+        - http
+        - https
+       environment: release
+       netTypes:
+        - OUTER
+       apis:
+        - path: /
+          method: ANY
