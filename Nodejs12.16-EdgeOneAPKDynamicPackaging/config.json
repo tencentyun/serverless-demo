@@ -1,27 +1,25 @@
 {
-    "serverless-cloud-function-application": {
-        "Chinese":{
-            "name": "EdgeOne APK 动态打包",
-            "description": "本示例使用 COS 作为触发器，当在 COS 上传 apk 母包，会触发云函数执行生成预处理后的 apk 包，并将该包输出到 COS 指定的目录。",
-            "attention": "在使用本示例代码时需要在函数环境变量里配置母包处理后输出到COS的目录 outputPath 和签名方式 packVersion，另外会使用到运行角色，需要确保角色有COS存储桶的读写权限。",
-            "author": {
-                "name": "腾讯云"
-            }
-        },
-        "English":{
-            "name": "EdgeOneAPKDynamicPackaging",
-            "description": "This example uses COS as a trigger. When the origin APK is uploaded to COS, it triggers a cloud function to generate a preprocessed APK package, which is then output to the specified directory in COS.",
-            "attention": "When using this example code, you need to configure the output directory `outputPath` for the processed base package and the signature method `packVersion` in the function environment variables. In addition, the runtime role will be used, and you need to ensure that the role has read and write permissions for the COS bucket.",
-            "author": {
-                "name": "Tencent Cloud"
-            }
-        },
-        "runtime": "Nodejs12.16",
-        "type": "event",
-        "readme":"https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-EdgeOneAPKDynamicPackaging",
-        "version": "1.0.0",
-        "tags":[
-            "Nodejs12.16", "COS", "EdgeOne", "APK Dynamic Packaging"
-        ]
-    }
+  "serverless-cloud-function-application": {
+    "Chinese": {
+      "name": "EdgeOne APK 动态打包",
+      "description": "本示例使用 COS 作为触发器，当在 COS 上传 apk 母包，会触发云函数执行生成预处理后的 apk 包，并将该包输出到 COS 指定的目录。",
+      "attention": "在使用本示例代码时需要在函数环境变量里配置母包处理后输出到COS的目录 outputPath 和签名方式 packVersion，另外会使用到运行角色，需要确保角色有COS存储桶的读写权限。",
+      "author": {
+        "name": "腾讯云"
+      }
+    },
+    "English": {
+      "name": "EdgeOneAPKDynamicPackaging",
+      "description": "This example uses COS as a trigger. When the origin APK is uploaded to COS, it triggers a cloud function to generate a preprocessed APK package, which is then output to the specified directory in COS.",
+      "attention": "When using this example code, you need to configure the output directory `outputPath` for the processed base package and the signature method `packVersion` in the function environment variables. In addition, the runtime role will be used, and you need to ensure that the role has read and write permissions for the COS bucket.",
+      "author": {
+        "name": "Tencent Cloud"
+      }
+    },
+    "runtime": "Nodejs12.16",
+    "type": "event",
+    "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-EdgeOneAPKDynamicPackaging",
+    "version": "1.1.0",
+    "tags": ["Nodejs12.16", "COS", "EdgeOne", "APK Dynamic Packaging"]
+  }
 }
