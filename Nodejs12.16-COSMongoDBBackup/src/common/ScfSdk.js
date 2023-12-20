@@ -15,10 +15,18 @@ class ScfSdk {
   }
   request({ action, params = {} }) {
     const { Region, ...reqParams } = params;
+    const profile = {};
+    if (process.env.requestMode === 'internal') {
+      Object.assign(profile, {
+        httpProfile: {
+          endpoint: 'scf.internal.tencentcloudapi.com',
+        },
+      });
+    }
     const client = new Client({
       credential: this.credential,
       region: Region,
-      profile: {},
+      profile,
     });
     return new Promise((resolve, reject) => {
       client[action](reqParams, (err, response) => {
