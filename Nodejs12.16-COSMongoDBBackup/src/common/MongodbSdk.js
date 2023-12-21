@@ -15,10 +15,18 @@ class MongodbSdk {
   }
   request({ action, params = {} }) {
     const { Region, ...reqParams } = params;
+    const profile = {};
+    if (process.env.requestMode === 'internal') {
+      Object.assign(profile, {
+        httpProfile: {
+          endpoint: 'mongodb.internal.tencentcloudapi.com',
+        },
+      });
+    }
     const client = new Client({
       credential: this.credential,
       region: Region,
-      profile: {},
+      profile,
     });
     return new Promise((resolve, reject) => {
       client[action](reqParams, (err, response) => {
@@ -45,6 +53,9 @@ class MongodbSdk {
       });
       list.push(...parts);
       if (parseInt(TotalCount, 10) === list.length) {
+        break;
+      } else if (parts.length === 0) {
+        // 兜底措施，如果最近拉取到的页资源数为空，则不再进一步拉取，防止无限拉取
         break;
       } else {
         Offset += Limit;
