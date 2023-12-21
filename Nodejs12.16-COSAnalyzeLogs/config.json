@@ -18,7 +18,7 @@
     },
     "runtime": "Nodejs12.16",
     "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSAnalyzeLogs",
-    "version": "1.0.3",
+    "version": "1.0.4",
     "tags": ["Nodejs12.16", "analyze", "analyze logs"]
   }
 }
