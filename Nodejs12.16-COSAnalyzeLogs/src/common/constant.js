@@ -113,7 +113,13 @@ module.exports = {
       names: ['value.replace(/"/g, "")', 'removeDoubleQuotes'],
     },
     {
-      exec: ({ value }) => decodeURIComponent(value),
+      exec: ({ value }) => {
+        try {
+          return decodeURIComponent(value);
+        } catch (error) {
+          return value;
+        }
+      },
       names: ['decodeURIComponent(value)', 'decodeURIComponent'],
     },
   ],
