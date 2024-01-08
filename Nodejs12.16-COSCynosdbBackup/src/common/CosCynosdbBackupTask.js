@@ -78,6 +78,12 @@ class CosCynosdbBackupTask {
     } catch (err) {
       error = err;
     }
+    if (result && Array.isArray(result)) {
+      result = {
+        resultLength: result.length,
+        resultParts: result.slice(0, 5),
+      };
+    }
     return {
       params: {
         parentRequestId: this.parentRequestId,

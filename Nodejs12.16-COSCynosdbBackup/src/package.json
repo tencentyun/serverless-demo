@@ -1,6 +1,6 @@
 {
   "name": "cos-cynosdb-backup",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "main": "index.js",
   "license": "ISC",
   "dependencies": {
