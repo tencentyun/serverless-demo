@@ -1,10 +1,10 @@
 {
   "name": "cos-cynosdb-backup",
-  "version": "1.0.5",
+  "version": "1.0.10",
   "main": "index.js",
   "license": "ISC",
   "dependencies": {
-    "@annexwu-packages/cos-upload-utils": "0.0.9",
+    "@annexwu-packages/cos-upload-utils": "0.0.10",
     "async": "^3.2.0",
     "camelcase": "^6.3.0",
     "cos-nodejs-sdk-v5": "^2.9.13",

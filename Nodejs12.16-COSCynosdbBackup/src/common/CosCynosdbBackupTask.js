@@ -43,7 +43,7 @@ class CosCynosdbBackupTask {
     try {
       if (!this.parentRequestId) {
         const splitList = await this.getSplitList();
-        const partNumber = splitList.length;
+        const partNumber = Math.min(splitList.length, 20);
         const scfInvokeTask = new ScfInvokeTask({
           scfSdkInstance: this.scfSdkInstance,
           parallel: partNumber,
@@ -77,6 +77,12 @@ class CosCynosdbBackupTask {
       }
     } catch (err) {
       error = err;
+    }
+    if (result && Array.isArray(result)) {
+      result = {
+        resultLength: result.length,
+        resultParts: result.slice(0, 5),
+      };
     }
     return {
       params: {
