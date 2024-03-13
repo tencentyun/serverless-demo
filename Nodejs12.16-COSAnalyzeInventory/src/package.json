@@ -1,6 +1,6 @@
 {
   "name": "cos-analyze-inventory",
-  "version": "1.0.8",
+  "version": "1.0.10",
   "main": "index.js",
   "license": "ISC",
   "dependencies": {

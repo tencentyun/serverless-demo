@@ -18,7 +18,7 @@
     },
     "runtime": "Nodejs12.16",
     "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSAnalyzeInventory",
-    "version": "1.0.9",
+    "version": "1.0.10",
     "tags": ["Nodejs12.16", "analyze inventory", "cos analyze inventory"]
   }
 }

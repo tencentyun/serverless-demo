@@ -253,9 +253,7 @@ class CosSqlserverBackupTask {
   }
   getTargetKey({ sourceUrl, instanceId, instanceStartTime }) {
     const { key } = parseUrl(sourceUrl);
-    return `${this.targetPrefix}${instanceId || this.instanceId}/${
-      instanceStartTime || this.instanceStartTime
-    }/${key.split('/').pop()}`;
+    return `${this.targetPrefix}${instanceId || this.instanceId}/${moment(instanceStartTime || this.instanceStartTime).format('YYYY-MM-DD-HH-mm-ss')}/${key.split('/').pop()}`;
   }
   async checkFileSame({
     sourceUrl,
