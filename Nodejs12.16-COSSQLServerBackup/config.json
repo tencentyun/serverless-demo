@@ -3,7 +3,7 @@
 		"Chinese": {
 			"name": "SQLServer 备份文件同步到 COS",
 			"description": "本示例使用定时触发器，完成 SQLServer 备份文件同步到 COS",
-			"attention": "",
+			"attention": "该函数模板仅供 COS 控制台使用，请勿自行创建",
 			"author": {
 				"name": "腾讯云社区开发者"
 			}
@@ -11,7 +11,7 @@
 		"English": {
 			"name": "COSSQLServerBackup",
 			"description": "This demo uses scheduled trigger and SCF to copy SQLServer backup file to COS automaticly",
-			"attention": "",
+			"attention": "This function template is only provided to COS console, please do not use it by yourself",
 			"author": {
 				"name": "Tencent Cloud Community"
 			}
