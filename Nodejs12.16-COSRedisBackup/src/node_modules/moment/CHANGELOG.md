@@ -1,6 +1,32 @@
 Changelog
 =========
 
+### 2.30.1
+* Release Dec 27, 2023
+* Revert https://github.com/moment/moment/pull/5827, because it's breaking
+  a lot of TS code.
+
+### 2.30.0 [Full changelog](https://gist.github.com/ichernev/e277bcd1f0eeabb834f60a777237925a)
+* Release Dec 26, 2023
+
+### 2.29.4
+
+* Release Jul 6, 2022
+  * [#6015](https://github.com/moment/moment/pull/6015) [bugfix] Fix ReDoS in preprocessRFC2822 regex
+
+### 2.29.3 [Full changelog](https://gist.github.com/ichernev/edebd440f49adcaec72e5e77b791d8be)
+
+* Release Apr 17, 2022
+  * [#5995](https://github.com/moment/moment/pull/5995) [bugfix] Remove const usage
+  * [#5990](https://github.com/moment/moment/pull/5990) misc: fix advisory link
+
+
+### 2.29.2 [See full changelog](https://gist.github.com/ichernev/1904b564f6679d9aac1ae08ce13bc45c)
+
+* Release Apr 3 2022
+
+Address https://github.com/moment/moment/security/advisories/GHSA-8hfj-j24r-96c4
+
 ### 2.29.1 [See full changelog](https://gist.github.com/marwahaha/cc478ba01a1292ab4bd4e861d164d99b)
 
 * Release Oct 6, 2020

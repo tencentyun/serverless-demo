@@ -1,10 +1,10 @@
 {
   "name": "cos-redis-backup",
-  "version": "1.0.3",
+  "version": "1.0.6",
   "main": "index.js",
   "license": "ISC",
   "dependencies": {
-    "@annexwu-packages/cos-upload-utils": "0.0.7",
+    "@annexwu-packages/cos-upload-utils": "0.0.10",
     "async": "^3.2.0",
     "cos-nodejs-sdk-v5": "^2.8.3",
     "moment": "^2.29.1",
