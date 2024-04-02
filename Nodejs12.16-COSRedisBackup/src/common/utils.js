@@ -126,12 +126,7 @@ async function getMetaFromUrl(url) {
 /**
  * get request stream with range
  */
-function getRangeStreamFromUrl({
-  url,
-  start,
-  end,
-  timeout = 24 * 60 * 60 * 1000,
-}) {
+function getRangeStreamFromUrl({ url, start, end, timeout = 5 * 60 * 1000 }) {
   const headers =    start || end
     ? {
       range: `bytes=${start}-${end - 1}`,
@@ -141,16 +136,21 @@ function getRangeStreamFromUrl({
     url,
     timeout,
     headers,
+    forever: false,
+    agentOptions: {
+      keepAlive: false,
+    },
   }).on('response', (response) => {
     if (!`${response.statusCode}`.startsWith('2')) {
       req.emit('error', {
+        url: url.replace(/(\?[\s\S]*)/g, ''),
         statusCode: response.statusCode,
         headers: response.headers || {},
       });
     }
     req = null;
   });
-  return req;
+  return readStreamAddPassThrough(req);
 }
 /**
  * ReadStream add PassThrough, when ReadStream emit error, proxy error to PassThrough

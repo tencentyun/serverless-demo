@@ -1,6 +1,5 @@
+import { get } from '../moment/get-set';
 import { addFormatToken } from '../format/format';
-import { addUnitAlias } from './aliases';
-import { addUnitPriority } from './priorities';
 import {
     addRegexToken,
     match1to2,
@@ -33,17 +32,6 @@ addFormatToken('dddd', 0, 0, function (format) {
 
 addFormatToken('e', 0, 0, 'weekday');
 addFormatToken('E', 0, 0, 'isoWeekday');
-
-// ALIASES
-
-addUnitAlias('day', 'd');
-addUnitAlias('weekday', 'e');
-addUnitAlias('isoWeekday', 'E');
-
-// PRIORITY
-addUnitPriority('day', 11);
-addUnitPriority('weekday', 11);
-addUnitPriority('isoWeekday', 11);
 
 // PARSING
 
@@ -105,9 +93,8 @@ function shiftWeekdays(ws, n) {
     return ws.slice(n, 7).concat(ws.slice(0, n));
 }
 
-var defaultLocaleWeekdays = 'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split(
-        '_'
-    ),
+var defaultLocaleWeekdays =
+        'Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday'.split('_'),
     defaultLocaleWeekdaysShort = 'Sun_Mon_Tue_Wed_Thu_Fri_Sat'.split('_'),
     defaultLocaleWeekdaysMin = 'Su_Mo_Tu_We_Th_Fr_Sa'.split('_'),
     defaultWeekdaysRegex = matchWord,
@@ -131,24 +118,24 @@ export function localeWeekdays(m, format) {
     return m === true
         ? shiftWeekdays(weekdays, this._week.dow)
         : m
-        ? weekdays[m.day()]
-        : weekdays;
+          ? weekdays[m.day()]
+          : weekdays;
 }
 
 export function localeWeekdaysShort(m) {
     return m === true
         ? shiftWeekdays(this._weekdaysShort, this._week.dow)
         : m
-        ? this._weekdaysShort[m.day()]
-        : this._weekdaysShort;
+          ? this._weekdaysShort[m.day()]
+          : this._weekdaysShort;
 }
 
 export function localeWeekdaysMin(m) {
     return m === true
         ? shiftWeekdays(this._weekdaysMin, this._week.dow)
         : m
-        ? this._weekdaysMin[m.day()]
-        : this._weekdaysMin;
+          ? this._weekdaysMin[m.day()]
+          : this._weekdaysMin;
 }
 
 function handleStrictParse(weekdayName, format, strict) {
@@ -297,7 +284,8 @@ export function getSetDayOfWeek(input) {
     if (!this.isValid()) {
         return input != null ? this : NaN;
     }
-    var day = this._isUTC ? this._d.getUTCDay() : this._d.getDay();
+
+    var day = get(this, 'Day');
     if (input != null) {
         input = parseWeekday(input, this.localeData());
         return this.add(input - day, 'd');
