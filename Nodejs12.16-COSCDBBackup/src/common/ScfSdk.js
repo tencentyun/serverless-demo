@@ -1,25 +1,30 @@
 const {
   scf: {
-    v20180416: { Client: ScfClient, Models: ScfModels },
+    v20180416: { Client: ScfClient },
   },
-  common: { Credential },
 } = require('tencentcloud-sdk-nodejs');
 
 const { retry } = require('./utils');
 
 class ScfSdk {
   constructor({ secretId, secretKey, token }) {
-    this.credential = new Credential(secretId, secretKey, token);
+    this.credential = {
+      secretId,
+      secretKey,
+      token,
+    };
     this.requestRetry = retry({
       func: (...args) => this.request(...args),
     });
   }
   request({ action, params = {} }) {
     return new Promise((resolve, reject) => {
-      const client = new ScfClient(this.credential);
-      const req = new ScfModels[`${action}Request`]();
-      Object.assign(req, params);
-      client[action](req, (err, response) => {
+      const { Region, ...args } = params;
+      const client = new ScfClient({
+        credential: this.credential,
+        region: Region,
+      });
+      client.request(action, args, (err, response) => {
         if (err) {
           return reject(err);
         }

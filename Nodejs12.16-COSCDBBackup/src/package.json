@@ -1,14 +1,19 @@
 {
   "name": "cos-cdb-backup",
-  "version": "1.0.14",
+  "version": "1.0.19",
   "main": "index.js",
   "license": "ISC",
   "dependencies": {
+    "@annexwu-packages/cos-upload-utils": "0.0.10",
     "async": "^3.2.0",
-    "cos-nodejs-sdk-v5": "^2.8.3",
+    "camelcase": "^6.3.0",
+    "cos-nodejs-sdk-v5": "^2.9.13",
+    "fast-folder-size": "^1.6.1",
+    "fs-extra": "^10.0.0",
     "moment": "^2.29.1",
-    "request": "^2.88.2",
+    "request": "^2.88.0",
     "request-promise": "^4.2.6",
-    "tencentcloud-sdk-nodejs": "^3.0.131"
+    "tencentcloud-sdk-nodejs": "~4.0.487",
+    "unbzip2-stream": "^1.4.3"
   }
 }

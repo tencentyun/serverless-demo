@@ -1,28 +1,24 @@
 {
-	"serverless-cloud-function-application": {
-		"Chinese": {
-			"name": "CDB 备份文件同步到 COS",
-			"description": "本示例使用定时触发器，完成 CDB 备份文件同步到 COS",
-			"attention": "",
-			"author": {
-				"name": "腾讯云社区开发者"
-			}
-		},
-		"English": {
-			"name": "COSCDBBackup",
-			"description": "This demo uses scheduled trigger and SCF to copy CDB backup file to COS automaticly",
-			"attention": "",
-			"author": {
-				"name": "Tencent Cloud Community"
-			}
-		},
-		"runtime": "Nodejs12.16",
-		"readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSCDBBackup",
-		"version": "1.0.15",
-		"tags": [
-			"Nodejs12.16",
-			"CDB",
-			"cos cdb backup"
-		]
-	}
+  "serverless-cloud-function-application": {
+    "Chinese": {
+      "name": "CDB 备份文件同步到 COS",
+      "description": "本示例使用定时触发器，完成 CDB 备份文件同步到 COS",
+      "attention": "该函数模板仅供 COS 控制台使用，请勿自行创建",
+      "author": {
+        "name": "腾讯云社区开发者"
+      }
+    },
+    "English": {
+      "name": "COSCDBBackup",
+      "description": "This demo uses scheduled trigger and SCF to copy CDB backup file to COS automaticly",
+      "attention": "This function template is only provided to COS console, please do not use it by yourself",
+      "author": {
+        "name": "Tencent Cloud Community"
+      }
+    },
+    "runtime": "Nodejs12.16",
+    "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs12.16-COSCDBBackup",
+    "version": "1.0.19",
+    "tags": ["Nodejs12.16", "CDB", "cos cdb backup"]
+  }
 }

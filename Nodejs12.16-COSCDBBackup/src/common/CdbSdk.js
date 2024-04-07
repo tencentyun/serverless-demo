@@ -1,30 +1,37 @@
 const {
   cdb: {
-    v20170320: { Client: CdbClient, Models: CdbModels },
+    v20170320: { Client: CdbClient },
   },
-  common: { Credential },
 } = require('tencentcloud-sdk-nodejs');
 
 const { retry } = require('./utils');
 
 class CdbSdk {
   constructor({ secretId, secretKey, token }) {
-    this.credential = new Credential(secretId, secretKey, token);
+    this.credential = {
+      secretId,
+      secretKey,
+      token,
+    };
     this.requestRetry = retry({
       func: (...args) => this.request(...args),
     });
   }
   request({ action, params = {} }) {
-    return new Promise((resolve, reject) => {
-      const client = new CdbClient(this.credential);
-      const req = new CdbModels[`${action}Request`]();
-      Object.assign(req, params);
-      client[action](req, (err, response) => {
-        if (err) {
-          return reject(err);
-        }
-        resolve(response);
+    return new Promise(async (resolve, reject) => {
+      const { Region, ...args } = params;
+      const client = new CdbClient({
+        credential: this.credential,
+        region: Region,
       });
+      try {
+        await client.request(action, args, (err, response) => {
+          if (err) {
+            return reject(err);
+          }
+          resolve(response);
+        });
+      } catch (error) {}
     });
   }
 }

@@ -1,25 +1,12 @@
 component: scf
 name: ap-guangzhou_default_COSCDBBackup
 inputs:
+  name: COSCDBBackup
   src:
     src: ./src
   handler: index.main_handler
-  memorySize: 1024
-  name: COSCDBBackup
-  region: ap-guangzhou
   runtime: Nodejs12.16
-  timeout: 900
-  environment:
-    - key: instanceList
-      value: instanceList
-    - key: targetBucket
-      value: targetBucket
-    - key: targetRegion
-      value: targetRegion
-    - key: targetPrefix
-      value: targetPrefix
-  triggers:
-    - type: timer
-      cronExpression: 0 0 */1 * * * *
-      enable: true
-      argument: argument
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 512
+  timeout: 86400
