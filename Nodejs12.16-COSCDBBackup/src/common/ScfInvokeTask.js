@@ -1,42 +1,84 @@
-const ScfSdk = require('./ScfSdk');
-const { sleep } = require('./utils');
+const Async = require('async');
+const { sleep, tryStringify } = require('./utils');
 
 class ScfInvokeTask {
-  constructor({ secretId, secretKey, token, params, ...args }) {
-    this.scfSdkInstance = new ScfSdk({ secretId, secretKey, token });
+  constructor({ scfSdkInstance, paramsList, parallel = 10 }) {
     Object.assign(this, {
-      ...args,
-      params,
-      status: 'waiting',
-      cancelError: null,
+      scfSdkInstance,
+      paramsList,
+      parallel: Math.min(parallel, paramsList.length),
     });
   }
-  async runTask() {
-    let result;
-    let error;
-    try {
-      if (this.status === 'canceled') {
-        throw this.cancelError;
+  runTask() {
+    return new Promise((resolve, reject) => {
+      if (this.paramsList.length === 0) {
+        resolve([]);
+        return;
       }
-      result = await this.scfSdkInstance.requestRetry({
-        action: 'Invoke',
-        params: this.params,
-      });
-      await sleep(5000);
-    } catch (err) {
-      error = err;
-    }
-    return [
-      {
-        params: this.params,
-        result,
-        error,
-      },
-    ];
+      Async.mapLimit(
+        this.paramsList,
+        this.parallel,
+        async (params) => {
+          try {
+            const result = await this.runOneTask(params);
+            return {
+              params,
+              result,
+            };
+          } catch (error) {
+            throw tryStringify({
+              params,
+              error,
+            });
+          }
+        },
+        (err, results) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve(results);
+        },
+      );
+    });
   }
-  async cancelTask(err = new Error('task is canceled')) {
-    this.status = 'canceled';
-    this.cancelError = err;
+  async runOneTask(params) {
+    const { Result: { FunctionRequestId } = {} } =      await this.scfSdkInstance.requestRetry({
+      action: 'Invoke',
+      params,
+    });
+    let currentPollingTimes = 0;
+    const maxPollingTimes = (24 * 60 * 60) / 2;
+    while (true) {
+      currentPollingTimes += 1;
+      const { EventList = [] } = await this.scfSdkInstance.requestRetry({
+        action: 'ListAsyncEvents',
+        params: {
+          Region: params.Region,
+          FunctionName: params.FunctionName,
+          Namespace: params.Namespace,
+          InvokeRequestId: FunctionRequestId,
+        },
+      });
+      const event = EventList[0] || {};
+      if (event.Status === 'RUNNING' || !event.Status) {
+        if (currentPollingTimes >= maxPollingTimes) {
+          throw {
+            event,
+          };
+        }
+      } else {
+        if (event.Status === 'FINISHED') {
+          return {
+            event,
+          };
+        }
+        throw {
+          event,
+        };
+      }
+      await sleep(2000);
+    }
   }
 }
 
