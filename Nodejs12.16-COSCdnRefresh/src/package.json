@@ -1,6 +1,6 @@
 {
   "name": "cos-cdn-refresh",
-  "version": "1.0.4",
+  "version": "1.0.7",
   "main": "index.js",
   "license": "ISC",
   "dependencies": {

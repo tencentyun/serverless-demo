@@ -73,18 +73,25 @@ class CosCdnRefreshTask {
   getPurgeTasks() {
     const allUrls = [];
     for (const host of this.cdnHosts) {
-      const tempUrls = this.objects.map(({ bucket, region, key }) => {
+      const tempUrls = this.objects.reduce((res, { bucket, region, key }) => {
         const objectUrl = this.cosSdkInstance.getObjectUrl({
           Bucket: bucket,
           Region: region,
           Key: key,
           Sign: false,
         });
-        const objectPath = objectUrl.replace(/^(https|http):\/\/([^/]+)/, '');
-        return `${
-          /^(https|http):\/\//.test(host) ? '' : 'https://'
-        }${host}${objectPath}`;
-      });
+        const objectPathList = [
+          objectUrl.replace(/^(https|http):\/\/([^/]+)/, ''),
+          `/${key}`,
+        ].filter((value, index, self) => self.indexOf(value) === index);
+        const protocolPrefix = /^(https|http):\/\//.test(host)
+          ? ''
+          : 'https://';
+        objectPathList.forEach((objectPath) => {
+          res.push(`${protocolPrefix}${host}${objectPath}`);
+        });
+        return res;
+      }, []);
       tempUrls.forEach(item => allUrls.push(item));
     }
     const tasks = [];
