@@ -1,7 +1,7 @@
 component: scf
-name: ap-guangzhou_default_GetValueCreateQRcodeAPIGWDemo
+name: ap-guangzhou_default_GetValueCreateQRcodeFunctionUrlDemo
 inputs:
-  name: GetValueCreateQRcodeAPIGWDemo
+  name: GetValueCreateQRcodeFunctionUrlDemo
   src:
     src: ./src
   description: >-
@@ -15,13 +15,12 @@ inputs:
   region: ap-guangzhou
   memorySize: 128
   timeout: 10
-  triggers:
-    - type: apigw
-      protocols:
-        - http
-      environment: release
-      apis:
-        - path: /
-          method: GET
-          function:
-            isIntegratedResponse: true
+  events:
+      - http:
+          parameters:
+            name: url-trigger
+            netConfig:
+              enableIntranet: false
+              enableExtranet: true
+            qualifier: $DEFAULT
+            authType: NONE

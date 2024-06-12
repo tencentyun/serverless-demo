@@ -65,7 +65,7 @@ def main_handler(event, context):
 
     # 其他触发器逻辑可以自行添加
     else:
-        return {"code": 410, "errorMsg": "event does not come from APIGW"}
+        return {"code": 410, "errorMsg": "event does not come from function url"}
 
     _, video_file_extension = os.path.splitext(video_url)
 

@@ -10,13 +10,12 @@ inputs:
   region: ap-guangzhou
   memorySize: 128
   timeout: 30
-  triggers:
-    - type: apigw
-      protocols:
-        - http
-      environment: release
-      apis:
-        - path: /
-          method: ANY
-          function:
-            isIntegratedResponse: true
+  events:
+      - http:
+          parameters:
+            name: url-trigger
+            netConfig:
+              enableIntranet: false
+              enableExtranet: true
+            qualifier: $DEFAULT
+            authType: NONE

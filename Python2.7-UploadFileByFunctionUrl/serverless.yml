@@ -1,15 +1,15 @@
 component: scf
-name: ap-guangzhou_helloworld_demo_go1
+name: ap-guangzhou_default_upload_UploadFileToCOS
 inputs:
-  name: Go1-WebDemo
+  name: UploadFileToCOS
   src:
     src: ./src
-  type: web
-  runtime: Go1
+  handler: index.main_handler
+  runtime: Python2.7
   namespace: default
   region: ap-guangzhou
-  memorySize: 512
-  timeout: 3
+  memorySize: 128
+  timeout: 30
   events:
       - http:
           parameters:

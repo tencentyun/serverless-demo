@@ -16,17 +16,12 @@ inputs:
       value: target bucket name
     - key: target_path
       value: path of target bucket
-  triggers:
-    - type: apigw
-      name: SCF_API_SERVICE
-      protocols:
-        - http
-        - https
-      environment: release
-      netTypes:
-        - OUTER
-      apis:
-        - path: /AddTextToPictures
-          method: ANY
-          function:
-            isIntegratedResponse: true
+  events:
+      - http:
+          parameters:
+            name: url-trigger
+            netConfig:
+              enableIntranet: false
+              enableExtranet: true
+            qualifier: $DEFAULT
+            authType: NONE

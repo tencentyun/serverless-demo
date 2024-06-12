@@ -46,7 +46,7 @@ def main_handler(event, context):
     logger.info("start main handler")
 
     # save api gateway file to local temp file
-    logger.info("Start to download images from APIGW")
+    logger.info("Start to download images from function url")
     time = datetime.datetime.now()
     file_name = '{}'.format(time) + "-test.jpg"
     logger.info("file_name is : %s" % file_name)

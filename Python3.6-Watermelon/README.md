@@ -1,6 +1,6 @@
 # Serverless 三步上云
 
-[在线体验：H5小游戏三步上云 Demo成品效果](https://service-7cvf9nm4-1253970226.hk.apigw.tencentcs.com/release/watermelon-1618905918) (使用手机访问体验最佳)
+[在线体验：H5小游戏三步上云 Demo成品效果]() (使用手机访问体验最佳)
 
 ### Serverless 简介
 
@@ -20,12 +20,11 @@
 >
 > 目前，Serverless 的应用场景广泛，大部分传统业务均可以在 Serverless 云函数上完美支持。
 >
-> API 网关结合 SCF 云函数的使用场景非常丰富，这次实践的 Demo 作为抛砖引玉，希望大家以后在自己的Web 项目中，可以通过 SCF云函数+ API 网关实现更多功能。
+> SCF 云函数的使用场景非常丰富，这次实践的 Demo 作为抛砖引玉，希望大家以后在自己的Web 项目中，可以通过 SCF云函数实现更多功能。
 
 ### 使用的云端服务
 
 - [x] [云函数](https://console.cloud.tencent.com/scf)
-- [x] [API 网关](https://console.cloud.tencent.com/apigateway)
 
 ## 部署演示
 
@@ -45,7 +44,7 @@ https://console.cloud.tencent.com/scf/list-create?rid=5&ns=tabor&keyword=Python3
 
 
 
-2. 配置触发器，选择API 网关
+2. 配置触发器，选择函数url
 
    
 
@@ -55,7 +54,7 @@ https://console.cloud.tencent.com/scf/list-create?rid=5&ns=tabor&keyword=Python3
 
    
 
-3. API 网关配置完成后，在触发管理，获取访问路径
+3. 在函数url管理，获取访问路径
 
    <center>
    <img src="./doc/1.png" width="300">

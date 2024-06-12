@@ -5,22 +5,14 @@ inputs:
   description: 视频处理云函数
   eip: false
   events:
-    - apigw:
-        parameters:
-          endpoints:
-            - path: /video-splice
-              enableCORS: false
-              function:
-                functionQualifier: $DEFAULT
-                isIntegratedResponse: false
-              isBase64Encoded: false
-              method: ANY
-              serviceTimeout: 30
-          environment: release
-          protocols:
-            - http
-            - https
-          serviceName: SCF_API_SERVICE
+      - http:
+          parameters:
+            name: url-trigger
+            netConfig:
+              enableIntranet: false
+              enableExtranet: true
+            qualifier: $DEFAULT
+            authType: NONE
   handler: index.main_handler
   initTimeout: 65
   memorySize: 3072

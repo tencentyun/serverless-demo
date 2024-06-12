@@ -10,19 +10,12 @@ inputs:
   region: ap-guangzhou
   memorySize: 128
   timeout: 3
-  triggers:
-    - type: apigw
-      qualifier: $DEFAULT
-      name: SCF_API_SERVICE
-      description: Created by Serverless Component
-      protocols:
-        - http
-        - https
-      environment: release
-      netTypes:
-        - OUTER
-      apis:
-        - path: /
-          method: ANY
-          function:
-            isIntegratedResponse: TRUE
+  events:
+      - http:
+          parameters:
+            name: url-trigger
+            netConfig:
+              enableIntranet: false
+              enableExtranet: true
+            qualifier: $DEFAULT
+            authType: NONE

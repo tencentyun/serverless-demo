@@ -1,7 +1,7 @@
 component: scf
-name: ap-guangzhou_default_APIGWHexoDemo
+name: ap-guangzhou_default_FunctionUrlHexoDemo
 inputs:
-  name: APIGWHexoDemo
+  name: FunctionUrlHexoDemo
   src:
     src: ./src
   handler: index.main_handler
@@ -10,15 +10,12 @@ inputs:
   region: ap-guangzhou
   memorySize: 128
   timeout: 3
-  triggers:
-    - type: apigw
-      name: SCF_API_SERVICE
-      protocols:
-        - http
-      environment: release
-      apis:
-        - path: /WebSite
-          method: ANY
-          function:
-            isIntegratedResponse: true
-
+  events:
+      - http:
+          parameters:
+            name: url-trigger
+            netConfig:
+              enableIntranet: false
+              enableExtranet: true
+            qualifier: $DEFAULT
+            authType: NONE
