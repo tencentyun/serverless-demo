@@ -1,0 +1,22 @@
+component: scf
+name: ap-guangzhou_default_CkafkaConnectorDataDesensitization
+inputs:
+  name: CkafkaConnectorDataDesensitization
+  src: ./src
+  handler: index.main_handler
+  runtime: Python3.6
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 30
+  environment:
+    - key: dbhost
+      value: db host
+    - key: dbport
+      value: db port
+    - key: dbuser
+      value: db user name
+    - key: dbpwd
+      value: db password
+    - key: dbname
+      value: db name
