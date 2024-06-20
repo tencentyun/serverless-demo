@@ -1,0 +1,30 @@
+component: scf
+name: ap-guangzhou_default_CLSToElasticsearch
+inputs:
+  name: CLSToElasticsearch
+  src: ./src
+  handler: index.main_handler
+  runtime: Python3.6
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 256
+  environment:
+    - key: ES_ADDRESS
+      value: ES address/ES 地址
+    - key: ES_USER
+      value: ES user name/ ES 用户名
+    - key: ES_PASSWORD
+      value: ES password/ES 密码
+    - key: ES_INDEX
+      value: ES index
+    - key: ES_API_KEY
+      value: ES API KEY
+  timeout: 30
+  triggers:
+    - type: cls
+      name: 
+      enable: true
+      topic: 
+      maxMsgNum: 50
+      offset: latest
+      retry: 10000
