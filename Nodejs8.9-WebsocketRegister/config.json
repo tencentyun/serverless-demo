@@ -2,8 +2,8 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "websocket注册函数",
-            "description": "本示例基于 API 网关实现websocket功能，API网关和云函数一起构成websocket的Server端，由API网关承载和Client端的长连接。websocket一共需要3类函数承载，分别是注册函数、传输函数和清理函数，本函数为注册函数。",
-            "attention": "在使用本示例时，请在控制台上更改 API 网关的反向推送地址，数据库相关信息等。详情请参考产品文档->操作指南->API网关触发器->Websocket",
+            "description": "本示例基于 函数URL实现websocket功能，函数URL和云函数一起构成websocket的Server端，由函数URL承载和Client端的长连接。websocket一共需要3类函数承载，分别是注册函数、传输函数和清理函数，本函数为注册函数。",
+            "attention": "在使用本示例时，请在控制台上更改 函数URL的反向推送地址，数据库相关信息等。",
             "tutorial":"https://cloud.tencent.com/document/product/583/32971",
             "author": {
                 "name": "腾讯云社区开发者"
@@ -11,7 +11,7 @@
         },
         "English": {
             "name": "WebsocketRegisterFunction",
-            "description": "The demo realize websocket by apigateway.  The server end of websocket is composed by apigateway and scf.  The long connection between client and server is accomplished by apigateway.A integral process need three functions. They are register function,  transport function, cleanup function. This function is register function.",
+            "description": "The demo realize websocket by function url.  The server end of websocket is composed by scf.  The long connection between client and server is accomplished by apigateway.A integral process need three functions. They are register function,  transport function, cleanup function. This function is register function.",
             "attention": "When you use this demo,  You should use your own database server adderss and api address of push message",
             "tutorial":" ",
             "author": {
@@ -23,7 +23,6 @@
         "version": "1.2.5",
         "tags": [
             "Nodejs8.9",
-            "apigateway",
             "websocket"
         ]
     }

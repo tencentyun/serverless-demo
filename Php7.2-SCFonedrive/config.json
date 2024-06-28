@@ -2,8 +2,8 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "OnedriveWithSCF",
-            "description": "获取onedrive信息并结合API网关展示。",
-            "attention": "该云函数使用了API网关触发器，并使用了集成响应功能，返回值需要构造为Json格式。",
+            "description": "获取onedrive信息并结合函数URL展示。",
+            "attention": "该云函数使用了函数URL触发器，并使用了集成响应功能，返回值需要构造为Json格式。",
             "author": {
                 "name": "逸笙"
             }
@@ -21,7 +21,6 @@
         "version": "1.0.6",
         "tags": [
             "Php7",
-            "API GW",
             "onedrive"
         ]
     }

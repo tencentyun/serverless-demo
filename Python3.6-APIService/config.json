@@ -2,7 +2,7 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "API 服务",
-            "description": "本示例演示基于API网关提供博客内的文章查询和文章内容，您可以扩展函数来实现 Web 后端服务。",
+            "description": "本示例演示基于函数URL提供博客内的文章查询和文章内容，您可以扩展函数来实现 Web 后端服务。",
             "attention": "无",
             "tutorial":"https://cloud.tencent.com/document/product/583/13198",
             "author": {
@@ -11,7 +11,7 @@
         },
         "English": {
             "name": "APIService",
-            "description": "This demo uses API GW to provide API service. You can expand to do Web API based on this.",
+            "description": "This demo uses function url to provide API service. You can expand to do Web API based on this.",
             "attention": "None",
             "tutorial":" ",
             "author": {

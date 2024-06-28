@@ -2,8 +2,8 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "视频拼接",
-            "description": "本示例使用API网关触发器和云函数快速构建视频剪辑服务，实现对多个视频的拼接，同时加上背景音乐。并通过回调返回处理结果。",
-            "attention": "本示例使用到了API网关触发器，返回值需要构造为Json格式。此模版用于生产环境前请先确保代码符合业务需求。",
+            "description": "本示例使用函数URL触发器和云函数快速构建视频剪辑服务，实现对多个视频的拼接，同时加上背景音乐。并通过回调返回处理结果。",
+            "attention": "本示例使用到了函数URL触发器，返回值需要构造为Json格式。此模版用于生产环境前请先确保代码符合业务需求。",
             "tutorial": "https://cloud.tencent.com/document/product/583/30590",
             "author": {
                 "name": "腾讯云社区开发者"
@@ -11,8 +11,8 @@
         },
         "English": {
             "name": "VideoSplice",
-            "description": "This demo uses API GW trigger and SCF to build video splice service. ",
-            "attention": "This demo has been used api gw. So the return value should be json format based on the requirement. Please make sure that the code meets your business requirements.",
+            "description": "This demo uses function url trigger and SCF to build video splice service. ",
+            "attention": "This demo has been used function url trigger. So the return value should be json format based on the requirement. Please make sure that the code meets your business requirements.",
             "tutorial": " ",
             "author": {
                 "name": "Tencent Cloud Community"
@@ -23,7 +23,6 @@
         "version": "1.2.5",
         "tags": [
             "Python3.7",
-            "APIGW",
             "Video",
             "FFmpeg",
             "VOD"

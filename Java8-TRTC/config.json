@@ -3,7 +3,7 @@
         "Chinese": {
             "name": "TRTC直播推流",
             "description": "使用ffmpeg+云函数+TRTC，快速构建视频文件直播推流服务",
-            "attention": "1. 本示例需要API网关触发器配合使用；2. 缓存播放进度需要引入持久化存储；",
+            "attention": "1. 本示例需要函数URL触发器配合使用；2. 缓存播放进度需要引入持久化存储；",
             "author": {
                 "name": "腾讯云社区开发者"
             }
@@ -11,7 +11,7 @@
         "English": {
             "name": "TRTC",
             "description": "This example demonstrates transcoding video files to TRTC push streaming based on ffmpeg.",
-            "attention": "This example needs to configure the API gateway trigger. Caching playback progress requires the introduction of persistent storage.",
+            "attention": "This example needs to configure the function url trigger. Caching playback progress requires the introduction of persistent storage.",
             "author": {
                 "name": "Tencent Cloud Community"
             }

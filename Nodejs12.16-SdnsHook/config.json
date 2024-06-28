@@ -10,8 +10,8 @@
         },
         "English": {
             "name": "SdnsHook",
-            "description": "This example provides HTTPDNS software DNS service based on event function and HTTP url trigger, and supports custom parameters and returned values.",
-            "attention": "This example needs to be used with HTTPDNS software DNS and HTTP url trigger.",
+            "description": "This example provides HTTPDNS software DNS service based on event function and function url trigger, and supports custom parameters and returned values.",
+            "attention": "This example needs to be used with HTTPDNS software DNS and function url trigger.",
             "tutorial":" ",
             "author": {
                 "name": "Tencent Cloud DNSPod"
