@@ -3,7 +3,7 @@
       "Chinese":{
         "name": "单流音频录制",
         "description": "基于云函数+TRTC+COS+ffmpeg实现单流音频录制。可配合CFS实现长时间单流音频录制，并将生成的FLV音频文件转码MP3格式转储到指定的COS桶持久保存。",
-        "attention": "模版函数需要配置API网关触发器。",
+        "attention": "模版函数需要配置函数URL触发器。",
         "author": {
             "name": "腾讯云无服务器云函数团队"
         }
@@ -11,7 +11,7 @@
       "English":{
         "name": "SingleAudioRecorder",
         "description": "This example demonstrates single-stream audio recording based on TRTC service, and push audio files to cos bucket.",
-        "attention": "This example needs to configure the API gateway trigger.",
+        "attention": "This example needs to configure the function url trigger.",
         "author": {
             "name": "Tencent Cloud Serverless Team"
         }

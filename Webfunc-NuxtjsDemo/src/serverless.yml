@@ -2,10 +2,10 @@
 
 component: scf
 name: webDemo
-inputs: 
-  src: 
+inputs:
+  src:
     src: ./
-    exclude: 
+    exclude:
       - .env
   # 指定 SCF 类型为 Web 类型
   type: web
@@ -13,13 +13,12 @@ inputs:
   region: ap-guangzhou
   runtime: Nodejs12.16
   memorySize: 512 # 内存大小，为保证性能，web 函数请配置 512 MB 及以上
-  events: 
-    - apigw: 
-        parameters: 
-          protocols: 
-            - http
-            - https
-          environment: release
-          endpoints: 
-            - path: /
-              method: ANY
+  events:
+      - http:
+          parameters:
+            name: url-trigger
+            netConfig:
+              enableIntranet: false
+              enableExtranet: true
+            qualifier: $DEFAULT
+            authType: NONE

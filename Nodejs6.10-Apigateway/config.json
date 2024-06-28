@@ -2,7 +2,7 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "API 网关基础示例",
-            "description": "本示例演示 API 网关使用的基础方法，主要展示在集成响应下（通过云函数控制台创建的API网关触发器默认启用集成响应），怎样构造返回值。",
+            "description": "本示例演示 函数URL使用的基础方法，主要展示在集成响应下（通过云函数控制台创建的API网关触发器默认启用集成响应），怎样构造返回值。",
             "attention": "该云函数使用了API 网关触发器，并使用了集成响应功能，返回值需要构造为Json格式。",
             "author": {
                 "name": "腾讯云社区开发者"

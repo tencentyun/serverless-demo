@@ -10,18 +10,12 @@ inputs:
   region: ap-guangzhou
   memorySize: 1024
   timeout: 3
-  triggers:                                         
-    - type: apigw
-      name: SCF_API_SERVICE
-      protocols:
-        - http
-        - https
-      environment: release
-      netTypes:
-        - INNER
-      apis:
-        - path: release/
-          method: ANY
-          function:
-            isIntegratedResponse: false
-            isBase64Encoded: false
+  events:
+      - http:
+          parameters:
+            name: url-trigger
+            netConfig:
+              enableIntranet: true
+              enableExtranet: false
+            qualifier: $DEFAULT
+            authType: NONE

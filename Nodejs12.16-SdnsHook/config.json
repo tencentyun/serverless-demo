@@ -2,16 +2,16 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "HTTPDNS自定义解析函数",
-            "description": "基于事件函数和API网关，提供移动解析HTTPDNS软件自定义解析服务，支持自定义参数和返回值。",
-            "attention": "本示例需要配合移动解析HTTPDNS软件自定义解析、API网关使用。",
+            "description": "基于事件函数和函数url触发器，提供移动解析HTTPDNS软件自定义解析服务，支持自定义参数和返回值。",
+            "attention": "本示例需要配合移动解析HTTPDNS软件自定义解析使用。",
             "author": {
                 "name": "腾讯云DNSPod"
             }
         },
         "English": {
             "name": "SdnsHook",
-            "description": "This example provides HTTPDNS software DNS service based on event function and API gateway, and supports custom parameters and returned values.",
-            "attention": "This example needs to be used with HTTPDNS software DNS and API gateway trigger.",
+            "description": "This example provides HTTPDNS software DNS service based on event function and function url trigger, and supports custom parameters and returned values.",
+            "attention": "This example needs to be used with HTTPDNS software DNS and function url trigger.",
             "tutorial":" ",
             "author": {
                 "name": "Tencent Cloud DNSPod"

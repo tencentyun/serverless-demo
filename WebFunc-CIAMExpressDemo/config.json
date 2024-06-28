@@ -10,7 +10,7 @@
         },
         "English": {
             "name": "ExpressAuthDemo",
-            "description": "A CIAM Express demo for APIGW and Node.js Web Function",
+            "description": "A CIAM Express demo for Node.js Web Function",
             "attention": "None",
             "author": {
                 "name": "Tencent Cloud Community"

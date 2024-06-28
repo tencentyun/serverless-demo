@@ -12,16 +12,12 @@ inputs:
   timeout: 43200
   asyncRunEnable: true
   traceEnable: true
-  triggers:
-    - type: apigw
-      name: SCF_API_SERVICE
-      protocols:
-        - http
-        - https
-      environment: release
-      description: the serverless service
-      apis:
-        - path: /trtc-recorder
-          method: ANY
-          function:
-            isIntegratedResponse: false
+  events:
+      - http:
+          parameters:
+            name: url-trigger
+            netConfig:
+              enableIntranet: false
+              enableExtranet: true
+            qualifier: $DEFAULT
+            authType: NONE

@@ -1,9 +1,9 @@
 {
     "serverless-cloud-function-application": {
         "Chinese": {
-            "name": "获取数据生成二维码并结合API网关示例",
+            "name": "获取数据生成二维码并结合函数URL示例",
             "description": "本示例主要展示在SCF中对各种资源的引用方法，包括include php文件、调用上传到SCF中的非php文件、使用/tmp临时目录，同时展示了SCF中3种获取用户提交数据的方法，最后演示如何返回一个网页或文件。",
-            "attention": "该云函数使用了API网关触发器，并使用了集成响应功能，返回值需要构造为Json格式。",
+            "attention": "该云函数使用了函数URL触发器，并使用了集成响应功能，返回值需要构造为Json格式。",
             "author": {
                 "name": "逸笙"
             }
@@ -21,7 +21,6 @@
         "version": "1.0.5",
         "tags": [
             "Php7",
-            "API GW",
             "API",
             "$_POST",
             "$_GET",

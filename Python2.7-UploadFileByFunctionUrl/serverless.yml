@@ -1,0 +1,21 @@
+component: scf
+name: ap-guangzhou_default_upload_UploadFileToCOS
+inputs:
+  name: UploadFileToCOS
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Python2.7
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 30
+  events:
+      - http:
+          parameters:
+            name: url-trigger
+            netConfig:
+              enableIntranet: false
+              enableExtranet: true
+            qualifier: $DEFAULT
+            authType: NONE

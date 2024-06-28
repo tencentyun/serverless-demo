@@ -10,17 +10,12 @@ inputs:
   memorySize: 3072
   timeout: 30
   asyncRunEnable: TRUE
-  triggers:
-    - type: apigw
-      name: SCF_API_SERVICE
-      protocols:
-        - http
-        - https
-      environment: release
-      netTypes:
-        - OUTER
-      apis:
-        - path: /video-composition
-          method: ANY
-          function:
-            isIntegratedResponse: false
+  events:
+      - http:
+          parameters:
+            name: url-trigger
+            netConfig:
+              enableIntranet: false
+              enableExtranet: true
+            qualifier: $DEFAULT
+            authType: NONE

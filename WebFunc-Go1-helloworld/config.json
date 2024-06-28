@@ -2,7 +2,7 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "Go1 Web 函数模板",
-            "description": "基于 Go1，使用 API 网关和 Web 函数，快速部署 Hello world 示例项目",
+            "description": "基于 Go1，使用函数URL触发器 和 Web 函数，快速部署 Hello world 示例项目",
             "attention": "无",
             "author": {
                 "name": "腾讯云社区开发者"
@@ -10,7 +10,7 @@
         },
         "English": {
             "name": "Go1-WebDemo",
-            "description": "A HelloWorld demo for APIGW and Go1 Web Function",
+            "description": "A HelloWorld demo for Go1 Web Function",
             "attention": "None",
             "author": {
                 "name": "Tencent Cloud Community"
