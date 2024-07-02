@@ -2,7 +2,7 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "SpringBoot",
-            "description": "使用 SpringBoot 实现一个待办应用，并通过 API 网关测试事件模拟请求和获取 spring 返回的处理结构。",
+            "description": "使用 SpringBoot 实现一个待办应用，并通过函数URL测试事件模拟请求和获取 spring 返回的处理结构。",
             "attention": " ",
             "author": {
                 "name": "腾讯云社区开发者"
@@ -10,7 +10,7 @@
         },
         "English": {
             "name": "SpringBoot",
-            "description": "Use SpringBoot to implement a to-do application, and use the API gateway to test event simulation requests and obtain the processing structure returned by spring.",
+            "description": "Use SpringBoot to implement a to-do application, and use the function url to test event simulation requests and obtain the processing structure returned by spring.",
             "attention": " ",
             "author": {
                 "name": "Tencent Cloud Community"
@@ -22,7 +22,6 @@
         "tags": [
             "Java8",
             "springboot",
-            "API GW"
         ]
     }
 }
