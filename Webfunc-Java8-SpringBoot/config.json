@@ -2,7 +2,7 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "SpringBoot待办应用示例",
-            "description": "基于 API 网关和 Web 函数，使用 SpringBoot 实现一个待办应用。",
+            "description": "基于 函数URL和 Web 函数，使用 SpringBoot 实现一个待办应用。",
             "attention": "无",
             "author": {
                 "name": "腾讯云社区开发者"
@@ -10,7 +10,7 @@
         },
         "English": {
             "name": "SpringBootToDoApplicationDemo",
-            "description": "Based on the API gateway and Web functions, use SpringBoot to implement a to-do application.",
+            "description": "Based on the function url and Web functions, use SpringBoot to implement a to-do application.",
             "attention": "None",
             "author": {
                 "name": "Tencent Cloud Community"
@@ -19,7 +19,7 @@
         "runtime": "Java8",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-Java8-SpringBoot",
-        "version": "0.1.3",
+        "version": "0.1.4",
         "tags": [
             "WebFunc",
             "Java8",

@@ -20,7 +20,7 @@
         },
         "runtime": "Python3.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.7-VideoComposition",
-        "version": "1.2.4",
+        "version": "1.2.5",
         "tags": [
             "Python3.7",
             "Video",

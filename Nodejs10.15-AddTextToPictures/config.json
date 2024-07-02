@@ -20,7 +20,7 @@
         },
         "runtime": "Nodejs10.15",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs10.15-AddTextToPictures",
-        "version": "1.4.8",
+        "version": "1.4.9",
         "tags": [
             "Nodejs10.15",
             "HTTP",

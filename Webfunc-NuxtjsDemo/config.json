@@ -2,7 +2,7 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "Nuxtjs 框架模版",
-            "description": "基于 API 网关和 Web 函数，快速部署 Nuxtjs 示例项目",
+            "description": "基于 函数URL和 Web 函数，快速部署 Nuxtjs 示例项目",
             "attention": "无",
             "author": {
                 "name": "腾讯云社区开发者"
@@ -10,7 +10,7 @@
         },
         "English": {
             "name": "NuxtjsDemo",
-            "description": "A Nuxtjs demo for APIGW and Node.js Web Function",
+            "description": "A Nuxtjs demo for Node.js Web Function",
             "attention": "None",
             "author": {
                 "name": "Tencent Cloud Community"
@@ -19,7 +19,7 @@
         "runtime": "Nodejs12.16",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-NuxtjsDemo",
-        "version": "0.5.3",
+        "version": "0.5.4",
         "tags": [
             "WebFunc",
             "Neuxtjs",

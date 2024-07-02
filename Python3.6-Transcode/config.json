@@ -20,7 +20,7 @@
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-Transcode",
-        "version": "1.3.6",
+        "version": "1.3.7",
         "tags": [
             "Python3.6",
             "COS",

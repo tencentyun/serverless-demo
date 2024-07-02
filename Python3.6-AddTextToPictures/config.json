@@ -20,7 +20,7 @@
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-AddTextToPictures",
-        "version": "1.4.6",
+        "version": "1.4.7",
         "tags": [
             "Python3.6",
             "HTTP",

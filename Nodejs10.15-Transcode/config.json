@@ -20,7 +20,7 @@
         },
         "runtime": "Nodejs10.15",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs10.15-Transcode",
-        "version": "1.2.3",
+        "version": "1.2.4",
         "tags": [
             "Nodejs10.15",
             "COS",

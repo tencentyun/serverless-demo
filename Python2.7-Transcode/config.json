@@ -20,7 +20,7 @@
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-Transcode",
-        "version": "1.2.4",
+        "version": "1.2.5",
         "tags": [
             "Python2.7",
             "COS",

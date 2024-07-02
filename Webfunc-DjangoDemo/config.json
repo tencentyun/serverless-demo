@@ -2,7 +2,7 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "Django 框架模版",
-            "description": "基于 API 网关和 Web 函数，快速部署 Django 示例项目",
+            "description": "基于 函数URL和 Web 函数，快速部署 Django 示例项目",
             "attention": "为避免 print 无法即时输出，请设置环境变量 PYTHONUNBUFFERED=1 ",
             "author": {
                 "name": "腾讯云社区开发者"
@@ -10,7 +10,7 @@
         },
         "English": {
             "name": "DjangoDemo",
-            "description": "A Django demo for APIGW and Python3 Web Function",
+            "description": "A Django demo for Python3 Web Function",
             "attention": "None",
             "author": {
                 "name": "Tencent Cloud Community"
@@ -19,7 +19,7 @@
         "runtime": "Python3.6",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-DjangoDemo",
-        "version": "0.3.9",
+        "version": "0.3.10",
         "tags": [
             "WebFunc",
             "Django",
