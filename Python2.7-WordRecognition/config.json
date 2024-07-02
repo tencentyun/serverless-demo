@@ -11,8 +11,8 @@
         },
         "English": {
             "name": "WordRecognition",
-            "description": "This demo uses API GW trigger and SCF to build WEB backend service.It can realize word recognition from picture.",
-            "attention": "This demo has been used api gw and integrated response function. So the return value should be json format based on the requirement.",
+            "description": "This demo uses SCF to build WEB backend service.It can realize word recognition from picture.",
+            "attention": "This demo has been used function url and integrated response function. So the return value should be json format based on the requirement.",
             "tutorial":" ",
             "author": {
                 "name": "Tencent Cloud Community"
