@@ -10,7 +10,7 @@
         },
         "English": {
             "name": "MockServer",
-            "description": "Based on the API gateway and Web functions, use Java&Moco to implement a Mock server.",
+            "description": "Based on the function url and Web functions, use Java&Moco to implement a Mock server.",
             "attention": "None",
             "author": {
                 "name": "Tencent Cloud Community"
@@ -19,7 +19,7 @@
         "runtime": "Java8",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-Java-MockServer",
-        "version": "0.0.2",
+        "version": "0.0.3",
         "tags": [
             "WebFunc",
             "Java8",

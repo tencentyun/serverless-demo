@@ -2,7 +2,7 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "Koa 框架模版",
-            "description": "基于 API 网关和 Web 函数，快速部署 Koa 示例项目",
+            "description": "基于 函数URL和 Web 函数，快速部署 Koa 示例项目",
             "attention": "无",
             "author": {
                 "name": "腾讯云社区开发者"
@@ -10,7 +10,7 @@
         },
         "English": {
             "name": "KoaDemo",
-            "description": "A Koa demo for APIGW and Node.js Web Function",
+            "description": "A Koa demo for Node.js Web Function",
             "attention": "None",
             "author": {
                 "name": "Tencent Cloud Community"
@@ -19,7 +19,7 @@
         "runtime": "Nodejs12.16",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-KoaDemo",
-        "version": "0.3.6",
+        "version": "0.3.7",
         "tags": [
             "WebFunc",
             "Koa",

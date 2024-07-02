@@ -2,8 +2,8 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "图片转文字",
-            "description": "本示例使用 API 网关触发器和云函数快速构建web后台，实现图片中文字识别的功能，用户通过 API 网关上传图片文件，上传后的文件会保存在COS，并调用AI接口实现文字识别，把结果返回前端。",
-            "attention": "该云函数使用了API 网关触发器，并使用了集成响应功能，返回值需要构造为Json格式，另外在使用本示例代码时需要在函数里配置环境变量cos bucket及region等信息。",
+            "description": "本示例使用 函数URL触发器和云函数快速构建web后台，实现图片中文字识别的功能，用户通过 API 网关上传图片文件，上传后的文件会保存在COS，并调用AI接口实现文字识别，把结果返回前端。",
+            "attention": "该云函数使用了函数URL触发器，另外在使用本示例代码时需要在函数里配置环境变量cos bucket及region等信息。",
             "tutorial":"https://cloud.tencent.com/document/product/583/30590",
             "author": {
                 "name": "腾讯云社区开发者"
@@ -20,10 +20,9 @@
         },
         "runtime": "Python2.7",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python2.7-WordRecognition",
-        "version": "1.4.5",
+        "version": "1.4.6",
         "tags": [
             "Python2.7",
-            "APIGW",
             "Word_Recognition",
             "FileProcess"
         ]
