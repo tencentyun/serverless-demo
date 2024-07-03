@@ -2,8 +2,8 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "图片转文字",
-            "description": "本示例使用 API 网关触发器和云函数快速构建web后台，实现图片中文字识别的功能，用户通过 API 网关上传图片文件，并调用AI接口实现文字识别，把结果返回前端。",
-            "attention": "该云函数使用了AI 通用印刷体识别功能，需要到控制台上开通服务。另外还使用到了 API 网关触发器，并使用了集成响应功能，返回值需要构造为Json格式。",
+            "description": "本示例使用函数URL和云函数快速构建web后台，实现图片中文字识别的功能，用户通过 API 网关上传图片文件，并调用AI接口实现文字识别，把结果返回前端。",
+            "attention": "该云函数使用了AI 通用印刷体识别功能，需要到控制台上开通服务。",
             "tutorial": "https://cloud.tencent.com/document/product/583/30590",
             "author": {
                 "name": "腾讯云社区开发者"
@@ -11,8 +11,8 @@
         },
         "English": {
             "name": "WordRecognition",
-            "description": "This demo uses API GW trigger and SCF to build WEB backend service.It can realize word recognition from picture.",
-            "attention": "This demo has been used api gw and integrated response function. So the return value should be json format based on the requirement.",
+            "description": "This demo uses function url trigger and SCF to build WEB backend service.It can realize word recognition from picture.",
+            "attention": "This cloud function uses AI universal print recognition function and needs to activate the service on the console.",
             "tutorial": " ",
             "author": {
                 "name": "Tencent Cloud Community"
@@ -20,10 +20,9 @@
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-WordRecognition",
-        "version": "1.1.3",
+        "version": "1.1.4",
         "tags": [
             "Python3.6",
-            "APIGW",
             "AI",
             "FileProcess"
         ]
