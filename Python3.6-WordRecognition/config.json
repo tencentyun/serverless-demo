@@ -2,7 +2,7 @@
     "serverless-cloud-function-application": {
         "Chinese": {
             "name": "图片转文字",
-            "description": "本示例使用函数URL和云函数快速构建web后台，实现图片中文字识别的功能，用户通过 API 网关上传图片文件，并调用AI接口实现文字识别，把结果返回前端。",
+            "description": "本示例使用函数URL和云函数快速构建web后台，实现图片中文字识别的功能，用户通过函数URL上传图片文件，并调用AI接口实现文字识别，把结果返回前端。",
             "attention": "该云函数使用了AI 通用印刷体识别功能，需要到控制台上开通服务。",
             "tutorial": "https://cloud.tencent.com/document/product/583/30590",
             "author": {
@@ -20,7 +20,7 @@
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-WordRecognition",
-        "version": "1.1.4",
+        "version": "1.1.5",
         "tags": [
             "Python3.6",
             "AI",

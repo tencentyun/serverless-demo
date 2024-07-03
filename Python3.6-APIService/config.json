@@ -20,7 +20,7 @@
         },
         "runtime": "Python3.6",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-APIService",
-        "version": "1.5.3",
+        "version": "1.5.4",
         "tags": [
             "Python3.6",
             "Web",
