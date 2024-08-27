@@ -1,0 +1,24 @@
+component: scf
+name: ap-guangzhou_default_EdgeOneAutomaticallyPurge
+inputs:
+  name: EdgeOneAutomaticallyPurge
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Nodejs16.13
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 256
+  timeout: 900
+  environment:
+    - key: eoDomains
+      value: target edgeone domains
+    - key: ZoneId
+      value: target zone id
+  triggers:
+    - type: cos
+      enable: true
+      events: 'cos:ObjectRemove:*'
+    - type: cos
+      enable: true
+      events: 'cos:ObjectCreated:*'

@@ -1,0 +1,28 @@
+{
+  "serverless-cloud-function-application": {
+      "Chinese": {
+          "name": "EdgeOne 自动清除缓存",
+          "description": "本示例利用 COS 作为触发器，当 COS 文件上传、删除或变更时，自动触发云函数来清除对应资源在 EdgeOne 节点上的缓存。",
+          "attention": "在使用本示例代码时需要在函数环境变量里配置 EdgeOne ZoneID 和待刷新域名 eoDomains，另外会使用到运行角色，需要确保角色有EdgeOne 的刷新接口权限。",
+          "author": {
+              "name": "腾讯云社区开发者"
+          }
+      },
+      "English": {
+          "name": "EdgeOneAutomaticallyPurge",
+          "description": "This example utilizes COS as a trigger to automatically invoke a cloud function when there are file uploads, deletions, or modifications in COS. The purpose of this function is to clear the cache of the corresponding resources on the EdgeOne nodes.",
+          "attention": "When using this example code, you need to configure the EdgeOne ZoneID and the eoDomains in the function environment variables. In addition, the execution role will be used, so make sure that the role has purge API permissions for EdgeOne.",
+          "author": {
+              "name": "Tencent Cloud Community"
+          }
+      },
+      "runtime": "Nodejs16.13",
+      "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs16.13-EdgeOneAutomaticallyPurge",
+      "version": "1.0.0",
+      "tags": [
+        "Nodejs16.13",
+        "EdgeOne",
+        "COS EdgeOne Purge"
+      ]
+  }
+}
