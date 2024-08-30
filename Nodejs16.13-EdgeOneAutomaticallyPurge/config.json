@@ -23,6 +23,7 @@
         "Nodejs16.13",
         "EdgeOne",
         "COS EdgeOne Purge"
+        "COS"
       ]
   }
 }

@@ -18,7 +18,9 @@ inputs:
   triggers:
     - type: cos
       enable: true
+      bucket: laytonprefetch-1251557890.cos.ap-guangzhou.myqcloud.com
       events: 'cos:ObjectRemove:*'
     - type: cos
       enable: true
+      bucket: laytonprefetch-1251557890.cos.ap-guangzhou.myqcloud.com
       events: 'cos:ObjectCreated:*'
