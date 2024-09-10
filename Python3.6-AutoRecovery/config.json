@@ -1,0 +1,27 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "autorecovery",
+            "description": "CVM故障恢复后，可以通过云函数脚本，快速拉起业务进程，恢复业务状态",
+            "attention": "需要在环境变量中配置secretid，secretkey，启动目录，启动用户和业务进程启动命令",
+            "author": {
+                "name": "腾讯云社区开发者"
+            }
+        },
+        "English": {
+            "name": "cautorecovery",
+            "description": "program auto recovery",
+            "attention": "Environment need.",
+            "author": {
+                "name": "Tencent Cloud Community"
+            }
+        },
+        "runtime": "Python3.6",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-AutoRecovery",
+        "version": "1.0.0",
+        "tags": [
+            "Python3.6",
+            "AutoRecovery"
+        ]
+    }
+}
