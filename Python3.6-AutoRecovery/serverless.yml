@@ -10,3 +10,14 @@ inputs:
   region: ap-guangzhou
   memorySize: 128
   timeout: 60
+  environment:
+    - key: secretID
+      value: the api secretID
+    - key: secretKey
+      value: the api secretKey
+    - key: work_Directory
+      value: the command work directory
+    - key: work_User
+      value: the command work user
+    - key: run_Command
+      value: the command that you use
