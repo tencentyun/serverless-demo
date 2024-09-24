@@ -1,0 +1,23 @@
+component: scf
+name: ap-guangzhou_default_APIService
+inputs:
+  name: autorecovery
+  src:
+    src: ./src
+  handler: index.main_handler
+  runtime: Python3.6
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 60
+  environment:
+    - key: secretID
+      value: the api secretID
+    - key: secretKey
+      value: the api secretKey
+    - key: work_Directory
+      value: the command work directory
+    - key: work_User
+      value: the command work user
+    - key: run_Command
+      value: the command that you use
