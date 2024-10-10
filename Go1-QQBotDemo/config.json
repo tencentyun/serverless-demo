@@ -1,0 +1,27 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "QQ机器人DEMO",
+            "description": "使用hunyuan-lite回复消息",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云开发者社区"
+            }
+        },
+        "English": {
+            "name": "QQBot DEMO",
+            "description": "uses the Hunyuan-lite model to respond to messages.",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud Developer Community”"
+            }
+        },
+        "runtime": "Go1",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Go1-QQBotDemo",
+        "version": "1.0.9",
+        "tags": [
+            "Go1",
+            "QQBot"
+        ]
+    }
+}
