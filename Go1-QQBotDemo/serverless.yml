@@ -4,11 +4,14 @@ inputs:
   src:
     src: ./src
   region: ap-guangzhou
+  type: web
   name: qqbot_demo
   runtime: Go1
   handler: main
   memorySize: 128
   timeout: 3
+  publicAccess: true
+  eip: true
   environment:
     - key: QQBotAppID
       value: appid of QQBot
@@ -16,3 +19,12 @@ inputs:
       value: secret of QQBot
     - key: HYApiKey
       value: hunyuan apikey
+  events:
+    - http:
+        parameters:
+          name: url-trigger
+          netConfig:
+            enableIntranet: false
+            enableExtranet: true
+          qualifier: $DEFAULT
+          authType: NONE

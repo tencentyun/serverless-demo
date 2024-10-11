@@ -19,10 +19,11 @@
         "type": "web",
         "runtime": "Go1",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Go1-QQBotDemo",
-        "version": "1.0.10",
+        "version": "1.0.11",
         "tags": [
             "Go1",
-            "QQBot"
+            "QQBot",
+            "WebFunc"
         ]
     }
 }
