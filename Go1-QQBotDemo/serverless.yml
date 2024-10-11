@@ -1,0 +1,20 @@
+component: scf
+name: ap-guangzhou_default_QQBotDemo
+inputs:
+  src:
+    src: ./src
+  region: ap-guangzhou
+  name: qqbot_demo
+  runtime: Go1
+  handler: main
+  memorySize: 128
+  timeout: 3
+  environment:
+    - key: QQBotAppID
+      value: appid of QQBot
+    - key: QQBotSecret
+      value: secret of QQBot
+    - key: TCSecretID
+      value: SecretID of TencentCloud Acc
+    - key: TCSecretKey
+      value: SecretKey of TencentCloud Acc
