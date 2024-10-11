@@ -9,7 +9,7 @@
             }
         },
         "English": {
-            "name": "QQBot DEMO",
+            "name": "QQBotDEMO",
             "description": "uses the Hunyuan-lite model to respond to messages.",
             "attention": "None",
             "author": {

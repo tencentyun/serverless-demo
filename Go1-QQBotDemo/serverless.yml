@@ -14,7 +14,5 @@ inputs:
       value: appid of QQBot
     - key: QQBotSecret
       value: secret of QQBot
-    - key: TCSecretID
-      value: SecretID of TencentCloud Acc
-    - key: TCSecretKey
-      value: SecretKey of TencentCloud Acc
+    - key: HYApiKey
+      value: hunyuan apikey
