@@ -4,7 +4,7 @@ go 1.21.3
 
 require (
 	github.com/openai/openai-go v0.1.0-alpha.26
-	github.com/tencent-connect/botgo v0.2.0
+	github.com/tencent-connect/botgo v0.1.7
 )
 
 require (

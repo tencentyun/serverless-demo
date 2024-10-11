@@ -16,9 +16,10 @@
                 "name": "Tencent Cloud Developer Community”"
             }
         },
+        "type": "web",
         "runtime": "Go1",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Go1-QQBotDemo",
-        "version": "1.0.9",
+        "version": "1.0.10",
         "tags": [
             "Go1",
             "QQBot"
