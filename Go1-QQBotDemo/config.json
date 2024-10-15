@@ -3,7 +3,7 @@
         "Chinese": {
             "name": "QQ机器人DEMO",
             "description": "使用hunyuan-lite回复消息",
-            "attention": "无",
+            "attention": "请参考 https://github.com/tencentyun/serverless-demo/blob/master/Go1-QQBotDemo/README.md 进行配置",
             "author": {
                 "name": "腾讯云开发者社区"
             }
@@ -11,7 +11,7 @@
         "English": {
             "name": "QQBotDEMO",
             "description": "uses the Hunyuan-lite model to respond to messages.",
-            "attention": "None",
+            "attention": "Please refer to https://github.com/tencentyun/serverless-demo/blob/master/Go1-QQBotDemo/README.md for configuration.",
             "author": {
                 "name": "Tencent Cloud Developer Community”"
             }
@@ -19,7 +19,7 @@
         "type": "web",
         "runtime": "Go1",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Go1-QQBotDemo",
-        "version": "1.0.11",
+        "version": "1.0.12",
         "tags": [
             "Go1",
             "QQBot",
