@@ -18,7 +18,7 @@
       },
       "runtime": "Nodejs16.13",
       "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs16.13-COSEdgeOnePrefetch",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "tags": [
         "Nodejs16.13",
         "EdgeOne",

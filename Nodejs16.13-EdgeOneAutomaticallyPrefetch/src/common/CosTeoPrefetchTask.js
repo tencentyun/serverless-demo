@@ -24,7 +24,7 @@ class CosTeoPrefetchTask {
       prefetchTasks.push({
         Targets: tempUrls.splice(0, prefetchLimit),
         ZoneId: zoneId,
-        EncodeUrl: true,
+        EncodeUrl: false,
         region,
       });
     }
