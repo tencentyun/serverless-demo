@@ -18,24 +18,38 @@ import sys
 
 class AbstractModel(object):
     """Base class for all models."""
+    _headers = None
+
+    @property
+    def headers(self):
+        return self._headers
+
+    @headers.setter
+    def headers(self, headers):
+        self._headers = headers
 
     def _serialize(self, allow_none=False):
-        """Get all params which are not None if None is not allowed."""
-        def dfs(obj):
-            if isinstance(obj, AbstractModel):
-                d = vars(obj)
-                ret = {}
-                for k in d:
-                    r = dfs(d[k])
-                    if allow_none or r is not None:
-                        ret[k[0].upper() + k[1:]] = r
-                return ret
-            elif isinstance(obj, list):
-                return [dfs(o) for o in obj if allow_none or dfs(o) is not None]
+        d = vars(self)
+        ret = {}
+        for k in d:
+            if k == "_headers":
+                continue
+            if isinstance(d[k], AbstractModel):
+                r = d[k]._serialize(allow_none)
+            elif isinstance(d[k], list):
+                r = list()
+                for tem in d[k]:
+                    if isinstance(tem, AbstractModel):
+                        r.append(tem._serialize(allow_none))
+                    else:
+                        r.append(
+                            tem.encode("UTF-8") if isinstance(tem, type(u"")) and sys.version_info[0] == 2 else tem)
             else:
-                return obj.encode("UTF-8") if isinstance(obj, type(u"")) and sys.version_info[0] == 2 else obj
+                r = d[k].encode("UTF-8") if isinstance(d[k], type(u"")) and sys.version_info[0] == 2 else d[k]
+            if allow_none or r is not None:
+                ret[k[1].upper() + k[2:]] = r
+        return ret
 
-        return dfs(self)
 
     def _deserialize(self, params):
         return None
@@ -47,7 +61,11 @@ class AbstractModel(object):
         return json.dumps(self._serialize(allow_none=True), *args, **kwargs)
 
     def from_json_string(self, jsonStr):
-        """Deserialize a JSON formatted str to a Python object"""
+        """Deserialize a JSON formatted str to a Python object
+
+        :param jsonStr: JSON formatted string
+        :type jsonStr: str
+        """
         params = json.loads(jsonStr)
         self._deserialize(params)
 

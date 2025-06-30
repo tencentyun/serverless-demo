@@ -14,7 +14,7 @@ import schedule
 
 
 logger = logging.getLogger()
-logger.setLevel(level=logging.INFO)
+logger.setLevel(level=logging.DEBUG)
 
 
 def main_handler(event, context):
@@ -25,8 +25,12 @@ def main_handler(event, context):
     logger.debug("Received context: " + str(context))
 
     if event["Type"] == "Timer":
+        logger.info("%s: Timer start ", str(datetime.datetime.fromtimestamp(int(time.time()),
+                        pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')))
         return schedule.timer_handler(context)
     if event["Type"] == "ConsumeKafkaGroupByPartition":
+        logger.info("%s: ConsumeKafka start ", str(datetime.datetime.fromtimestamp(int(time.time()),
+                        pytz.timezone('Asia/Shanghai')).strftime('%Y-%m-%d %H:%M:%S')))
         return consumer.consumer_worker(event, context, start_time)
     else:
         return "Unrecognized Event"

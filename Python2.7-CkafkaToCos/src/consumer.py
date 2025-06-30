@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 import os
+import sys
 import time
 import datetime
 import pytz
@@ -20,8 +21,7 @@ default_consumer_timeout_ms = 3000  # 默认partition多久时间没消息就退
 return_buffer_time_s = 5  # 预留5秒函数退出时间
 
 logger = logging.getLogger()
-logger.setLevel(level=logging.INFO)
-
+logger.setLevel(level=logging.DEBUG)
 
 def consumer_worker(event, context, start_time):
     # 获取环境变量
@@ -299,6 +299,9 @@ class KafkaToCos(object):
                 msg_consumed += 1
                 f.write(msg.value)
                 f.write("\n")
+                # 如果kafka数据很多，且qps很大，可以删除强刷 提高效率
+                f.flush()  # 强制刷新缓冲区
+                os.fsync(f.fileno())  # 确保写入磁盘
                 # 文件大小达到once_max_to_cos_bytes, 则上传文件
                 if os.path.getsize(local_path) >= self.once_max_to_cos_bytes:
                     logger.info("%s: %s messages were consumed, file size: %sMB, already reach limit: %sMB...",
