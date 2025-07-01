@@ -7,6 +7,8 @@ from cos_to_kafka import CosToKafka
 
 logger = logging.getLogger('Index')
 logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+logger.addHandler(handler)
 
 def main_handler(event, context):
     logger.info("start main handler")
