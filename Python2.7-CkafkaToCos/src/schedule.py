@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 import os
+import sys
 import json
 import time
 import pytz
@@ -18,7 +19,7 @@ from tencentcloud.common.exception.tencent_cloud_sdk_exception import TencentClo
 
 logger = logging.getLogger()
 logger.setLevel(level=logging.DEBUG)
-
+logger.addHandler(logging.StreamHandler(sys.stdout))
 
 def timer_handler(context):
     logger.info("Timer Invoke begin time: %s", str(datetime.datetime.fromtimestamp(int(time.time()),
@@ -39,7 +40,7 @@ def timer_handler(context):
         httpProfile.protocol = "http"
         # 需要走公网的话使用该域名，然后打开函数的公网配置
         # httpProfile.endpoint = "ckafka.tencentcloudapi.com"
-        httpProfile.endpoint = "ckafka.tencentcloudapi.com"
+        httpProfile.endpoint = "ckafka.internal.tencentcloudapi.com"
         clientProfile = client_profile.ClientProfile()
         clientProfile.httpProfile = httpProfile
         # 实例化要请求kafka的client对象
