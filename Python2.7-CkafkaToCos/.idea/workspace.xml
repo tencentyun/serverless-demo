@@ -2,23 +2,210 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="630539b2-2774-4385-b7ed-70a8dbc2d056" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/consumer.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/consumer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/index.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/index.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/schedule.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/schedule.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tencentcloud/ckafka/v20190819/ckafka_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tencentcloud/ckafka/v20190819/ckafka_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tencentcloud/ckafka/v20190819/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tencentcloud/ckafka/v20190819/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tencentcloud/common/abstract_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tencentcloud/common/abstract_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tencentcloud/common/abstract_model.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tencentcloud/common/abstract_model.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tencentcloud/common/credential.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tencentcloud/common/credential.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tencentcloud/common/exception/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tencentcloud/common/exception/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tencentcloud/common/exception/tencent_cloud_sdk_exception.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tencentcloud/common/exception/tencent_cloud_sdk_exception.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tencentcloud/common/http/request.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tencentcloud/common/http/request.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tencentcloud/common/profile/client_profile.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tencentcloud/common/profile/client_profile.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tencentcloud/common/profile/http_profile.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tencentcloud/common/profile/http_profile.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tencentcloud/common/sign.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tencentcloud/common/sign.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tencentcloud/scf/v20180416/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tencentcloud/scf/v20180416/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/tencentcloud/scf/v20180416/scf_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/tencentcloud/scf/v20180416/scf_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/config.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/serverless.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/consumer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/index.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/admin/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/admin/acl_resource.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/admin/client.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/admin/config_resource.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/admin/new_partitions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/admin/new_topic.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/client_async.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/cluster.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/codec.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/conn.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/consumer/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/consumer/fetcher.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/consumer/group.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/consumer/subscription_state.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/coordinator/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/coordinator/assignors/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/coordinator/assignors/abstract.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/coordinator/assignors/range.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/coordinator/assignors/roundrobin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/coordinator/base.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/coordinator/consumer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/coordinator/heartbeat.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/coordinator/protocol.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/errors.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/future.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/compound_stat.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/dict_reporter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/kafka_metric.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/measurable.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/measurable_stat.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/metric_config.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/metric_name.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/metrics.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/metrics_reporter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/quota.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/stat.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/stats/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/stats/avg.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/stats/count.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/stats/histogram.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/stats/max_stat.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/stats/min_stat.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/stats/percentile.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/stats/percentiles.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/stats/rate.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/stats/sampled_stat.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/stats/sensor.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/metrics/stats/total.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/oauth/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/oauth/abstract.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/partitioner/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/partitioner/default.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/producer/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/producer/buffer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/producer/future.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/producer/kafka.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/producer/record_accumulator.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/producer/sender.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/protocol/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/protocol/abstract.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/protocol/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/protocol/api.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/protocol/commit.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/protocol/fetch.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/protocol/frame.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/protocol/group.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/protocol/message.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/protocol/metadata.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/protocol/offset.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/protocol/parser.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/protocol/pickle.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/protocol/produce.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/protocol/struct.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/protocol/types.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/record/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/record/_crc32c.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/record/abc.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/record/default_records.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/record/legacy_records.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/record/memory_records.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/record/util.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/scram.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/serializer/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/serializer/abstract.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/structs.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/util.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/vendor/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/vendor/enum34.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/vendor/selectors34.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/vendor/six.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/vendor/socketpair.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kafka/version.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/client.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/exceptions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/handlers/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/handlers/eventlet.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/handlers/gevent.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/handlers/threading.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/handlers/utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/hosts.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/interfaces.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/loggingsupport.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/protocol/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/protocol/connection.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/protocol/paths.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/protocol/serialization.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/protocol/states.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/python2atexit.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/recipe/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/recipe/barrier.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/recipe/cache.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/recipe/counter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/recipe/election.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/recipe/lease.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/recipe/lock.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/recipe/partitioner.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/recipe/party.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/recipe/queue.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/recipe/watchers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/retry.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/security.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/testing/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/testing/common.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/testing/harness.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_barrier.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_build.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_cache.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_client.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_connection.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_counter.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_election.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_eventlet_handler.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_exceptions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_gevent_handler.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_hosts.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_interrupt.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_lease.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_lock.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_partitioner.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_party.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_paths.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_queue.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_retry.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_sasl.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_security.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_threading_handler.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/test_watchers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/tests/util.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/kazoo/version.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/balancedconsumer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/broker.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/cli/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/cli/__main__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/cli/kafka_tools.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/client.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/cluster.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/common.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/connection.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/exceptions.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/handlers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/managedbalancedconsumer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/membershipprotocol.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/partition.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/partitioners.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/producer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/protocol/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/protocol/admin.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/protocol/base.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/protocol/fetch.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/protocol/group_membership.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/protocol/message.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/protocol/metadata.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/protocol/offset.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/protocol/offset_commit.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/protocol/produce.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/rdkafka/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/rdkafka/_rd_kafkamodule.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/rdkafka/helpers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/rdkafka/producer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/rdkafka/simple_consumer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/simpleconsumer.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/test/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/test/kafka_instance.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/test/utils.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/topic.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/utils/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/utils/compat.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/utils/compression.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/utils/error_handlers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/utils/socket.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/lib/pykafka/utils/struct_helpers.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../Python2.7-KafkaToCos/src/schedule.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,7 +241,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1751251680523</updated>
-      <workItem from="1751251681745" duration="17206000" />
+      <workItem from="1751251681745" duration="22405000" />
     </task>
     <servers />
   </component>
