@@ -18,7 +18,7 @@
         },
         "runtime": "Nodejs20.19",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Nodejs20.19-helloworld",
-        "version": "1.0.2",
+        "version": "1.0.3",
         "tags": [
             "Nodejs20.19",
             "helloworld"

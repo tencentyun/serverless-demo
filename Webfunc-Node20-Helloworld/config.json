@@ -19,7 +19,7 @@
         "runtime": "Nodejs20.19",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-Node20-Helloworld",
-        "version": "1.0.2",
+        "version": "1.0.3",
         "tags": [
             "WebFunc",
             "helloworld",
