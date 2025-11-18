@@ -1,0 +1,2 @@
+#!/bin/bash
+/var/lang/node24/bin/node app.js

@@ -1,0 +1,30 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "Node24 Web 模版",
+            "description": "基于 Node.js 24，使用 函数URL和 Web 函数，快速部署 Hello world 示例项目",
+            "attention": "无",
+            "author": {
+                "name": "腾讯云社区开发者"
+            }
+        },
+        "English": {
+            "name": "Node24-Demo",
+            "description": "A HelloWorld demo for python Web Function",
+            "attention": "None",
+            "author": {
+                "name": "Tencent Cloud Community"
+            }
+        },
+        "runtime": "Nodejs24.11",
+        "type": "web",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-Node24-Helloworld",
+        "version": "1.0.0",
+        "tags": [
+            "WebFunc",
+            "helloworld",
+            "Nodejs24.11",
+            "web"
+        ]
+    }
+}
