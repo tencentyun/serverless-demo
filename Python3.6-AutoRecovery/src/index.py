@@ -143,13 +143,12 @@ def main_handler(event, context):
     run_command = os.environ.get('run_Command')
     run_command_base = base64.b64encode(run_command.encode('utf-8'))
 
-    # 判断服务器是否在 RUNNING 状态
-    status_get = get_cvm_status(timestamp, date, secretid, secretkey, region, insid)
-    status = json.loads(status_get)["Response"]["InstanceSet"][0]["InstanceState"]
-    print(status)
-
     loop = 1
     while loop <= 6:
+        # 判断服务器是否在 RUNNING 状态
+        status_get = get_cvm_status(timestamp, date, secretid, secretkey, region, insid)
+        status = json.loads(status_get)["Response"]["InstanceSet"][0]["InstanceState"]
+        print(status)
         if status == 'RUNNING':
             # 服务器命令执行
             time.sleep(10)
