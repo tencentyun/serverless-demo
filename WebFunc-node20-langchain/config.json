@@ -19,7 +19,7 @@
         "runtime": "Nodejs20.19",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/CloudBase-node20-langchain",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "tags": [
             "CloudBase",
             "Nodejs20.19"
