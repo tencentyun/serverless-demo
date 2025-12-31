@@ -1,0 +1,16 @@
+ormsgpack-1.12.1.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+ormsgpack-1.12.1.dist-info/METADATA,sha256=vVanrU8RdTKyfRNyq3ZBscRu6CM6Ju_1d-6dlArcI4o,3217
+ormsgpack-1.12.1.dist-info/RECORD,,
+ormsgpack-1.12.1.dist-info/WHEEL,sha256=sgi_Ui9BKkTXfCemBDwUkdsWKtVg5--W9WBHQKZVLI0,147
+ormsgpack-1.12.1.dist-info/entry_points.txt,sha256=b4bGmxqo1PPqO42Cjz2A2X4Gy4h1PCoOygCzeS-m22I,63
+ormsgpack-1.12.1.dist-info/licenses/LICENSE-APACHE,sha256=pg7qgXUUUxZo1-AHZXMUSf4U0FnTJJ4LyTs23kX3WfI,10847
+ormsgpack-1.12.1.dist-info/licenses/LICENSE-MIT,sha256=I_GOA9xJ35FiL-KnYXZJdATkbO2KcV2dK2enRGVxzKM,1023
+ormsgpack/__init__.py,sha256=-iOU1pn87XgITDK2iZAWHUvCoRomHMbxXmKQDaGC-vs,1164
+ormsgpack/__init__.pyi,sha256=EhinBQbFIFUhGHG4tpSYMWx6b-whh450USur0J7CogM,947
+ormsgpack/__pycache__/__init__.cpython-310.pyc,,
+ormsgpack/_pyinstaller/__init__.py,sha256=hcOudyiUz-ny0OE09dNskv7gVZXrsbb5uwg2mScSbG8,133
+ormsgpack/_pyinstaller/__pycache__/__init__.cpython-310.pyc,,
+ormsgpack/_pyinstaller/__pycache__/hook-ormsgpack.cpython-310.pyc,,
+ormsgpack/_pyinstaller/hook-ormsgpack.py,sha256=R-YMI5TWEh7mZLFywYSJu2PxG5HeuWrGlSmMbofSyGI,111
+ormsgpack/ormsgpack.cpython-310-x86_64-linux-gnu.so,sha256=ApZjhc7f3BItGM85M2NzfgbonuEaJacHooYtNLFt7xQ,407600
+ormsgpack/py.typed,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
