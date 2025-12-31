@@ -3,7 +3,7 @@ name: ap-shanghai_crewai_demo_py310
 inputs:
   name: crewai_demo_py310
   src:
-    src: ./
+    src: ./src
   type: web
   runtime: Python3.10
   namespace: default
