@@ -1,0 +1,1 @@
+{"version":3,"file":"chunk_array.d.cts","names":["chunkArray","T"],"sources":["../../src/utils/chunk_array.d.ts"],"sourcesContent":["export declare const chunkArray: <T>(arr: T[], chunkSize: number) => T[][];\n//# sourceMappingURL=chunk_array.d.ts.map"],"mappings":";cAAqBA,qBAAqBC,2BAA2BA"}

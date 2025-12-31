@@ -1,0 +1,24 @@
+Metadata-Version: 2.4
+Name: uuid_utils
+Version: 0.12.0
+Classifier: Development Status :: 3 - Alpha
+Classifier: Programming Language :: Python
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3 :: Only
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: 3.13
+Classifier: Programming Language :: Rust
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+License-File: LICENSE.md
+Summary: Drop-in replacement for Python UUID with bindings in Rust
+Keywords: rust,uuid
+Author-email: Amin Alaee <me@aminalaee.dev>
+Requires-Python: >=3.9
+Project-URL: Documentation, https://github.com/aminalaee/uuid-utils
+Project-URL: Issues, https://github.com/aminalaee/uuid-utils/issues
+Project-URL: Source, https://github.com/aminalaee/uuid-utils
