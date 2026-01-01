@@ -19,7 +19,7 @@
         "runtime": "Python3.10",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/CloudBase-python310-crewai",
-        "version": "1.0.4",
+        "version": "1.0.5",
         "tags": [
             "CloudBase",
             "Python3.10"
