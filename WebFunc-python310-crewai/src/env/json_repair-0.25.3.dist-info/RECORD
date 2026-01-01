@@ -1,0 +1,10 @@
+json_repair-0.25.3.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+json_repair-0.25.3.dist-info/LICENSE,sha256=wrjQo8MhNrNCicXtMe3MHmS-fx8AmQk1ue8AQwiiFV8,1076
+json_repair-0.25.3.dist-info/METADATA,sha256=AFNOs4gVCu9m-hbsx0FayipLhGixE_GJpsVwgxyjOVE,7863
+json_repair-0.25.3.dist-info/RECORD,,
+json_repair-0.25.3.dist-info/WHEEL,sha256=Z4pYXqR_rTB7OWNDYFOm1qRk0RX6GFP2o8LgvP453Hk,91
+json_repair-0.25.3.dist-info/top_level.txt,sha256=7-VZwZN2CgB_n0NlSLk-rEUFh8ug21lESbsblOYuZqw,12
+json_repair/__init__.py,sha256=IIzSm1DsCRrr8seF3UeMZXwxcq-tE3j-8d1WBxvEJvE,178
+json_repair/__pycache__/__init__.cpython-310.pyc,,
+json_repair/__pycache__/json_repair.cpython-310.pyc,,
+json_repair/json_repair.py,sha256=0_vEOcEDZ_MySf_6pyqWPzXKyLZTDPxOwyFSoqu9S8M,31586

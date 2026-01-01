@@ -1,0 +1,21 @@
+Metadata-Version: 2.1
+Name: pysqlite3-binary
+Version: 0.5.4
+Summary: DB-API 2.0 interface for Sqlite 3.x
+Home-page: https://github.com/coleifer/pysqlite3
+Author: Charles Leifer
+Author-email: coleifer@gmail.com
+License: zlib/libpng
+Platform: ALL
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: zlib/libpng License
+Classifier: Operating System :: MacOS :: MacOS X
+Classifier: Operating System :: Microsoft :: Windows
+Classifier: Operating System :: POSIX
+Classifier: Programming Language :: C
+Classifier: Programming Language :: Python
+Classifier: Topic :: Database :: Database Engines/Servers
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+License-File: LICENSE
+

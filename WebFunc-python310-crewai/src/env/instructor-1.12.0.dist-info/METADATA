@@ -1,0 +1,391 @@
+Metadata-Version: 2.4
+Name: instructor
+Version: 1.12.0
+Summary: structured outputs for llm
+Project-URL: repository, https://github.com/instructor-ai/instructor
+Author-email: Jason Liu <jason@jxnl.co>, Ivan Leo <ivan@jxnl.co>
+License: MIT
+License-File: LICENSE
+Requires-Python: <4.0,>=3.9
+Requires-Dist: aiohttp<4.0.0,>=3.9.1
+Requires-Dist: diskcache>=5.6.3
+Requires-Dist: docstring-parser<1.0,>=0.16
+Requires-Dist: jinja2<4.0.0,>=3.1.4
+Requires-Dist: jiter<0.11,>=0.6.1
+Requires-Dist: openai<2.0.0,>=1.70.0
+Requires-Dist: pre-commit>=4.3.0
+Requires-Dist: pydantic-core<3.0.0,>=2.18.0
+Requires-Dist: pydantic<3.0.0,>=2.8.0
+Requires-Dist: requests<3.0.0,>=2.32.3
+Requires-Dist: rich<15.0.0,>=13.7.0
+Requires-Dist: tenacity<10.0.0,>=8.2.3
+Requires-Dist: typer<1.0.0,>=0.9.0
+Provides-Extra: anthropic
+Requires-Dist: anthropic==0.53.0; extra == 'anthropic'
+Requires-Dist: xmltodict<0.15,>=0.13; extra == 'anthropic'
+Provides-Extra: bedrock
+Requires-Dist: boto3<2.0.0,>=1.34.0; extra == 'bedrock'
+Provides-Extra: cerebras-cloud-sdk
+Requires-Dist: cerebras-cloud-sdk<2.0.0,>=1.5.0; extra == 'cerebras-cloud-sdk'
+Provides-Extra: cohere
+Requires-Dist: cohere<6.0.0,>=5.1.8; extra == 'cohere'
+Provides-Extra: datasets
+Requires-Dist: datasets<4.0.0,>=3.0.1; extra == 'datasets'
+Provides-Extra: dev
+Requires-Dist: coverage<8.0.0,>=7.3.2; extra == 'dev'
+Requires-Dist: jsonref<2.0.0,>=1.1.0; extra == 'dev'
+Requires-Dist: pre-commit>=4.2.0; extra == 'dev'
+Requires-Dist: pyright<2.0.0; extra == 'dev'
+Requires-Dist: pytest-asyncio<1.0.0,>=0.24.0; extra == 'dev'
+Requires-Dist: pytest-examples>=0.0.15; extra == 'dev'
+Requires-Dist: pytest-xdist>=3.8.0; extra == 'dev'
+Requires-Dist: pytest<9.0.0,>=8.3.3; extra == 'dev'
+Requires-Dist: python-dotenv>=1.0.1; extra == 'dev'
+Provides-Extra: docs
+Requires-Dist: mkdocs-jupyter<0.26.0,>=0.24.6; extra == 'docs'
+Requires-Dist: mkdocs-material-extensions>=1.3.1; extra == 'docs'
+Requires-Dist: mkdocs-material>=9.6.14; extra == 'docs'
+Requires-Dist: mkdocs-material[imaging]<10.0.0,>=9.5.9; extra == 'docs'
+Requires-Dist: mkdocs-minify-plugin<1.0.0,>=0.8.0; extra == 'docs'
+Requires-Dist: mkdocs-redirects<2.0.0,>=1.2.1; extra == 'docs'
+Requires-Dist: mkdocs-rss-plugin<2.0.0,>=1.12.0; extra == 'docs'
+Requires-Dist: mkdocs<2.0.0,>=1.6.1; extra == 'docs'
+Requires-Dist: mkdocstrings-python<2.0.0,>=1.12.2; extra == 'docs'
+Requires-Dist: mkdocstrings<0.30.0,>=0.27.1; extra == 'docs'
+Requires-Dist: pytest-examples>=0.0.15; extra == 'docs'
+Provides-Extra: fireworks-ai
+Requires-Dist: fireworks-ai<1.0.0,>=0.15.4; extra == 'fireworks-ai'
+Provides-Extra: google-genai
+Requires-Dist: google-genai>=1.5.0; extra == 'google-genai'
+Requires-Dist: jsonref<2.0.0,>=1.1.0; extra == 'google-genai'
+Provides-Extra: graphviz
+Requires-Dist: graphviz<1.0.0,>=0.20.3; extra == 'graphviz'
+Provides-Extra: groq
+Requires-Dist: groq<0.27.0,>=0.4.2; extra == 'groq'
+Provides-Extra: litellm
+Requires-Dist: litellm<2.0.0,>=1.35.31; extra == 'litellm'
+Provides-Extra: mistral
+Requires-Dist: mistralai<2.0.0,>=1.5.1; extra == 'mistral'
+Provides-Extra: perplexity
+Requires-Dist: openai<2.0.0,>=1.52.0; extra == 'perplexity'
+Provides-Extra: phonenumbers
+Requires-Dist: phonenumbers<10.0.0,>=8.13.33; extra == 'phonenumbers'
+Provides-Extra: pydub
+Requires-Dist: pydub<1.0.0,>=0.25.1; extra == 'pydub'
+Provides-Extra: sqlmodel
+Requires-Dist: sqlmodel<1.0.0,>=0.0.22; extra == 'sqlmodel'
+Provides-Extra: test-docs
+Requires-Dist: diskcache<6.0.0,>=5.6.3; extra == 'test-docs'
+Requires-Dist: fastapi<0.116.0,>=0.109.2; extra == 'test-docs'
+Requires-Dist: litellm<2.0.0,>=1.35.31; extra == 'test-docs'
+Requires-Dist: mistralai<2.0.0,>=1.5.1; extra == 'test-docs'
+Requires-Dist: pandas<3.0.0,>=2.2.0; extra == 'test-docs'
+Requires-Dist: pydantic-extra-types<3.0.0,>=2.6.0; extra == 'test-docs'
+Requires-Dist: redis<7.0.0,>=5.0.1; extra == 'test-docs'
+Requires-Dist: tabulate<1.0.0,>=0.9.0; extra == 'test-docs'
+Provides-Extra: trafilatura
+Requires-Dist: trafilatura<3.0.0,>=1.12.2; extra == 'trafilatura'
+Provides-Extra: vertexai
+Requires-Dist: google-cloud-aiplatform<2.0.0,>=1.53.0; extra == 'vertexai'
+Requires-Dist: jsonref<2.0.0,>=1.1.0; extra == 'vertexai'
+Provides-Extra: writer
+Requires-Dist: writer-sdk<3.0.0,>=2.2.0; extra == 'writer'
+Provides-Extra: xai
+Requires-Dist: python-dotenv>=1.0.0; extra == 'xai'
+Requires-Dist: xai-sdk>=0.2.0; (python_version >= '3.10') and extra == 'xai'
+Description-Content-Type: text/markdown
+
+# Instructor: Structured Outputs for LLMs
+
+Get reliable JSON from any LLM. Built on Pydantic for validation, type safety, and IDE support.
+
+```python
+import instructor
+from pydantic import BaseModel
+
+
+# Define what you want
+class User(BaseModel):
+    name: str
+    age: int
+
+
+# Extract it from natural language
+client = instructor.from_provider("openai/gpt-4o-mini")
+user = client.chat.completions.create(
+    response_model=User,
+    messages=[{"role": "user", "content": "John is 25 years old"}],
+)
+
+print(user)  # User(name='John', age=25)
+```
+
+**That's it.** No JSON parsing, no error handling, no retries. Just define a model and get structured data.
+
+[![PyPI](https://img.shields.io/pypi/v/instructor?style=flat-square)](https://pypi.org/project/instructor/)
+[![Downloads](https://img.shields.io/pypi/dm/instructor?style=flat-square)](https://pypi.org/project/instructor/)
+[![GitHub Stars](https://img.shields.io/github/stars/instructor-ai/instructor?style=flat-square)](https://github.com/instructor-ai/instructor)
+[![Discord](https://img.shields.io/discord/1192334452110659664?style=flat-square)](https://discord.gg/bD9YE9JArw)
+[![Twitter](https://img.shields.io/twitter/follow/jxnlco?style=flat-square)](https://twitter.com/jxnlco)
+
+## Why Instructor?
+
+Getting structured data from LLMs is hard. You need to:
+
+1. Write complex JSON schemas
+2. Handle validation errors  
+3. Retry failed extractions
+4. Parse unstructured responses
+5. Deal with different provider APIs
+
+**Instructor handles all of this with one simple interface:**
+
+<table>
+<tr>
+<td><b>Without Instructor</b></td>
+<td><b>With Instructor</b></td>
+</tr>
+<tr>
+<td>
+
+```python
+response = openai.chat.completions.create(
+    model="gpt-4",
+    messages=[{"role": "user", "content": "..."}],
+    tools=[
+        {
+            "type": "function",
+            "function": {
+                "name": "extract_user",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "name": {"type": "string"},
+                        "age": {"type": "integer"},
+                    },
+                },
+            },
+        }
+    ],
+)
+
+# Parse response
+tool_call = response.choices[0].message.tool_calls[0]
+user_data = json.loads(tool_call.function.arguments)
+
+# Validate manually
+if "name" not in user_data:
+    # Handle error...
+    pass
+```
+
+</td>
+<td>
+
+```python
+client = instructor.from_provider("openai/gpt-4")
+
+user = client.chat.completions.create(
+    response_model=User,
+    messages=[{"role": "user", "content": "..."}],
+)
+
+# That's it! user is validated and typed
+```
+
+</td>
+</tr>
+</table>
+
+## Install in seconds
+
+```bash
+pip install instructor
+```
+
+Or with your package manager:
+```bash
+uv add instructor
+poetry add instructor
+```
+
+## Works with every major provider
+
+Use the same code with any LLM provider:
+
+```python
+# OpenAI
+client = instructor.from_provider("openai/gpt-4o")
+
+# Anthropic
+client = instructor.from_provider("anthropic/claude-3-5-sonnet")
+
+# Google
+client = instructor.from_provider("google/gemini-pro")
+
+# Ollama (local)
+client = instructor.from_provider("ollama/llama3.2")
+
+# With API keys directly (no environment variables needed)
+client = instructor.from_provider("openai/gpt-4o", api_key="sk-...")
+client = instructor.from_provider("anthropic/claude-3-5-sonnet", api_key="sk-ant-...")
+client = instructor.from_provider("groq/llama-3.1-8b-instant", api_key="gsk_...")
+
+# All use the same API!
+user = client.chat.completions.create(
+    response_model=User,
+    messages=[{"role": "user", "content": "..."}],
+)
+```
+
+## Production-ready features
+
+### Automatic retries
+
+Failed validations are automatically retried with the error message:
+
+```python
+from pydantic import BaseModel, field_validator
+
+
+class User(BaseModel):
+    name: str
+    age: int
+
+    @field_validator('age')
+    def validate_age(cls, v):
+        if v < 0:
+            raise ValueError('Age must be positive')
+        return v
+
+
+# Instructor automatically retries when validation fails
+user = client.chat.completions.create(
+    response_model=User,
+    messages=[{"role": "user", "content": "..."}],
+    max_retries=3,
+)
+```
+
+### Streaming support
+
+Stream partial objects as they're generated:
+
+```python
+from instructor import Partial
+
+for partial_user in client.chat.completions.create(
+    response_model=Partial[User],
+    messages=[{"role": "user", "content": "..."}],
+    stream=True,
+):
+    print(partial_user)
+    # User(name=None, age=None)
+    # User(name="John", age=None)
+    # User(name="John", age=25)
+```
+
+### Nested objects
+
+Extract complex, nested data structures:
+
+```python
+from typing import List
+
+
+class Address(BaseModel):
+    street: str
+    city: str
+    country: str
+
+
+class User(BaseModel):
+    name: str
+    age: int
+    addresses: List[Address]
+
+
+# Instructor handles nested objects automatically
+user = client.chat.completions.create(
+    response_model=User,
+    messages=[{"role": "user", "content": "..."}],
+)
+```
+
+## Used in production by
+
+Trusted by over 100,000 developers and companies building AI applications:
+
+- **3M+ monthly downloads**
+- **10K+ GitHub stars**  
+- **1000+ community contributors**
+
+Companies using Instructor include teams at OpenAI, Google, Microsoft, AWS, and many YC startups.
+
+## Get started
+
+### Basic extraction
+
+Extract structured data from any text:
+
+```python
+from pydantic import BaseModel
+import instructor
+
+client = instructor.from_provider("openai/gpt-4o-mini")
+
+
+class Product(BaseModel):
+    name: str
+    price: float
+    in_stock: bool
+
+
+product = client.chat.completions.create(
+    response_model=Product,
+    messages=[{"role": "user", "content": "iPhone 15 Pro, $999, available now"}],
+)
+
+print(product)
+# Product(name='iPhone 15 Pro', price=999.0, in_stock=True)
+```
+
+### Multiple languages
+
+Instructor's simple API is available in many languages:
+
+- [Python](https://python.useinstructor.com) - The original
+- [TypeScript](https://js.useinstructor.com) - Full TypeScript support
+- [Ruby](https://ruby.useinstructor.com) - Ruby implementation  
+- [Go](https://go.useinstructor.com) - Go implementation
+- [Elixir](https://hex.pm/packages/instructor) - Elixir implementation
+- [Rust](https://rust.useinstructor.com) - Rust implementation
+
+### Learn more
+
+- [Documentation](https://python.useinstructor.com) - Comprehensive guides
+- [Examples](https://python.useinstructor.com/examples/) - Copy-paste recipes  
+- [Blog](https://python.useinstructor.com/blog/) - Tutorials and best practices
+- [Discord](https://discord.gg/bD9YE9JArw) - Get help from the community
+
+## Why use Instructor over alternatives?
+
+**vs Raw JSON mode**: Instructor provides automatic validation, retries, streaming, and nested object support. No manual schema writing.
+
+**vs LangChain/LlamaIndex**: Instructor is focused on one thing - structured extraction. It's lighter, faster, and easier to debug.
+
+**vs Custom solutions**: Battle-tested by thousands of developers. Handles edge cases you haven't thought of yet.
+
+## Contributing
+
+We welcome contributions! Check out our [good first issues](https://github.com/instructor-ai/instructor/labels/good%20first%20issue) to get started.
+
+## License
+
+MIT License - see [LICENSE](https://github.com/instructor-ai/instructor/blob/main/LICENSE) for details.
+
+---
+
+<p align="center">
+Built by the Instructor community. Special thanks to <a href="https://twitter.com/jxnlco">Jason Liu</a> and all <a href="https://github.com/instructor-ai/instructor/graphs/contributors">contributors</a>.
+</p>

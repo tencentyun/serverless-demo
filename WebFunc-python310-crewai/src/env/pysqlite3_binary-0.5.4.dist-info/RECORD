@@ -1,0 +1,14 @@
+pysqlite3-binary/_sqlite3.cpython-310-x86_64-linux-gnu.so,sha256=Hw2brdkzNjyR7VNyVu53GNeIDW_zPVyGPQtgpqfrcGw,461617
+pysqlite3/__init__.py,sha256=Zn-tuwGEIb6IYWwAwp_6oY4qnvn3X8N0Mic49CBQYXg,1019
+pysqlite3/__pycache__/__init__.cpython-310.pyc,,
+pysqlite3/__pycache__/dbapi2.cpython-310.pyc,,
+pysqlite3/_sqlite3.cpython-310-x86_64-linux-gnu.so,sha256=LPHRqffOJIjVQ4C9-i4nxQTvjsEQWaS34eyKwD5HDNU,13067536
+pysqlite3/dbapi2.py,sha256=lpcJ9lrNxkprsgxLcx-mfnfx1qTkGOUQH8C6kow7tUU,2725
+pysqlite3_binary-0.5.4.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
+pysqlite3_binary-0.5.4.dist-info/LICENSE,sha256=-iPPJQEmVI6QAI_pLeTudtSFv7s1kvW-iqcxd1iSqWA,889
+pysqlite3_binary-0.5.4.dist-info/METADATA,sha256=uLvvgeV4zmM9Tt7ipoQsDbHxNBcdOe1eqLWPWtt6xe0,766
+pysqlite3_binary-0.5.4.dist-info/RECORD,,
+pysqlite3_binary-0.5.4.dist-info/REQUESTED,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
+pysqlite3_binary-0.5.4.dist-info/WHEEL,sha256=VXRyidHovicsPXAYYBPK-lnsPgFrrhXkyzySBEhHzcg,151
+pysqlite3_binary-0.5.4.dist-info/top_level.txt,sha256=GPehwnBiSJyNy1DwQE4XRLGlKAjAn6nKo0tqIjVCe28,27
+pysqlite3_binary.libs/libsqlite3-1aa379ef.so.0.8.6,sha256=7XsjDkfN_PJTZZvlwuc9jjy5vI3-i-wbcktK2pSLfVw,1438697

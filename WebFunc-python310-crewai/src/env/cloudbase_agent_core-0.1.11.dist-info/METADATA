@@ -1,0 +1,28 @@
+Metadata-Version: 2.4
+Name: cloudbase-agent-core
+Version: 0.1.11
+Summary: Cloudbase Agent Python SDK - Core functionality
+Author-email: Cloudbase Agent Team <ag-kit@example.com>
+License: Apache-2.0
+Keywords: Cloudbase Agent,agent,ai,llm
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.10
+Requires-Dist: ag-ui-protocol>=0.1.9
+Requires-Dist: lazy-loader>=0.4
+Requires-Dist: pydantic>=2.0.0
+Provides-Extra: dev
+Requires-Dist: mypy>=1.0.0; extra == 'dev'
+Requires-Dist: pytest-asyncio>=0.21.0; extra == 'dev'
+Requires-Dist: pytest>=7.0.0; extra == 'dev'
+Requires-Dist: ruff>=0.12.0; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# Cloudbase Agent Python SDK - Core
+
+Core functionality for Cloudbase Agent Python SDK, including base agent classes and protocols.
