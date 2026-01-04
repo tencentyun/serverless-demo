@@ -1,0 +1,6 @@
+export { StorageClient } from './StorageClient'
+export type { StorageClientOptions } from './StorageClient'
+export { default as StorageAnalyticsClient } from './packages/StorageAnalyticsClient'
+export * from './lib/types'
+export * from './lib/errors'
+export * from './lib/vectors'

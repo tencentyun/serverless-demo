@@ -1,0 +1,32 @@
+{
+    "name": "@types/sqlite3",
+    "version": "3.1.11",
+    "description": "TypeScript definitions for sqlite3",
+    "homepage": "https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/sqlite3",
+    "license": "MIT",
+    "contributors": [
+        {
+            "name": "Nick Malaguti",
+            "githubUsername": "nmalaguti",
+            "url": "https://github.com/nmalaguti"
+        },
+        {
+            "name": "Sumant Manne",
+            "githubUsername": "dpyro",
+            "url": "https://github.com/dpyro"
+        }
+    ],
+    "main": "",
+    "types": "index.d.ts",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DefinitelyTyped/DefinitelyTyped.git",
+        "directory": "types/sqlite3"
+    },
+    "scripts": {},
+    "dependencies": {
+        "@types/node": "*"
+    },
+    "typesPublisherContentHash": "1f33e26e703fe617b42dc243aa091eb205cce9e0220b83338afce56ab1e1a729",
+    "typeScriptVersion": "4.5"
+}

@@ -1,0 +1,56 @@
+const require_types = require('./middleware/types.cjs');
+
+//#region src/agents/middleware.ts
+/**
+* Creates a middleware instance with automatic schema inference.
+*
+* @param config - Middleware configuration
+* @param config.name - The name of the middleware
+* @param config.stateSchema - The schema of the middleware state
+* @param config.contextSchema - The schema of the middleware context
+* @param config.wrapModelCall - The function to wrap model invocation
+* @param config.wrapToolCall - The function to wrap tool invocation
+* @param config.beforeModel - The function to run before the model call
+* @param config.afterModel - The function to run after the model call
+* @param config.beforeAgent - The function to run before the agent execution starts
+* @param config.afterAgent - The function to run after the agent execution completes
+* @returns A middleware instance
+*
+* @example
+* ```ts
+* const authMiddleware = createMiddleware({
+*   name: "AuthMiddleware",
+*   stateSchema: z.object({
+*     isAuthenticated: z.boolean().default(false),
+*   }),
+*   contextSchema: z.object({
+*     userId: z.string(),
+*   }),
+*   beforeModel: async (state, runtime, controls) => {
+*     if (!state.isAuthenticated) {
+*       return controls.terminate(new Error("Not authenticated"));
+*     }
+*   },
+* });
+* ```
+*/
+function createMiddleware(config) {
+	const middleware = {
+		[require_types.MIDDLEWARE_BRAND]: true,
+		name: config.name,
+		stateSchema: config.stateSchema,
+		contextSchema: config.contextSchema,
+		wrapToolCall: config.wrapToolCall,
+		wrapModelCall: config.wrapModelCall,
+		beforeAgent: config.beforeAgent,
+		beforeModel: config.beforeModel,
+		afterModel: config.afterModel,
+		afterAgent: config.afterAgent,
+		tools: config.tools ?? []
+	};
+	return middleware;
+}
+
+//#endregion
+exports.createMiddleware = createMiddleware;
+//# sourceMappingURL=middleware.cjs.map

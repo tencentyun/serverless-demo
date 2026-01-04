@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "Node20 LangChain Javascript 模版",
+            "description": "基于 Node.js 20 的 LangChain Javascript 示例项目",
+            "attention": "无",
+            "author": {
+                "name": "云开发 CloudBase"
+            }
+        },
+        "English": {
+            "name": "Node20-Langchain-Javascript-Demo",
+            "description": "A LangChain demo for node Web Function",
+            "attention": "None",
+            "author": {
+                "name": "Tencent CloudBase"
+            }
+        },
+        "runtime": "Nodejs20.19",
+        "type": "web",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/WebFunc-node20-langchain_pure_js",
+        "version": "1.0.0",
+        "tags": [
+            "CloudBase",
+            "Nodejs20.19"
+        ]
+    }
+}
