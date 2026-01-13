@@ -1,5 +1,5 @@
-../../bin/jsondiff,sha256=tu0FWPaXAGCxme4bfQ51jKByYkT25aFt3d7Be0way_I,1210
-../../bin/jsonpatch,sha256=_8Wy5I0aISIssN0p7bDz8x2ZyBoUSDfBg8CpMqkx-Qk,3871
+../../bin/jsondiff,sha256=Qa4qPGvHZoC04wfc6VvFwkCSHuqK8arby_QKWILXlBA,1225
+../../bin/jsonpatch,sha256=T0YF4I3s65ZufFGgXeS_V0_Ky1OKyn_jyHqlEkYVGFs,3886
 __pycache__/jsonpatch.cpython-310.pyc,,
 jsonpatch-1.33.dist-info/AUTHORS,sha256=hOtEnBGbfDegKjzMDEl5vuVJyczbI2PlYE2ho4LjGNQ,140
 jsonpatch-1.33.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4
