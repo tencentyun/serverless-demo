@@ -1,0 +1,30 @@
+{
+  "serverless-cloud-function-application": {
+      "Chinese": {
+          "name": "自建CDN刷新",
+          "description": "监听COS桶上传事件，代理转发刷新请求（仅支持腾讯自建CDN业务）",
+          "attention": "需要先通过CDN运维开通刷新权限，获取刷新密钥后才可使用本函数",
+          "tutorial": "无",
+          "author": {
+              "name": "腾讯云社区开发者"
+          }
+      },
+      "English": {
+          "name": "ZjCdnRefresh",
+          "description": "Listen to COS bucket upload events, proxy forward refresh requests (only supports Tencent self-built CDN business)",
+          "attention": "Need to first open refresh permissions through CDN operation, get refresh key to use this function",
+          "tutorial": "None",
+          "author": {
+              "name": "Tencent Cloud Community"
+          }
+      },
+      "runtime": "Python3.9",
+      "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.9-ZjCdnRefresh",
+      "version": "1.1.1",
+      "tags": [
+          "Python3.9",
+          "CDN",
+          "Refresh"
+      ]
+  }
+}

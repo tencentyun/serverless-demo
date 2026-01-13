@@ -1,0 +1,23 @@
+component: scf
+name: ap-guangzhou_default_ZjCdnRefresh
+inputs:
+  name: ZjCdnRefresh
+  src:
+    src: ./src
+  runtime: Python3.9
+  region: ap-guangzhou
+  handler: index.main_handler
+  memorySize: 512
+  timeout: 300
+  environment:
+    - key: ZJ_CDN_DOMAIN
+      value: cdn domain
+    - key: ZJ_CDN_REFRESH_ID
+      value: refresh id
+    - key: ZJ_CDN_REFRESH_KEY
+      value: refresh key
+  triggers:
+    - type: cos
+      enable: true
+      bucket: 
+      events: 'cos:ObjectCreated:*'
