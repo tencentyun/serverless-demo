@@ -297,7 +297,25 @@ def litellm_messages_to_ag_ui_messages(messages: List[LiteLLMMessage]) -> List[M
     """Converts a list of LiteLLM messages to a list of ag_ui messages."""
     ag_ui_messages: List[Message] = []
     for message in messages:
-        message_dict = message.model_dump() if not isinstance(message, Mapping) else message
+        # Safely extract message dict from LiteLLM message
+        if not isinstance(message, Mapping):
+            try:
+                # Use mode='python' to avoid strict JSON serialization issues
+                message_dict = message.model_dump(mode='python', exclude_none=False)
+            except Exception:
+                # Fallback: manually extract fields from LiteLLM message
+                message_dict = {
+                    "content": getattr(message, "content", ""),
+                    "role": getattr(message, "role", "assistant"),
+                }
+                # Add optional fields if present
+                for field in ["id", "name", "tool_calls", "tool_call_id", "function_call"]:
+                    if hasattr(message, field):
+                        value = getattr(message, field, None)
+                        if value is not None:
+                            message_dict[field] = value
+        else:
+            message_dict = message
 
         # whitelist the fields we want to keep
         whitelist = ["content", "role", "tool_calls", "id", "name", "tool_call_id"]
@@ -374,7 +392,27 @@ def crewai_prepare_inputs(inputs: RunAgentInput) -> dict:
     dict
         A dictionary containing the prepared state for CrewAI Flow.
     """
-    messages = [message.model_dump() for message in inputs.messages]
+    # Safely serialize messages, handling potential serialization errors
+    messages = []
+    for message in inputs.messages:
+        try:
+            # Use model_dump with mode='python' to avoid serialization issues
+            messages.append(message.model_dump(mode='python', exclude_none=False))
+        except Exception as e:
+            # Fallback: manually construct dict with required fields
+            msg_dict = {
+                "id": getattr(message, "id", str(uuid.uuid4())),
+                "role": getattr(message, "role", "user"),
+                "content": getattr(message, "content", ""),
+            }
+            # Add optional fields if present
+            if hasattr(message, "name") and message.name is not None:
+                msg_dict["name"] = message.name
+            if hasattr(message, "tool_calls") and message.tool_calls is not None:
+                msg_dict["tool_calls"] = message.tool_calls
+            if hasattr(message, "tool_call_id") and message.tool_call_id is not None:
+                msg_dict["tool_call_id"] = message.tool_call_id
+            messages.append(msg_dict)
 
     if len(messages) > 0:
         if "role" in messages[0] and messages[0]["role"] == "system":

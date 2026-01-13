@@ -41,7 +41,7 @@ class IsolatedEnv(typing.Protocol):
 
 def _has_dependency(name: str, minimum_version_str: str | None = None, /, **distargs: object) -> bool | None:
     """
-    Given a path, see if a package is present and return True if the version is
+    Given a distribution name, see if it is present and return True if the version is
     sufficient for build, False if it is not, None if the package is missing.
     """
     from packaging.version import Version
@@ -304,7 +304,7 @@ class _UvBackend(_EnvBackend):
 
             self._uv_bin = uv.find_uv_bin()
         except (ModuleNotFoundError, FileNotFoundError):
-            uv_bin = shutil.which('uv')
+            uv_bin = shutil.which(os.environ.get('UV') or 'uv')
             if uv_bin is None:
                 msg = 'uv executable not found'
                 raise RuntimeError(msg) from None

@@ -127,7 +127,7 @@ class AgentServiceApp:
         self,
         create_agent: AgentCreator,
         base_path: str = "",
-        enable_cors: bool = True,
+        enable_cors: bool = False,
         enable_openai_endpoint: bool = False,
         enable_healthz: bool = True,
         healthz_config: Optional[HealthzConfig] = None,

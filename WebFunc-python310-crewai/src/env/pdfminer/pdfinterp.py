@@ -1,7 +1,8 @@
 import logging
 import re
+from collections.abc import Mapping, Sequence
 from io import BytesIO
-from typing import Dict, List, Mapping, Optional, Sequence, Tuple, Union, cast
+from typing import Union, cast
 
 from pdfminer import settings
 from pdfminer.casting import safe_cmyk, safe_float, safe_int, safe_matrix, safe_rgb
@@ -71,7 +72,7 @@ class PDFTextState:
     linematrix: Point
 
     def __init__(self) -> None:
-        self.font: Optional[PDFFont] = None
+        self.font: PDFFont | None = None
         self.fontsize: float = 0
         self.charspace: float = 0
         self.wordspace: float = 0
@@ -85,21 +86,16 @@ class PDFTextState:
 
     def __repr__(self) -> str:
         return (
-            "<PDFTextState: font=%r, fontsize=%r, charspace=%r, "
-            "wordspace=%r, scaling=%r, leading=%r, render=%r, rise=%r, "
-            "matrix=%r, linematrix=%r>"
-            % (
-                self.font,
-                self.fontsize,
-                self.charspace,
-                self.wordspace,
-                self.scaling,
-                self.leading,
-                self.render,
-                self.rise,
-                self.matrix,
-                self.linematrix,
-            )
+            f"<PDFTextState: font={self.font!r}, "
+            f"fontsize={self.fontsize!r}, "
+            f"charspace={self.charspace!r}, "
+            f"wordspace={self.wordspace!r}, "
+            f"scaling={self.scaling!r}, "
+            f"leading={self.leading!r}, "
+            f"render={self.render!r}, "
+            f"rise={self.rise!r}, "
+            f"matrix={self.matrix!r}, "
+            f"linematrix={self.linematrix!r}>"
         )
 
     def copy(self) -> "PDFTextState":
@@ -121,22 +117,32 @@ class PDFTextState:
         self.linematrix = (0, 0)
 
 
-Color = Union[
+# Standard color types (used standalone or as base for uncolored patterns)
+StandardColor = Union[
     float,  # Greyscale
-    Tuple[float, float, float],  # R, G, B
-    Tuple[float, float, float, float],  # C, M, Y, K
+    tuple[float, float, float],  # R, G, B
+    tuple[float, float, float, float],  # C, M, Y, K
+]
+
+# Complete color type including patterns
+Color = Union[
+    StandardColor,  # Standard colors (gray, RGB, CMYK)
+    str,  # Pattern name (colored pattern, PaintType=1)
+    tuple[
+        StandardColor, str
+    ],  # (base_color, pattern_name) (uncolored pattern, PaintType=2)
 ]
 
 
 class PDFGraphicState:
     def __init__(self) -> None:
         self.linewidth: float = 0
-        self.linecap: Optional[object] = None
-        self.linejoin: Optional[object] = None
-        self.miterlimit: Optional[object] = None
-        self.dash: Optional[Tuple[object, object]] = None
-        self.intent: Optional[object] = None
-        self.flatness: Optional[object] = None
+        self.linecap: object | None = None
+        self.linejoin: object | None = None
+        self.miterlimit: object | None = None
+        self.dash: tuple[object, object] | None = None
+        self.intent: object | None = None
+        self.flatness: object | None = None
 
         # stroking color
         self.scolor: Color = 0
@@ -156,25 +162,23 @@ class PDFGraphicState:
         obj.intent = self.intent
         obj.flatness = self.flatness
         obj.scolor = self.scolor
+        obj.scs = self.scs
         obj.ncolor = self.ncolor
+        obj.ncs = self.ncs
         return obj
 
     def __repr__(self) -> str:
         return (
-            "<PDFGraphicState: linewidth=%r, linecap=%r, linejoin=%r, "
-            " miterlimit=%r, dash=%r, intent=%r, flatness=%r, "
-            " stroking color=%r, non stroking color=%r>"
-            % (
-                self.linewidth,
-                self.linecap,
-                self.linejoin,
-                self.miterlimit,
-                self.dash,
-                self.intent,
-                self.flatness,
-                self.scolor,
-                self.ncolor,
-            )
+            f"<PDFGraphicState: "
+            f"linewidth={self.linewidth!r}, "
+            f"linecap={self.linecap!r}, "
+            f"linejoin={self.linejoin!r}, "
+            f"miterlimit={self.miterlimit!r}, "
+            f"dash={self.dash!r}, "
+            f"intent={self.intent!r}, "
+            f"flatness={self.flatness!r}, "
+            f"stroking color={self.scolor!r}, "
+            f"non stroking color={self.ncolor!r}>"
         )
 
 
@@ -188,7 +192,7 @@ class PDFResourceManager:
 
     def __init__(self, caching: bool = True) -> None:
         self.caching = caching
-        self._cached_fonts: Dict[object, PDFFont] = {}
+        self._cached_fonts: dict[object, PDFFont] = {}
 
     def get_procset(self, procs: Sequence[object]) -> None:
         for proc in procs:
@@ -210,9 +214,8 @@ class PDFResourceManager:
             font = self._cached_fonts[objid]
         else:
             log.debug("get_font: create: objid=%r, spec=%r", objid, spec)
-            if settings.STRICT:
-                if spec["Type"] is not LITERAL_FONT:
-                    raise PDFFontError("Type is not /Font")
+            if settings.STRICT and spec["Type"] is not LITERAL_FONT:
+                raise PDFFontError("Type is not /Font")
             # Create a Font object.
             if "Subtype" in spec:
                 subtype = literal_name(spec["Subtype"])
@@ -243,7 +246,7 @@ class PDFResourceManager:
                 font = self.get_font(None, subspec)
             else:
                 if settings.STRICT:
-                    raise PDFFontError("Invalid Font spec: %r" % spec)
+                    raise PDFFontError(f"Invalid Font spec: {spec!r}")
                 font = PDFType1Font(self, spec)  # this is so wrong!
             if objid and self.caching:
                 self._cached_fonts[objid] = font
@@ -259,7 +262,7 @@ class PDFContentParser(PSStackParser[Union[PSKeyword, PDFStream]]):
         # calling self.fillfp().
         PSStackParser.__init__(self, None)  # type: ignore[arg-type]
 
-    def fillfp(self) -> None:
+    def fillfp(self) -> bool:
         if not self.fp:
             if self.istream < len(self.streams):
                 strm = stream_value(self.streams[self.istream])
@@ -267,24 +270,28 @@ class PDFContentParser(PSStackParser[Union[PSKeyword, PDFStream]]):
             else:
                 raise PSEOF("Unexpected EOF, file truncated?")
             self.fp = BytesIO(strm.get_data())
+            return True
+        return False
 
     def seek(self, pos: int) -> None:
         self.fillfp()
         PSStackParser.seek(self, pos)
 
-    def fillbuf(self) -> None:
+    def fillbuf(self) -> bool:
         if self.charpos < len(self.buf):
-            return
+            return False
+        new_stream = False
         while 1:
-            self.fillfp()
+            new_stream = self.fillfp()
             self.bufpos = self.fp.tell()
             self.buf = self.fp.read(self.BUFSIZ)
             if self.buf:
                 break
             self.fp = None  # type: ignore[assignment]
         self.charpos = 0
+        return new_stream
 
-    def get_inline_data(self, pos: int, target: bytes = b"EI") -> Tuple[int, bytes]:
+    def get_inline_data(self, pos: int, target: bytes = b"EI") -> tuple[int, bytes]:
         self.seek(pos)
         i = 0
         data = b""
@@ -295,11 +302,8 @@ class PDFContentParser(PSStackParser[Union[PSKeyword, PDFStream]]):
                 c = bytes((ci,))
                 data += c
                 self.charpos += 1
-                if (
-                    len(target) <= i
-                    and c.isspace()
-                    or i < len(target)
-                    and c == (bytes((target[i],)))
+                if (len(target) <= i and c.isspace()) or (
+                    i < len(target) and c == (bytes((target[i],)))
                 ):
                     i += 1
                 else:
@@ -336,7 +340,7 @@ class PDFContentParser(PSStackParser[Union[PSKeyword, PDFStream]]):
                     raise PSTypeError(error_msg)
                 d = {literal_name(k): resolve1(v) for (k, v) in choplist(2, objs)}
                 eos = b"EI"
-                filter = d.get("F", None)
+                filter = d.get("F")
                 if filter is not None:
                     if isinstance(filter, PSLiteral):
                         filter = [filter]
@@ -356,8 +360,8 @@ class PDFContentParser(PSStackParser[Union[PSKeyword, PDFStream]]):
             self.push((pos, token))
 
 
+# Types that may appear on the PDF argument stack.
 PDFStackT = PSStackType[PDFStream]
-"""Types that may appear on the PDF argument stack."""
 
 
 class PDFPageInterpreter:
@@ -369,20 +373,37 @@ class PDFPageInterpreter:
     def __init__(self, rsrcmgr: PDFResourceManager, device: PDFDevice) -> None:
         self.rsrcmgr = rsrcmgr
         self.device = device
+        # Track stream IDs currently being executed to detect circular references
+        self.stream_ids: set[int] = set()
+        # Track stream IDs from parent interpreters in the call stack
+        self.parent_stream_ids: set[int] = set()
 
     def dup(self) -> "PDFPageInterpreter":
         return self.__class__(self.rsrcmgr, self.device)
 
-    def init_resources(self, resources: Dict[object, object]) -> None:
+    def subinterp(self) -> "PDFPageInterpreter":
+        """Create a sub-interpreter for processing nested content streams.
+
+        This is used when invoking Form XObjects to prevent circular references.
+        Unlike dup(), this method propagates the stream ID tracking from the
+        parent interpreter, allowing detection of circular references across
+        nested XObject invocations.
+        """
+        interp = self.dup()
+        interp.parent_stream_ids.update(self.parent_stream_ids)
+        interp.parent_stream_ids.update(self.stream_ids)
+        return interp
+
+    def init_resources(self, resources: dict[object, object]) -> None:
         """Prepare the fonts and XObjects listed in the Resource attribute."""
         self.resources = resources
-        self.fontmap: Dict[object, PDFFont] = {}
+        self.fontmap: dict[object, PDFFont] = {}
         self.xobjmap = {}
-        self.csmap: Dict[str, PDFColorSpace] = PREDEFINED_COLORSPACE.copy()
+        self.csmap: dict[str, PDFColorSpace] = PREDEFINED_COLORSPACE.copy()
         if not resources:
             return
 
-        def get_colorspace(spec: object) -> Optional[PDFColorSpace]:
+        def get_colorspace(spec: object) -> PDFColorSpace | None:
             if isinstance(spec, list):
                 name = literal_name(spec[0])
             else:
@@ -417,31 +438,31 @@ class PDFPageInterpreter:
     def init_state(self, ctm: Matrix) -> None:
         """Initialize the text and graphic states for rendering a page."""
         # gstack: stack for graphical states.
-        self.gstack: List[Tuple[Matrix, PDFTextState, PDFGraphicState]] = []
+        self.gstack: list[tuple[Matrix, PDFTextState, PDFGraphicState]] = []
         self.ctm = ctm
         self.device.set_ctm(self.ctm)
         self.textstate = PDFTextState()
         self.graphicstate = PDFGraphicState()
-        self.curpath: List[PathSegment] = []
+        self.curpath: list[PathSegment] = []
         # argstack: stack for command arguments.
-        self.argstack: List[PDFStackT] = []
+        self.argstack: list[PDFStackT] = []
 
     def push(self, obj: PDFStackT) -> None:
         self.argstack.append(obj)
 
-    def pop(self, n: int) -> List[PDFStackT]:
+    def pop(self, n: int) -> list[PDFStackT]:
         if n == 0:
             return []
         x = self.argstack[-n:]
         self.argstack = self.argstack[:-n]
         return x
 
-    def get_current_state(self) -> Tuple[Matrix, PDFTextState, PDFGraphicState]:
+    def get_current_state(self) -> tuple[Matrix, PDFTextState, PDFGraphicState]:
         return (self.ctm, self.textstate.copy(), self.graphicstate.copy())
 
     def set_current_state(
         self,
-        state: Tuple[Matrix, PDFTextState, PDFGraphicState],
+        state: tuple[Matrix, PDFTextState, PDFGraphicState],
     ) -> None:
         (self.ctm, self.textstate, self.graphicstate) = state
         self.device.set_ctm(self.ctm)
@@ -469,7 +490,9 @@ class PDFPageInterpreter:
 
         if matrix is None:
             log.warning(
-                f"Cannot concatenate matrix to current transformation matrix because not all values in {(a1, b1, c1, d1, e1, f1)!r} can be parsed as floats"
+                "Cannot concatenate matrix to current transformation matrix "
+                f"because not all values in {(a1, b1, c1, d1, e1, f1)!r} "
+                "can be parsed as floats"
             )
         else:
             self.ctm = mult_matrix(matrix, self.ctm)
@@ -483,7 +506,8 @@ class PDFPageInterpreter:
                 f"Cannot set line width because {linewidth!r} is an invalid float value"
             )
         else:
-            self.graphicstate.linewidth = linewidth_f
+            scale = (self.ctm[0] ** 2 + self.ctm[1] ** 2) ** 0.5
+            self.graphicstate.linewidth = linewidth_f * scale
 
     def do_J(self, linecap: PDFStackT) -> None:
         """Set line cap style"""
@@ -521,7 +545,8 @@ class PDFPageInterpreter:
         if x_f is None or y_f is None:
             point = ("m", x, y)
             log.warning(
-                f"Cannot start new subpath because not all values in {point!r} can be parsed as floats"
+                "Cannot start new subpath because not all values "
+                f"in {point!r} can be parsed as floats"
             )
         else:
             point = ("m", x_f, y_f)
@@ -534,7 +559,8 @@ class PDFPageInterpreter:
         if x_f is None or y_f is None:
             point = ("l", x, y)
             log.warning(
-                f"Cannot append straight line segment to path because not all values in {point!r} can be parsed as floats"
+                "Cannot append straight line segment to path "
+                f"because not all values in {point!r} can be parsed as floats"
             )
         else:
             point = ("l", x_f, y_f)
@@ -566,7 +592,8 @@ class PDFPageInterpreter:
         ):
             point = ("c", x1, y1, x2, y2, x3, y3)
             log.warning(
-                f"Cannot append curved segment to path because not all values in {point!r} can be parsed as floats"
+                "Cannot append curved segment to path "
+                f"because not all values in {point!r} can be parsed as floats"
             )
         else:
             point = ("c", x1_f, y1_f, x2_f, y2_f, x3_f, y3_f)
@@ -581,7 +608,8 @@ class PDFPageInterpreter:
         if x2_f is None or y2_f is None or x3_f is None or y3_f is None:
             point = ("v", x2, y2, x3, y3)
             log.warning(
-                f"Cannot append curved segment to path because not all values in {point!r} can be parsed as floats"
+                "Cannot append curved segment to path "
+                f"because not all values in {point!r} can be parsed as floats"
             )
         else:
             point = ("v", x2_f, y2_f, x3_f, y3_f)
@@ -596,7 +624,8 @@ class PDFPageInterpreter:
         if x1_f is None or y1_f is None or x3_f is None or y3_f is None:
             point = ("y", x1, y1, x3, y3)
             log.warning(
-                f"Cannot append curved segment to path because not all values in {point!r} can be parsed as floats"
+                "Cannot append curved segment to path "
+                f"because not all values in {point!r} can be parsed as floats"
             )
         else:
             point = ("y", x1_f, y1_f, x3_f, y3_f)
@@ -616,7 +645,8 @@ class PDFPageInterpreter:
         if x_f is None or y_f is None or w_f is None or h_f is None:
             values = (x, y, w, h)
             log.warning(
-                f"Cannot append rectangle to path because not all values in {values!r} can be parsed as floats"
+                "Cannot append rectangle to path "
+                f"because not all values in {values!r} can be parsed as floats"
             )
         else:
             self.curpath.append(("m", x_f, y_f))
@@ -685,17 +715,17 @@ class PDFPageInterpreter:
         """
         try:
             self.graphicstate.scs = self.csmap[literal_name(name)]
-        except KeyError:
+        except KeyError as err:
             if settings.STRICT:
-                raise PDFInterpreterError("Undefined ColorSpace: %r" % name)
+                raise PDFInterpreterError(f"Undefined ColorSpace: {name!r}") from err
 
     def do_cs(self, name: PDFStackT) -> None:
         """Set color space for nonstroking operations"""
         try:
             self.graphicstate.ncs = self.csmap[literal_name(name)]
-        except KeyError:
+        except KeyError as err:
             if settings.STRICT:
-                raise PDFInterpreterError("Undefined ColorSpace: %r" % name)
+                raise PDFInterpreterError(f"Undefined ColorSpace: {name!r}") from err
 
     def do_G(self, gray: PDFStackT) -> None:
         """Set gray level for stroking operations"""
@@ -727,7 +757,8 @@ class PDFPageInterpreter:
 
         if rgb is None:
             log.warning(
-                f"Cannot set RGB stroke color because not all values in {(r, g, b)!r} can be parsed as floats"
+                "Cannot set RGB stroke color "
+                f"because not all values in {(r, g, b)!r} can be parsed as floats"
             )
         else:
             self.graphicstate.scolor = rgb
@@ -739,7 +770,8 @@ class PDFPageInterpreter:
 
         if rgb is None:
             log.warning(
-                f"Cannot set RGB non-stroke color because not all values in {(r, g, b)!r} can be parsed as floats"
+                "Cannot set RGB non-stroke color "
+                f"because not all values in {(r, g, b)!r} can be parsed as floats"
             )
         else:
             self.graphicstate.ncolor = rgb
@@ -751,7 +783,8 @@ class PDFPageInterpreter:
 
         if cmyk is None:
             log.warning(
-                f"Cannot set CMYK stroke color because not all values in {(c, m, y, k)!r} can be parsed as floats"
+                "Cannot set CMYK stroke color "
+                f"because not all values in {(c, m, y, k)!r} can be parsed as floats"
             )
         else:
             self.graphicstate.scolor = cmyk
@@ -763,101 +796,185 @@ class PDFPageInterpreter:
 
         if cmyk is None:
             log.warning(
-                f"Cannot set CMYK non-stroke color because not all values in {(c, m, y, k)!r} can be parsed as floats"
+                "Cannot set CMYK non-stroke color "
+                f"because not all values in {(c, m, y, k)!r} can be parsed as floats"
             )
         else:
             self.graphicstate.ncolor = cmyk
             self.graphicstate.ncs = self.csmap["DeviceCMYK"]
 
+    def _parse_color_components(
+        self, components: list[PDFStackT], context: str
+    ) -> StandardColor | None:
+        """Parse color components into StandardColor (gray, RGB, or CMYK).
+
+        Args:
+            components: List of 1, 3, or 4 numeric color components
+            context: Description for error messages (e.g., "stroke", "non-stroke")
+
+        Returns:
+            Parsed color (float for gray, tuple for RGB/CMYK) or None if invalid
+        """
+        if len(components) == 1:
+            gray = safe_float(components[0])
+            if gray is None:
+                log.warning(
+                    f"Cannot set {context} color: "
+                    f"{components[0]!r} is an invalid float value"
+                )
+            return gray
+
+        elif len(components) == 3:
+            rgb = safe_rgb(*components)
+            if rgb is None:
+                log.warning(
+                    f"Cannot set {context} color: "
+                    f"components {components!r} cannot be parsed as RGB"
+                )
+            return rgb
+
+        elif len(components) == 4:
+            cmyk = safe_cmyk(*components)
+            if cmyk is None:
+                log.warning(
+                    f"Cannot set {context} color: "
+                    f"components {components!r} cannot be parsed as CMYK"
+                )
+            return cmyk
+
+        else:
+            log.warning(
+                f"Cannot set {context} color: "
+                f"{len(components)} components specified, "
+                "but only 1 (grayscale), 3 (RGB), and 4 (CMYK) are supported"
+            )
+            return None
+
     def do_SCN(self) -> None:
-        """Set color for stroking operations."""
+        """Set color for stroking operations.
+
+        Handles Pattern color spaces per ISO 32000-1:2008 4.5.5 (PDF 1.7)
+        and ISO 32000-2:2020 8.7.3 (PDF 2.0):
+        - Colored patterns (PaintType=1): single operand (pattern name)
+        - Uncolored patterns (PaintType=2): n+1 operands (colors + pattern name)
+        """
         n = self.graphicstate.scs.ncomponents
 
         components = self.pop(n)
         if len(components) != n:
             log.warning(
-                f"Cannot set stroke color because expected {n} components but got {components:!r}"
+                "Cannot set stroke color because "
+                f"expected {n} components but got {components!r}"
             )
 
-        elif len(components) == 1:
-            gray = components[0]
-            gray_f = safe_float(gray)
-            if gray_f is None:
+        elif self.graphicstate.scs.name != "Pattern":
+            # Standard colors (gray, RGB, CMYK) - common case
+            color = self._parse_color_components(components, "stroke")
+            if color is not None:
+                self.graphicstate.scolor = color
+
+        elif len(components) >= 1:
+            # Pattern color space (ISO 32000 8.7.3.2-3)
+            # Last component is always the pattern name
+            pattern_component = components[-1]
+
+            # Per spec: pattern name must be a name object (PSLiteral)
+            if not isinstance(pattern_component, PSLiteral):
                 log.warning(
-                    f"Cannot set gray stroke color because {gray!r} is an invalid float value"
+                    f"Pattern color space requires name object (PSLiteral), "
+                    f"got {type(pattern_component).__name__}: {pattern_component!r}. "
+                    "Per ISO 32000 8.7.3.2, colored patterns use syntax '/name SCN'. "
+                    "Per ISO 32000 8.7.3.3, uncolored patterns use "
+                    "syntax 'c1...cn /name SCN'."
                 )
+                return
+
+            pattern_name = literal_name(pattern_component)
+
+            if len(components) == 1:
+                # Colored tiling pattern (PaintType=1): just pattern name
+                self.graphicstate.scolor = pattern_name
+                log.debug(f"Set stroke pattern (colored): {pattern_name}")
             else:
-                self.graphicstate.scolor = gray_f
+                # Uncolored tiling pattern (PaintType=2):
+                # color components + pattern name
+                base_color_components = components[:-1]
 
-        elif len(components) == 3:
-            rgb = safe_rgb(*components)
-
-            if rgb is None:
-                log.warning(
-                    f"Cannot set RGB stroke color because components {components!r} cannot be parsed as RGB"
+                # Parse base color using shared logic
+                base_color = self._parse_color_components(
+                    base_color_components, "stroke (uncolored pattern)"
                 )
-            else:
-                self.graphicstate.scolor = rgb
+                if base_color is None:
+                    return
 
-        elif len(components) == 4:
-            cmyk = safe_cmyk(*components)
-
-            if cmyk is None:
-                log.warning(
-                    f"Cannot set CMYK stroke color because components {components!r} cannot be parsed as CMYK"
+                # Store as tuple: (base_color, pattern_name)
+                self.graphicstate.scolor = (base_color, pattern_name)
+                log.debug(
+                    f"Set stroke pattern (uncolored): {base_color} + {pattern_name}"
                 )
-            else:
-                self.graphicstate.scolor = cmyk
-
-        else:
-            log.warning(
-                f"Cannot set stroke color because {len(components)} components are specified but only 1 (grayscale), 3 (rgb) and 4 (cmyk) are supported"
-            )
 
     def do_scn(self) -> None:
-        """Set color for nonstroking operations"""
+        """Set color for nonstroking operations.
+
+        Handles Pattern color spaces per ISO 32000-1:2008 4.5.5 (PDF 1.7)
+        and ISO 32000-2:2020 §8.7.3 (PDF 2.0):
+        - Colored patterns (PaintType=1): single operand (pattern name)
+        - Uncolored patterns (PaintType=2): n+1 operands (colors + pattern name)
+        """
         n = self.graphicstate.ncs.ncomponents
 
         components = self.pop(n)
         if len(components) != n:
             log.warning(
-                f"Cannot set non-stroke color because expected {n} components but got {components:!r}"
+                "Cannot set non-stroke color because "
+                f"expected {n} components but got {components!r}"
             )
 
-        elif len(components) == 1:
-            gray = components[0]
-            gray_f = safe_float(gray)
-            if gray_f is None:
+        elif self.graphicstate.ncs.name != "Pattern":
+            # Standard colors (gray, RGB, CMYK) - common case
+            color = self._parse_color_components(components, "non-stroke")
+            if color is not None:
+                self.graphicstate.ncolor = color
+
+        elif len(components) >= 1:
+            # Pattern color space (ISO 32000 8.7.3.2-3)
+            # Last component is always the pattern name
+            pattern_component = components[-1]
+
+            # Per spec: pattern name must be a name object (PSLiteral)
+            if not isinstance(pattern_component, PSLiteral):
                 log.warning(
-                    f"Cannot set gray non-stroke color because {gray!r} is an invalid float value"
+                    f"Pattern color space requires name object (PSLiteral), "
+                    f"got {type(pattern_component).__name__}: {pattern_component!r}. "
+                    "Per ISO 32000 8.7.3.2, colored patterns use syntax '/name scn'. "
+                    "Per ISO 32000 8.7.3.3, uncolored patterns use "
+                    "syntax 'c1...cn /name scn'."
                 )
+                return
+
+            pattern_name = literal_name(pattern_component)
+
+            if len(components) == 1:
+                # Colored tiling pattern (PaintType=1): just pattern name
+                self.graphicstate.ncolor = pattern_name
+                log.debug(f"Set non-stroke pattern (colored): {pattern_name}")
             else:
-                self.graphicstate.ncolor = gray_f
+                # Uncolored tiling pattern (PaintType=2):
+                # color components + pattern name
+                base_color_components = components[:-1]
 
-        elif len(components) == 3:
-            rgb = safe_rgb(*components)
-
-            if rgb is None:
-                log.warning(
-                    f"Cannot set RGB non-stroke color because components {components!r} cannot be parsed as RGB"
+                # Parse base color using shared logic
+                base_color = self._parse_color_components(
+                    base_color_components, "non-stroke (uncolored pattern)"
                 )
-            else:
-                self.graphicstate.ncolor = rgb
+                if base_color is None:
+                    return
 
-        elif len(components) == 4:
-            cmyk = safe_cmyk(*components)
-
-            if cmyk is None:
-                log.warning(
-                    f"Cannot set CMYK non-stroke color because components {components!r} cannot be parsed as CMYK"
+                # Store as tuple: (base_color, pattern_name)
+                self.graphicstate.ncolor = (base_color, pattern_name)
+                log.debug(
+                    f"Set non-stroke pattern (uncolored): {base_color} + {pattern_name}"
                 )
-            else:
-                self.graphicstate.ncolor = cmyk
-
-        else:
-            log.warning(
-                f"Cannot set non-stroke color because {len(components)} components are specified but only 1 (grayscale), 3 (rgb) and 4 (cmyk) are supported"
-            )
 
     def do_SC(self) -> None:
         """Set color for stroking operations"""
@@ -903,7 +1020,8 @@ class PDFPageInterpreter:
             self.device.do_tag(tag, props)
         else:
             log.warning(
-                f"Cannot define marked-content point with property list because {tag!r} is not a PSLiteral"
+                "Cannot define marked-content point with property list "
+                f"because {tag!r} is not a PSLiteral"
             )
 
     def do_BMC(self, tag: PDFStackT) -> None:
@@ -912,7 +1030,8 @@ class PDFPageInterpreter:
             self.device.begin_tag(tag)
         else:
             log.warning(
-                f"Cannot begin marked-content sequence because {tag!r} is not a PSLiteral"
+                "Cannot begin marked-content sequence because "
+                f"{tag!r} is not a PSLiteral"
             )
 
     def do_BDC(self, tag: PDFStackT, props: PDFStackT) -> None:
@@ -921,7 +1040,8 @@ class PDFPageInterpreter:
             self.device.begin_tag(tag, props)
         else:
             log.warning(
-                f"Cannot begin marked-content sequence with property list because {tag!r} is not a PSLiteral"
+                f"Cannot begin marked-content sequence with property list "
+                f"because {tag!r} is not a PSLiteral"
             )
 
     def do_EMC(self) -> None:
@@ -938,7 +1058,8 @@ class PDFPageInterpreter:
         charspace = safe_float(space)
         if charspace is None:
             log.warning(
-                f"Could not set character spacing because {space!r} is an invalid float value"
+                "Could not set character spacing because "
+                f"{space!r} is an invalid float value"
             )
         else:
             self.textstate.charspace = charspace
@@ -953,7 +1074,8 @@ class PDFPageInterpreter:
         wordspace = safe_float(space)
         if wordspace is None:
             log.warning(
-                f"Could not set word spacing becuase {space!r} is an invalid float value"
+                "Could not set word spacing because "
+                f"{space!r} is an invalid float value"
             )
         else:
             self.textstate.wordspace = wordspace
@@ -967,7 +1089,8 @@ class PDFPageInterpreter:
 
         if scale_f is None:
             log.warning(
-                f"Could not set horizontal scaling because {scale!r} is an invalid float value"
+                "Could not set horizontal scaling because "
+                f"{scale!r} is an invalid float value"
             )
         else:
             self.textstate.scaling = scale_f
@@ -982,7 +1105,8 @@ class PDFPageInterpreter:
         leading_f = safe_float(leading)
         if leading_f is None:
             log.warning(
-                f"Could not set text leading because {leading!r} is an invalid float value"
+                "Could not set text leading because "
+                f"{leading!r} is an invalid float value"
             )
         else:
             self.textstate.leading = -leading_f
@@ -996,15 +1120,16 @@ class PDFPageInterpreter:
         """
         try:
             self.textstate.font = self.fontmap[literal_name(fontid)]
-        except KeyError:
+        except KeyError as err:
             if settings.STRICT:
-                raise PDFInterpreterError("Undefined Font id: %r" % fontid)
+                raise PDFInterpreterError(f"Undefined Font id: {fontid!r}") from err
             self.textstate.font = self.rsrcmgr.get_font(None, {})
 
         fontsize_f = safe_float(fontsize)
         if fontsize_f is None:
             log.warning(
-                f"Could not set text font because {fontsize!r} is an invalid float value"
+                f"Could not set text font because "
+                f"{fontsize!r} is an invalid float value"
             )
         else:
             self.textstate.fontsize = fontsize_f
@@ -1015,7 +1140,8 @@ class PDFPageInterpreter:
 
         if render_i is None:
             log.warning(
-                f"Could not set text rendering mode because {render!r} is an invalid int value"
+                "Could not set text rendering mode because "
+                f"{render!r} is an invalid int value"
             )
         else:
             self.textstate.render = render_i
@@ -1090,7 +1216,8 @@ class PDFPageInterpreter:
 
         if matrix is None:
             log.warning(
-                f"Could not set text matrix because not all values in {values!r} can be parsed as floats"
+                f"Could not set text matrix because "
+                f"not all values in {values!r} can be parsed as floats"
             )
         else:
             self.textstate.matrix = matrix
@@ -1162,24 +1289,21 @@ class PDFPageInterpreter:
         xobjid = literal_name(xobjid_arg)
         try:
             xobj = stream_value(self.xobjmap[xobjid])
-        except KeyError:
+        except KeyError as err:
             if settings.STRICT:
-                raise PDFInterpreterError("Undefined xobject id: %r" % xobjid)
+                raise PDFInterpreterError(f"Undefined xobject id: {xobjid!r}") from err
             return
         log.debug("Processing xobj: %r", xobj)
         subtype = xobj.get("Subtype")
         if subtype is LITERAL_FORM and "BBox" in xobj:
-            interpreter = self.dup()
+            interpreter = self.subinterp()
             bbox = cast(Rect, list_value(xobj["BBox"]))
             matrix = cast(Matrix, list_value(xobj.get("Matrix", MATRIX_IDENTITY)))
             # According to PDF reference 1.7 section 4.9.1, XObjects in
             # earlier PDFs (prior to v1.2) use the page's Resources entry
             # instead of having their own Resources entry.
             xobjres = xobj.get("Resources")
-            if xobjres:
-                resources = dict_value(xobjres)
-            else:
-                resources = self.resources.copy()
+            resources = dict_value(xobjres) if xobjres else self.resources.copy()
             self.device.begin_figure(xobjid, bbox, matrix)
             interpreter.render_contents(
                 resources,
@@ -1212,7 +1336,7 @@ class PDFPageInterpreter:
 
     def render_contents(
         self,
-        resources: Dict[object, object],
+        resources: dict[object, object],
         streams: Sequence[object],
         ctm: Matrix = MATRIX_IDENTITY,
     ) -> None:
@@ -1231,8 +1355,32 @@ class PDFPageInterpreter:
         self.execute(list_value(streams))
 
     def execute(self, streams: Sequence[object]) -> None:
+        # Detect and prevent circular references in content streams
+        # (including Form XObjects).
+        # We track stream IDs being executed in the current interpreter and
+        # all parent interpreters. If a stream is already being processed
+        # in the call stack, we skip
+        # it to prevent infinite recursion (CWE-835 vulnerability).
+        valid_streams: list[PDFStream] = []
+        self.stream_ids.clear()
+        for obj in streams:
+            stream = stream_value(obj)
+            if stream.objid is None:
+                # Inline streams without object IDs can't be tracked for circular refs
+                log.warning(
+                    "Execute called on non-indirect object (inline image?) %r", stream
+                )
+                continue
+            if stream.objid in self.parent_stream_ids:
+                log.warning(
+                    "Refusing to execute circular reference to content stream %d",
+                    stream.objid,
+                )
+            else:
+                valid_streams.append(stream)
+                self.stream_ids.add(stream.objid)
         try:
-            parser = PDFContentParser(streams)
+            parser = PDFContentParser(valid_streams)
         except PSEOF:
             # empty page
             return
@@ -1243,9 +1391,13 @@ class PDFPageInterpreter:
                 break
             if isinstance(obj, PSKeyword):
                 name = keyword_name(obj)
-                method = "do_%s" % name.replace("*", "_a").replace('"', "_w").replace(
-                    "'",
-                    "_q",
+                method = "do_{}".format(
+                    name.replace("*", "_a")
+                    .replace('"', "_w")
+                    .replace(
+                        "'",
+                        "_q",
+                    )
                 )
                 if hasattr(self, method):
                     func = getattr(self, method)
@@ -1259,7 +1411,7 @@ class PDFPageInterpreter:
                         log.debug("exec: %s", name)
                         func()
                 elif settings.STRICT:
-                    error_msg = "Unknown operator: %r" % name
+                    error_msg = f"Unknown operator: {name!r}"
                     raise PDFInterpreterError(error_msg)
             else:
                 self.push(obj)

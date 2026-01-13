@@ -1,7 +1,7 @@
 pysqlite3-binary/_sqlite3.cpython-310-x86_64-linux-gnu.so,sha256=Hw2brdkzNjyR7VNyVu53GNeIDW_zPVyGPQtgpqfrcGw,461617
 pysqlite3/__init__.py,sha256=Zn-tuwGEIb6IYWwAwp_6oY4qnvn3X8N0Mic49CBQYXg,1019
-pysqlite3/__pycache__/__init__.cpython-310.pyc,,
-pysqlite3/__pycache__/dbapi2.cpython-310.pyc,,
+pysqlite3/__pycache__/__init__.cpython-313.pyc,,
+pysqlite3/__pycache__/dbapi2.cpython-313.pyc,,
 pysqlite3/_sqlite3.cpython-310-x86_64-linux-gnu.so,sha256=LPHRqffOJIjVQ4C9-i4nxQTvjsEQWaS34eyKwD5HDNU,13067536
 pysqlite3/dbapi2.py,sha256=lpcJ9lrNxkprsgxLcx-mfnfx1qTkGOUQH8C6kow7tUU,2725
 pysqlite3_binary-0.5.4.dist-info/INSTALLER,sha256=zuuue4knoyJ-UwPPXg8fezS7VCrXJQrAP7zeNuwvFQg,4

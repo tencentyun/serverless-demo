@@ -83,8 +83,17 @@ class AgenticChatFlow(Flow[CopilotKitState]):
             # Extract message from response
             message = response.choices[0].message
 
-            # Append message to state
-            self.state.messages.append(message)
+            message_dict = {
+                "role": message.role,
+                "content": message.content,
+            }
+            # Add optional fields if present
+            if hasattr(message, "tool_calls") and message.tool_calls:
+                message_dict["tool_calls"] = message.tool_calls
+            if hasattr(message, "name") and message.name:
+                message_dict["name"] = message.name
+
+            self.state.messages.append(message_dict)
         except Exception as e:
             print(f"[CrewAI Flow Chat] {e}")
             import traceback

@@ -1,4 +1,4 @@
-#!/private/tmp/build-crewai/bin/python3
+#!/Library/Frameworks/Python.framework/Versions/3.13/bin/python3
 import sys
 from charset_normalizer.cli import cli_detect
 if __name__ == '__main__':

@@ -6,7 +6,7 @@ durationpy-0.10.dist-info/WHEEL,sha256=oiQVh_5PnQM0E3gPdiz09WCNmwiHDMaGer_elqB3c
 durationpy-0.10.dist-info/top_level.txt,sha256=p7gmD18378orviNj9EISnsA9BgoM8cTKvKdyV6GYESM,11
 durationpy/__init__.py,sha256=oBoToPf3F8iaNjvdfCiHWypw66f6zqV1PDjAqmd26iA,78
 durationpy/__init__.pyi,sha256=O_CmkSScwiMwwgb0autUDk2h4qf9Lp8QFzsZvvJDAdg,188
-durationpy/__pycache__/__init__.cpython-310.pyc,,
-durationpy/__pycache__/duration.cpython-310.pyc,,
+durationpy/__pycache__/__init__.cpython-313.pyc,,
+durationpy/__pycache__/duration.cpython-313.pyc,,
 durationpy/duration.py,sha256=Xl5Xq0xvzRIGmHbsCZUF8-nsRJZYXt7z13D4kLvAQ6I,4093
 durationpy/py.typed,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0

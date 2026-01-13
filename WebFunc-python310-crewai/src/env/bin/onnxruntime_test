@@ -1,4 +1,4 @@
-#!/private/tmp/build-crewai/bin/python3
+#!/Library/Frameworks/Python.framework/Versions/3.13/bin/python3
 import sys
 from onnxruntime.tools.onnxruntime_test import main
 if __name__ == '__main__':

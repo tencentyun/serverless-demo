@@ -7,10 +7,10 @@ uvloop-0.22.1.dist-info/licenses/LICENSE-APACHE,sha256=N3AlKHeY-dzYGeH4JvpfxeLzg
 uvloop-0.22.1.dist-info/licenses/LICENSE-MIT,sha256=bdTDmfJt4EPXeirX4x20y1vwjqg2iwpC1uFYY1zIq2I,1105
 uvloop-0.22.1.dist-info/top_level.txt,sha256=2cDaltyemYfQErB19s2jFmumeJRnbsZPJ7Lj9A78c6Y,7
 uvloop/__init__.py,sha256=Hbbp9hfJbfrO-EtcpdNikAF3dS5BEwaQ5fVLjqGUn4M,7558
-uvloop/__pycache__/__init__.cpython-310.pyc,,
-uvloop/__pycache__/_noop.cpython-310.pyc,,
-uvloop/__pycache__/_testbase.cpython-310.pyc,,
-uvloop/__pycache__/_version.cpython-310.pyc,,
+uvloop/__pycache__/__init__.cpython-313.pyc,,
+uvloop/__pycache__/_noop.cpython-313.pyc,,
+uvloop/__pycache__/_testbase.cpython-313.pyc,,
+uvloop/__pycache__/_version.cpython-313.pyc,,
 uvloop/_noop.py,sha256=SDAJTiWhE7g3KyttbjPdliv-Uheuas-tKX4_y_nvO_Q,86
 uvloop/_testbase.py,sha256=sRZjHR-nMHv4UZ23AkSCtgEsvgo8uOqDchFNOFViiRg,15570
 uvloop/_version.py,sha256=iDygi5_yOhbJ00scPU2IIWprHVl9g5IQeB7bfBUhPQY,576
@@ -47,7 +47,7 @@ uvloop/handles/timer.pyx,sha256=zT35AW9Wv9H_zWa6sw7GOi4SB7HavGUobFezTFfSq6E,2416
 uvloop/handles/udp.pxd,sha256=gQn9FH4rAiXDR_kZNqaYcNMGMzFL-T1V1G8JI6JOHU8,671
 uvloop/handles/udp.pyx,sha256=_doWmjAsh3vPES_CLQ7j309f71qK_6YIBGKtimpjAO8,12039
 uvloop/includes/__init__.py,sha256=-OUZ6zr6Opdw78PKsHYi1AuP74Ep7XByxyoRYOuRtgI,361
-uvloop/includes/__pycache__/__init__.cpython-310.pyc,,
+uvloop/includes/__pycache__/__init__.cpython-313.pyc,,
 uvloop/includes/consts.pxi,sha256=m6K9HIUl8G3D9iOIzK0C3_chXKwIfsiq88j3VOvUuU4,843
 uvloop/includes/debug.pxd,sha256=cCnlyp6HkhQgVF7lAQPA31wIa1n1pn6eUY_wARYh3uA,64
 uvloop/includes/flowcontrol.pxd,sha256=7PuZtEgp4TS1Y3iNqZZInkDKI5iCylERrcLqe2ls3EY,458

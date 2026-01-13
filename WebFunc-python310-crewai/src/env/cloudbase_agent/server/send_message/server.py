@@ -60,7 +60,6 @@ async def create_adapter(create_agent: AgentCreator, request: RunAgentInput) -> 
                     sse_chunk = f"data: {event.model_dump_json(by_alias=True, exclude_none=True)}\n\n"
                     yield sse_chunk
 
-                yield "data: [DONE]\n\n"
             finally:
                 # Ensure cleanup is called even if errors occur
                 if cleanup:

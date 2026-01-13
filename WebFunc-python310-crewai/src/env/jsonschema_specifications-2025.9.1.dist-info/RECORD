@@ -4,8 +4,8 @@ jsonschema_specifications-2025.9.1.dist-info/RECORD,,
 jsonschema_specifications-2025.9.1.dist-info/WHEEL,sha256=qtCwoSJWgHk21S1Kb4ihdzI2rlJ1ZKaIurTj_ngOhyQ,87
 jsonschema_specifications-2025.9.1.dist-info/licenses/COPYING,sha256=QtzWNJX4e063x3V6-jebtVpT-Ur9el9lfZrfVyNuUVw,1057
 jsonschema_specifications/__init__.py,sha256=qoTB2DKY7qvNrGhMPH6gtmAJRLilmVQ-fFZwT6ryqw0,386
-jsonschema_specifications/__pycache__/__init__.cpython-310.pyc,,
-jsonschema_specifications/__pycache__/_core.cpython-310.pyc,,
+jsonschema_specifications/__pycache__/__init__.cpython-313.pyc,,
+jsonschema_specifications/__pycache__/_core.cpython-313.pyc,,
 jsonschema_specifications/_core.py,sha256=tFhc1CMleJ3AJOK_bjxOpFQTdrsUClFGfFxPBU_CebM,1140
 jsonschema_specifications/schemas/draft201909/metaschema.json,sha256=e3YbPhIfCgyh6ioLjizIVrz4AWBLgmjXG6yqICvAwTs,1785
 jsonschema_specifications/schemas/draft201909/vocabularies/applicator,sha256=aJUQDplyb7sQcFhRK77D7P1LJOj9L6zuPlBe5ysNTDE,1860
@@ -28,6 +28,6 @@ jsonschema_specifications/schemas/draft4/metaschema.json,sha256=4UidC0dV8CeTMCWR
 jsonschema_specifications/schemas/draft6/metaschema.json,sha256=wp386fVINcOgbAOzxdXsDtp3cGVo-cTffPvHVmpRAG0,4437
 jsonschema_specifications/schemas/draft7/metaschema.json,sha256=PVOSCIJhYGxVm2A_OFMpyfGrRbXWZ-uZBodFOwVdQF4,4819
 jsonschema_specifications/tests/__init__.py,sha256=47DEQpj8HBSa-_TImW-5JCeuQeRkm5NMpJWZG3hSuFU,0
-jsonschema_specifications/tests/__pycache__/__init__.cpython-310.pyc,,
-jsonschema_specifications/tests/__pycache__/test_jsonschema_specifications.cpython-310.pyc,,
+jsonschema_specifications/tests/__pycache__/__init__.cpython-313.pyc,,
+jsonschema_specifications/tests/__pycache__/test_jsonschema_specifications.cpython-313.pyc,,
 jsonschema_specifications/tests/test_jsonschema_specifications.py,sha256=WkbYRW6A6FoZ0rivShfqVLSCsAiHJ2x8TxqECJTXPTY,1106
