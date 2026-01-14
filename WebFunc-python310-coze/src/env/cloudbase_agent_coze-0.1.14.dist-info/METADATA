@@ -1,0 +1,41 @@
+Metadata-Version: 2.4
+Name: cloudbase-agent-coze
+Version: 0.1.14
+Summary: Cloudbase Agent Python SDK - Coze framework integration
+Author-email: Cloudbase Agent Team <ag-kit@example.com>
+License: Apache-2.0
+Keywords: Cloudbase Agent,agent,ai,coze,llm
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.10
+Requires-Dist: cloudbase-agent-core
+Requires-Dist: cozepy>=0.1.0
+Provides-Extra: dev
+Requires-Dist: mypy>=1.0.0; extra == 'dev'
+Requires-Dist: pytest-asyncio>=0.21.0; extra == 'dev'
+Requires-Dist: pytest>=7.0.0; extra == 'dev'
+Requires-Dist: ruff>=0.12.0; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# cloudbase-agent-coze
+
+Cloudbase Agent Python SDK - Coze framework integration
+
+This package provides Coze-specific agent implementations for Cloudbase Agent, enabling seamless integration with Coze platform's chat API.
+
+## Installation
+
+```bash
+pip install -e .
+```
+
+## Usage
+
+See examples in `python-sdk/examples/coze/` for usage examples.
+
+

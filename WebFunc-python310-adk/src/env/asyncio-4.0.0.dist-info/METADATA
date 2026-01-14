@@ -1,0 +1,28 @@
+Metadata-Version: 2.4
+Name: asyncio
+Version: 4.0.0
+Summary: Deprecated backport of asyncio; use the stdlib package instead
+License-Expression: Apache-2.0
+Project-URL: homepage, https://docs.python.org/3/library/asyncio.html
+Project-URL: source, https://github.com/python/asyncio
+Classifier: Programming Language :: Python :: 3
+Classifier: Topic :: Software Development :: Libraries
+Requires-Python: >=3.4
+Description-Content-Type: text/markdown
+License-File: COPYING
+Dynamic: license-file
+
+# asyncio (obsolete backport)
+
+This package once provided a backport of the `asyncio` module for Python
+versions prior to 3.4. The `asyncio` module has shipped with the Python
+standard library since Python 3.4 and this separate distribution is no longer
+needed.
+
+**Do not install this package.** Use the implementation that comes with
+Python instead:
+
+https://docs.python.org/3/library/asyncio.html
+
+This release contains no code and exists only to prevent accidental
+installation of outdated backports.

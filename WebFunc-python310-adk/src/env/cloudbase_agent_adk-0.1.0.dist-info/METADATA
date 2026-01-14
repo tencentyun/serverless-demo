@@ -1,0 +1,47 @@
+Metadata-Version: 2.4
+Name: cloudbase-agent-adk
+Version: 0.1.0
+Summary: Cloudbase Agent Python SDK - Google ADK framework integration
+Project-URL: Homepage, https://Cloudbase Agent.dev
+Project-URL: Repository, https://github.com/TencentCloud/Cloudbase Agent
+Project-URL: Documentation, https://Cloudbase Agent.dev/docs
+Project-URL: Bug Tracker, https://github.com/TencentCloud/Cloudbase Agent/issues
+Author-email: Cloudbase Agent Team <ag-kit@example.com>
+License: MIT
+Keywords: Cloudbase Agent,adk,agent,ai,google,llm
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.10
+Requires-Dist: ag-ui-adk>=0.4.1
+Requires-Dist: cloudbase-agent-core
+Requires-Dist: google-adk>=1.22.0
+Requires-Dist: python-dotenv>=1.0.0
+Provides-Extra: dev
+Requires-Dist: mypy>=1.0.0; extra == 'dev'
+Requires-Dist: ruff>=0.12.0; extra == 'dev'
+Description-Content-Type: text/markdown
+
+# cloudbase-agent-adk
+
+Cloudbase Agent Python SDK - Google ADK framework integration
+
+## Installation
+
+```bash
+pip install cloudbase-agent-adk
+```
+
+## Usage
+
+```python
+from cloudbase_agent.adk import ADKAgent
+```
+
+## License
+
+MIT
