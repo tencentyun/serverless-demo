@@ -6,12 +6,11 @@ import { checkOpenAIEnvMiddleware } from "./utils.js";
 dotenvx.config();
 
 const app = express();
-
 app.use(checkOpenAIEnvMiddleware);
 
 createExpressRoutes({
-    createAgent,
-    express: app,
+  createAgent,
+  express: app,
 });
 
 app.listen(9000, () => console.log("Listening on 9000!"));

@@ -19,7 +19,7 @@
         "runtime": "Nodejs20.19",
         "type": "web",
         "readme": "https://github.com/tencentyun/serverless-demo/tree/master/WebFunc-node20-langchain_pure_js",
-        "version": "1.0.0",
+        "version": "1.0.1",
         "tags": [
             "CloudBase",
             "Nodejs20.19"
