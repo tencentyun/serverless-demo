@@ -123,6 +123,7 @@ def coze_events_to_ag_ui_events(
     thread_id: str,
     run_id: str,
     message_id: Optional[str] = None,
+    debug_mode: bool = False,
 ) -> Optional[List[Any]]:
     """Convert Coze chat event to AG-UI protocol event.
 
@@ -257,15 +258,13 @@ def coze_events_to_ag_ui_events(
             # This is used by models like DeepSeek-R1 that return reasoning/thinking process
             if hasattr(message, "reasoning_content") and message.reasoning_content:
                 import logging
-                import os
-                DEBUG_MODE = os.environ.get("DEBUG", "").lower() in ("true", "1", "yes")
                 
                 reasoning_key = f"{buffer_key}:reasoning"
                 current_reasoning = message.reasoning_content
                 previous_reasoning = _content_buffer.get(reasoning_key, "")
                 
                 # Log on first reasoning content (for DeepSeek-R1 debugging)
-                if DEBUG_MODE and not previous_reasoning:
+                if debug_mode and not previous_reasoning:
                     logger = logging.getLogger(__name__)
                     logger.debug(f"[Converter] Detected reasoning_content (DeepSeek-R1 model)")
                     preview = current_reasoning[:50] + "..." if len(current_reasoning) > 50 else current_reasoning
@@ -325,9 +324,7 @@ def coze_events_to_ag_ui_events(
             
             # Debug: Log message type for all completed messages
             import logging
-            import os
-            DEBUG_MODE = os.environ.get("DEBUG", "").lower() in ("true", "1", "yes")
-            if DEBUG_MODE:
+            if debug_mode:
                 logger = logging.getLogger(__name__)
                 logger.debug(f"[Converter] MESSAGE_COMPLETED: msg_type={msg_type}")
             
@@ -408,14 +405,12 @@ def coze_events_to_ag_ui_events(
             # This represents the result returned after executing a tool
             elif msg_type in ("tool_response", "tool_output"):
                 import logging
-                import os
-                DEBUG_MODE = os.environ.get("DEBUG", "").lower() in ("true", "1", "yes")
                 logger = logging.getLogger(__name__)
                 
                 tool_call_id = getattr(message, "id", None) or str(uuid.uuid4())
                 content = getattr(message, "content", "")
                 
-                if DEBUG_MODE:
+                if debug_mode:
                     logger.debug(f"[Converter] Converting tool_response to ToolCallResultEvent")
                     logger.debug(f"  tool_call_id: {tool_call_id}")
                     logger.debug(f"  content type: {type(content)}, length: {len(content) if content else 0}")
@@ -424,7 +419,7 @@ def coze_events_to_ag_ui_events(
                 
                 # Content must not be empty - this is a required field
                 if not content:
-                    if DEBUG_MODE:
+                    if debug_mode:
                         logger.warning(f"[Converter] tool_response has empty content, skipping ToolCallResultEvent")
                     return None
                 

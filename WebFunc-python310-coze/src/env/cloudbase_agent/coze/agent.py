@@ -10,7 +10,6 @@ integration with the Cloudbase Agent framework through Coze chat API.
 import asyncio
 import json
 import logging
-import os
 import threading
 import uuid
 from typing import Any, AsyncGenerator, Dict, Optional
@@ -25,22 +24,6 @@ from .converters import coze_events_to_ag_ui_events, coze_prepare_inputs
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# Check if debug mode is enabled via environment variable
-# Set DEBUG=true or DEBUG=1 to enable debug logging
-DEBUG_MODE = os.environ.get("DEBUG", "").lower() in ("true", "1", "yes")
-
-# Configure logging level based on DEBUG mode
-if DEBUG_MODE:
-    # Only set logger level, don't call basicConfig to avoid conflicts
-    logger.setLevel(logging.DEBUG)
-    # Ensure at least one handler exists
-    if not logger.handlers:
-        handler = logging.StreamHandler()
-        handler.setFormatter(logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        ))
-        logger.addHandler(handler)
-
 
 class CozeAgent(BaseAgent):
     """Coze Agent implementation extending BaseAgent.
@@ -50,119 +33,179 @@ class CozeAgent(BaseAgent):
 
     Enhanced with context management and event ID fixing.
 
-    :param name: Human-readable name for the agent
-    :type name: str
-    :param description: Detailed description of the agent's purpose and capabilities
-    :type description: str
-    :param coze_client: Coze client instance (optional, will create from env if not provided)
-    :type coze_client: Optional[Coze]
-    :param bot_id: Bot ID for Coze conversations (optional, can be set via env COZE_BOT_ID)
-    :type bot_id: Optional[str]
-    :param user_id: User ID for Coze conversations (optional, can be set via env COZE_USER_ID)
-    :type user_id: Optional[str]
-    :param parameters: Optional parameters for Coze chat API (e.g., temperature, max_tokens)
-                      Can also be set via COZE_PARAMETERS environment variable as JSON string
-    :type parameters: Optional[Dict[str, Any]]
-    :param fix_event_ids: Enable automatic event ID fixing (default: True)
-    :type fix_event_ids: bool
+    Parameters
+    ----------
+    **Required Parameters:**
+    
+    name : str
+        Human-readable name for the agent.
+    description : str
+        Detailed description of the agent's purpose and capabilities.
+    api_token : str
+        Coze API token. Set via COZE_API_TOKEN environment variable
+        or pass directly. Get token from: https://www.coze.cn/open/oauth/pats
+    bot_id : str
+        Bot ID for Coze conversations. Set via COZE_BOT_ID environment variable
+        or pass directly.
+    user_id : str
+        User ID for Coze conversations. Set via COZE_USER_ID environment variable
+        or pass directly.
 
-    Example:
-        Creating a Coze agent::
+    **Optional Parameters:**
+    
+    base_url : str, optional
+        Coze API base URL. Defaults to 'https://api.coze.cn' (China).
+        Use 'https://api.coze.com' for international.
+        Can be set via COZE_API_BASE environment variable.
+    parameters : dict, optional
+        Parameters for Coze chat API (e.g., temperature, max_tokens).
+    fix_event_ids : bool, default=True
+        Enable automatic event ID fixing for proper tracking.
+    debug_mode : bool, default=False
+        Enable debug logging for troubleshooting.
 
-            from cozepy import Coze, TokenAuth, COZE_CN_BASE_URL
-            from cloudbase_agent.coze import CozeAgent
-            import os
+    Raises
+    ------
+    ValueError
+        If any required parameter (api_token, bot_id, user_id) is missing or invalid.
 
-            # Create Coze client
-            coze = Coze(
-                auth=TokenAuth(token=os.environ["COZE_API_TOKEN"]),
-                base_url=os.environ.get("COZE_API_BASE", COZE_CN_BASE_URL)
-            )
+    Example
+    -------
+    ::
 
-            # Create agent
-            agent = CozeAgent(
-                name="CozeBot",
-                description="A helpful Coze assistant",
-                coze_client=coze,
-                bot_id=os.environ.get("COZE_BOT_ID", "your-bot-id"),
-                user_id=os.environ.get("COZE_USER_ID", "your-user-id"),
-                parameters={"temperature": 0.7}  # Optional
-            )
+        from cloudbase_agent.coze import CozeAgent
 
-        Using with environment variables::
+        agent = CozeAgent(
+            # Required
+            name="CozeBot",
+            description="A helpful Coze assistant",
+            api_token="pat_xxxx",
+            bot_id="7123456789012345678",
+            user_id="user_123",
+            # Optional
+            base_url="https://api.coze.cn",
+            parameters={"temperature": 0.7},
+        )
 
-            # Set environment variables:
-            # COZE_API_TOKEN=your-token
-            # COZE_BOT_ID=your-bot-id
-            # COZE_USER_ID=your-user-id
-            # COZE_API_BASE=https://api.coze.cn (optional)
+    Note
+    ----
+    This class does NOT read environment variables. All configuration
+    must be passed explicitly from the caller. For environment variable
+    handling, see the examples in `examples/coze/agent.py`.
 
-            agent = CozeAgent(
-                name="CozeBot",
-                description="A helpful Coze assistant"
-            )
+    See Also
+    --------
+    Coze Chat V3 API: https://docs.coze.cn/developer_guides/chat_v3
     """
+
+    # Documentation URL for error messages
+    _DOCS_URL = "https://docs.coze.cn/developer_guides/chat_v3"
 
     def __init__(
         self,
+        # Required parameters (no default values)
         name: str,
         description: str,
-        coze_client: Optional[Coze] = None,
-        bot_id: Optional[str] = None,
-        user_id: Optional[str] = None,
+        api_token: str,
+        bot_id: str,
+        user_id: str,
+        # Optional parameters (with default values)
+        base_url: Optional[str] = None,
         parameters: Optional[Dict[str, Any]] = None,
         fix_event_ids: bool = True,
+        debug_mode: bool = False,
     ):
         """Initialize the Coze agent.
 
-        :param name: Human-readable name for the agent
-        :type name: str
-        :param description: Detailed description of the agent's purpose and capabilities
-        :type description: str
-        :param coze_client: Coze client instance (optional)
-        :type coze_client: Optional[Coze]
-        :param bot_id: Bot ID for Coze conversations (optional)
-        :type bot_id: Optional[str]
-        :param user_id: User ID for Coze conversations (optional)
-        :type user_id: Optional[str]
-        :param parameters: Optional parameters for Coze chat API (e.g., temperature, max_tokens)
-        :type parameters: Optional[Dict[str, Any]]
-        :param fix_event_ids: Enable event ID fixing (default: True)
-        :type fix_event_ids: bool
+        All required parameters must be provided explicitly. This class does not
+        read environment variables - configuration should be handled in the
+        application/example layer.
+
+        Parameters
+        ----------
+        name : str
+            **[Required]** Human-readable name for the agent.
+        description : str
+            **[Required]** Detailed description of the agent's purpose.
+        api_token : str
+            **[Required]** Coze API token (COZE_API_TOKEN).
+        bot_id : str
+            **[Required]** Bot ID for Coze conversations (COZE_BOT_ID).
+        user_id : str
+            **[Required]** User ID for Coze conversations (COZE_USER_ID).
+        base_url : str, optional
+            Coze API base URL. Defaults to 'https://api.coze.cn'.
+        parameters : dict, optional
+            Parameters for Coze chat API.
+        fix_event_ids : bool, default=True
+            Enable event ID fixing.
+        debug_mode : bool, default=False
+            Enable debug logging.
+
+        Raises
+        ------
+        ValueError
+            If api_token, bot_id, or user_id are missing or invalid.
         """
+        # Validate all required parameters with user-friendly error messages
+        if not api_token or not isinstance(api_token, str) or not api_token.strip():
+            raise ValueError(
+                "COZE_API_TOKEN is required but not provided or empty. "
+                "Please set the COZE_API_TOKEN environment variable or pass api_token parameter. "
+                f"Refer to: {self._DOCS_URL}"
+            )
+
+        if not bot_id or not isinstance(bot_id, str) or not bot_id.strip():
+            raise ValueError(
+                "COZE_BOT_ID is required but not provided or empty. "
+                "Please set the COZE_BOT_ID environment variable or pass bot_id parameter. "
+                f"Refer to: {self._DOCS_URL}"
+            )
+
+        if not user_id or not isinstance(user_id, str) or not user_id.strip():
+            raise ValueError(
+                "COZE_USER_ID is required but not provided or empty. "
+                "Please set the COZE_USER_ID environment variable or pass user_id parameter. "
+                f"Refer to: {self._DOCS_URL}"
+            )
+
+        # Use default base_url if not provided
+        final_base_url = base_url or COZE_CN_BASE_URL
+        if not isinstance(final_base_url, str) or not final_base_url.strip():
+            raise ValueError(
+                "COZE_API_BASE must be a non-empty string if provided. "
+                "Use 'https://api.coze.cn' for China or 'https://api.coze.com' for international. "
+                f"Refer to: {self._DOCS_URL}"
+            )
+
+        # Create the Coze client - all validation passed
+        final_client = Coze(
+            auth=TokenAuth(token=api_token.strip()),
+            base_url=final_base_url.strip()
+        )
+
         # Initialize base class
         super().__init__(name=name, description=description, agent=None)
 
-        # Initialize or use provided Coze client
-        if coze_client is None:
-            token = os.environ.get("COZE_API_TOKEN")
-            if not token:
-                raise ValueError(
-                    "COZE_API_TOKEN environment variable is required if coze_client is not provided"
-                )
-            base_url = os.environ.get("COZE_API_BASE", COZE_CN_BASE_URL)
-            coze_client = Coze(auth=TokenAuth(token=token), base_url=base_url)
-
-        self._coze_client = coze_client
-        self._bot_id = bot_id or os.environ.get("COZE_BOT_ID")
-        self._user_id = user_id or os.environ.get("COZE_USER_ID")
-        self._parameters = parameters
+        # Store all parameters directly - no environment variable reading
+        self._coze_client = final_client
+        self._bot_id = bot_id.strip()
+        self._user_id = user_id.strip()
+        self._parameters = parameters or {}
         self._should_fix_event_ids = fix_event_ids
-
-        if not self._bot_id:
-            raise ValueError("bot_id must be provided or set via COZE_BOT_ID environment variable")
-        if not self._user_id:
-            raise ValueError("user_id must be provided or set via COZE_USER_ID environment variable")
+        self._debug_mode = debug_mode
         
-        # Load parameters from environment if not provided
-        if self._parameters is None:
-            import json
-            coze_parameters = os.environ.get("COZE_PARAMETERS")
-            if coze_parameters:
-                try:
-                    self._parameters = json.loads(coze_parameters)
-                except json.JSONDecodeError:
-                    pass
+        # Configure logging level based on debug_mode
+        if debug_mode:
+            # Only set logger level, don't call basicConfig to avoid conflicts
+            logger.setLevel(logging.DEBUG)
+            # Ensure at least one handler exists
+            if not logger.handlers:
+                handler = logging.StreamHandler()
+                handler.setFormatter(logging.Formatter(
+                    '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+                ))
+                logger.addHandler(handler)
 
     async def run(self, run_input: RunAgentInput) -> AsyncGenerator[BaseEvent, None]:
         """Execute the Coze agent with the given input.
@@ -300,7 +343,7 @@ class CozeAgent(BaseAgent):
 
                 # Process stream events
                 # Track event counts for compact logging (only in debug mode)
-                if DEBUG_MODE:
+                if self._debug_mode:
                     event_counter = {}
                     last_event_type = None
                     # Track AG-UI events for compact logging
@@ -309,8 +352,8 @@ class CozeAgent(BaseAgent):
                     text_content_batch_start = False
                 
                 for coze_event in stream:
-                    # DEBUG: Log Coze events with compact counting (controlled by DEBUG env var)
-                    if DEBUG_MODE and hasattr(coze_event, "event"):
+                    # DEBUG: Log Coze events with compact counting (controlled by debug_mode)
+                    if self._debug_mode and hasattr(coze_event, "event"):
                         event_type = coze_event.event
                         
                         # Count events
@@ -379,10 +422,11 @@ class CozeAgent(BaseAgent):
                         run_input.thread_id,
                         run_input.run_id,
                         message_id=message_id,
+                        debug_mode=self._debug_mode,
                     )
 
                     # Debug: Log conversion result (only for important events)
-                    if DEBUG_MODE and hasattr(coze_event, "event"):
+                    if self._debug_mode and hasattr(coze_event, "event"):
                         if coze_event.event == ChatEventType.CONVERSATION_MESSAGE_COMPLETED:
                             if ag_ui_events:
                                 logger.debug(f"[Agent] Converted to {len(ag_ui_events) if isinstance(ag_ui_events, list) else 1} AG-UI event(s)")
@@ -391,7 +435,7 @@ class CozeAgent(BaseAgent):
 
                     if ag_ui_events:
                         # Debug: Log AG-UI events being emitted (compact for TEXT_MESSAGE_CONTENT)
-                        if DEBUG_MODE:
+                        if self._debug_mode:
                             events_to_log = ag_ui_events if isinstance(ag_ui_events, list) else [ag_ui_events]
                             # Group events by type for compact logging
                             for event in events_to_log:
@@ -457,7 +501,7 @@ class CozeAgent(BaseAgent):
                     # Check if conversation is completed
                     if hasattr(coze_event, "event") and coze_event.event == ChatEventType.CONVERSATION_CHAT_COMPLETED:
                         # Log final summary for high-frequency events if any
-                        if DEBUG_MODE and last_agui_event_type in (EventType.TEXT_MESSAGE_CONTENT, EventType.THINKING_TEXT_MESSAGE_CONTENT):
+                        if self._debug_mode and last_agui_event_type in (EventType.TEXT_MESSAGE_CONTENT, EventType.THINKING_TEXT_MESSAGE_CONTENT):
                             # Log TEXT_MESSAGE_CONTENT summary
                             text_count = agui_event_counter.get(EventType.TEXT_MESSAGE_CONTENT, 0)
                             if text_count > 0:
@@ -666,6 +710,7 @@ class CozeAgent(BaseAgent):
                         run_input.thread_id,
                         run_input.run_id,
                         message_id=message_id,
+                        debug_mode=self._debug_mode,
                     )
                     
                     if ag_ui_events:

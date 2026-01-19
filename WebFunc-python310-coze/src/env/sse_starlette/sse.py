@@ -93,11 +93,15 @@ async def _shutdown_watcher() -> None:
 
     try:
         while True:
-            # Check our flag (monkey-patch worked)
+            # Check our flag (monkey-patch worked or manually set)
             if AppStatus.should_exit:
                 break
             # Check uvicorn's flag directly (monkey-patch failed - Issue #132)
-            if uvicorn_server is not None and uvicorn_server.should_exit:
+            if (
+                AppStatus.enable_automatic_graceful_drain
+                and uvicorn_server is not None
+                and uvicorn_server.should_exit
+            ):
                 AppStatus.should_exit = True  # Sync state for consistency
                 break
             await anyio.sleep(0.5)
@@ -131,11 +135,36 @@ class AppStatus:
     """Helper to capture a shutdown signal from Uvicorn so we can gracefully terminate SSE streams."""
 
     should_exit = False
+    enable_automatic_graceful_drain = True
     original_handler: Optional[Callable] = None
 
     @staticmethod
+    def disable_automatic_graceful_drain():
+        """
+        Prevent automatic SSE stream termination on server shutdown.
+
+        WARNING: When disabled, you MUST set AppStatus.should_exit = True
+        at some point during shutdown, or streams will never close and the
+        server will hang indefinitely (or until uvicorn's graceful shutdown
+        timeout expires).
+        """
+        AppStatus.enable_automatic_graceful_drain = False
+
+    @staticmethod
+    def enable_automatic_graceful_drain_mode():
+        """
+        Re-enable automatic SSE stream termination on server shutdown.
+
+        This restores the default behavior where SIGTERM triggers immediate
+        stream draining. Call this to undo a previous call to
+        disable_automatic_graceful_drain().
+        """
+        AppStatus.enable_automatic_graceful_drain = True
+
+    @staticmethod
     def handle_exit(*args, **kwargs):
-        AppStatus.should_exit = True
+        if AppStatus.enable_automatic_graceful_drain:
+            AppStatus.should_exit = True
         if AppStatus.original_handler is not None:
             AppStatus.original_handler(*args, **kwargs)
 
