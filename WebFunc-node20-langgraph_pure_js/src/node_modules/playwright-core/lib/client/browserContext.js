@@ -76,6 +76,7 @@ class BrowserContext extends import_channelOwner.ChannelOwner {
     this.tracing = import_tracing.Tracing.from(initializer.tracing);
     this.request = import_fetch.APIRequestContext.from(initializer.requestContext);
     this.request._timeoutSettings = this._timeoutSettings;
+    this.request._checkUrlAllowed = (url) => this._checkUrlAllowed(url);
     this.clock = new import_clock.Clock(this);
     this._channel.on("bindingCall", ({ binding }) => this._onBinding(import_page.BindingCall.from(binding)));
     this._channel.on("close", () => this._onClose());
@@ -473,6 +474,40 @@ class BrowserContext extends import_channelOwner.ChannelOwner {
   async _disableRecorder() {
     this._onRecorderEventSink = void 0;
     await this._channel.disableRecorder();
+  }
+  async _exposeConsoleApi() {
+    await this._channel.exposeConsoleApi();
+  }
+  _setAllowedProtocols(protocols) {
+    this._allowedProtocols = protocols;
+  }
+  _checkUrlAllowed(url) {
+    if (!this._allowedProtocols)
+      return;
+    let parsedURL;
+    try {
+      parsedURL = new URL(url);
+    } catch (e) {
+      throw new Error(`Access to ${url} is blocked. Invalid URL: ${e.message}`);
+    }
+    if (!this._allowedProtocols.includes(parsedURL.protocol))
+      throw new Error(`Access to "${parsedURL.protocol}" URL is blocked. Allowed protocols: ${this._allowedProtocols.join(", ")}. Attempted URL: ${url}`);
+  }
+  _setAllowedDirectories(rootDirectories) {
+    this._allowedDirectories = rootDirectories;
+  }
+  _checkFileAccess(filePath) {
+    if (!this._allowedDirectories)
+      return;
+    const path = this._platform.path().resolve(filePath);
+    const isInsideDir = (container, child) => {
+      const path2 = this._platform.path();
+      const rel = path2.relative(container, child);
+      return !!rel && !rel.startsWith("..") && !path2.isAbsolute(rel);
+    };
+    if (this._allowedDirectories.some((root) => isInsideDir(root, path)))
+      return;
+    throw new Error(`File access denied: ${filePath} is outside allowed roots. Allowed roots: ${this._allowedDirectories.length ? this._allowedDirectories.join(", ") : "none"}`);
   }
 }
 async function prepareStorageState(platform, storageState) {

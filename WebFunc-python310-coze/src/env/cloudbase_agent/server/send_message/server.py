@@ -7,39 +7,45 @@ handling request processing, streaming responses, and resource cleanup.
 """
 
 import inspect
-import json
 import logging
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Callable, Optional
 
+from fastapi import Request
 from fastapi.responses import StreamingResponse
-from pydantic import ValidationError
 
-from ..utils.sse import async_generator_from_string
 from ..utils.types import AgentCreator
 from .handler import handler
 from .models import RunAgentInput
 
 logger = logging.getLogger(__name__)
 
+RequestPreprocessor = Optional[Callable[[RunAgentInput, Request], None]]
+"""Request preprocessor function type.
 
-async def create_adapter(create_agent: AgentCreator, request: RunAgentInput) -> StreamingResponse:
-    """Create a FastAPI adapter for send_message requests with streaming support.
+Called before agent execution to modify request (e.g., extract user_id from JWT).
+"""
 
-    This function creates a streaming HTTP response adapter that processes
-    send_message requests and returns Server-Sent Events (SSE) formatted responses.
+
+async def create_adapter(
+    create_agent: AgentCreator, 
+    request: RunAgentInput,
+    http_context: Optional[Request] = None,
+    request_preprocessor: RequestPreprocessor = None,
+) -> StreamingResponse:
+    """Create streaming adapter for send_message requests.
 
     Args:
         create_agent: Function that creates and returns agent with optional cleanup
-        request: The validated request input containing messages and tools
+        request: AG-UI protocol request body
+        http_context: HTTP request context for accessing headers, etc.
+        request_preprocessor: Optional function to preprocess request (e.g., extract user_id from JWT)
 
     Returns:
-        Streaming response with SSE-formatted events and proper headers
-
-    Raises:
-        ValidationError: When request validation fails
-        Exception: When agent processing fails or other errors occur
+        Streaming response with SSE-formatted events
     """
     try:
+        if request_preprocessor and http_context:
+            request_preprocessor(request, http_context)
         # Create agent and get optional cleanup function
         result = create_agent()
         if inspect.iscoroutine(result):
@@ -49,13 +55,44 @@ async def create_adapter(create_agent: AgentCreator, request: RunAgentInput) -> 
         cleanup = result.get("cleanup")
 
         async def create_sse_stream() -> AsyncGenerator[str, None]:
-            """Create Server-Sent Events stream with cleanup support.
+            """Create Server-Sent Events stream with error detection and cleanup.
 
             Yields:
-                SSE-formatted event strings
+                SSE-formatted event strings (normal events or RunError)
             """
+            from ag_ui.core import EventType
+
+            from .error_detector import detect_error_in_event
+            from .models import RunErrorEvent
+
             try:
                 async for event in handler(request, agent):
+                    has_error, error_message, error_code = detect_error_in_event(event)
+
+                    if has_error:
+                        # Convert to RunError event
+                        error_event = RunErrorEvent(
+                            thread_id=request.thread_id or "unknown",
+                            run_id=request.run_id or "unknown",
+                            message=error_message,
+                            code=error_code,
+                        )
+
+                        # Send RunError event
+                        sse_chunk = f"data: {error_event.model_dump_json(by_alias=True, exclude_none=True)}\n\n"
+                        yield sse_chunk
+
+                        logger.warning(
+                            "Error detected in event content, terminating stream: "
+                            + "thread_id=%s run_id=%s code=%s",
+                            request.thread_id,
+                            request.run_id,
+                            error_code,
+                        )
+
+                        return
+
+                    # Normal event: send as-is
                     # Use by_alias=True for camelCase conversion
                     sse_chunk = f"data: {event.model_dump_json(by_alias=True, exclude_none=True)}\n\n"
                     yield sse_chunk
@@ -77,16 +114,7 @@ async def create_adapter(create_agent: AgentCreator, request: RunAgentInput) -> 
             },
         )
 
-    except ValidationError as e:
-        logger.error("Request validation failed: %s", str(e))
-        error_stream = async_generator_from_string(
-            f"data: {json.dumps({'error': 'Validation failed', 'details': str(e)})}\n\n"
-        )
-        return StreamingResponse(error_stream, media_type="text/event-stream")
-
     except Exception as e:
-        logger.error("Server error occurred: %s", str(e))
-        error_stream = async_generator_from_string(
-            f"data: {json.dumps({'error': 'Server error', 'details': str(e)})}\n\n"
-        )
-        return StreamingResponse(error_stream, media_type="text/event-stream")
+        # in the correct AG-UI format (SSE or JSON based on Accept header)
+        logger.error("Failed to create agent or initialize stream: %s", str(e), exc_info=True)
+        raise

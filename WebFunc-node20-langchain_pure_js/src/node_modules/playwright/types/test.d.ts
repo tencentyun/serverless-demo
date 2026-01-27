@@ -1001,7 +1001,7 @@ interface TestConfig<TestArgs = {}, WorkerArgs = {}> {
    *   webServer: {
    *     command: 'npm run start',
    *     wait: {
-   *       stdout: '/Listening on port (?<my_server_port>\\d+)/'
+   *       stdout: /Listening on port (?<my_server_port>\d+)/
    *     },
    *   },
    * });
@@ -6747,9 +6747,7 @@ export interface PlaywrightWorkerOptions {
   /**
    * Whether to run browser in headless mode. More details for
    * [Chromium](https://developers.google.com/web/updates/2017/04/headless-chrome) and
-   * [Firefox](https://hacks.mozilla.org/2017/12/using-headless-mode-in-firefox/). Defaults to `true` unless the
-   * [`devtools`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-option-devtools) option is
-   * `true`.
+   * [Firefox](https://hacks.mozilla.org/2017/12/using-headless-mode-in-firefox/). Defaults to `true`.
    *
    * **Usage**
    *
@@ -10225,14 +10223,14 @@ interface TestConfigWebServer {
   wait?: {
     /**
      * Regular expression to wait for in the `stdout` of the command output. Named capture groups are stored in the
-     * environment, for example `/Listening on port (?<my_server_port>\\d+)/` will store the port number in
+     * environment, for example `/Listening on port (?<my_server_port>\d+)/` will store the port number in
      * `process.env['MY_SERVER_PORT']`.
      */
     stdout?: RegExp;
 
     /**
      * Regular expression to wait for in the `stderr` of the command output. Named capture groups are stored in the
-     * environment, for example `/Listening on port (?<my_server_port>\\d+)/` will store the port number in
+     * environment, for example `/Listening on port (?<my_server_port>\d+)/` will store the port number in
      * `process.env['MY_SERVER_PORT']`.
      */
     stderr?: RegExp;

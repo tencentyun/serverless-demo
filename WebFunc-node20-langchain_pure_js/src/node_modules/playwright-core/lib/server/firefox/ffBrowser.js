@@ -54,7 +54,6 @@ class FFBrowser extends import_browser.Browser {
     this.session.on("Browser.detachedFromTarget", this._onDetachedFromTarget.bind(this));
     this.session.on("Browser.downloadCreated", this._onDownloadCreated.bind(this));
     this.session.on("Browser.downloadFinished", this._onDownloadFinished.bind(this));
-    this.session.on("Browser.videoRecordingFinished", this._onVideoRecordingFinished.bind(this));
   }
   static async connect(parent, transport, options) {
     const connection = new import_ffConnection.FFConnection(transport, options.protocolLogger, options.browserLogsCollector);
@@ -141,12 +140,9 @@ class FFBrowser extends import_browser.Browser {
     const error = payload.canceled ? "canceled" : payload.error;
     this._downloadFinished(payload.uuid, error);
   }
-  _onVideoRecordingFinished(payload) {
-    this._takeVideo(payload.screencastId)?.reportFinished();
-  }
   _onDisconnect() {
     for (const video of this._idToVideo.values())
-      video.artifact.reportFinished(new import_errors.TargetClosedError());
+      video.artifact.reportFinished(new import_errors.TargetClosedError(this.closeReason()));
     this._idToVideo.clear();
     for (const ffPage of this._ffPages.values())
       ffPage.didClose();
@@ -199,15 +195,13 @@ class FFBrowserContext extends import_browserContext.BrowserContext {
       promises.push(this.doUpdateOffline());
     promises.push(this.doUpdateDefaultEmulatedMedia());
     if (this._options.recordVideo) {
-      promises.push(this._ensureVideosPath().then(() => {
-        return this._browser.session.send("Browser.setVideoRecordingOptions", {
-          // validateBrowserContextOptions ensures correct video size.
-          options: {
-            ...this._options.recordVideo.size,
-            dir: this._options.recordVideo.dir
-          },
-          browserContextId: this._browserContextId
-        });
+      promises.push(this._browser.session.send("Browser.setScreencastOptions", {
+        // validateBrowserContextOptions ensures correct video size.
+        options: {
+          ...this._options.recordVideo.size,
+          quality: 90
+        },
+        browserContextId: this._browserContextId
       }));
     }
     const proxy = this._options.proxyOverride || this._options.proxy;
@@ -379,12 +373,8 @@ class FFBrowserContext extends import_browserContext.BrowserContext {
   }
   async doClose(reason) {
     if (!this._browserContextId) {
-      if (this._options.recordVideo) {
-        await this._browser.session.send("Browser.setVideoRecordingOptions", {
-          options: void 0,
-          browserContextId: this._browserContextId
-        });
-      }
+      if (this._options.recordVideo)
+        await Promise.all(this._ffPages().map((ffPage) => ffPage._page.screencast.stopVideoRecording()));
       await this._browser.close({ reason });
     } else {
       await this._browser.session.send("Browser.removeBrowserContext", { browserContextId: this._browserContextId });

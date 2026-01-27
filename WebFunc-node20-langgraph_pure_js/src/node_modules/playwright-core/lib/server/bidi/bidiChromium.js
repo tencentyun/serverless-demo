@@ -56,14 +56,12 @@ class BidiChromium extends import_browserType.BrowserType {
       throw e;
     }
   }
-  doRewriteStartupLog(error) {
-    if (!error.logs)
-      return error;
-    if (error.logs.includes("Missing X server"))
-      error.logs = "\n" + (0, import_ascii.wrapInASCIIBox)(import_browserType.kNoXServerRunningError, 1);
-    if (!error.logs.includes("crbug.com/357670") && !error.logs.includes("No usable sandbox!") && !error.logs.includes("crbug.com/638180"))
-      return error;
-    error.logs = [
+  doRewriteStartupLog(logs) {
+    if (logs.includes("Missing X server"))
+      logs = "\n" + (0, import_ascii.wrapInASCIIBox)(import_browserType.kNoXServerRunningError, 1);
+    if (!logs.includes("crbug.com/357670") && !logs.includes("No usable sandbox!") && !logs.includes("crbug.com/638180"))
+      return logs;
+    return [
       `Chromium sandboxing failed!`,
       `================================`,
       `To avoid the sandboxing issue, do either of the following:`,
@@ -72,7 +70,6 @@ class BidiChromium extends import_browserType.BrowserType {
       `================================`,
       ``
     ].join("\n");
-    return error;
   }
   amendEnvironment(env) {
     return env;
@@ -112,8 +109,6 @@ class BidiChromium extends import_browserType.BrowserType {
     if (import_os.default.platform() === "darwin") {
       chromeArguments.push("--enable-unsafe-swiftshader");
     }
-    if (options.devtools)
-      chromeArguments.push("--auto-open-devtools-for-tabs");
     if (options.headless) {
       chromeArguments.push("--headless");
       chromeArguments.push(

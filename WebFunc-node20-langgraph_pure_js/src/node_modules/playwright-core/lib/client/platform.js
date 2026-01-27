@@ -66,6 +66,9 @@ const emptyPlatform = {
   streamWritable: (channel) => {
     throw new Error("Streams are not available");
   },
+  zodToJsonSchema: (schema) => {
+    throw new Error("Zod is not available");
+  },
   zones: { empty: noopZone, current: () => noopZone }
 };
 // Annotate the CommonJS export names for ESM import in node:

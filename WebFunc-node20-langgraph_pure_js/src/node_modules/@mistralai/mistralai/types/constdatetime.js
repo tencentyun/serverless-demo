@@ -37,7 +37,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.constDateTime = constDateTime;
-const z = __importStar(require("zod"));
+const z = __importStar(require("zod/v3"));
 function constDateTime(val) {
     return z.custom((v) => {
         return (typeof v === "string" && new Date(v).getTime() === new Date(val).getTime());

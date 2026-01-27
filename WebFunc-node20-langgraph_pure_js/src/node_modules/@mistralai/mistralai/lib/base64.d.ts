@@ -1,4 +1,4 @@
-import * as z from "zod";
+import * as z from "zod/v3";
 export declare function bytesToBase64(u8arr: Uint8Array): string;
 export declare function bytesFromBase64(encoded: string): Uint8Array;
 export declare function stringToBytes(str: string): Uint8Array;

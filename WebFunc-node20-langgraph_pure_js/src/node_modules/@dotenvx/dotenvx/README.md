@@ -2569,6 +2569,17 @@ dotenvx.set('HELLO', 'World', { path: '.env' })
 ```
 
 </details>
+<details><summary>`set(KEY, value, {plain:})`</summary><br>
+
+Programmatically set a plaintext environment variable.
+
+```js
+// index.js
+const dotenvx = require('@dotenvx/dotenvx')
+dotenvx.set('HELLO', 'World', { plain: true })
+```
+
+</details>
 <details><summary>`get(KEY)` - <i>Decryption at Access</i></summary><br>
 
 Programmatically get an environment variable at access/runtime.
@@ -2590,44 +2601,40 @@ This is known as *Decryption at Access* and is written about in [the whitepaper]
 
 [![dotenvx-ops](https://dotenvx.com/dotenvx-ops-banner.png?v=2)](https://dotenvx.com/ops)
 
-> [Dotenvx Ops](https://dotenvx.com/ops) is production grade [dotenvx](https://github.com/dotenvx/dotenvx)–with operational primitives.
+*production grade dotenvx*–with operational primitives.
 
-*Use dotenvx across your team, infrastructure, agents, and more.*
+> As dotenvx spreads inside companies, we're learning—through enterprise engagements—that dotenvx is missing an operations layer.
+>
+> Dotenvx Ops is our answer.
+>
+> It's production grade dotenvx–with operational primitives for teams, infrastructure, and agents. Private key management, access controls, and more.
 
-### Usage
+### Quickstart
 
-1. Install dotenvx-ops
+Install it and gain `ops` commands.
 
 ```sh
 $ curl -sfS https://dotenvx.sh/ops | sh
+$ dotenvx ops backup
+✔ backed up [username/project]
+⮕ next run [dotenvx-ops open] to view
 ```
-
-2. Log in
-
-```sh
-$ dotenvx-ops login
-✔ logged in [username]
-```
-
-3. Run dotenvx
-
-```sh
-$ dotenvx run -- yourcommand
-[dotenvx@1.0.0] 📡 radar active
-[dotenvx@1.0.0] injecting env (1) from .env
-```
-
-That's it! Your environment variables are auto-observed and backed up by [Dotenvx Ops](https://dotenvx.com/ops) radar feature.
-
-### UI
-
-![dotenvx-ops](https://dotenvx.com/ops/ui.png)
 
 ### CLI
 
-<details><summary>`login`</summary><br>
+<details><summary>`ops backup`</summary><br>
 
-Log in to [Ops](https://dotenvx.com/ops).
+Back up .env.keys.
+
+```sh
+$ dotenvx-ops backup
+✔ backed up [username/project]
+```
+
+</details>
+<details><summary>`ops login`</summary><br>
+
+Log in.
 
 ```sh
 $ dotenvx-ops login
@@ -2637,23 +2644,13 @@ press Enter to open [https://ops.dotenvx.com/login/device] and enter code [D9C1-
 ```
 
 </details>
-<details><summary>`logout`</summary><br>
+<details><summary>`ops logout`</summary><br>
 
-Log out of [Ops](https://dotenvx.com/ops).
+Log out.
 
 ```sh
-$ dotenvx-ops logout
+$ dotenvx ops logout
 ✔ logged out [username] from this device and revoked token [dxo_5ZrwRXV…]
-```
-
-</details>
-<details><summary>`status`</summary><br>
-
-Check current status of [Ops](https://dotenvx.com/ops) - `on` or `off` (logged in or out).
-
-```sh
-$ dotenvx-ops status
-on
 ```
 
 </details>
@@ -2668,13 +2665,25 @@ Usage: dotenvx-ops settings [options] [command]
 ⚙️  settings
 
 Options:
-  -h, --help       display help for command
+  -h, --help        display help for command
 
 Commands:
-  username         print your username
-  token [options]  print your access token (--unmask)
-  hostname         print hostname
-  help [command]   display help for command
+  username          print your username
+  token [options]   print your access token (--unmask)
+  device [options]  print your device pubkey (--unmask)
+  hostname          print hostname
+  path              print path to settings file
+  help [command]    display help for command
+```
+
+</details>
+<details><summary>`ops status`</summary><br>
+
+Check current status of [Ops](https://dotenvx.com/ops) - `on` or `off` (logged in or out).
+
+```sh
+$ dotenvx ops status
+on
 ```
 
 </details>

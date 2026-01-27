@@ -12458,6 +12458,12 @@ export interface Locator {
     timeout?: number;
   }): Promise<null|ElementHandle<SVGElement | HTMLElement>>;
   /**
+   * Returns a human-readable representation of the locator, using the
+   * [locator.description()](https://playwright.dev/docs/api/class-locator#locator-description) if one exists;
+   * otherwise, it generates a string based on the locator's selector.
+   */
+  toString(): string;
+  /**
    * When the locator points to a list of elements, this returns an array of locators, pointing to their respective
    * elements.
    *
@@ -13011,8 +13017,9 @@ export interface Locator {
   /**
    * Returns locator description previously set with
    * [locator.describe(description)](https://playwright.dev/docs/api/class-locator#locator-describe). Returns `null` if
-   * no custom description has been set. Prefer `Locator.toString()` for a human-readable representation, as it uses the
-   * description when available.
+   * no custom description has been set. Prefer
+   * [locator.toString()](https://playwright.dev/docs/api/class-locator#locator-to-string) for a human-readable
+   * representation, as it uses the description when available.
    *
    * **Usage**
    *
@@ -14999,14 +15006,6 @@ export interface BrowserType<Unused = {}> {
     deviceScaleFactor?: number;
 
     /**
-     * **Chromium-only** Whether to auto-open a Developer Tools panel for each tab. If this option is `true`, the
-     * [`headless`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-persistent-context-option-headless)
-     * option will be set `false`.
-     * @deprecated Use [debugging tools](https://playwright.dev/docs/debug) instead.
-     */
-    devtools?: boolean;
-
-    /**
      * If specified, accepted downloads are downloaded into this directory. Otherwise, temporary directory is created and
      * is deleted when browser is closed. In either case, the downloads are deleted when the browser context they were
      * created in is closed.
@@ -15085,9 +15084,7 @@ export interface BrowserType<Unused = {}> {
     /**
      * Whether to run browser in headless mode. More details for
      * [Chromium](https://developers.google.com/web/updates/2017/04/headless-chrome) and
-     * [Firefox](https://hacks.mozilla.org/2017/12/using-headless-mode-in-firefox/). Defaults to `true` unless the
-     * [`devtools`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-option-devtools) option is
-     * `true`.
+     * [Firefox](https://hacks.mozilla.org/2017/12/using-headless-mode-in-firefox/). Defaults to `true`.
      */
     headless?: boolean;
 
@@ -15429,14 +15426,6 @@ export interface BrowserType<Unused = {}> {
     chromiumSandbox?: boolean;
 
     /**
-     * **Chromium-only** Whether to auto-open a Developer Tools panel for each tab. If this option is `true`, the
-     * [`headless`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-server-option-headless) option
-     * will be set `false`.
-     * @deprecated Use [debugging tools](https://playwright.dev/docs/debug) instead.
-     */
-    devtools?: boolean;
-
-    /**
      * If specified, accepted downloads are downloaded into this directory. Otherwise, temporary directory is created and
      * is deleted when browser is closed. In either case, the downloads are deleted when the browser context they were
      * created in is closed.
@@ -15480,9 +15469,7 @@ export interface BrowserType<Unused = {}> {
     /**
      * Whether to run browser in headless mode. More details for
      * [Chromium](https://developers.google.com/web/updates/2017/04/headless-chrome) and
-     * [Firefox](https://hacks.mozilla.org/2017/12/using-headless-mode-in-firefox/). Defaults to `true` unless the
-     * [`devtools`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-option-devtools) option is
-     * `true`.
+     * [Firefox](https://hacks.mozilla.org/2017/12/using-headless-mode-in-firefox/). Defaults to `true`.
      */
     headless?: boolean;
 
@@ -18881,7 +18868,7 @@ export interface ConsoleMessage {
    */
   text(): string;
 
-  type(): "log"|"debug"|"info"|"error"|"warning"|"dir"|"dirxml"|"table"|"trace"|"clear"|"startGroup"|"startGroupCollapsed"|"endGroup"|"assert"|"profile"|"profileEnd"|"count"|"timeEnd";
+  type(): "log"|"debug"|"info"|"error"|"warning"|"dir"|"dirxml"|"table"|"trace"|"clear"|"startGroup"|"startGroupCollapsed"|"endGroup"|"assert"|"profile"|"profileEnd"|"count"|"time"|"timeEnd";
 
   /**
    * The web worker or service worker that produced this console message, if any. Note that console messages from web
@@ -20876,8 +20863,12 @@ export interface Route {
    * [route.fallback([options])](https://playwright.dev/docs/api/class-route#route-fallback) If you want next matching
    * handler in the chain to be invoked.
    *
-   * **NOTE** The `Cookie` header cannot be overridden using this method. If a value is provided, it will be ignored,
-   * and the cookie will be loaded from the browser's cookie store. To set custom cookies, use
+   * **NOTE** Some request headers are **forbidden** and cannot be overridden (for example, `Cookie`, `Host`,
+   * `Content-Length` and others, see
+   * [this MDN page](https://developer.mozilla.org/en-US/docs/Glossary/Forbidden_request_header) for full list). If an
+   * override is provided for a forbidden header, it will be ignored and the original request header will be used.
+   *
+   * To set custom cookies, use
    * [browserContext.addCookies(cookies)](https://playwright.dev/docs/api/class-browsercontext#browser-context-add-cookies).
    *
    * @param options
@@ -21764,14 +21755,6 @@ export interface LaunchOptions {
   chromiumSandbox?: boolean;
 
   /**
-   * **Chromium-only** Whether to auto-open a Developer Tools panel for each tab. If this option is `true`, the
-   * [`headless`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-option-headless) option will be
-   * set `false`.
-   * @deprecated Use [debugging tools](https://playwright.dev/docs/debug) instead.
-   */
-  devtools?: boolean;
-
-  /**
    * If specified, accepted downloads are downloaded into this directory. Otherwise, temporary directory is created and
    * is deleted when browser is closed. In either case, the downloads are deleted when the browser context they were
    * created in is closed.
@@ -21815,9 +21798,7 @@ export interface LaunchOptions {
   /**
    * Whether to run browser in headless mode. More details for
    * [Chromium](https://developers.google.com/web/updates/2017/04/headless-chrome) and
-   * [Firefox](https://hacks.mozilla.org/2017/12/using-headless-mode-in-firefox/). Defaults to `true` unless the
-   * [`devtools`](https://playwright.dev/docs/api/class-browsertype#browser-type-launch-option-devtools) option is
-   * `true`.
+   * [Firefox](https://hacks.mozilla.org/2017/12/using-headless-mode-in-firefox/). Defaults to `true`.
    */
   headless?: boolean;
 
@@ -21888,6 +21869,12 @@ export interface ConnectOverCDPOptions {
    * Additional HTTP headers to be sent with connect request. Optional.
    */
   headers?: { [key: string]: string; };
+
+  /**
+   * Tells Playwright that it runs on the same host as the CDP server. It will enable certain optimizations that rely
+   * upon the file system being the same between Playwright and the Browser.
+   */
+  isLocal?: boolean;
 
   /**
    * Logger sink for Playwright logging. Optional.

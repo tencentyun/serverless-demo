@@ -255,6 +255,7 @@ class ElementHandle extends js.JSHandle {
   async _retryAction(progress, actionName, action, options) {
     let retry = 0;
     const waitTime = [0, 20, 100, 100, 500];
+    const noAutoWaiting = options.__testHookNoAutoWaiting ?? options.noAutoWaiting;
     while (true) {
       if (retry) {
         progress.log(`retrying ${actionName} action${options.trial ? " (trial run)" : ""}`);
@@ -268,35 +269,43 @@ class ElementHandle extends js.JSHandle {
       } else {
         progress.log(`attempting ${actionName} action${options.trial ? " (trial run)" : ""}`);
       }
-      if (!options.skipActionPreChecks && !options.force)
+      if (!options.skipActionPreChecks && !options.force && !noAutoWaiting)
         await this._frame._page.performActionPreChecks(progress);
       const result = await action(retry);
       ++retry;
       if (result === "error:notvisible") {
-        if (options.force)
+        if (options.force || noAutoWaiting)
           throw new NonRecoverableDOMError("Element is not visible");
         progress.log("  element is not visible");
         continue;
       }
       if (result === "error:notinviewport") {
-        if (options.force)
+        if (options.force || noAutoWaiting)
           throw new NonRecoverableDOMError("Element is outside of the viewport");
         progress.log("  element is outside of the viewport");
         continue;
       }
       if (result === "error:optionsnotfound") {
+        if (noAutoWaiting)
+          throw new NonRecoverableDOMError("Did not find some options");
         progress.log("  did not find some options");
         continue;
       }
       if (result === "error:optionnotenabled") {
+        if (noAutoWaiting)
+          throw new NonRecoverableDOMError("Option being selected is not enabled");
         progress.log("  option being selected is not enabled");
         continue;
       }
       if (typeof result === "object" && "hitTargetDescription" in result) {
+        if (noAutoWaiting)
+          throw new NonRecoverableDOMError(`${result.hitTargetDescription} intercepts pointer events`);
         progress.log(`  ${result.hitTargetDescription} intercepts pointer events`);
         continue;
       }
       if (typeof result === "object" && "missingState" in result) {
+        if (noAutoWaiting)
+          throw new NonRecoverableDOMError(`Element is not ${result.missingState}`);
         progress.log(`  element is not ${result.missingState}`);
         continue;
       }

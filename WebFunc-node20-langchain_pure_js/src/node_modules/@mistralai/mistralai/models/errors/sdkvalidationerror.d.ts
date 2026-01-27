@@ -1,4 +1,4 @@
-import * as z from "zod";
+import * as z from "zod/v3";
 export declare class SDKValidationError extends Error {
     /**
      * The raw value that failed validation.

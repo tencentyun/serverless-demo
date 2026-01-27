@@ -41,9 +41,9 @@ var import_ffConnection = require("./ffConnection");
 var import_ffExecutionContext = require("./ffExecutionContext");
 var import_ffInput = require("./ffInput");
 var import_ffNetworkManager = require("./ffNetworkManager");
-var import_debugLogger = require("../utils/debugLogger");
 var import_stackTrace = require("../../utils/isomorphic/stackTrace");
 var import_errors = require("../errors");
+var import_debugLogger = require("../utils/debugLogger");
 const UTILITY_WORLD_NAME = "__playwright_utility_world__";
 class FFPage {
   constructor(session, browserContext, opener) {
@@ -83,13 +83,16 @@ class FFPage {
       import_eventsHelper.eventsHelper.addEventListener(this._session, "Page.workerDestroyed", this._onWorkerDestroyed.bind(this)),
       import_eventsHelper.eventsHelper.addEventListener(this._session, "Page.dispatchMessageFromWorker", this._onDispatchMessageFromWorker.bind(this)),
       import_eventsHelper.eventsHelper.addEventListener(this._session, "Page.crashed", this._onCrashed.bind(this)),
-      import_eventsHelper.eventsHelper.addEventListener(this._session, "Page.videoRecordingStarted", this._onVideoRecordingStarted.bind(this)),
       import_eventsHelper.eventsHelper.addEventListener(this._session, "Page.webSocketCreated", this._onWebSocketCreated.bind(this)),
       import_eventsHelper.eventsHelper.addEventListener(this._session, "Page.webSocketClosed", this._onWebSocketClosed.bind(this)),
       import_eventsHelper.eventsHelper.addEventListener(this._session, "Page.webSocketFrameReceived", this._onWebSocketFrameReceived.bind(this)),
       import_eventsHelper.eventsHelper.addEventListener(this._session, "Page.webSocketFrameSent", this._onWebSocketFrameSent.bind(this)),
       import_eventsHelper.eventsHelper.addEventListener(this._session, "Page.screencastFrame", this._onScreencastFrame.bind(this))
     ];
+    const screencast = this._page.screencast;
+    const videoOptions = screencast.launchVideoRecorder();
+    if (videoOptions)
+      screencast.startVideoRecording(videoOptions).catch((e) => import_debugLogger.debugLogger.log("error", e));
     this._session.once("Page.ready", () => {
       if (this._reportedAsNew)
         return;
@@ -272,11 +275,8 @@ class FFPage {
     this._session.markAsCrashed();
     this._page._didCrash();
   }
-  _onVideoRecordingStarted(event) {
-    this._browserContext._browser._videoStarted(this._browserContext, event.screencastId, event.file, this._page.waitForInitializedOrError());
-  }
   didClose() {
-    this._markAsError(new import_errors.TargetClosedError());
+    this._markAsError(new import_errors.TargetClosedError(this._page.closeReason()));
     this._session.dispose();
     import_eventsHelper.eventsHelper.removeEventListeners(this._eventListeners);
     this._networkManager.dispose();
@@ -417,24 +417,21 @@ class FFPage {
       throw e;
     });
   }
-  async setScreencastOptions(options) {
-    if (options) {
-      const { screencastId } = await this._session.send("Page.startScreencast", options);
-      this._screencastId = screencastId;
-    } else {
-      await this._session.send("Page.stopScreencast");
-    }
+  async startScreencast(options) {
+    await this._session.send("Page.startScreencast", options);
+  }
+  async stopScreencast() {
+    await this._session.sendMayFail("Page.stopScreencast");
   }
   _onScreencastFrame(event) {
-    if (!this._screencastId)
-      return;
-    const screencastId = this._screencastId;
-    this._page.throttleScreencastFrameAck(() => {
-      this._session.send("Page.screencastFrameAck", { screencastId }).catch((e) => import_debugLogger.debugLogger.log("error", e));
+    this._page.screencast.throttleFrameAck(() => {
+      this._session.sendMayFail("Page.screencastFrameAck");
     });
     const buffer = Buffer.from(event.data, "base64");
     this._page.emit(import_page2.Page.Events.ScreencastFrame, {
       buffer,
+      frameSwapWallTime: event.timestamp * 1e3,
+      // timestamp is in seconds, we need to convert to milliseconds.
       width: event.deviceWidth,
       height: event.deviceHeight
     });

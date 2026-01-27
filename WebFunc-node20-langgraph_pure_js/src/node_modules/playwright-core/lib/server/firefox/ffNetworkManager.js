@@ -170,9 +170,9 @@ const causeToResourceType = {
   TYPE_FONT: "font",
   TYPE_MEDIA: "media",
   TYPE_WEBSOCKET: "websocket",
-  TYPE_CSP_REPORT: "other",
+  TYPE_CSP_REPORT: "cspreport",
   TYPE_XSLT: "other",
-  TYPE_BEACON: "other",
+  TYPE_BEACON: "beacon",
   TYPE_FETCH: "fetch",
   TYPE_IMAGESET: "image",
   TYPE_WEB_MANIFEST: "manifest"

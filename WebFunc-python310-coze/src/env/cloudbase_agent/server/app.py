@@ -7,16 +7,19 @@ offering both quick one-line startup and advanced customization options.
 """
 
 import os
-from typing import Any, Optional
+from typing import Any, Callable, Optional
+from uuid import uuid4
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
+from .send_message.models import RunAgentInput
+
+from .errors import install_exception_handlers
 from .healthz.handler import create_healthz_handler
 from .healthz.models import HealthzConfig
 from .openai.models import OpenAIChatCompletionRequest
 from .openai.server import create_adapter as create_openai_adapter
-from .send_message.models import RunAgentInput
 from .send_message.server import create_adapter as create_send_message_adapter
 from .utils.types import AgentCreator
 
@@ -131,6 +134,7 @@ class AgentServiceApp:
         enable_openai_endpoint: bool = False,
         enable_healthz: bool = True,
         healthz_config: Optional[HealthzConfig] = None,
+        request_preprocessor: Optional[Callable[[RunAgentInput, Request], None]] = None,
         **fastapi_kwargs: Any,
     ) -> FastAPI:
         """Build and return a configured FastAPI application.
@@ -151,6 +155,10 @@ class AgentServiceApp:
         :type enable_healthz: bool
         :param healthz_config: Optional health check configuration
         :type healthz_config: Optional[HealthzConfig]
+        :param request_preprocessor: Optional function to preprocess request before agent execution.
+                                   Called with (request, http_request) and can modify request in-place.
+                                   Useful for extracting user_id from JWT and adding to forwarded_props.
+        :type request_preprocessor: Optional[Callable[[RunAgentInput, Request], None]]
         :param fastapi_kwargs: Additional keyword arguments to pass to FastAPI constructor
                               (e.g., title, description, version)
         :type fastapi_kwargs: Any
@@ -215,6 +223,10 @@ class AgentServiceApp:
         # Create FastAPI instance
         app = FastAPI(**fastapi_kwargs)
 
+        # Install global exception handlers (automatic for Method 2/3)
+        # This ensures all exceptions are caught and formatted as AG-UI error events
+        install_exception_handlers(app)
+
         # Apply CORS middleware if enabled
         if enable_cors:
             cors_config = self._cors_config or {
@@ -230,15 +242,51 @@ class AgentServiceApp:
 
         # Register send_message endpoint
         @app.post(f"{final_path}/{{agent_id}}/send-message")
-        async def send_message_endpoint(agent_id: str, request: RunAgentInput):
+        async def send_message_endpoint(
+            agent_id: str, 
+            http_context: Request,  # HTTP request context (for headers, IP, etc.)
+        ):
             """Main agent endpoint for processing messages with Cloudbase Agent native format.
             
             Args:
                 agent_id: Agent identifier (reserved for future use)
-                request: Message request payload
+                http_context: HTTP request context for accessing headers, IP, etc.
             """
-            # agent_id parameter is reserved for future use
-            return await create_send_message_adapter(create_agent, request)
+            # Parse request body and provide default values (matches TypeScript server behavior)
+            body = await http_context.json()
+            request_data = {
+                "tools": [],
+                "context": [],
+                "state": {},
+                "forwarded_props": {},
+                **body,
+            }
+            
+            # Auto-generate runId if missing (matches TypeScript behavior)
+            # Pydantic will automatically convert camelCase (runId) to snake_case (run_id) via populate_by_name
+            run_id = request_data.get("runId")
+            if not run_id or (isinstance(run_id, str) and not run_id.strip()):
+                request_data["runId"] = str(uuid4())
+            
+            # Auto-generate message.id if missing (matches TypeScript behavior)
+            # TypeScript server generates UUID for each message if id is not provided
+            if "messages" in request_data and isinstance(request_data["messages"], list):
+                for message in request_data["messages"]:
+                    if isinstance(message, dict):
+                        # Generate id if missing, None, or empty string
+                        message_id = message.get("id")
+                        if not message_id or (isinstance(message_id, str) and not message_id.strip()):
+                            message["id"] = str(uuid4())
+            
+            # Parse as RunAgentInput
+            request = RunAgentInput(**request_data)
+            
+            return await create_send_message_adapter(
+                create_agent, 
+                request, 
+                http_context,
+                request_preprocessor=request_preprocessor,
+            )
 
         # Register health check endpoint if enabled
         if enable_healthz:
@@ -302,6 +350,7 @@ class AgentServiceApp:
         enable_openai_endpoint: bool = False,
         enable_healthz: bool = True,
         healthz_config: Optional[HealthzConfig] = None,
+        request_preprocessor: Optional[Callable[[RunAgentInput, Request], None]] = None,
         **uvicorn_kwargs: Any,
     ) -> None:
         r"""Build and run the FastAPI application (one-line startup).
@@ -323,6 +372,10 @@ class AgentServiceApp:
         :type enable_healthz: bool
         :param healthz_config: Optional health check configuration
         :type healthz_config: Optional[HealthzConfig]
+        :param request_preprocessor: Optional function to preprocess request before agent execution.
+                                   Called with (request, http_request) and can modify request in-place.
+                                   Useful for extracting user_id from JWT and adding to forwarded_props.
+        :type request_preprocessor: Optional[Callable[[RunAgentInput, Request], None]]
         :param uvicorn_kwargs: Additional keyword arguments to pass to uvicorn.run
                               Examples: reload=True, workers=4, log_level="debug"
         :type uvicorn_kwargs: Any
@@ -331,6 +384,16 @@ class AgentServiceApp:
             Simplest usage::
 
                 AgentServiceApp().run(create_agent, port=8000)
+
+            With JWT authentication::
+
+                from agent import create_jwt_request_preprocessor
+                
+                AgentServiceApp().run(
+                    create_agent,
+                    port=8000,
+                    request_preprocessor=create_jwt_request_preprocessor()
+                )
 
             With configuration::
 
@@ -363,6 +426,7 @@ class AgentServiceApp:
             enable_openai_endpoint=enable_openai_endpoint,
             enable_healthz=enable_healthz,
             healthz_config=healthz_config,
+            request_preprocessor=request_preprocessor,
         )
 
         # Run the server

@@ -36,7 +36,6 @@ var import_path = __toESM(require("path"));
 var import_utilsBundle = require("../../utilsBundle");
 var import_crypto = require("./crypto");
 var import_assert = require("../../utils/isomorphic/assert");
-var import_manualPromise = require("../../utils/isomorphic/manualPromise");
 var import_network = require("./network");
 class HttpServer {
   constructor() {
@@ -58,20 +57,6 @@ class HttpServer {
   }
   port() {
     return this._port;
-  }
-  async _tryStart(port, host) {
-    const errorPromise = new import_manualPromise.ManualPromise();
-    const errorListener = (error) => errorPromise.reject(error);
-    this._server.on("error", errorListener);
-    try {
-      this._server.listen(port, host);
-      await Promise.race([
-        new Promise((cb) => this._server.once("listening", cb)),
-        errorPromise
-      ]);
-    } finally {
-      this._server.removeListener("error", errorListener);
-    }
   }
   createWebSocket(transport, guid) {
     (0, import_assert.assert)(!this._wsGuid, "can only create one main websocket transport per server");
@@ -100,17 +85,17 @@ class HttpServer {
   async start(options = {}) {
     (0, import_assert.assert)(!this._started, "server already started");
     this._started = true;
-    const host = options.host || "localhost";
+    const host = options.host;
     if (options.preferredPort) {
       try {
-        await this._tryStart(options.preferredPort, host);
+        await (0, import_network.startHttpServer)(this._server, { port: options.preferredPort, host });
       } catch (e) {
         if (!e || !e.message || !e.message.includes("EADDRINUSE"))
           throw e;
-        await this._tryStart(void 0, host);
+        await (0, import_network.startHttpServer)(this._server, { host });
       }
     } else {
-      await this._tryStart(options.port, host);
+      await (0, import_network.startHttpServer)(this._server, { port: options.port, host });
     }
     const address = this._server.address();
     (0, import_assert.assert)(address, "Could not bind server socket");

@@ -43,7 +43,7 @@ exports.stringToBytes = stringToBytes;
 exports.stringFromBytes = stringFromBytes;
 exports.stringToBase64 = stringToBase64;
 exports.stringFromBase64 = stringFromBase64;
-const z = __importStar(require("zod"));
+const z = __importStar(require("zod/v3"));
 function bytesToBase64(u8arr) {
     return btoa(String.fromCodePoint(...u8arr));
 }

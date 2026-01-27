@@ -42,10 +42,13 @@ var import_userAgent = require("../utils/userAgent");
 var import_utilsBundle = require("../../utilsBundle");
 var import_fileUtils = require("../utils/fileUtils");
 var import__ = require(".");
-async function downloadBrowserWithProgressBar(title, browserDirectory, executablePath, downloadURLs, downloadFileName, downloadSocketTimeout) {
+async function downloadBrowserWithProgressBar(title, browserDirectory, executablePath, downloadURLs, downloadFileName, downloadSocketTimeout, force) {
   if (await (0, import_fileUtils.existsAsync)((0, import__.browserDirectoryToMarkerFilePath)(browserDirectory))) {
     import_debugLogger.debugLogger.log("install", `${title} is already downloaded.`);
-    return false;
+    if (force)
+      import_debugLogger.debugLogger.log("install", `force-downloading ${title}.`);
+    else
+      return;
   }
   const uniqueTempDir = await import_fs.default.promises.mkdtemp(import_path.default.join(import_os.default.tmpdir(), "playwright-download-"));
   const zipPath = import_path.default.join(uniqueTempDir, downloadFileName);
@@ -63,7 +66,7 @@ async function downloadBrowserWithProgressBar(title, browserDirectory, executabl
       if (await (0, import_fileUtils.existsAsync)(zipPath))
         await import_fs.default.promises.unlink(zipPath);
       if (await (0, import_fileUtils.existsAsync)(browserDirectory))
-        await import_fs.default.promises.rmdir(browserDirectory, { recursive: true });
+        await (0, import_fileUtils.removeFolders)([browserDirectory]);
       const errorMessage = error?.message || "";
       import_debugLogger.debugLogger.log("install", `attempt #${attempt} - ERROR: ${errorMessage}`);
       if (attempt >= retryCount)
@@ -77,7 +80,6 @@ async function downloadBrowserWithProgressBar(title, browserDirectory, executabl
     await (0, import_fileUtils.removeFolders)([uniqueTempDir]);
   }
   logPolitely(`${title} downloaded to ${browserDirectory}`);
-  return true;
 }
 function downloadBrowserWithProgressBarOutOfProcess(title, browserDirectory, url, zipPath, executablePath, socketTimeout) {
   const cp = childProcess.fork(import_path.default.join(__dirname, "oopDownloadBrowserMain.js"));

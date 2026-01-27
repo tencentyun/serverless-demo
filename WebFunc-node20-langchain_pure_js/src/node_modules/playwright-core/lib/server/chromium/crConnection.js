@@ -94,11 +94,6 @@ class CRSession extends import_instrumentation.SdkObject {
     this._parentSession = parentSession;
     this._sessionId = sessionId;
     this._eventListener = eventListener;
-    this.on = super.on;
-    this.addListener = super.addListener;
-    this.off = super.removeListener;
-    this.removeListener = super.removeListener;
-    this.once = super.once;
   }
   _markAsCrashed() {
     this._crashed = true;

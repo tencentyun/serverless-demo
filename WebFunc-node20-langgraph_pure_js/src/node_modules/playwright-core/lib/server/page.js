@@ -31,7 +31,8 @@ __export(page_exports, {
   InitScript: () => InitScript,
   Page: () => Page,
   PageBinding: () => PageBinding,
-  Worker: () => Worker
+  Worker: () => Worker,
+  WorkerEvent: () => WorkerEvent
 });
 module.exports = __toCommonJS(page_exports);
 var import_browserContext = require("./browserContext");
@@ -53,6 +54,22 @@ var import_manualPromise = require("../utils/isomorphic/manualPromise");
 var import_utilityScriptSerializers = require("../utils/isomorphic/utilityScriptSerializers");
 var import_callLog = require("./callLog");
 var rawBindingsControllerSource = __toESM(require("../generated/bindingsControllerSource"));
+var import_screencast = require("./screencast");
+const PageEvent = {
+  Close: "close",
+  Crash: "crash",
+  Download: "download",
+  EmulatedSizeChanged: "emulatedsizechanged",
+  FileChooser: "filechooser",
+  FrameAttached: "frameattached",
+  FrameDetached: "framedetached",
+  InternalFrameNavigatedToNewDocument: "internalframenavigatedtonewdocument",
+  LocatorHandlerTriggered: "locatorhandlertriggered",
+  ScreencastFrame: "screencastframe",
+  Video: "video",
+  WebSocket: "websocket",
+  Worker: "worker"
+};
 class Page extends import_instrumentation.SdkObject {
   constructor(delegate, browserContext) {
     super(browserContext, "page");
@@ -74,9 +91,6 @@ class Page extends import_instrumentation.SdkObject {
     this._lastLocatorHandlerUid = 0;
     this._locatorHandlerRunningCounter = 0;
     this._networkRequests = [];
-    // Aiming at 25 fps by default - each frame is 40ms, but we give some slack with 35ms.
-    // When throttling for tracing, 200ms between frames, except for 10 frames around the action.
-    this._frameThrottler = new FrameThrottler(10, 35, 200);
     this.attribution.page = this;
     this.delegate = delegate;
     this.browserContext = browserContext;
@@ -85,27 +99,14 @@ class Page extends import_instrumentation.SdkObject {
     this.touchscreen = new input.Touchscreen(delegate.rawTouchscreen, this);
     this.screenshotter = new import_screenshotter.Screenshotter(this);
     this.frameManager = new frames.FrameManager(this);
+    this.screencast = new import_screencast.Screencast(this);
     if (delegate.pdf)
       this.pdf = delegate.pdf.bind(delegate);
     this.coverage = delegate.coverage ? delegate.coverage() : null;
     this.isStorageStatePage = browserContext.isCreatingStorageStatePage();
   }
   static {
-    this.Events = {
-      Close: "close",
-      Crash: "crash",
-      Download: "download",
-      EmulatedSizeChanged: "emulatedsizechanged",
-      FileChooser: "filechooser",
-      FrameAttached: "frameattached",
-      FrameDetached: "framedetached",
-      InternalFrameNavigatedToNewDocument: "internalframenavigatedtonewdocument",
-      LocatorHandlerTriggered: "locatorhandlertriggered",
-      ScreencastFrame: "screencastframe",
-      Video: "video",
-      WebSocket: "websocket",
-      Worker: "worker"
-    };
+    this.Events = PageEvent;
   }
   async reportAsNew(opener, error) {
     if (opener) {
@@ -158,17 +159,17 @@ class Page extends import_instrumentation.SdkObject {
   }
   _didClose() {
     this.frameManager.dispose();
-    this._frameThrottler.dispose();
+    this.screencast.stopFrameThrottler();
     (0, import_utils.assert)(this._closedState !== "closed", "Page closed twice");
     this._closedState = "closed";
     this.emit(Page.Events.Close);
     this._closedPromise.resolve();
     this.instrumentation.onPageClose(this);
-    this.openScope.close(new import_errors.TargetClosedError());
+    this.openScope.close(new import_errors.TargetClosedError(this.closeReason()));
   }
   _didCrash() {
     this.frameManager.dispose();
-    this._frameThrottler.dispose();
+    this.screencast.stopFrameThrottler();
     this.emit(Page.Events.Crash);
     this._crashed = true;
     this.instrumentation.onPageClose(this);
@@ -578,7 +579,7 @@ class Page extends import_instrumentation.SdkObject {
     if (this._closedState === "closed")
       return;
     if (options.reason)
-      this.closeReason = options.reason;
+      this._closeReason = options.reason;
     const runBeforeUnload = !!options.runBeforeUnload;
     if (this._closedState !== "closing") {
       if (!runBeforeUnload)
@@ -641,16 +642,6 @@ class Page extends import_instrumentation.SdkObject {
   getBinding(name) {
     return this._pageBindings.get(name) || this.browserContext._pageBindings.get(name);
   }
-  setScreencastOptions(options) {
-    this.delegate.setScreencastOptions(options).catch((e) => import_debugLogger.debugLogger.log("error", e));
-    this._frameThrottler.setThrottlingEnabled(!!options);
-  }
-  throttleScreencastFrameAck(ack) {
-    this._frameThrottler.ack(ack);
-  }
-  temporarilyDisableTracingScreencastThrottling() {
-    this._frameThrottler.recharge();
-  }
   async safeNonStallingEvaluateInAllFrames(expression, world, options = {}) {
     await Promise.all(this.frames().map(async (frame) => {
       try {
@@ -665,11 +656,14 @@ class Page extends import_instrumentation.SdkObject {
     await Promise.all(this.frames().map((frame) => frame.hideHighlight().catch(() => {
     })));
   }
-  async snapshotForAI(progress, options) {
+  async snapshotForAI(progress, options = {}) {
     const snapshot = await snapshotFrameForAI(progress, this.mainFrame(), options);
     return { full: snapshot.full.join("\n"), incremental: snapshot.incremental?.join("\n") };
   }
 }
+const WorkerEvent = {
+  Close: "close"
+};
 class Worker extends import_instrumentation.SdkObject {
   constructor(parent, url) {
     super(parent, "worker");
@@ -680,9 +674,7 @@ class Worker extends import_instrumentation.SdkObject {
     this.url = url;
   }
   static {
-    this.Events = {
-      Close: "close"
-    };
+    this.Events = WorkerEvent;
   }
   createExecutionContext(delegate) {
     this.existingExecutionContext = new js.ExecutionContext(this, delegate, "worker");
@@ -763,56 +755,7 @@ class InitScript {
     })();`;
   }
 }
-class FrameThrottler {
-  constructor(nonThrottledFrames, defaultInterval, throttlingInterval) {
-    this._acks = [];
-    this._throttlingEnabled = false;
-    this._nonThrottledFrames = nonThrottledFrames;
-    this._budget = nonThrottledFrames;
-    this._defaultInterval = defaultInterval;
-    this._throttlingInterval = throttlingInterval;
-    this._tick();
-  }
-  dispose() {
-    if (this._timeoutId) {
-      clearTimeout(this._timeoutId);
-      this._timeoutId = void 0;
-    }
-  }
-  setThrottlingEnabled(enabled) {
-    this._throttlingEnabled = enabled;
-  }
-  recharge() {
-    for (const ack of this._acks)
-      ack();
-    this._acks = [];
-    this._budget = this._nonThrottledFrames;
-    if (this._timeoutId) {
-      clearTimeout(this._timeoutId);
-      this._tick();
-    }
-  }
-  ack(ack) {
-    if (!this._timeoutId) {
-      ack();
-      return;
-    }
-    this._acks.push(ack);
-  }
-  _tick() {
-    const ack = this._acks.shift();
-    if (ack) {
-      --this._budget;
-      ack();
-    }
-    if (this._throttlingEnabled && this._budget <= 0) {
-      this._timeoutId = setTimeout(() => this._tick(), this._throttlingInterval);
-    } else {
-      this._timeoutId = setTimeout(() => this._tick(), this._defaultInterval);
-    }
-  }
-}
-async function snapshotFrameForAI(progress, frame, options) {
+async function snapshotFrameForAI(progress, frame, options = {}) {
   const snapshot = await frame.retryWithProgressAndTimeouts(progress, [1e3, 2e3, 4e3, 8e3], async (continuePolling) => {
     try {
       const context = await progress.race(frame._utilityContext());
@@ -822,7 +765,7 @@ async function snapshotFrameForAI(progress, frame, options) {
         if (!node)
           return true;
         return injected.incrementalAriaSnapshot(node, { mode: "ai", ...options2 });
-      }, { refPrefix: frame.seq ? "f" + frame.seq : "", track: options.track }));
+      }, { refPrefix: frame.seq ? "f" + frame.seq : "", track: options.track, doNotRenderActive: options.doNotRenderActive }));
       if (snapshotOrRetry === true)
         return continuePolling;
       return snapshotOrRetry;
@@ -882,5 +825,6 @@ function ensureArrayLimit(array, limit) {
   InitScript,
   Page,
   PageBinding,
-  Worker
+  Worker,
+  WorkerEvent
 });

@@ -114,7 +114,8 @@ class Chromium extends import_browserType.BrowserType {
       };
       (0, import_browserContext.validateBrowserContextOptions)(persistent, browserOptions);
       const browser = await progress.race(import_crBrowser.CRBrowser.connect(this.attribution.playwright, chromeTransport, browserOptions));
-      browser._isCollocatedWithServer = false;
+      if (!options.isLocal)
+        browser._isCollocatedWithServer = false;
       browser.on(import_browser.Browser.Events.Disconnected, doCleanup);
       return browser;
     } catch (error) {
@@ -128,13 +129,8 @@ class Chromium extends import_browserType.BrowserType {
     return directory ? new import_crDevTools.CRDevTools(import_path.default.join(directory, "devtools-preferences.json")) : void 0;
   }
   async connectToTransport(transport, options, browserLogsCollector) {
-    let devtools = this._devtools;
-    if (options.__testHookForDevTools) {
-      devtools = this._createDevTools();
-      await options.__testHookForDevTools(devtools);
-    }
     try {
-      return await import_crBrowser.CRBrowser.connect(this.attribution.playwright, transport, options, devtools);
+      return await import_crBrowser.CRBrowser.connect(this.attribution.playwright, transport, options, this._devtools);
     } catch (e) {
       if (browserLogsCollector.recentLogs().some((log) => log.includes("Failed to create a ProcessSingleton for your profile directory."))) {
         throw new Error(
@@ -144,14 +140,12 @@ class Chromium extends import_browserType.BrowserType {
       throw e;
     }
   }
-  doRewriteStartupLog(error) {
-    if (!error.logs)
-      return error;
-    if (error.logs.includes("Missing X server"))
-      error.logs = "\n" + (0, import_ascii.wrapInASCIIBox)(import_browserType.kNoXServerRunningError, 1);
-    if (!error.logs.includes("crbug.com/357670") && !error.logs.includes("No usable sandbox!") && !error.logs.includes("crbug.com/638180"))
-      return error;
-    error.logs = [
+  doRewriteStartupLog(logs) {
+    if (logs.includes("Missing X server"))
+      logs = "\n" + (0, import_ascii.wrapInASCIIBox)(import_browserType.kNoXServerRunningError, 1);
+    if (!logs.includes("crbug.com/357670") && !logs.includes("No usable sandbox!") && !logs.includes("crbug.com/638180"))
+      return logs;
+    return [
       `Chromium sandboxing failed!`,
       `================================`,
       `To avoid the sandboxing issue, do either of the following:`,
@@ -160,7 +154,6 @@ class Chromium extends import_browserType.BrowserType {
       `================================`,
       ``
     ].join("\n");
-    return error;
   }
   amendEnvironment(env) {
     return env;
@@ -284,11 +277,7 @@ class Chromium extends import_browserType.BrowserType {
     if (args.find((arg) => !arg.startsWith("-")))
       throw new Error("Arguments can not specify page to be opened");
     const chromeArguments = [...(0, import_chromiumSwitches.chromiumSwitches)(options.assistantMode, options.channel)];
-    if (import_os.default.platform() === "darwin") {
-      chromeArguments.push("--enable-unsafe-swiftshader");
-    }
-    if (options.devtools)
-      chromeArguments.push("--auto-open-devtools-for-tabs");
+    chromeArguments.push("--enable-unsafe-swiftshader");
     if (options.headless) {
       chromeArguments.push("--headless");
       chromeArguments.push(
@@ -324,6 +313,10 @@ class Chromium extends import_browserType.BrowserType {
     return waitForReadyState(options, browserLogsCollector);
   }
   getExecutableName(options) {
+    if (options.channel && import_registry.registry.isChromiumAlias(options.channel))
+      return "chromium";
+    if (options.channel === "chromium-tip-of-tree")
+      return options.headless ? "chromium-tip-of-tree-headless-shell" : "chromium-tip-of-tree";
     if (options.channel)
       return options.channel;
     return options.headless ? "chromium-headless-shell" : "chromium";

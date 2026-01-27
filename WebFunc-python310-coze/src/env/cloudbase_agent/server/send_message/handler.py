@@ -8,8 +8,10 @@ converts between client and internal message formats, and manages agent
 execution with real-time event streaming support.
 """
 
+import json
 import logging
-from typing import Any, AsyncGenerator
+import re
+from typing import Any, AsyncGenerator, Optional
 
 from ag_ui.core.events import EventType
 
@@ -46,6 +48,47 @@ from .models import (
 logger = logging.getLogger(__name__)
 
 
+def _parse_error(error: Exception) -> tuple[str, Optional[str]]:
+    """Parse error to extract message and code.
+    
+    Handles common error formats:
+    - "code: XXX, msg: YYY" (e.g., Coze errors)
+    - JSON format: {"code": 123, "msg": "error"}
+    
+    Parameters
+    ----------
+    error : Exception
+        The exception to parse
+        
+    Returns
+    -------
+    tuple[str, Optional[str]]
+        A tuple of (message, code) where code may be None
+    """
+    error_str = str(error)
+    
+    # Try to parse "code: XXX, msg: YYY" format
+    match = re.match(r"code:\s*(\d+),\s*msg:\s*(.+)", error_str)
+    if match:
+        code = match.group(1)
+        message = match.group(2).strip()
+        return message, code
+    
+    # Try to parse JSON format: {"code": 123, "msg": "error"}
+    try:
+        error_data = json.loads(error_str)
+        if isinstance(error_data, dict):
+            code = error_data.get("code")
+            message = error_data.get("msg") or error_data.get("message") or error_str
+            if code is not None:
+                return str(message), str(code)
+    except (json.JSONDecodeError, TypeError):
+        pass
+    
+    # Fallback: return original error string without code
+    return error_str, None
+
+
 async def handler(input_data: RunAgentInput, agent: Any) -> AsyncGenerator[Event, None]:
     """Handle HTTP requests and process agent execution with streaming.
 
@@ -63,6 +106,8 @@ async def handler(input_data: RunAgentInput, agent: Any) -> AsyncGenerator[Event
     Raises:
         RuntimeError: When agent execution or message processing fails
     """
+    error_emitted = False  # Track if RUN_ERROR has been emitted to avoid duplicates
+    
     try:
         logger.info("Agent run started: run_id=%s thread_id=%s", input_data.run_id, input_data.thread_id)
         
@@ -72,17 +117,41 @@ async def handler(input_data: RunAgentInput, agent: Any) -> AsyncGenerator[Event
             event_count += 1
             
             # Handle run lifecycle events
+            # Use thread_id from the event (agent may have modified it, e.g., Coze adapter)
+            # Fall back to input_data.thread_id if not available in event
+            # Handle None thread_id (for optional thread_id support)
             if event.type == EventType.RUN_STARTED:
+                event_thread_id = getattr(event, 'thread_id', None) or input_data.thread_id or "unknown"
                 yield RunStartedEvent(
                     run_id=input_data.run_id,
-                    thread_id=input_data.thread_id,
+                    thread_id=event_thread_id,
                 )
             
             elif event.type == EventType.RUN_FINISHED:
+                event_thread_id = getattr(event, 'thread_id', None) or input_data.thread_id or "unknown"
                 yield RunFinishedEvent(
                     run_id=input_data.run_id,
-                    thread_id=input_data.thread_id,
+                    thread_id=event_thread_id,
                 )
+            
+            elif event.type == EventType.RUN_ERROR:
+                # Parse error message to extract code if not already provided
+                original_message = getattr(event, 'message', str(event))
+                original_code = getattr(event, 'code', None)
+                
+                if original_code is None:
+                    # Try to parse code from message
+                    message, code = _parse_error(Exception(original_message))
+                else:
+                    message, code = original_message, original_code
+                
+                yield RunErrorEvent(
+                    run_id=input_data.run_id,
+                    thread_id=input_data.thread_id or "unknown",
+                    message=message,
+                    code=code,
+                )
+                error_emitted = True  # Mark that we've already emitted an error
             
             # Handle different event types with raw_event tracking for delta extraction
             elif event.type == EventType.TEXT_MESSAGE_CONTENT:
@@ -240,5 +309,13 @@ async def handler(input_data: RunAgentInput, agent: Any) -> AsyncGenerator[Event
 
     except Exception as e:
         logger.error("Agent run failed: run_id=%s error=%s", input_data.run_id, str(e))
-        yield RunErrorEvent(run_id=input_data.run_id, message=str(e))
+        # Only emit RUN_ERROR if agent hasn't already emitted one
+        if not error_emitted:
+            message, code = _parse_error(e)
+            yield RunErrorEvent(
+                run_id=input_data.run_id,
+                thread_id=input_data.thread_id or "unknown",
+                message=message,
+                code=code,
+            )
         raise RuntimeError(f"Failed to process agent request: {str(e)}") from e

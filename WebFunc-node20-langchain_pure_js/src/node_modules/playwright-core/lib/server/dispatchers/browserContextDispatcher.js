@@ -298,6 +298,9 @@ class BrowserContextDispatcher extends import_dispatcher.Dispatcher {
     if (recorder)
       recorder.setMode("none");
   }
+  async exposeConsoleApi(params, progress) {
+    await this._context.exposeConsoleApi();
+  }
   async pause(params, progress) {
   }
   async newCDPSession(params, progress) {

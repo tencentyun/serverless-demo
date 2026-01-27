@@ -47,9 +47,6 @@ class CozeAgent(BaseAgent):
     bot_id : str
         Bot ID for Coze conversations. Set via COZE_BOT_ID environment variable
         or pass directly.
-    user_id : str
-        User ID for Coze conversations. Set via COZE_USER_ID environment variable
-        or pass directly.
 
     **Optional Parameters:**
     
@@ -57,17 +54,33 @@ class CozeAgent(BaseAgent):
         Coze API base URL. Defaults to 'https://api.coze.cn' (China).
         Use 'https://api.coze.com' for international.
         Can be set via COZE_API_BASE environment variable.
-    parameters : dict, optional
-        Parameters for Coze chat API (e.g., temperature, max_tokens).
     fix_event_ids : bool, default=True
         Enable automatic event ID fixing for proper tracking.
     debug_mode : bool, default=False
         Enable debug logging for troubleshooting.
 
+    **Custom User Variables (via forwarded_props):**
+    
+    Coze supports custom user variables that can be passed dynamically via
+    ``forwarded_props`` in the run input. The entire ``forwarded_props`` dict
+    is passed directly to Coze as ``parameters``, enabling transparent passthrough
+    of custom variables for workflow/dialog flow start nodes.
+    
+    Example::
+    
+        run_input = RunAgentInput(
+            messages=[...],
+            forwarded_props={
+                "user": [{"user_id": "123456", "user_name": "John"}]
+            }
+        )
+    
+    See: https://www.coze.cn/open/docs/developer_guides/chat_v3
+
     Raises
     ------
     ValueError
-        If any required parameter (api_token, bot_id, user_id) is missing or invalid.
+        If any required parameter (api_token, bot_id) is missing or invalid.
 
     Example
     -------
@@ -81,10 +94,8 @@ class CozeAgent(BaseAgent):
             description="A helpful Coze assistant",
             api_token="pat_xxxx",
             bot_id="7123456789012345678",
-            user_id="user_123",
             # Optional
             base_url="https://api.coze.cn",
-            parameters={"temperature": 0.7},
         )
 
     Note
@@ -108,10 +119,8 @@ class CozeAgent(BaseAgent):
         description: str,
         api_token: str,
         bot_id: str,
-        user_id: str,
         # Optional parameters (with default values)
         base_url: Optional[str] = None,
-        parameters: Optional[Dict[str, Any]] = None,
         fix_event_ids: bool = True,
         debug_mode: bool = False,
     ):
@@ -131,12 +140,8 @@ class CozeAgent(BaseAgent):
             **[Required]** Coze API token (COZE_API_TOKEN).
         bot_id : str
             **[Required]** Bot ID for Coze conversations (COZE_BOT_ID).
-        user_id : str
-            **[Required]** User ID for Coze conversations (COZE_USER_ID).
         base_url : str, optional
             Coze API base URL. Defaults to 'https://api.coze.cn'.
-        parameters : dict, optional
-            Parameters for Coze chat API.
         fix_event_ids : bool, default=True
             Enable event ID fixing.
         debug_mode : bool, default=False
@@ -145,7 +150,12 @@ class CozeAgent(BaseAgent):
         Raises
         ------
         ValueError
-            If api_token, bot_id, or user_id are missing or invalid.
+            If api_token or bot_id are missing or invalid.
+        
+        Note
+        ----
+        user_id must be provided per-request via forwarded_props.user_id.
+        It cannot be set during initialization.
         """
         # Validate all required parameters with user-friendly error messages
         if not api_token or not isinstance(api_token, str) or not api_token.strip():
@@ -159,13 +169,6 @@ class CozeAgent(BaseAgent):
             raise ValueError(
                 "COZE_BOT_ID is required but not provided or empty. "
                 "Please set the COZE_BOT_ID environment variable or pass bot_id parameter. "
-                f"Refer to: {self._DOCS_URL}"
-            )
-
-        if not user_id or not isinstance(user_id, str) or not user_id.strip():
-            raise ValueError(
-                "COZE_USER_ID is required but not provided or empty. "
-                "Please set the COZE_USER_ID environment variable or pass user_id parameter. "
                 f"Refer to: {self._DOCS_URL}"
             )
 
@@ -190,8 +193,6 @@ class CozeAgent(BaseAgent):
         # Store all parameters directly - no environment variable reading
         self._coze_client = final_client
         self._bot_id = bot_id.strip()
-        self._user_id = user_id.strip()
-        self._parameters = parameters or {}
         self._should_fix_event_ids = fix_event_ids
         self._debug_mode = debug_mode
         
@@ -251,28 +252,66 @@ class CozeAgent(BaseAgent):
                 async for event in self._run_internal(run_input):
                     yield event
 
+    def _get_user_id(self, run_input: RunAgentInput) -> str:
+        """Get user_id from run_input.forwarded_props.user_id.
+        
+        Gateway extracts user_id from Authorization header (JWT `sub` field) and writes to 
+        forwarded_props.user_id. Gateway value is trusted and should override client-provided 
+        value (client value may be forged).
+        
+        This method validates user_id before calling Coze SDK to provide clear error messages.
+        If user_id is missing or empty, Coze SDK would also raise an error, but our validation
+        provides more helpful error messages.
+        
+        :param run_input: Input data for the agent execution
+        :type run_input: RunAgentInput
+        :return: User ID to use for Coze API
+        :rtype: str
+        :raises ValueError: If user_id is not provided in forwarded_props.user_id or is empty string
+        """
+        forwarded_props = run_input.forwarded_props or {}
+        
+        # Get user_id from forwarded_props.user_id (from gateway JWT or request)
+        if "user_id" not in forwarded_props:
+            raise ValueError(
+                "user_id is required but not provided in forwarded_props.user_id. "
+                "Please ensure the gateway extracts user_id from JWT 'sub' field and writes it to "
+                "forwarded_props.user_id, or provide it in the request. "
+                f"Refer to: {self._DOCS_URL}"
+            )
+        
+        user_id = forwarded_props["user_id"]
+        
+        # Validate user_id is not empty
+        if not user_id or not isinstance(user_id, str) or not user_id.strip():
+            raise ValueError(
+                "user_id in forwarded_props.user_id is empty or invalid. "
+                "Coze SDK requires a non-empty user_id. "
+                "Please ensure JWT 'sub' field is not empty or provide a valid user_id. "
+                f"Refer to: {self._DOCS_URL}"
+            )
+        
+        if self._debug_mode:
+            logger.debug(f"[CozeAgent] Using user_id from forwarded_props.user_id: {user_id.strip()}")
+        
+        return user_id.strip()
+
     async def _run_internal(self, run_input: RunAgentInput) -> AsyncGenerator[BaseEvent, None]:
         """Internal run logic for Coze chat execution.
+
+        This method implements intelligent conversation_id handling:
+        1. First tries to use thread_id as conversation_id (for continuing conversations)
+        2. If that fails (invalid ID), retries without conversation_id (creates new conversation)
+        3. Uses Coze's returned conversation_id as the actual thread_id for all events
 
         :param run_input: Input data for the agent execution
         :type run_input: RunAgentInput
         :yield: Events from the chat execution
         :rtype: AsyncGenerator[BaseEvent, None]
         """
-        # Emit run started event
-        yield RunStartedEvent(
-            type=EventType.RUN_STARTED,
-            thread_id=run_input.thread_id,
-            run_id=run_input.run_id,
-        )
-
-        # Emit STEP_STARTED event (for consistency with CrewAI)
-        from ag_ui.core.events import StepStartedEvent
-        yield StepStartedEvent(
-            type=EventType.STEP_STARTED,
-            step_name="chat",
-        )
-
+        # Get dynamic user_id from run_input (supports per-request user identity)
+        dynamic_user_id = self._get_user_id(run_input)
+        
         # Check if this is a tool output submission (local plugin flow)
         # If messages contain ToolMessage, it means client has executed the tool
         # and we need to submit the result to Coze via submit_tool_outputs API
@@ -282,6 +321,19 @@ class CozeAgent(BaseAgent):
         ]
         
         if tool_messages:
+            # For tool output submission, use original thread_id
+            # Emit run started event
+            yield RunStartedEvent(
+                type=EventType.RUN_STARTED,
+                thread_id=run_input.thread_id,
+                run_id=run_input.run_id,
+            )
+            # Emit STEP_STARTED event
+            from ag_ui.core.events import StepStartedEvent
+            yield StepStartedEvent(
+                type=EventType.STEP_STARTED,
+                step_name="chat",
+            )
             # This is a tool output submission for local plugin
             # Reference: https://docs.coze.cn/guides/use_local_plugin
             async for event in self._handle_tool_outputs_submission(run_input, tool_messages):
@@ -291,14 +343,17 @@ class CozeAgent(BaseAgent):
         # Prepare inputs for Coze API (normal chat flow)
         coze_inputs = coze_prepare_inputs(run_input)
 
-        # Get conversation_id from state if available
-        conversation_id = coze_inputs.get("conversation_id")
         additional_messages = coze_inputs.get("additional_messages", [])
-        # Note: tools parameter is not used - Coze tools are configured in the platform
-        # AG-UI tools parameter is for client-side tools, not server-side Coze plugins
+        # Get custom user variables (forwarded_props.parameters)
+        coze_parameters = coze_inputs.get("parameters")
 
         if not additional_messages:
             # No user message to send
+            yield RunStartedEvent(
+                type=EventType.RUN_STARTED,
+                thread_id=run_input.thread_id,
+                run_id=run_input.run_id,
+            )
             yield RunFinishedEvent(
                 type=EventType.RUN_FINISHED,
                 thread_id=run_input.thread_id,
@@ -306,33 +361,44 @@ class CozeAgent(BaseAgent):
             )
             return
 
+        # Use thread_id directly as the initial conversation_id
+        # Client should pass the Coze conversation_id from previous response as thread_id
+        # If it's invalid (not a Coze ID), we'll retry without it
+        initial_conversation_id = run_input.thread_id
+
         # Create queue for thread-safe communication
         loop = asyncio.get_running_loop()
         queue: asyncio.Queue[tuple[str, Any]] = asyncio.Queue()
 
-        # Generate consistent message ID for this response (used for tracking cumulative content)
-        message_id = f"{run_input.thread_id}:{run_input.run_id}"
-
-        def worker():
+        def worker(conversation_id_to_use: str | None):
             """Worker thread to handle synchronous Coze SDK calls.
             
             Uses cozepy SDK's chat.stream() for Coze Chat V3 API.
             Reference: https://www.coze.cn/open/docs/developer_guides/chat_v3
+            
+            :param conversation_id_to_use: The conversation_id to use, or None to create new
             """
             try:
                 # Call Coze Chat V3 stream API via cozepy SDK
+                # Use dynamic user_id from run_input (supports per-request user identity)
                 stream_kwargs = {
                     "bot_id": self._bot_id,
-                    "user_id": self._user_id,
+                    "user_id": dynamic_user_id,  # Use dynamic user_id instead of self._user_id
                     "additional_messages": additional_messages,
                 }
-                if conversation_id:
-                    stream_kwargs["conversation_id"] = conversation_id
-                # Tools must be configured in Coze platform (not passed via API):
-                # - Server plugins: Auto-executed by Coze (results in message content)
-                # - Local plugins: Emit REQUIRES_ACTION event for client execution
-                if self._parameters:
-                    stream_kwargs["parameters"] = self._parameters
+                if conversation_id_to_use:
+                    stream_kwargs["conversation_id"] = conversation_id_to_use
+                # Pass custom user variables to Coze
+                if coze_parameters:
+                    stream_kwargs["parameters"] = coze_parameters
+                
+                # Debug: Log the full request parameters
+                if self._debug_mode:
+                    logger.debug(f"[CozeAgent] Coze API request parameters:")
+                    logger.debug(f"  bot_id: {self._bot_id}")
+                    logger.debug(f"  user_id: {dynamic_user_id} (from forwarded_props.user_id)")
+                    logger.debug(f"  conversation_id: {conversation_id_to_use}")
+                    logger.debug(f"  parameters (from forwarded_props.parameters): {coze_parameters}")
                 
                 stream = self._coze_client.chat.stream(**stream_kwargs)
                 
@@ -351,7 +417,23 @@ class CozeAgent(BaseAgent):
                     last_agui_event_type = None
                     text_content_batch_start = False
                 
+                # Flag to track if we've sent the actual_thread_id
+                actual_thread_id_sent = False
+                
                 for coze_event in stream:
+                    # Handle CONVERSATION_CHAT_CREATED event to get the actual conversation_id
+                    # This is the first event in the stream and contains the Coze-generated conversation_id
+                    if hasattr(coze_event, "event") and coze_event.event == ChatEventType.CONVERSATION_CHAT_CREATED:
+                        if hasattr(coze_event, "chat") and hasattr(coze_event.chat, "conversation_id"):
+                            actual_conv_id = coze_event.chat.conversation_id
+                            if self._debug_mode:
+                                logger.debug(f"[CozeAgent] Got conversation_id from chat.created: {actual_conv_id}")
+                            # Send the actual thread_id (Coze's conversation_id) to the main loop
+                            loop.call_soon_threadsafe(
+                                queue.put_nowait,
+                                ("actual_thread_id", actual_conv_id),
+                            )
+                            actual_thread_id_sent = True
                     # DEBUG: Log Coze events with compact counting (controlled by debug_mode)
                     if self._debug_mode and hasattr(coze_event, "event"):
                         event_type = coze_event.event
@@ -417,11 +499,14 @@ class CozeAgent(BaseAgent):
                     
                     # Convert Coze event to AG-UI event(s)
                     # Note: coze_events_to_ag_ui_events may return a list of events
+                    # Use actual_thread_id if available (from shared_state)
+                    current_thread_id = shared_state.get("thread_id", run_input.thread_id)
+                    current_message_id = f"{current_thread_id}:{run_input.run_id}"
                     ag_ui_events = coze_events_to_ag_ui_events(
                         coze_event,
-                        run_input.thread_id,
+                        current_thread_id,
                         run_input.run_id,
-                        message_id=message_id,
+                        message_id=current_message_id,
                         debug_mode=self._debug_mode,
                     )
 
@@ -514,9 +599,10 @@ class CozeAgent(BaseAgent):
                         
                         # Emit TEXT_MESSAGE_END event before completion
                         from .converters import _message_started, TextMessageEndEvent
-                        buffer_key = f"{run_input.thread_id}:{run_input.run_id}"
+                        current_thread_id = shared_state.get("thread_id", run_input.thread_id)
+                        buffer_key = f"{current_thread_id}:{run_input.run_id}"
                         if _message_started.get(buffer_key, False):
-                            msg_id = message_id or f"{run_input.thread_id}:{run_input.run_id}"
+                            msg_id = f"{current_thread_id}:{run_input.run_id}"
                             end_event = TextMessageEndEvent(
                                 type=EventType.TEXT_MESSAGE_END,
                                 message_id=msg_id,
@@ -526,24 +612,35 @@ class CozeAgent(BaseAgent):
                         
                         # Clear content buffer for this run
                         from .converters import _content_buffer
-                        buffer_prefix = f"{run_input.thread_id}:{run_input.run_id}"
+                        current_thread_id = shared_state.get("thread_id", run_input.thread_id)
+                        buffer_prefix = f"{current_thread_id}:{run_input.run_id}"
                         keys_to_remove = [k for k in list(_content_buffer.keys()) if k.startswith(buffer_prefix)]
                         for k in keys_to_remove:
                             del _content_buffer[k]
                         
                         # Store conversation_id and chat_id for next run if available
                         # These are needed for submit_tool_outputs API (local plugin flow)
+                        if self._debug_mode:
+                            logger.debug(f"  coze_event has chat: {hasattr(coze_event, 'chat')}")
+                            if hasattr(coze_event, "chat"):
+                                logger.debug(f"  coze_event.chat: {coze_event.chat}")
                         if hasattr(coze_event, "chat"):
                             if hasattr(coze_event.chat, "conversation_id"):
+                                conv_id = coze_event.chat.conversation_id
+                                if self._debug_mode:
+                                    logger.debug(f"  Coze returned conversation_id: {conv_id}")
                                 loop.call_soon_threadsafe(
                                     queue.put_nowait,
-                                    ("conversation_id", coze_event.chat.conversation_id),
+                                    ("conversation_id", conv_id),
                                 )
                             if hasattr(coze_event.chat, "id"):
+                                chat_id = coze_event.chat.id
+                                if self._debug_mode:
+                                    logger.debug(f"  Coze returned chat_id: {chat_id}")
                                 # Store chat_id for tool output submission
                                 loop.call_soon_threadsafe(
                                     queue.put_nowait,
-                                    ("chat_id", coze_event.chat.id),
+                                    ("chat_id", chat_id),
                                 )
                         
                         # Signal completion (snapshots will be emitted in main loop)
@@ -554,12 +651,13 @@ class CozeAgent(BaseAgent):
                     if hasattr(coze_event, "event") and coze_event.event == ChatEventType.CONVERSATION_CHAT_FAILED:
                         # Clear message started flag on error
                         from .converters import _message_started
-                        buffer_key = f"{run_input.thread_id}:{run_input.run_id}"
+                        current_thread_id = shared_state.get("thread_id", run_input.thread_id)
+                        buffer_key = f"{current_thread_id}:{run_input.run_id}"
                         _message_started[buffer_key] = False
                         
                         # Clear content buffer on error
                         from .converters import _content_buffer
-                        buffer_prefix = f"{run_input.thread_id}:{run_input.run_id}"
+                        buffer_prefix = f"{current_thread_id}:{run_input.run_id}"
                         keys_to_remove = [k for k in list(_content_buffer.keys()) if k.startswith(buffer_prefix)]
                         for k in keys_to_remove:
                             del _content_buffer[k]
@@ -571,28 +669,163 @@ class CozeAgent(BaseAgent):
                         break
 
             except Exception as exc:
-                loop.call_soon_threadsafe(queue.put_nowait, ("error", exc))
+                # Check if this is an invalid conversation_id error that should trigger retry
+                # We must be strict: require BOTH error code AND error message to match
+                # 
+                # Retry conditions (must satisfy ALL):
+                # 1. Error code is 4000 (format error only)
+                # 2. Error message mentions "conversation_id"
+                # 3. Error message contains specific validation error text
+                #
+                # Error patterns that trigger retry (format errors only):
+                # - code=4000 + "conversation_id" + "not a valid int64": non-numeric string (format error)
+                # - code=4000 + "conversation_id" + "must be greater than 0": out-of-range (format error)
+                #
+                # Error patterns that should NOT retry (fail immediately):
+                # - code=4101 + "conversation_id" + "does not have permission": permission error
+                #   Reason: User may have provided another user's conversation_id. Should fail to
+                #   prevent unauthorized access attempts and inform user of the issue.
+                #
+                # - code=4200 + "conversation_id" + "does not exist": resource not found
+                #   Reason: If user provided a conversation_id that doesn't exist, they should know
+                #   about it rather than silently creating a new conversation. This could indicate:
+                #   1. User made a typo in conversation_id
+                #   2. Conversation was deleted
+                #   3. Conversation belongs to different user/environment
+                #   In all cases, silently creating a new conversation would be unexpected behavior.
+                #
+                # Industry best practices (HTTP status codes):
+                # - 400 (Bad Request): Fix request format before retrying - format errors can be retried
+                # - 401/403 (Unauthorized/Forbidden): Get fresh credentials - permission errors should fail
+                # - 404 (Not Found): Resource doesn't exist - should fail unless resource may appear later
+                error_str = str(exc).lower()
+                
+                # Check error code (only 4000 for format errors)
+                has_code_4000 = "code: 4000" in error_str or "code=4000" in error_str
+                
+                # Check if error mentions conversation_id field
+                mentions_conversation_id = "conversation_id" in error_str
+                
+                # Check for specific error messages (format errors only)
+                has_int64_error = "not a valid int64" in error_str
+                has_range_error = "must be greater than 0" in error_str
+                
+                # Determine if should retry: only format errors (4000) should retry
+                # Permission errors (4101) and not found errors (4200) should fail immediately
+                should_retry = mentions_conversation_id and has_code_4000 and (has_int64_error or has_range_error)
+                
+                if should_retry:
+                    # Signal that we need to retry without conversation_id
+                    if self._debug_mode:
+                        logger.debug(f"[CozeAgent] conversation_id error, will retry: {str(exc)[:100]}")
+                    loop.call_soon_threadsafe(queue.put_nowait, ("retry_without_conversation_id", exc))
+                else:
+                    loop.call_soon_threadsafe(queue.put_nowait, ("error", exc))
 
-        # Start worker thread
-        thread = threading.Thread(target=worker, daemon=True)
-        thread.start()
+        # Track the actual thread_id (from Coze's conversation_id)
+        actual_thread_id: str | None = None
+        run_started_emitted = False
+        retry_count = 0  # Track retry attempts (max 1 retry allowed)
+        
+        # Use thread-safe dict to share actual_thread_id with worker thread
+        # This allows message_id to be updated when actual_thread_id is received
+        shared_state: dict[str, Any] = {"thread_id": run_input.thread_id}
+        
+        # Generate consistent message ID for this response
+        # Will be updated when actual_thread_id is received
+        def get_message_id() -> str:
+            """Get message_id using actual_thread_id if available, otherwise use run_input.thread_id."""
+            thread_id = shared_state.get("thread_id", run_input.thread_id)
+            return f"{thread_id}:{run_input.run_id}"
+        
+        message_id = get_message_id()
+
+        def start_worker(conv_id: str | None):
+            """Start worker thread with given conversation_id."""
+            thread = threading.Thread(target=worker, args=(conv_id,), daemon=True)
+            thread.start()
+            return thread
+
+        # First attempt: try with initial_conversation_id
+        if self._debug_mode:
+            logger.debug(f"[CozeAgent] First attempt with conversation_id: {initial_conversation_id}")
+        start_worker(initial_conversation_id)
 
         # Process events from queue
         try:
             while True:
                 kind, payload = await queue.get()
 
-                if kind == "event":
+                if kind == "actual_thread_id":
+                    # Got the actual conversation_id from Coze
+                    actual_thread_id = payload
+                    # Update shared_state so worker thread can use it for message_id
+                    shared_state["thread_id"] = actual_thread_id
+                    # Update message_id to use actual_thread_id
+                    message_id = get_message_id()
+                    if self._debug_mode:
+                        logger.debug(f"[CozeAgent] Using actual_thread_id: {actual_thread_id}")
+                        logger.debug(f"[CozeAgent] Updated message_id: {message_id}")
+                    
+                    # Now we can emit RUN_STARTED with the correct thread_id
+                    if not run_started_emitted:
+                        yield RunStartedEvent(
+                            type=EventType.RUN_STARTED,
+                            thread_id=actual_thread_id,
+                            run_id=run_input.run_id,
+                        )
+                        # Emit STEP_STARTED event
+                        from ag_ui.core.events import StepStartedEvent
+                        yield StepStartedEvent(
+                            type=EventType.STEP_STARTED,
+                            step_name="chat",
+                        )
+                        run_started_emitted = True
+                
+                elif kind == "retry_without_conversation_id":
+                    # Invalid conversation_id, retry without it (max 1 retry)
+                    if retry_count >= 1:
+                        # Already retried once, don't retry again
+                        original_error = payload  # The original exception
+                        if self._debug_mode:
+                            logger.debug(f"[CozeAgent] Max retry reached, raising error")
+                        raise original_error if original_error else Exception("conversation_id retry failed")
+                    
+                    retry_count += 1
+                    if self._debug_mode:
+                        logger.debug(f"[CozeAgent] Invalid conversation_id, retrying without it (attempt {retry_count})...")
+                    # Start fresh without conversation_id
+                    start_worker(None)
+                
+                elif kind == "event":
+                    # Ensure RUN_STARTED was emitted before any other events
+                    if not run_started_emitted and actual_thread_id:
+                        yield RunStartedEvent(
+                            type=EventType.RUN_STARTED,
+                            thread_id=actual_thread_id,
+                            run_id=run_input.run_id,
+                        )
+                        from ag_ui.core.events import StepStartedEvent
+                        yield StepStartedEvent(
+                            type=EventType.STEP_STARTED,
+                            step_name="chat",
+                        )
+                        run_started_emitted = True
                     yield payload
+                
                 elif kind == "conversation_id":
-                    # Store conversation_id in state for next run
-                    # This would need to be persisted by the caller
+                    # This is the conversation_id from completed/requires_action events
+                    # We already have actual_thread_id from chat.created
                     pass
+                
                 elif kind == "chat_id":
                     # Store chat_id in state for tool output submission
-                    # This would need to be persisted by the caller
                     pass
+                
                 elif kind == "done":
+                    # Use actual_thread_id if available, otherwise fall back to run_input.thread_id
+                    final_thread_id = actual_thread_id or run_input.thread_id
+                    
                     # Emit STEP_FINISHED (AG-UI protocol standard event)
                     from ag_ui.core.events import StepFinishedEvent
                     yield StepFinishedEvent(
@@ -603,19 +836,22 @@ class CozeAgent(BaseAgent):
                     # Emit RUN_FINISHED (AG-UI protocol standard event)
                     yield RunFinishedEvent(
                         type=EventType.RUN_FINISHED,
-                        thread_id=run_input.thread_id,
+                        thread_id=final_thread_id,
                         run_id=run_input.run_id,
                     )
                     
                     break
+                
                 elif kind == "error":
                     raise payload
 
         except Exception as e:
+            # Use actual_thread_id if available for error event
+            final_thread_id = actual_thread_id or run_input.thread_id
             # Emit error event
             yield RunErrorEvent(
                 type=EventType.RUN_ERROR,
-                thread_id=run_input.thread_id,
+                thread_id=final_thread_id,
                 run_id=run_input.run_id,
                 message=str(e),
             )
@@ -687,8 +923,10 @@ class CozeAgent(BaseAgent):
         loop = asyncio.get_running_loop()
         queue: asyncio.Queue[tuple[str, Any]] = asyncio.Queue()
         
-        # Generate consistent message ID for this response
-        message_id = f"{run_input.thread_id}:{run_input.run_id}"
+        # Use conversation_id (actual thread_id) for message_id generation
+        # conversation_id is the actual Coze conversation_id stored from previous run
+        actual_thread_id = conversation_id  # This is the actual thread_id from Coze
+        message_id = f"{actual_thread_id}:{run_input.run_id}"
         
         def worker():
             """Worker thread to handle Coze SDK submit_tool_outputs call."""
@@ -705,9 +943,10 @@ class CozeAgent(BaseAgent):
                 # Process stream events (same as chat.stream())
                 for coze_event in stream:
                     # Convert Coze event to AG-UI event(s)
+                    # Use actual_thread_id (conversation_id) instead of run_input.thread_id
                     ag_ui_events = coze_events_to_ag_ui_events(
                         coze_event,
-                        run_input.thread_id,
+                        actual_thread_id,
                         run_input.run_id,
                         message_id=message_id,
                         debug_mode=self._debug_mode,
@@ -723,9 +962,9 @@ class CozeAgent(BaseAgent):
                     # Check if conversation is completed
                     if hasattr(coze_event, "event") and coze_event.event == ChatEventType.CONVERSATION_CHAT_COMPLETED:
                         from .converters import _message_started, TextMessageEndEvent
-                        buffer_key = f"{run_input.thread_id}:{run_input.run_id}"
+                        buffer_key = f"{actual_thread_id}:{run_input.run_id}"
                         if _message_started.get(buffer_key, False):
-                            msg_id = message_id or f"{run_input.thread_id}:{run_input.run_id}"
+                            msg_id = message_id
                             end_event = TextMessageEndEvent(
                                 type=EventType.TEXT_MESSAGE_END,
                                 message_id=msg_id,
@@ -735,7 +974,7 @@ class CozeAgent(BaseAgent):
                         
                         # Clear content buffer
                         from .converters import _content_buffer
-                        buffer_prefix = f"{run_input.thread_id}:{run_input.run_id}"
+                        buffer_prefix = f"{actual_thread_id}:{run_input.run_id}"
                         keys_to_remove = [k for k in list(_content_buffer.keys()) if k.startswith(buffer_prefix)]
                         for k in keys_to_remove:
                             del _content_buffer[k]
@@ -759,10 +998,10 @@ class CozeAgent(BaseAgent):
                     # Handle chat failed event
                     if hasattr(coze_event, "event") and coze_event.event == ChatEventType.CONVERSATION_CHAT_FAILED:
                         from .converters import _message_started, _content_buffer
-                        buffer_key = f"{run_input.thread_id}:{run_input.run_id}"
+                        buffer_key = f"{actual_thread_id}:{run_input.run_id}"
                         _message_started[buffer_key] = False
                         
-                        buffer_prefix = f"{run_input.thread_id}:{run_input.run_id}"
+                        buffer_prefix = f"{actual_thread_id}:{run_input.run_id}"
                         keys_to_remove = [k for k in list(_content_buffer.keys()) if k.startswith(buffer_prefix)]
                         for k in keys_to_remove:
                             del _content_buffer[k]
@@ -789,9 +1028,11 @@ class CozeAgent(BaseAgent):
                     yield payload
                 elif kind == "conversation_id":
                     # Store conversation_id in state for next run
+                    # TODO: Implement proper state management for multi-turn conversations
                     pass
                 elif kind == "chat_id":
                     # Store chat_id in state for next tool output submission
+                    # TODO: Implement proper state management for multi-turn conversations
                     pass
                 elif kind == "done":
                     # Emit STEP_FINISHED
@@ -802,9 +1043,10 @@ class CozeAgent(BaseAgent):
                     )
                     
                     # Emit RUN_FINISHED
+                    # Use actual_thread_id (conversation_id) instead of run_input.thread_id
                     yield RunFinishedEvent(
                         type=EventType.RUN_FINISHED,
-                        thread_id=run_input.thread_id,
+                        thread_id=actual_thread_id,
                         run_id=run_input.run_id,
                     )
                     
@@ -813,9 +1055,11 @@ class CozeAgent(BaseAgent):
                     raise payload
                     
         except Exception as e:
+            # Use actual_thread_id if available, otherwise fall back to run_input.thread_id
+            error_thread_id = actual_thread_id or run_input.thread_id
             yield RunErrorEvent(
                 type=EventType.RUN_ERROR,
-                thread_id=run_input.thread_id,
+                thread_id=error_thread_id,
                 run_id=run_input.run_id,
                 message=str(e),
             )

@@ -27,7 +27,7 @@ export declare abstract class CustomAuthInteractionClientBase extends StandardIn
      * @param correlationId Correlation ID for logging
      * @returns Authentication result from the token response
      */
-    protected handleTokenResponse(tokenResponse: SignInTokenResponse, requestScopes: string[], correlationId: string): Promise<AuthenticationResult>;
+    protected handleTokenResponse(tokenResponse: SignInTokenResponse, requestScopes: string[], correlationId: string, apiId: number): Promise<AuthenticationResult>;
     acquireToken(request: RedirectRequest | PopupRequest | SsoSilentRequest): Promise<AuthenticationResult | void>;
     logout(request: EndSessionRequest | ClearCacheRequest | undefined): Promise<void>;
 }

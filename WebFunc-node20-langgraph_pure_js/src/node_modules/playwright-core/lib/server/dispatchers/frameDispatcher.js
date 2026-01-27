@@ -212,7 +212,7 @@ class FrameDispatcher extends import_dispatcher.Dispatcher {
     let expectedValue = params.expectedValue ? (0, import_jsHandleDispatcher.parseArgument)(params.expectedValue) : void 0;
     if (params.expression === "to.match.aria" && expectedValue)
       expectedValue = (0, import_ariaSnapshot.parseAriaSnapshotUnsafe)(import_utilsBundle.yaml, expectedValue);
-    const result = await this._frame.expect(progress, params.selector, { ...params, expectedValue }, params.timeout);
+    const result = await this._frame.expect(progress, params.selector, { ...params, expectedValue, timeoutForLogs: params.timeout });
     if (result.received !== void 0)
       result.received = (0, import_jsHandleDispatcher.serializeResult)(result.received);
     return result;

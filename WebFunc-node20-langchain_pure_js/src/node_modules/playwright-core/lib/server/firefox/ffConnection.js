@@ -90,11 +90,6 @@ class FFSession extends import_events.EventEmitter {
     this._connection = connection;
     this._sessionId = sessionId;
     this._rawSend = rawSend;
-    this.on = super.on;
-    this.addListener = super.addListener;
-    this.off = super.removeListener;
-    this.removeListener = super.removeListener;
-    this.once = super.once;
   }
   markAsCrashed() {
     this._crashed = true;

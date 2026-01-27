@@ -29,6 +29,7 @@ var import_path = __toESM(require("path"));
 var import_manualPromise = require("../../utils/isomorphic/manualPromise");
 var import_network = require("../utils/network");
 var import_zipBundle = require("../../zipBundle");
+var import_fileUtils = require("../utils/fileUtils");
 function log(message) {
   process.send?.({ method: "log", params: { message } });
 }
@@ -99,6 +100,8 @@ function downloadFile(options) {
 async function main(options) {
   await downloadFile(options);
   log(`SUCCESS downloading ${options.title}`);
+  log(`removing existing browser directory if any`);
+  await (0, import_fileUtils.removeFolders)([options.browserDirectory]);
   log(`extracting archive`);
   await (0, import_zipBundle.extract)(options.zipPath, { dir: options.browserDirectory });
   if (options.executablePath) {

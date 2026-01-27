@@ -47,20 +47,21 @@ var import_launchApp2 = require("../../launchApp");
 var import_playwright = require("../../playwright");
 var import_progress = require("../../progress");
 const tracesDirMarker = "traces.dir";
-function validateTraceUrl(traceUrl) {
-  if (!traceUrl)
-    return traceUrl;
-  if (traceUrl.startsWith("http://") || traceUrl.startsWith("https://"))
-    return traceUrl;
-  if (traceUrl.endsWith(".json"))
-    return traceUrl;
+function validateTraceUrl(traceFileOrUrl) {
+  if (!traceFileOrUrl)
+    return traceFileOrUrl;
+  if (traceFileOrUrl.startsWith("http://") || traceFileOrUrl.startsWith("https://"))
+    return traceFileOrUrl;
+  let traceFile = traceFileOrUrl;
+  if (traceFile.endsWith(".json"))
+    return toFilePathUrl(traceFile);
   try {
-    const stat = import_fs.default.statSync(traceUrl);
+    const stat = import_fs.default.statSync(traceFile);
     if (stat.isDirectory())
-      return import_path.default.join(traceUrl, tracesDirMarker);
-    return traceUrl;
+      traceFile = import_path.default.join(traceFile, tracesDirMarker);
+    return toFilePathUrl(traceFile);
   } catch {
-    throw new Error(`Trace file ${traceUrl} does not exist!`);
+    throw new Error(`Trace file ${traceFileOrUrl} does not exist!`);
   }
 }
 async function startTraceViewerServer(options) {
@@ -221,14 +222,17 @@ function traceDescriptor(traceDir, tracePrefix) {
   };
   for (const name of import_fs.default.readdirSync(traceDir)) {
     if (!tracePrefix || name.startsWith(tracePrefix))
-      result.entries.push({ name, path: import_path.default.join(traceDir, name) });
+      result.entries.push({ name, path: toFilePathUrl(import_path.default.join(traceDir, name)) });
   }
   const resourcesDir = import_path.default.join(traceDir, "resources");
   if (import_fs.default.existsSync(resourcesDir)) {
     for (const name of import_fs.default.readdirSync(resourcesDir))
-      result.entries.push({ name: "resources/" + name, path: import_path.default.join(resourcesDir, name) });
+      result.entries.push({ name: "resources/" + name, path: toFilePathUrl(import_path.default.join(resourcesDir, name)) });
   }
   return result;
+}
+function toFilePathUrl(filePath) {
+  return `file?path=${encodeURIComponent(filePath)}`;
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

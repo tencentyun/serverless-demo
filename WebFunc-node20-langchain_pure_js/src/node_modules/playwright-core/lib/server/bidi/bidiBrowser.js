@@ -130,10 +130,13 @@ class BidiBrowser extends import_browser.Browser {
       const page2 = this._findPageForFrame(parentFrameId);
       if (page2) {
         page2._session.addFrameBrowsingContext(event.context);
-        page2._page.frameManager.frameAttached(event.context, parentFrameId);
-        const frame = page2._page.frameManager.frame(event.context);
-        if (frame)
-          frame._url = event.url;
+        const frame = page2._page.frameManager.frameAttached(event.context, parentFrameId);
+        frame._url = event.url;
+        page2._getFrameNode(frame).then((node) => {
+          const attributes = node?.value?.attributes;
+          frame._name = attributes?.name ?? attributes?.id ?? "";
+        });
+        return;
       }
       return;
     }
@@ -142,6 +145,7 @@ class BidiBrowser extends import_browser.Browser {
       context = this._defaultContext;
     if (!context)
       return;
+    context.doGrantGlobalPermissionsForURL(event.url);
     const session = this._connection.createMainFrameBrowsingContextSession(event.context);
     const opener = event.originalOpener && this._findPageForFrame(event.originalOpener);
     const page = new import_bidiPage.BidiPage(context, session, opener || null);
@@ -217,6 +221,8 @@ class BidiBrowserContext extends import_browserContext.BrowserContext {
     }
     if (this._options.extraHTTPHeaders)
       promises.push(this.doUpdateExtraHTTPHeaders());
+    if (this._options.permissions)
+      promises.push(this.doGrantPermissions("*", this._options.permissions));
     await Promise.all(promises);
   }
   possiblyUninitializedPages() {
@@ -275,17 +281,34 @@ class BidiBrowserContext extends import_browserContext.BrowserContext {
     );
   }
   async doGrantPermissions(origin, permissions) {
+    if (origin === "null")
+      return;
     const currentPermissions = this._originToPermissions.get(origin) || [];
     const toGrant = permissions.filter((permission) => !currentPermissions.includes(permission));
     this._originToPermissions.set(origin, [...currentPermissions, ...toGrant]);
-    await Promise.all(toGrant.map((permission) => this._setPermission(origin, permission, bidi.Permissions.PermissionState.Granted)));
+    if (origin === "*") {
+      await Promise.all(this._bidiPages().flatMap(
+        (page) => page._page.frames().map(
+          (frame) => this.doGrantPermissions(new URL(frame._url).origin, permissions)
+        )
+      ));
+    } else {
+      await Promise.all(toGrant.map((permission) => this._setPermission(origin, permission, bidi.Permissions.PermissionState.Granted)));
+    }
+  }
+  async doGrantGlobalPermissionsForURL(url) {
+    const permissions = this._originToPermissions.get("*");
+    if (!permissions)
+      return;
+    await this.doGrantPermissions(new URL(url).origin, permissions);
   }
   async doClearPermissions() {
     const currentPermissions = [...this._originToPermissions.entries()];
     this._originToPermissions = /* @__PURE__ */ new Map();
-    await Promise.all(currentPermissions.map(([origin, permissions]) => permissions.map(
-      (p) => this._setPermission(origin, p, bidi.Permissions.PermissionState.Prompt)
-    )));
+    await Promise.all(currentPermissions.flatMap(([origin, permissions]) => {
+      if (origin !== "*")
+        return permissions.map((p) => this._setPermission(origin, p, bidi.Permissions.PermissionState.Prompt));
+    }));
   }
   async _setPermission(origin, permission, state) {
     await this._browser._browserSession.send("permissions.setPermission", {
@@ -349,21 +372,42 @@ class BidiBrowserContext extends import_browserContext.BrowserContext {
     await Promise.all(ids.map((script) => this._browser._browserSession.send("script.removePreloadScript", { script })));
   }
   async doUpdateRequestInterception() {
+    if (this.requestInterceptors.length > 0 && !this._interceptId) {
+      const { intercept } = await this._browser._browserSession.send("network.addIntercept", {
+        phases: [bidi.Network.InterceptPhase.BeforeRequestSent],
+        urlPatterns: [{ type: "pattern" }]
+      });
+      this._interceptId = intercept;
+    }
+    if (this.requestInterceptors.length === 0 && this._interceptId) {
+      const intercept = this._interceptId;
+      this._interceptId = void 0;
+      await this._browser._browserSession.send("network.removeIntercept", { intercept });
+    }
   }
   async doUpdateDefaultViewport() {
-    if (!this._options.viewport)
+    if (!this._options.viewport && !this._options.screen)
       return;
+    const screenSize = this._options.screen || this._options.viewport;
+    const viewportSize = this._options.viewport || this._options.screen;
     await Promise.all([
       this._browser._browserSession.send("browsingContext.setViewport", {
         viewport: {
-          width: this._options.viewport.width,
-          height: this._options.viewport.height
+          width: viewportSize.width,
+          height: viewportSize.height
         },
         devicePixelRatio: this._options.deviceScaleFactor || 1,
         userContexts: [this._userContextId()]
       }),
       this._browser._browserSession.send("emulation.setScreenOrientationOverride", {
-        screenOrientation: getScreenOrientation(!!this._options.isMobile, this._options.viewport),
+        screenOrientation: getScreenOrientation(!!this._options.isMobile, screenSize),
+        userContexts: [this._userContextId()]
+      }),
+      this._browser._browserSession.send("emulation.setScreenSettingsOverride", {
+        screenArea: {
+          width: screenSize.width,
+          height: screenSize.height
+        },
         userContexts: [this._userContextId()]
       })
     ]);

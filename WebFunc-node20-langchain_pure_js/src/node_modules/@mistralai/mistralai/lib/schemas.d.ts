@@ -1,4 +1,4 @@
-import { output, ZodEffects, ZodObject, ZodRawShape, ZodTypeAny } from "zod";
+import { output, ZodEffects, ZodObject, ZodRawShape, ZodTypeAny } from "zod/v3";
 import { SDKValidationError } from "../models/errors/sdkvalidationerror.js";
 import { Result } from "../types/fp.js";
 /**

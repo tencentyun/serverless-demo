@@ -71,6 +71,7 @@ const methodMetainfo = /* @__PURE__ */ new Map([
   ["WebSocket.waitForEventInfo", { title: 'Wait for event "{info.event}"', snapshot: true }],
   ["ElectronApplication.waitForEventInfo", { title: 'Wait for event "{info.event}"', snapshot: true }],
   ["AndroidDevice.waitForEventInfo", { title: 'Wait for event "{info.event}"', snapshot: true }],
+  ["PageAgent.waitForEventInfo", { title: 'Wait for event "{info.event}"', snapshot: true }],
   ["BrowserContext.addCookies", { title: "Add cookies", group: "configuration" }],
   ["BrowserContext.addInitScript", { title: "Add init script", group: "configuration" }],
   ["BrowserContext.clearCookies", { title: "Clear cookies", group: "configuration" }],
@@ -92,6 +93,7 @@ const methodMetainfo = /* @__PURE__ */ new Map([
   ["BrowserContext.pause", { title: "Pause" }],
   ["BrowserContext.enableRecorder", { internal: true }],
   ["BrowserContext.disableRecorder", { internal: true }],
+  ["BrowserContext.exposeConsoleApi", { internal: true }],
   ["BrowserContext.newCDPSession", { title: "Create CDP session", group: "configuration" }],
   ["BrowserContext.harStart", { internal: true }],
   ["BrowserContext.harExport", { internal: true }],
@@ -143,6 +145,7 @@ const methodMetainfo = /* @__PURE__ */ new Map([
   ["Page.stopCSSCoverage", { title: "Stop CSS coverage", group: "configuration" }],
   ["Page.bringToFront", { title: "Bring to front" }],
   ["Page.updateSubscription", { internal: true }],
+  ["Page.agent", { internal: true }],
   ["Frame.evalOnSelector", { title: "Evaluate", snapshot: true, pausesBeforeAction: true }],
   ["Frame.evalOnSelectorAll", { title: "Evaluate", snapshot: true, pausesBeforeAction: true }],
   ["Frame.addScriptTag", { title: "Add script tag", snapshot: true, pausesBeforeAction: true }],
@@ -314,7 +317,12 @@ const methodMetainfo = /* @__PURE__ */ new Map([
   ["AndroidDevice.connectToWebView", { title: "Connect to Web View" }],
   ["AndroidDevice.close", { internal: true }],
   ["JsonPipe.send", { internal: true }],
-  ["JsonPipe.close", { internal: true }]
+  ["JsonPipe.close", { internal: true }],
+  ["PageAgent.perform", { title: 'Perform "{task}"' }],
+  ["PageAgent.expect", { title: 'Expect "{expectation}"' }],
+  ["PageAgent.extract", { title: 'Extract "{query}"' }],
+  ["PageAgent.dispose", { internal: true }],
+  ["PageAgent.usage", { title: "Get agent usage", group: "configuration" }]
 ]);
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

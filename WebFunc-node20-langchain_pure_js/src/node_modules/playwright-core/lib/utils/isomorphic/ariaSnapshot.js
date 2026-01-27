@@ -20,12 +20,26 @@ var ariaSnapshot_exports = {};
 __export(ariaSnapshot_exports, {
   KeyParser: () => KeyParser,
   ParserError: () => ParserError,
-  ariaPropsEqual: () => ariaPropsEqual,
+  ariaNodesEqual: () => ariaNodesEqual,
+  findNewNode: () => findNewNode,
+  hasPointerCursor: () => hasPointerCursor,
   parseAriaSnapshot: () => parseAriaSnapshot,
   parseAriaSnapshotUnsafe: () => parseAriaSnapshotUnsafe,
   textValue: () => textValue
 });
 module.exports = __toCommonJS(ariaSnapshot_exports);
+function ariaNodesEqual(a, b) {
+  if (a.role !== b.role || a.name !== b.name)
+    return false;
+  if (!ariaPropsEqual(a, b) || hasPointerCursor(a) !== hasPointerCursor(b))
+    return false;
+  const aKeys = Object.keys(a.props);
+  const bKeys = Object.keys(b.props);
+  return aKeys.length === bKeys.length && aKeys.every((k) => a.props[k] === b.props[k]);
+}
+function hasPointerCursor(ariaNode) {
+  return ariaNode.box.cursor === "pointer";
+}
 function ariaPropsEqual(a, b) {
   return a.active === b.active && a.checked === b.checked && a.disabled === b.disabled && a.expanded === b.expanded && a.selected === b.selected && a.level === b.level && a.pressed === b.pressed;
 }
@@ -386,11 +400,55 @@ class ParserError extends Error {
     this.pos = pos;
   }
 }
+function findNewNode(from, to) {
+  function fillMap(root, map, position) {
+    let size = 1;
+    let childPosition = position + size;
+    for (const child of root.children || []) {
+      if (typeof child === "string") {
+        size++;
+        childPosition++;
+      } else {
+        size += fillMap(child, map, childPosition);
+        childPosition += size;
+      }
+    }
+    if (!["none", "presentation", "fragment", "iframe", "generic"].includes(root.role) && root.name) {
+      let byRole = map.get(root.role);
+      if (!byRole) {
+        byRole = /* @__PURE__ */ new Map();
+        map.set(root.role, byRole);
+      }
+      const existing = byRole.get(root.name);
+      const sizeAndPosition = size * 100 - position;
+      if (!existing || existing.sizeAndPosition < sizeAndPosition)
+        byRole.set(root.name, { node: root, sizeAndPosition });
+    }
+    return size;
+  }
+  const fromMap = /* @__PURE__ */ new Map();
+  if (from)
+    fillMap(from, fromMap, 0);
+  const toMap = /* @__PURE__ */ new Map();
+  fillMap(to, toMap, 0);
+  const result = [];
+  for (const [role, byRole] of toMap) {
+    for (const [name, byName] of byRole) {
+      const inFrom = fromMap.get(role)?.get(name);
+      if (!inFrom)
+        result.push(byName);
+    }
+  }
+  result.sort((a, b) => b.sizeAndPosition - a.sizeAndPosition);
+  return result[0]?.node;
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   KeyParser,
   ParserError,
-  ariaPropsEqual,
+  ariaNodesEqual,
+  findNewNode,
+  hasPointerCursor,
   parseAriaSnapshot,
   parseAriaSnapshotUnsafe,
   textValue

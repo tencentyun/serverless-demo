@@ -31,9 +31,7 @@ __export(crPage_exports, {
   CRPage: () => CRPage
 });
 module.exports = __toCommonJS(crPage_exports);
-var import_path = __toESM(require("path"));
 var import_assert = require("../../utils/isomorphic/assert");
-var import_crypto = require("../utils/crypto");
 var import_eventsHelper = require("../utils/eventsHelper");
 var import_stackTrace = require("../../utils/isomorphic/stackTrace");
 var dialog = __toESM(require("../dialog"));
@@ -42,7 +40,6 @@ var frames = __toESM(require("../frames"));
 var import_helper = require("../helper");
 var network = __toESM(require("../network"));
 var import_page = require("../page");
-var import_registry = require("../registry");
 var import_crCoverage = require("./crCoverage");
 var import_crDragDrop = require("./crDragDrop");
 var import_crExecutionContext = require("./crExecutionContext");
@@ -51,7 +48,6 @@ var import_crNetworkManager = require("./crNetworkManager");
 var import_crPdf = require("./crPdf");
 var import_crProtocolHelper = require("./crProtocolHelper");
 var import_defaultFontFamilies = require("./defaultFontFamilies");
-var import_videoRecorder = require("./videoRecorder");
 var import_errors = require("../errors");
 var import_protocolError = require("../protocolError");
 class CRPage {
@@ -236,17 +232,16 @@ class CRPage {
   async scrollRectIntoViewIfNeeded(handle, rect) {
     return this._sessionForHandle(handle)._scrollRectIntoViewIfNeeded(handle, rect);
   }
-  async setScreencastOptions(options) {
-    if (options) {
-      await this._mainFrameSession._startScreencast(this, {
-        format: "jpeg",
-        quality: options.quality,
-        maxWidth: options.width,
-        maxHeight: options.height
-      });
-    } else {
-      await this._mainFrameSession._stopScreencast(this);
-    }
+  async startScreencast(options) {
+    await this._mainFrameSession._client.send("Page.startScreencast", {
+      format: "jpeg",
+      quality: options.quality,
+      maxWidth: options.width,
+      maxHeight: options.height
+    });
+  }
+  async stopScreencast() {
+    await this._mainFrameSession._client._sendMayFail("Page.stopScreencast");
   }
   rafCountForStablePosition() {
     return 1;
@@ -311,9 +306,6 @@ class FrameSession {
     // Marks the oopif session that remote -> local transition has happened in the parent.
     // See Target.detachedFromTarget handler for details.
     this._swappedIn = false;
-    this._videoRecorder = null;
-    this._screencastId = null;
-    this._screencastClients = /* @__PURE__ */ new Set();
     this._workerSessions = /* @__PURE__ */ new Map();
     this._initScriptIds = /* @__PURE__ */ new Map();
     this._client = client;
@@ -365,23 +357,9 @@ class FrameSession {
       const { windowId } = await this._client.send("Browser.getWindowForTarget");
       this._windowId = windowId;
     }
-    let screencastOptions;
-    if (!this._page.isStorageStatePage && this._isMainFrame() && this._crPage._browserContext._options.recordVideo && hasUIWindow) {
-      const screencastId = (0, import_crypto.createGuid)();
-      const outputFile = import_path.default.join(this._crPage._browserContext._options.recordVideo.dir, screencastId + ".webm");
-      screencastOptions = {
-        // validateBrowserContextOptions ensures correct video size.
-        ...this._crPage._browserContext._options.recordVideo.size,
-        outputFile
-      };
-      await this._crPage._browserContext._ensureVideosPath();
-      await this._createVideoRecorder(screencastId, screencastOptions);
-      this._crPage._page.waitForInitializedOrError().then((p) => {
-        if (p instanceof Error)
-          this._stopVideoRecording().catch(() => {
-          });
-      });
-    }
+    let videoOptions;
+    if (!this._page.isStorageStatePage && this._isMainFrame() && hasUIWindow)
+      videoOptions = this._crPage._page.screencast.launchVideoRecorder();
     let lifecycleEventsEnabled;
     if (!this._isMainFrame())
       this._addRendererListeners();
@@ -461,15 +439,15 @@ class FrameSession {
           true
           /* runImmediately */
         ));
-      if (screencastOptions)
-        promises.push(this._startVideoRecording(screencastOptions));
+      if (videoOptions)
+        promises.push(this._crPage._page.screencast.startVideoRecording(videoOptions));
     }
     promises.push(this._client.send("Runtime.runIfWaitingForDebugger"));
     promises.push(this._firstNonInitialNavigationCommittedPromise);
     await Promise.all(promises);
   }
   dispose() {
-    this._firstNonInitialNavigationCommittedReject(new import_errors.TargetClosedError());
+    this._firstNonInitialNavigationCommittedReject(new import_errors.TargetClosedError(this._page.closeReason()));
     for (const childSession of this._childSessions)
       childSession.dispose();
     if (this._parentSession)
@@ -730,62 +708,16 @@ class FrameSession {
     }
   }
   _onScreencastFrame(payload) {
-    this._page.throttleScreencastFrameAck(() => {
-      this._client.send("Page.screencastFrameAck", { sessionId: payload.sessionId }).catch(() => {
-      });
+    this._page.screencast.throttleFrameAck(() => {
+      this._client._sendMayFail("Page.screencastFrameAck", { sessionId: payload.sessionId });
     });
     const buffer = Buffer.from(payload.data, "base64");
     this._page.emit(import_page.Page.Events.ScreencastFrame, {
       buffer,
-      frameSwapWallTime: payload.metadata.timestamp ? payload.metadata.timestamp * 1e3 : void 0,
+      frameSwapWallTime: payload.metadata.timestamp ? payload.metadata.timestamp * 1e3 : Date.now(),
       width: payload.metadata.deviceWidth,
       height: payload.metadata.deviceHeight
     });
-  }
-  async _createVideoRecorder(screencastId, options) {
-    (0, import_assert.assert)(!this._screencastId);
-    const ffmpegPath = import_registry.registry.findExecutable("ffmpeg").executablePathOrDie(this._page.browserContext._browser.sdkLanguage());
-    this._videoRecorder = await import_videoRecorder.VideoRecorder.launch(this._crPage._page, ffmpegPath, options);
-    this._screencastId = screencastId;
-  }
-  async _startVideoRecording(options) {
-    const screencastId = this._screencastId;
-    (0, import_assert.assert)(screencastId);
-    this._page.once(import_page.Page.Events.Close, () => this._stopVideoRecording().catch(() => {
-    }));
-    const gotFirstFrame = new Promise((f) => this._client.once("Page.screencastFrame", f));
-    await this._startScreencast(this._videoRecorder, {
-      format: "jpeg",
-      quality: 90,
-      maxWidth: options.width,
-      maxHeight: options.height
-    });
-    gotFirstFrame.then(() => {
-      this._crPage._browserContext._browser._videoStarted(this._crPage._browserContext, screencastId, options.outputFile, this._crPage._page.waitForInitializedOrError());
-    });
-  }
-  async _stopVideoRecording() {
-    if (!this._screencastId)
-      return;
-    const screencastId = this._screencastId;
-    this._screencastId = null;
-    const recorder = this._videoRecorder;
-    this._videoRecorder = null;
-    await this._stopScreencast(recorder);
-    await recorder.stop().catch(() => {
-    });
-    const video = this._crPage._browserContext._browser._takeVideo(screencastId);
-    video?.reportFinished();
-  }
-  async _startScreencast(client, options = {}) {
-    this._screencastClients.add(client);
-    if (this._screencastClients.size === 1)
-      await this._client.send("Page.startScreencast", options);
-  }
-  async _stopScreencast(client) {
-    this._screencastClients.delete(client);
-    if (!this._screencastClients.size)
-      await this._client._sendMayFail("Page.stopScreencast");
   }
   async _updateGeolocation(initial) {
     const geolocation = this._crPage._browserContext._options.geolocation;

@@ -18,6 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var stringUtils_exports = {};
 __export(stringUtils_exports, {
+  ansiRegex: () => ansiRegex,
   cacheNormalizedWhitespaces: () => cacheNormalizedWhitespaces,
   escapeForAttributeSelector: () => escapeForAttributeSelector,
   escapeForTextSelector: () => escapeForTextSelector,
@@ -26,11 +27,15 @@ __export(stringUtils_exports, {
   escapeRegExp: () => escapeRegExp,
   escapeTemplateString: () => escapeTemplateString,
   escapeWithQuotes: () => escapeWithQuotes,
+  formatObject: () => formatObject,
+  formatObjectOrVoid: () => formatObjectOrVoid,
   isString: () => isString,
   longestCommonSubstring: () => longestCommonSubstring,
   normalizeEscapedRegexQuotes: () => normalizeEscapedRegexQuotes,
   normalizeWhiteSpace: () => normalizeWhiteSpace,
+  parseRegex: () => parseRegex,
   quoteCSSAttributeValue: () => quoteCSSAttributeValue,
+  stripAnsiEscapes: () => stripAnsiEscapes,
   toSnakeCase: () => toSnakeCase,
   toTitleCase: () => toTitleCase,
   trimString: () => trimString,
@@ -59,6 +64,31 @@ function toTitleCase(name) {
 }
 function toSnakeCase(name) {
   return name.replace(/([a-z0-9])([A-Z])/g, "$1_$2").replace(/([A-Z])([A-Z][a-z])/g, "$1_$2").toLowerCase();
+}
+function formatObject(value, indent = "  ", mode = "multiline") {
+  if (typeof value === "string")
+    return escapeWithQuotes(value, "'");
+  if (Array.isArray(value))
+    return `[${value.map((o) => formatObject(o)).join(", ")}]`;
+  if (typeof value === "object") {
+    const keys = Object.keys(value).filter((key) => value[key] !== void 0).sort();
+    if (!keys.length)
+      return "{}";
+    const tokens = [];
+    for (const key of keys)
+      tokens.push(`${key}: ${formatObject(value[key])}`);
+    if (mode === "multiline")
+      return `{
+${tokens.join(`,
+${indent}`)}
+}`;
+    return `{ ${tokens.join(", ")} }`;
+  }
+  return String(value);
+}
+function formatObjectOrVoid(value, indent = "  ") {
+  const result = formatObject(value, indent);
+  return result === "{}" ? "" : result;
 }
 function quoteCSSAttributeValue(text) {
   return `"${text.replace(/["\\]/g, (char) => "\\" + char)}"`;
@@ -133,8 +163,23 @@ function longestCommonSubstring(s1, s2) {
   }
   return s1.slice(endingIndex - maxLen, endingIndex);
 }
+function parseRegex(regex) {
+  if (regex[0] !== "/")
+    throw new Error(`Invalid regex, must start with '/': ${regex}`);
+  const lastSlash = regex.lastIndexOf("/");
+  if (lastSlash <= 0)
+    throw new Error(`Invalid regex, must end with '/' followed by optional flags: ${regex}`);
+  const source = regex.slice(1, lastSlash);
+  const flags = regex.slice(lastSlash + 1);
+  return new RegExp(source, flags);
+}
+const ansiRegex = new RegExp("([\\u001B\\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[-a-zA-Z\\d\\/#&.:=?%@~_]*)*)?\\u0007)|(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PR-TZcf-ntqry=><~])))", "g");
+function stripAnsiEscapes(str) {
+  return str.replace(ansiRegex, "");
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  ansiRegex,
   cacheNormalizedWhitespaces,
   escapeForAttributeSelector,
   escapeForTextSelector,
@@ -143,11 +188,15 @@ function longestCommonSubstring(s1, s2) {
   escapeRegExp,
   escapeTemplateString,
   escapeWithQuotes,
+  formatObject,
+  formatObjectOrVoid,
   isString,
   longestCommonSubstring,
   normalizeEscapedRegexQuotes,
   normalizeWhiteSpace,
+  parseRegex,
   quoteCSSAttributeValue,
+  stripAnsiEscapes,
   toSnakeCase,
   toTitleCase,
   trimString,

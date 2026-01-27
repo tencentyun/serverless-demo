@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.parse = parse;
 exports.safeParse = safeParse;
 exports.collectExtraKeys = collectExtraKeys;
-const zod_1 = require("zod");
+const v3_1 = require("zod/v3");
 const sdkvalidationerror_js_1 = require("../models/errors/sdkvalidationerror.js");
 const fp_js_1 = require("../types/fp.js");
 /**
@@ -19,7 +19,7 @@ function parse(rawValue, fn, errorMessage) {
         return fn(rawValue);
     }
     catch (err) {
-        if (err instanceof zod_1.ZodError) {
+        if (err instanceof v3_1.ZodError) {
             throw new sdkvalidationerror_js_1.SDKValidationError(errorMessage, err, rawValue);
         }
         throw err;

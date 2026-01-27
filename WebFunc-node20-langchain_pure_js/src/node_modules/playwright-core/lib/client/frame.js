@@ -101,6 +101,7 @@ class Frame extends import_channelOwner.ChannelOwner {
   }
   async goto(url, options = {}) {
     const waitUntil = verifyLoadState("waitUntil", options.waitUntil === void 0 ? "load" : options.waitUntil);
+    this.page().context()._checkUrlAllowed(url);
     return network.Response.fromNullable((await this._channel.goto({ url, ...options, waitUntil, timeout: this._navigationTimeout(options) })).response);
   }
   _setupNavigationWaiter(options) {

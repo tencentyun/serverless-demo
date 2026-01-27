@@ -1,4 +1,4 @@
-import { ICrypto, Logger, ExternalTokenResponse } from "@azure/msal-common/browser";
+import { ICrypto, Logger, ExternalTokenResponse, IPerformanceClient } from "@azure/msal-common/browser";
 import { BrowserConfiguration } from "../config/Configuration.js";
 import type { SilentRequest } from "../request/SilentRequest.js";
 import { BrowserCacheManager } from "./BrowserCacheManager.js";
@@ -18,7 +18,8 @@ export declare class TokenCache implements ITokenCache {
     private storage;
     private logger;
     private cryptoObj;
-    constructor(configuration: BrowserConfiguration, storage: BrowserCacheManager, logger: Logger, cryptoObj: ICrypto);
+    private performanceClient;
+    constructor(configuration: BrowserConfiguration, storage: BrowserCacheManager, logger: Logger, cryptoObj: ICrypto, performanceClient: IPerformanceClient);
     /**
      * API to load tokens to msal-browser cache.
      * @param request

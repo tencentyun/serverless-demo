@@ -51,12 +51,10 @@ class WebKit extends import_browserType.BrowserType {
       CURL_COOKIE_JAR_PATH: process.platform === "win32" && isPersistent ? import_path.default.join(userDataDir, "cookiejar.db") : void 0
     };
   }
-  doRewriteStartupLog(error) {
-    if (!error.logs)
-      return error;
-    if (error.logs.includes("Failed to open display") || error.logs.includes("cannot open display"))
-      error.logs = "\n" + (0, import_ascii.wrapInASCIIBox)(import_browserType.kNoXServerRunningError, 1);
-    return error;
+  doRewriteStartupLog(logs) {
+    if (logs.includes("Failed to open display") || logs.includes("cannot open display"))
+      logs = "\n" + (0, import_ascii.wrapInASCIIBox)(import_browserType.kNoXServerRunningError, 1);
+    return logs;
   }
   attemptToGracefullyCloseBrowser(transport) {
     transport.send({ method: "Playwright.close", params: {}, id: import_wkConnection.kBrowserCloseMessageId });

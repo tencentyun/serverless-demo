@@ -54,7 +54,7 @@ class WKInterceptableRequest {
   constructor(session, frame, event, redirectedFrom, documentId) {
     this._session = session;
     this._requestId = event.requestId;
-    const resourceType = event.type ? event.type.toLowerCase() : redirectedFrom ? redirectedFrom.request.resourceType() : "other";
+    const resourceType = event.type ? toResourceType(event.type) : redirectedFrom ? redirectedFrom.request.resourceType() : "other";
     let postDataBuffer = null;
     this._timestamp = event.timestamp;
     this._wallTime = event.walltime * 1e3;
@@ -161,6 +161,34 @@ function wkMillisToRoundishMillis(value) {
     return -1;
   }
   return (value * 1e3 | 0) / 1e3;
+}
+function toResourceType(type) {
+  switch (type) {
+    case "Document":
+      return "document";
+    case "StyleSheet":
+      return "stylesheet";
+    case "Image":
+      return "image";
+    case "Font":
+      return "font";
+    case "Script":
+      return "script";
+    case "XHR":
+      return "xhr";
+    case "Fetch":
+      return "fetch";
+    case "Ping":
+      return "ping";
+    case "Beacon":
+      return "beacon";
+    case "WebSocket":
+      return "websocket";
+    case "EventSource":
+      return "eventsource";
+    default:
+      return "other";
+  }
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

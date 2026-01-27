@@ -46,6 +46,7 @@ __export(api_exports, {
   Locator: () => import_locator.Locator,
   Mouse: () => import_input.Mouse,
   Page: () => import_page.Page,
+  PageAgent: () => import_pageAgent.PageAgent,
   Playwright: () => import_playwright.Playwright,
   Request: () => import_network.Request,
   Response: () => import_network.Response,
@@ -81,6 +82,7 @@ var import_jsHandle = require("./jsHandle");
 var import_network = require("./network");
 var import_fetch = require("./fetch");
 var import_page = require("./page");
+var import_pageAgent = require("./pageAgent");
 var import_selectors = require("./selectors");
 var import_tracing = require("./tracing");
 var import_video = require("./video");
@@ -118,6 +120,7 @@ var import_webError = require("./webError");
   Locator,
   Mouse,
   Page,
+  PageAgent,
   Playwright,
   Request,
   Response,

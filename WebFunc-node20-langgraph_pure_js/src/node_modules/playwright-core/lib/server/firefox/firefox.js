@@ -56,15 +56,13 @@ class Firefox extends import_browserType.BrowserType {
   connectToTransport(transport, options) {
     return import_ffBrowser.FFBrowser.connect(this.attribution.playwright, transport, options);
   }
-  doRewriteStartupLog(error) {
-    if (!error.logs)
-      return error;
-    if (error.logs.includes(`as root in a regular user's session is not supported.`))
-      error.logs = "\n" + (0, import_ascii.wrapInASCIIBox)(`Firefox is unable to launch if the $HOME folder isn't owned by the current user.
+  doRewriteStartupLog(logs) {
+    if (logs.includes(`as root in a regular user's session is not supported.`))
+      logs = "\n" + (0, import_ascii.wrapInASCIIBox)(`Firefox is unable to launch if the $HOME folder isn't owned by the current user.
 Workaround: Set the HOME=/root environment variable${process.env.GITHUB_ACTION ? " in your GitHub Actions workflow file" : ""} when running Playwright.`, 1);
-    if (error.logs.includes("no DISPLAY environment variable specified"))
-      error.logs = "\n" + (0, import_ascii.wrapInASCIIBox)(import_browserType.kNoXServerRunningError, 1);
-    return error;
+    if (logs.includes("no DISPLAY environment variable specified"))
+      logs = "\n" + (0, import_ascii.wrapInASCIIBox)(import_browserType.kNoXServerRunningError, 1);
+    return logs;
   }
   amendEnvironment(env) {
     if (!import_path.default.isAbsolute(import_os.default.homedir()))

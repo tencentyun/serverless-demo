@@ -36,9 +36,9 @@ var import_utils = require("../../utils");
 var import_utilityScriptSerializers = require("../../utils/isomorphic/utilityScriptSerializers");
 var js = __toESM(require("../javascript"));
 var dom = __toESM(require("../dom"));
-var import_bidiDeserializer = require("./third_party/bidiDeserializer");
 var bidi = __toESM(require("./third_party/bidiProtocol"));
 var import_bidiSerializer = require("./third_party/bidiSerializer");
+var import_bidiDeserializer = require("./bidiDeserializer");
 class BidiExecutionContext {
   constructor(session, realmInfo) {
     this._session = session;
@@ -65,7 +65,7 @@ class BidiExecutionContext {
       userActivation: true
     });
     if (response.type === "success")
-      return import_bidiDeserializer.BidiDeserializer.deserialize(response.result);
+      return (0, import_bidiDeserializer.deserializeBidiValue)(response.result);
     if (response.type === "exception")
       throw new js.JavaScriptErrorInEvaluate(response.exceptionDetails.text);
     throw new js.JavaScriptErrorInEvaluate("Unexpected response type: " + JSON.stringify(response));
@@ -108,7 +108,7 @@ class BidiExecutionContext {
       throw new js.JavaScriptErrorInEvaluate(response.exceptionDetails.text);
     if (response.type === "success") {
       if (returnByValue)
-        return (0, import_utilityScriptSerializers.parseEvaluationResultValue)(import_bidiDeserializer.BidiDeserializer.deserialize(response.result));
+        return (0, import_utilityScriptSerializers.parseEvaluationResultValue)((0, import_bidiDeserializer.deserializeBidiValue)(response.result));
       return createHandle(utilityScript._context, response.result);
     }
     throw new js.JavaScriptErrorInEvaluate("Unexpected response type: " + JSON.stringify(response));
@@ -123,7 +123,10 @@ class BidiExecutionContext {
       }
       return names2;
     });
-    const values = await Promise.all(names.map((name) => handle.evaluateHandle((object, name2) => object[name2], name)));
+    const values = await Promise.all(names.map(async (name) => {
+      const value = await this._rawCallFunction("(object, name) => object[name]", [{ handle: handle._objectId }, { type: "string", value: name }], true, false);
+      return createHandle(handle._context, value);
+    }));
     const map = /* @__PURE__ */ new Map();
     for (let i = 0; i < names.length; i++)
       map.set(names[i], values[i]);
@@ -152,7 +155,7 @@ class BidiExecutionContext {
     return createHandle(context, result);
   }
   async contentFrameIdForFrame(handle) {
-    const contentWindow = await this._rawCallFunction("e => e.contentWindow", { handle: handle._objectId });
+    const contentWindow = await this._rawCallFunction("e => e.contentWindow", [{ handle: handle._objectId }]);
     if (contentWindow?.type === "window")
       return contentWindow.value.context;
     return null;
@@ -166,17 +169,17 @@ class BidiExecutionContext {
     return null;
   }
   async _remoteValueForReference(reference, createHandle2) {
-    return await this._rawCallFunction("e => e", reference, createHandle2);
+    return await this._rawCallFunction("e => e", [reference], createHandle2);
   }
-  async _rawCallFunction(functionDeclaration, arg, createHandle2) {
+  async _rawCallFunction(functionDeclaration, args, createHandle2, awaitPromise = true) {
     const response = await this._session.send("script.callFunction", {
       functionDeclaration,
       target: this._target,
-      arguments: [arg],
+      arguments: args,
       // "Root" is necessary for the handle to be returned.
       resultOwnership: createHandle2 ? bidi.Script.ResultOwnership.Root : bidi.Script.ResultOwnership.None,
       serializationOptions: { maxObjectDepth: 0, maxDomDepth: 0 },
-      awaitPromise: true,
+      awaitPromise,
       userActivation: true
     });
     if (response.type === "exception")
@@ -186,25 +189,65 @@ class BidiExecutionContext {
     throw new js.JavaScriptErrorInEvaluate("Unexpected response type: " + JSON.stringify(response));
   }
 }
-function renderPreview(remoteObject) {
-  if (remoteObject.type === "undefined")
-    return "undefined";
-  if (remoteObject.type === "null")
-    return "null";
-  if ("value" in remoteObject)
-    return String(remoteObject.value);
-  return `<${remoteObject.type}>`;
-}
-function remoteObjectValue(remoteObject) {
-  if (remoteObject.type === "undefined")
-    return void 0;
-  if (remoteObject.type === "null")
-    return null;
-  if (remoteObject.type === "number" && typeof remoteObject.value === "string")
-    return js.parseUnserializableValue(remoteObject.value);
-  if ("value" in remoteObject)
-    return remoteObject.value;
-  return void 0;
+function renderPreview(remoteObject, nested = false) {
+  switch (remoteObject.type) {
+    case "undefined":
+    case "null":
+      return remoteObject.type;
+    case "number":
+    case "boolean":
+    case "string":
+      return String(remoteObject.value);
+    case "bigint":
+      return `${remoteObject.value}n`;
+    case "date":
+      return String(new Date(remoteObject.value));
+    case "regexp":
+      return String(new RegExp(remoteObject.value.pattern, remoteObject.value.flags));
+    case "node":
+      return remoteObject.value?.localName || "Node";
+    case "object":
+      if (nested)
+        return "Object";
+      const tokens = [];
+      for (const [name, value] of remoteObject.value || []) {
+        if (typeof name === "string")
+          tokens.push(`${name}: ${renderPreview(value, true)}`);
+      }
+      return `{${tokens.join(", ")}}`;
+    case "array":
+    case "htmlcollection":
+    case "nodelist":
+      if (nested || !remoteObject.value)
+        return remoteObject.value ? `Array(${remoteObject.value.length})` : "Array";
+      return `[${remoteObject.value.map((v) => renderPreview(v, true)).join(", ")}]`;
+    case "map":
+      return remoteObject.value ? `Map(${remoteObject.value.length})` : "Map";
+    case "set":
+      return remoteObject.value ? `Set(${remoteObject.value.length})` : "Set";
+    case "arraybuffer":
+      return "ArrayBuffer";
+    case "error":
+      return "Error";
+    case "function":
+      return "Function";
+    case "generator":
+      return "Generator";
+    case "promise":
+      return "Promise";
+    case "proxy":
+      return "Proxy";
+    case "symbol":
+      return "Symbol()";
+    case "typedarray":
+      return "TypedArray";
+    case "weakmap":
+      return "WeakMap";
+    case "weakset":
+      return "WeakSet";
+    case "window":
+      return "Window";
+  }
 }
 function createHandle(context, remoteObject) {
   if (remoteObject.type === "node") {
@@ -212,7 +255,10 @@ function createHandle(context, remoteObject) {
     return new dom.ElementHandle(context, remoteObject.handle);
   }
   const objectId = "handle" in remoteObject ? remoteObject.handle : void 0;
-  return new js.JSHandle(context, remoteObject.type, renderPreview(remoteObject), objectId, remoteObjectValue(remoteObject));
+  const preview = renderPreview(remoteObject);
+  const handle = new js.JSHandle(context, remoteObject.type, preview, objectId, (0, import_bidiDeserializer.deserializeBidiValue)(remoteObject));
+  handle._setPreview(preview);
+  return handle;
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

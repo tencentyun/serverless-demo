@@ -90,7 +90,7 @@ class JavaScriptLanguageGenerator {
       case "fill":
         return `await ${subject}.${this._asLocator(action.selector)}.fill(${quote(action.text)});`;
       case "setInputFiles":
-        return `await ${subject}.${this._asLocator(action.selector)}.setInputFiles(${formatObject(action.files.length === 1 ? action.files[0] : action.files)});`;
+        return `await ${subject}.${this._asLocator(action.selector)}.setInputFiles(${(0, import_utils.formatObject)(action.files.length === 1 ? action.files[0] : action.files)});`;
       case "press": {
         const modifiers = (0, import_language.toKeyboardModifiers)(action.modifiers);
         const shortcut = [...modifiers, action.key].join("+");
@@ -99,7 +99,7 @@ class JavaScriptLanguageGenerator {
       case "navigate":
         return `await ${subject}.goto(${quote(action.url)});`;
       case "select":
-        return `await ${subject}.${this._asLocator(action.selector)}.selectOption(${formatObject(action.options.length === 1 ? action.options[0] : action.options)});`;
+        return `await ${subject}.${this._asLocator(action.selector)}.selectOption(${(0, import_utils.formatObject)(action.options.length === 1 ? action.options[0] : action.options)});`;
       case "assertText":
         return `${this._isTest ? "" : "// "}await expect(${subject}.${this._asLocator(action.selector)}).${action.substring ? "toContainText" : "toHaveText"}(${quote(action.text)});`;
       case "assertChecked":
@@ -151,7 +151,7 @@ ${useText ? "\ntest.use(" + useText + ");\n" : ""}
       const { ${options.browserName}${options.deviceName ? ", devices" : ""} } = require('playwright');
 
       (async () => {
-        const browser = await ${options.browserName}.launch(${formatObjectOrVoid(options.launchOptions)});
+        const browser = await ${options.browserName}.launch(${(0, import_utils.formatObjectOrVoid)(options.launchOptions)});
         const context = await browser.newContext(${formatContextOptions(options.contextOptions, options.deviceName, false)});`);
     if (options.contextOptions.recordHar)
       formatter.add(`        await context.routeFromHAR(${quote(options.contextOptions.recordHar.path)});`);
@@ -171,37 +171,14 @@ function formatOptions(value, hasArguments) {
   const keys = Object.keys(value).filter((key) => value[key] !== void 0);
   if (!keys.length)
     return "";
-  return (hasArguments ? ", " : "") + formatObject(value);
-}
-function formatObject(value, indent = "  ") {
-  if (typeof value === "string")
-    return quote(value);
-  if (Array.isArray(value))
-    return `[${value.map((o) => formatObject(o)).join(", ")}]`;
-  if (typeof value === "object") {
-    const keys = Object.keys(value).filter((key) => value[key] !== void 0).sort();
-    if (!keys.length)
-      return "{}";
-    const tokens = [];
-    for (const key of keys)
-      tokens.push(`${key}: ${formatObject(value[key])}`);
-    return `{
-${indent}${tokens.join(`,
-${indent}`)}
-}`;
-  }
-  return String(value);
-}
-function formatObjectOrVoid(value, indent = "  ") {
-  const result = formatObject(value, indent);
-  return result === "{}" ? "" : result;
+  return (hasArguments ? ", " : "") + (0, import_utils.formatObject)(value);
 }
 function formatContextOptions(options, deviceName, isTest) {
   const device = deviceName && import_deviceDescriptors.deviceDescriptors[deviceName];
   options = { ...options, recordHar: void 0 };
   if (!device)
-    return formatObjectOrVoid(options);
-  let serializedObject = formatObjectOrVoid((0, import_language.sanitizeDeviceOptions)(device, options));
+    return (0, import_utils.formatObjectOrVoid)(options);
+  let serializedObject = (0, import_utils.formatObjectOrVoid)((0, import_language.sanitizeDeviceOptions)(device, options));
   if (!serializedObject)
     serializedObject = "{\n}";
   const lines = serializedObject.split("\n");

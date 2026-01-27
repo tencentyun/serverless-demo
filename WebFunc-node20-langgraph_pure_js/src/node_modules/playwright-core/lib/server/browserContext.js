@@ -55,6 +55,24 @@ var import_recorderApp = require("./recorder/recorderApp");
 var import_selectors = require("./selectors");
 var import_tracing = require("./trace/recorder/tracing");
 var rawStorageSource = __toESM(require("../generated/storageScriptSource"));
+const BrowserContextEvent = {
+  Console: "console",
+  Close: "close",
+  Page: "page",
+  // Can't use just 'error' due to node.js special treatment of error events.
+  // @see https://nodejs.org/api/events.html#events_error_events
+  PageError: "pageerror",
+  Request: "request",
+  Response: "response",
+  RequestFailed: "requestfailed",
+  RequestFinished: "requestfinished",
+  RequestAborted: "requestaborted",
+  RequestFulfilled: "requestfulfilled",
+  RequestContinued: "requestcontinued",
+  BeforeClose: "beforeclose",
+  VideoStarted: "videostarted",
+  RecorderEvent: "recorderevent"
+};
 class BrowserContext extends import_instrumentation.SdkObject {
   constructor(browser, options, browserContextId) {
     super(browser, "browser-context");
@@ -69,6 +87,7 @@ class BrowserContext extends import_instrumentation.SdkObject {
     this._creatingStorageStatePage = false;
     this.initScripts = [];
     this._routesInFlight = /* @__PURE__ */ new Set();
+    this._consoleApiExposed = false;
     this.attribution.context = this;
     this._browser = browser;
     this._options = options;
@@ -82,24 +101,7 @@ class BrowserContext extends import_instrumentation.SdkObject {
     this.dialogManager = new import_dialog.DialogManager(this.instrumentation);
   }
   static {
-    this.Events = {
-      Console: "console",
-      Close: "close",
-      Page: "page",
-      // Can't use just 'error' due to node.js special treatment of error events.
-      // @see https://nodejs.org/api/events.html#events_error_events
-      PageError: "pageerror",
-      Request: "request",
-      Response: "response",
-      RequestFailed: "requestfailed",
-      RequestFinished: "requestfinished",
-      RequestAborted: "requestaborted",
-      RequestFulfilled: "requestfulfilled",
-      RequestContinued: "requestcontinued",
-      BeforeClose: "beforeclose",
-      VideoStarted: "videostarted",
-      RecorderEvent: "recorderevent"
-    };
+    this.Events = BrowserContextEvent;
   }
   isPersistentContext() {
     return this._isPersistentContext;
@@ -119,12 +121,8 @@ class BrowserContext extends import_instrumentation.SdkObject {
       if (this._debugger.isPaused())
         import_recorderApp.RecorderApp.showInspectorNoReply(this);
     });
-    if ((0, import_debug.debugMode)() === "console") {
-      await this.extendInjectedScript(`
-        function installConsoleApi(injectedScript) { injectedScript.consoleApi.install(); }
-        module.exports = { default: () => installConsoleApi };
-      `);
-    }
+    if ((0, import_debug.debugMode)() === "console")
+      await this.exposeConsoleApi();
     if (this._options.serviceWorkers === "block")
       await this.addInitScript(void 0, `
 if (navigator.serviceWorker) navigator.serviceWorker.register = async () => { console.warn('Service Worker registration blocked by Playwright'); };
@@ -134,6 +132,15 @@ if (navigator.serviceWorker) navigator.serviceWorker.register = async () => { co
   }
   debugger() {
     return this._debugger;
+  }
+  async exposeConsoleApi() {
+    if (this._consoleApiExposed)
+      return;
+    this._consoleApiExposed = true;
+    await this.extendInjectedScript(`
+      function installConsoleApi(injectedScript) { injectedScript.consoleApi.install(); }
+      module.exports = { default: () => installConsoleApi };
+    `);
   }
   async _ensureVideosPath() {
     if (this._options.recordVideo)
@@ -322,7 +329,7 @@ if (navigator.serviceWorker) navigator.serviceWorker.register = async () => { co
     const pageOrError = await progress.race(page.waitForInitializedOrError());
     if (pageOrError instanceof Error)
       throw pageOrError;
-    await page.mainFrame()._waitForLoadState(progress, "load");
+    await page.mainFrame().waitForLoadState(progress, "load");
     return page;
   }
   async _loadDefaultContext(progress) {

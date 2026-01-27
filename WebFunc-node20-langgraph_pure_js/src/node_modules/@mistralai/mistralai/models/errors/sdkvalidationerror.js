@@ -38,7 +38,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SDKValidationError = void 0;
 exports.formatZodError = formatZodError;
-const z = __importStar(require("zod"));
+const z = __importStar(require("zod/v3"));
 class SDKValidationError extends Error {
     // Allows for backwards compatibility for `instanceof` checks of `ResponseValidationError`
     static [Symbol.hasInstance](instance) {

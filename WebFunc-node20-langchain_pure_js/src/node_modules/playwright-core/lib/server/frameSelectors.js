@@ -50,7 +50,9 @@ class FrameSelectors {
     if (!resolved)
       throw new Error(`Failed to find frame for selector "${selector}"`);
     return await resolved.injected.evaluateHandle((injected, { info, scope: scope2 }) => {
-      return injected.querySelectorAll(info.parsed, scope2 || document);
+      const elements = injected.querySelectorAll(info.parsed, scope2 || document);
+      injected.checkDeprecatedSelectorUsage(info.parsed, elements);
+      return elements;
     }, { info: resolved.info, scope: resolved.scope });
   }
   async queryCount(selector, options) {
@@ -59,7 +61,9 @@ class FrameSelectors {
       throw new Error(`Failed to find frame for selector "${selector}"`);
     await options.__testHookBeforeQuery?.();
     return await resolved.injected.evaluate((injected, { info }) => {
-      return injected.querySelectorAll(info.parsed, document).length;
+      const elements = injected.querySelectorAll(info.parsed, document);
+      injected.checkDeprecatedSelectorUsage(info.parsed, elements);
+      return elements.length;
     }, { info: resolved.info });
   }
   async queryAll(selector, scope) {
@@ -67,7 +71,9 @@ class FrameSelectors {
     if (!resolved)
       return [];
     const arrayHandle = await resolved.injected.evaluateHandle((injected, { info, scope: scope2 }) => {
-      return injected.querySelectorAll(info.parsed, scope2 || document);
+      const elements = injected.querySelectorAll(info.parsed, scope2 || document);
+      injected.checkDeprecatedSelectorUsage(info.parsed, elements);
+      return elements;
     }, { info: resolved.info, scope: resolved.scope });
     const properties = await arrayHandle.getProperties();
     arrayHandle.dispose();

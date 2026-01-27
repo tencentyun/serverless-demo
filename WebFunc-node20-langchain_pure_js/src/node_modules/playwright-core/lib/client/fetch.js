@@ -39,10 +39,8 @@ class APIRequest {
     this._playwright = playwright;
   }
   async newContext(options = {}) {
-    options = {
-      ...this._playwright._defaultContextOptions,
-      ...options
-    };
+    options = { ...options };
+    await this._playwright._instrumentation.runBeforeCreateRequestContext(options);
     const storageState = typeof options.storageState === "string" ? JSON.parse(await this._playwright._platform.fs().promises.readFile(options.storageState, "utf8")) : options.storageState;
     const context = APIRequestContext.from((await this._playwright._channel.newRequest({
       ...options,
@@ -135,6 +133,7 @@ class APIRequestContext extends import_channelOwner.ChannelOwner {
       (0, import_assert.assert)(options.maxRedirects === void 0 || options.maxRedirects >= 0, `'maxRedirects' must be greater than or equal to '0'`);
       (0, import_assert.assert)(options.maxRetries === void 0 || options.maxRetries >= 0, `'maxRetries' must be greater than or equal to '0'`);
       const url = options.url !== void 0 ? options.url : options.request.url();
+      this._checkUrlAllowed?.(url);
       const method = options.method || options.request?.method();
       let encodedParams = void 0;
       if (typeof options.params === "string")

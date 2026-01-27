@@ -48,6 +48,7 @@ var import_urlMatch = require("../utils/isomorphic/urlMatch");
 var import_manualPromise = require("../utils/isomorphic/manualPromise");
 var import_rtti = require("../utils/isomorphic/rtti");
 var import_consoleMessage = require("./consoleMessage");
+var import_pageAgent = require("./pageAgent");
 class Page extends import_channelOwner.ChannelOwner {
   constructor(parent, type, guid, initializer) {
     super(parent, type, guid, initializer);
@@ -62,6 +63,7 @@ class Page extends import_channelOwner.ChannelOwner {
     this._closeWasCalled = false;
     this._harRouters = [];
     this._locatorHandlers = /* @__PURE__ */ new Map();
+    this._instrumentation.onPage(this);
     this._browserContext = parent;
     this._timeoutSettings = new import_timeoutSettings.TimeoutSettings(this._platform, this._browserContext._timeoutSettings);
     this.keyboard = new import_input.Keyboard(this);
@@ -502,7 +504,8 @@ class Page extends import_channelOwner.ChannelOwner {
   }
   async close(options = {}) {
     this._closeReason = options.reason;
-    this._closeWasCalled = true;
+    if (!options.runBeforeUnload)
+      this._closeWasCalled = true;
     try {
       if (this._ownedContext)
         await this._ownedContext.close();
@@ -672,6 +675,30 @@ class Page extends import_channelOwner.ChannelOwner {
       await platform.fs().promises.writeFile(options.path, result.pdf);
     }
     return result.pdf;
+  }
+  // @ts-expect-error agents are hidden
+  async agent(options = {}) {
+    const params = {
+      api: options.provider?.api,
+      apiEndpoint: options.provider?.apiEndpoint,
+      apiKey: options.provider?.apiKey,
+      apiTimeout: options.provider?.apiTimeout,
+      apiCacheFile: options.provider?._apiCacheFile,
+      doNotRenderActive: options._doNotRenderActive,
+      model: options.provider?.model,
+      cacheFile: options.cache?.cacheFile,
+      cacheOutFile: options.cache?.cacheOutFile,
+      maxTokens: options.limits?.maxTokens,
+      maxActions: options.limits?.maxActions,
+      maxActionRetries: options.limits?.maxActionRetries,
+      // @ts-expect-error runAgents is hidden
+      secrets: options.secrets ? Object.entries(options.secrets).map(([name, value]) => ({ name, value })) : void 0,
+      systemPrompt: options.systemPrompt
+    };
+    const { agent } = await this._channel.agent(params);
+    const pageAgent = import_pageAgent.PageAgent.from(agent);
+    pageAgent._expectTimeout = options?.expect?.timeout;
+    return pageAgent;
   }
   async _snapshotForAI(options = {}) {
     return await this._channel.snapshotForAI({ timeout: this._timeoutSettings.timeout(options), track: options.track });

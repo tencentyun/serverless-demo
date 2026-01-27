@@ -222,7 +222,7 @@ class Tracing extends import_instrumentation.SdkObject {
     if (!(this._context instanceof import_browserContext.BrowserContext))
       return;
     for (const page of this._context.pages())
-      page.setScreencastOptions(null);
+      page.screencast.setOptions(null);
   }
   _allocateNewTraceFile(state) {
     const suffix = state.chunkOrdinal ? `-chunk${state.chunkOrdinal}` : ``;
@@ -326,23 +326,21 @@ class Tracing extends import_instrumentation.SdkObject {
     return { artifact };
   }
   async _captureSnapshot(snapshotName, sdkObject, metadata) {
-    if (!this._snapshotter)
+    if (!snapshotName || !sdkObject.attribution.page)
       return;
-    if (!sdkObject.attribution.page)
-      return;
-    if (!this._snapshotter.started())
-      return;
-    if (!shouldCaptureSnapshot(metadata))
-      return;
-    await this._snapshotter.captureSnapshot(sdkObject.attribution.page, metadata.id, snapshotName).catch(() => {
+    await this._snapshotter?.captureSnapshot(sdkObject.attribution.page, metadata.id, snapshotName).catch(() => {
     });
   }
-  onBeforeCall(sdkObject, metadata) {
-    const event = createBeforeActionTraceEvent(metadata, this._currentGroupId());
+  _shouldCaptureSnapshot(sdkObject, metadata) {
+    return !!this._snapshotter?.started() && shouldCaptureSnapshot(metadata) && !!sdkObject.attribution.page;
+  }
+  onBeforeCall(sdkObject, metadata, parentId) {
+    const event = createBeforeActionTraceEvent(metadata, parentId ?? this._currentGroupId());
     if (!event)
       return Promise.resolve();
-    sdkObject.attribution.page?.temporarilyDisableTracingScreencastThrottling();
-    event.beforeSnapshot = `before@${metadata.id}`;
+    sdkObject.attribution.page?.screencast.temporarilyDisableThrottling();
+    if (this._shouldCaptureSnapshot(sdkObject, metadata))
+      event.beforeSnapshot = `before@${metadata.id}`;
     this._state?.callIds.add(metadata.id);
     this._appendTraceEvent(event);
     return this._captureSnapshot(event.beforeSnapshot, sdkObject, metadata);
@@ -353,8 +351,9 @@ class Tracing extends import_instrumentation.SdkObject {
     const event = createInputActionTraceEvent(metadata);
     if (!event)
       return Promise.resolve();
-    sdkObject.attribution.page?.temporarilyDisableTracingScreencastThrottling();
-    event.inputSnapshot = `input@${metadata.id}`;
+    sdkObject.attribution.page?.screencast.temporarilyDisableThrottling();
+    if (this._shouldCaptureSnapshot(sdkObject, metadata))
+      event.inputSnapshot = `input@${metadata.id}`;
     this._appendTraceEvent(event);
     return this._captureSnapshot(event.inputSnapshot, sdkObject, metadata);
   }
@@ -369,15 +368,16 @@ class Tracing extends import_instrumentation.SdkObject {
     if (event)
       this._appendTraceEvent(event);
   }
-  async onAfterCall(sdkObject, metadata) {
+  onAfterCall(sdkObject, metadata) {
     if (!this._state?.callIds.has(metadata.id))
-      return;
+      return Promise.resolve();
     this._state?.callIds.delete(metadata.id);
     const event = createAfterActionTraceEvent(metadata);
     if (!event)
-      return;
-    sdkObject.attribution.page?.temporarilyDisableTracingScreencastThrottling();
-    event.afterSnapshot = `after@${metadata.id}`;
+      return Promise.resolve();
+    sdkObject.attribution.page?.screencast.temporarilyDisableThrottling();
+    if (this._shouldCaptureSnapshot(sdkObject, metadata))
+      event.afterSnapshot = `after@${metadata.id}`;
     this._appendTraceEvent(event);
     return this._captureSnapshot(event.afterSnapshot, sdkObject, metadata);
   }
@@ -484,7 +484,7 @@ class Tracing extends import_instrumentation.SdkObject {
     this._appendTraceEvent(event);
   }
   _startScreencastInPage(page) {
-    page.setScreencastOptions(kScreencastOptions);
+    page.screencast.setOptions(kScreencastOptions);
     const prefix = page.guid;
     this._screencastListeners.push(
       import_eventsHelper.eventsHelper.addEventListener(page, import_page.Page.Events.ScreencastFrame, (params) => {

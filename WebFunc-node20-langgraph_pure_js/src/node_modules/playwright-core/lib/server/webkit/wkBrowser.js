@@ -56,7 +56,6 @@ class WKBrowser extends import_browser.Browser {
     this._browserSession.on("Playwright.downloadCreated", this._onDownloadCreated.bind(this));
     this._browserSession.on("Playwright.downloadFilenameSuggested", this._onDownloadFilenameSuggested.bind(this));
     this._browserSession.on("Playwright.downloadFinished", this._onDownloadFinished.bind(this));
-    this._browserSession.on("Playwright.screencastFinished", this._onScreencastFinished.bind(this));
     this._browserSession.on(import_wkConnection.kPageProxyMessageReceived, this._onPageProxyMessageReceived.bind(this));
   }
   static async connect(parent, transport, options) {
@@ -79,7 +78,7 @@ class WKBrowser extends import_browser.Browser {
       wkPage.didClose();
     this._wkPages.clear();
     for (const video of this._idToVideo.values())
-      video.artifact.reportFinished(new import_errors.TargetClosedError());
+      video.artifact.reportFinished(new import_errors.TargetClosedError(this.closeReason()));
     this._idToVideo.clear();
     this._didClose();
   }
@@ -130,9 +129,6 @@ class WKBrowser extends import_browser.Browser {
   }
   _onDownloadFinished(payload) {
     this._downloadFinished(payload.uuid, payload.error);
-  }
-  _onScreencastFinished(payload) {
-    this._takeVideo(payload.screencastId)?.reportFinished();
   }
   _onPageProxyCreated(event) {
     const pageProxyId = event.pageProxyId;
@@ -315,7 +311,7 @@ class WKBrowserContext extends import_browserContext.BrowserContext {
   }
   async doClose(reason) {
     if (!this._browserContextId) {
-      await Promise.all(this._wkPages().map((wkPage) => wkPage._stopVideo()));
+      await Promise.all(this._wkPages().map((wkPage) => wkPage._page.screencast.stopVideoRecording()));
       await this._browser.close({ reason });
     } else {
       await this._browser._browserSession.send("Playwright.deleteContext", { browserContextId: this._browserContextId });

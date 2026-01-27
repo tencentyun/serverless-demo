@@ -48,6 +48,7 @@ var import_worker = require("./worker");
 var import_writableStream = require("./writableStream");
 var import_validator = require("../protocol/validator");
 var import_stackTrace = require("../utils/isomorphic/stackTrace");
+var import_pageAgent = require("./pageAgent");
 class Root extends import_channelOwner.ChannelOwner {
   constructor(connection) {
     super(connection, "Root", "", {});
@@ -260,6 +261,9 @@ class Connection extends import_eventEmitter.EventEmitter {
         break;
       case "Page":
         result = new import_page.Page(parent, type, guid, initializer);
+        break;
+      case "PageAgent":
+        result = new import_pageAgent.PageAgent(parent, type, guid, initializer);
         break;
       case "Playwright":
         result = new import_playwright.Playwright(parent, type, guid, initializer);

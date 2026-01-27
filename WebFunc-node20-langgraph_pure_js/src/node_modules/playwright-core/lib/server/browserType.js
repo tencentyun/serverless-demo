@@ -250,6 +250,13 @@ class BrowserType extends import_instrumentation.SdkObject {
         this.waitForReadyState(options, browserLogsCollector),
         exitPromise.then(() => ({ wsEndpoint: void 0 }))
       ]);
+      if (exitPromise.isDone()) {
+        const log = import_helper.helper.formatBrowserLogs(browserLogsCollector.recentLogs());
+        const updatedLog = this.doRewriteStartupLog(log);
+        throw new Error(`Failed to launch the browser process.
+Browser logs:
+${updatedLog}`);
+      }
       if (options.cdpPort !== void 0 || !this.supportsPipeTransport()) {
         transport = await import_transport.WebSocketTransport.connect(progress, wsEndpoint);
       } else {
@@ -276,15 +283,14 @@ class BrowserType extends import_instrumentation.SdkObject {
     throw new Error("Connecting to SELENIUM_REMOTE_URL is only supported by Chromium");
   }
   _validateLaunchOptions(options) {
-    const { devtools = false } = options;
-    let { headless = !devtools, downloadsPath, proxy } = options;
+    let { headless = true, downloadsPath, proxy } = options;
     if ((0, import_debug.debugMode)() === "inspector")
       headless = false;
     if (downloadsPath && !import_path.default.isAbsolute(downloadsPath))
       downloadsPath = import_path.default.join(process.cwd(), downloadsPath);
     if (options.socksProxyPort)
       proxy = { server: `socks5://127.0.0.1:${options.socksProxyPort}` };
-    return { ...options, devtools, headless, downloadsPath, proxy };
+    return { ...options, headless, downloadsPath, proxy };
   }
   _createUserDataDirArgMisuseError(userDataDirArg) {
     switch (this.attribution.playwright.options.sdkLanguage) {
@@ -301,7 +307,9 @@ class BrowserType extends import_instrumentation.SdkObject {
   _rewriteStartupLog(error) {
     if (!(0, import_protocolError.isProtocolError)(error))
       return error;
-    return this.doRewriteStartupLog(error);
+    if (error.logs)
+      error.logs = this.doRewriteStartupLog(error.logs);
+    return error;
   }
   async waitForReadyState(options, browserLogsCollector) {
     return {};

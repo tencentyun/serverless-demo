@@ -33,6 +33,9 @@ class SdkObject extends import_events.EventEmitter {
     this.attribution = { ...parent.attribution };
     this.instrumentation = parent.instrumentation;
   }
+  closeReason() {
+    return this.attribution.page?._closeReason || this.attribution.context?._closeReason || this.attribution.browser?._closeReason;
+  }
 }
 function createRootSdkObject() {
   const fakeParent = { attribution: {}, instrumentation: createInstrumentation() };

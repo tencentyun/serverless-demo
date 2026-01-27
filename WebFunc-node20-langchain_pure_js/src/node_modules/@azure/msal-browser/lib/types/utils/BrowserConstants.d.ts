@@ -91,9 +91,9 @@ export declare const InMemoryCacheKeys: {
 export type InMemoryCacheKeys = (typeof InMemoryCacheKeys)[keyof typeof InMemoryCacheKeys];
 /**
  * API Codes for Telemetry purposes.
- * Before adding a new code you must claim it in the MSAL Telemetry tracker as these number spaces are shared across all MSALs
  * 0-99 Silent Flow
  * 800-899 Auth Code Flow
+ * 900-999 Miscellaneous
  */
 export declare const ApiId: {
     readonly acquireTokenRedirect: 861;
@@ -105,8 +105,27 @@ export declare const ApiId: {
     readonly acquireTokenSilent_silentFlow: 61;
     readonly logout: 961;
     readonly logoutPopup: 962;
+    readonly hydrateCache: 963;
+    readonly loadExternalTokens: 964;
 };
 export type ApiId = (typeof ApiId)[keyof typeof ApiId];
+/**
+ * API Names for Telemetry purposes.
+ */
+export declare const ApiName: {
+    readonly 861: "acquireTokenRedirect";
+    readonly 862: "acquireTokenPopup";
+    readonly 863: "ssoSilent";
+    readonly 864: "acquireTokenSilent_authCode";
+    readonly 865: "handleRedirectPromise";
+    readonly 866: "acquireTokenByCode";
+    readonly 61: "acquireTokenSilent_silentFlow";
+    readonly 961: "logout";
+    readonly 962: "logoutPopup";
+    readonly 963: "hydrateCache";
+    readonly 964: "loadExternalTokens";
+};
+export declare const apiIdToName: (id: number | undefined) => string;
 export declare enum InteractionType {
     Redirect = "redirect",
     Popup = "popup",

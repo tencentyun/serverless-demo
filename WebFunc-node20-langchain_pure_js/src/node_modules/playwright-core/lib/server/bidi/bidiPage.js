@@ -32,6 +32,7 @@ __export(bidiPage_exports, {
   kPlaywrightBindingChannel: () => kPlaywrightBindingChannel
 });
 module.exports = __toCommonJS(bidiPage_exports);
+var import_debugLogger = require("../utils/debugLogger");
 var import_eventsHelper = require("../utils/eventsHelper");
 var dialog = __toESM(require("../dialog"));
 var dom = __toESM(require("../dom"));
@@ -87,8 +88,7 @@ class BidiPage {
   async _initialize() {
     this._onFrameAttached(this._session.sessionId, null);
     await Promise.all([
-      this.updateHttpCredentials(),
-      this.updateRequestInterception()
+      this.updateHttpCredentials()
       // If the page is created by the Playwright client's call, some initialization
       // may be pending. Wait for it to complete before reporting the page as new.
     ]);
@@ -179,10 +179,12 @@ class BidiPage {
   }
   _onNavigationCommitted(params) {
     const frameId = params.context;
+    const frame = this._page.frameManager.frame(frameId);
+    this._browserContext.doGrantGlobalPermissionsForURL(params.url).catch((error) => import_debugLogger.debugLogger.log("error", error));
     this._page.frameManager.frameCommittedNewDocumentNavigation(
       frameId,
       params.url,
-      "",
+      frame._name,
       params.navigation,
       /* initial */
       false
@@ -263,7 +265,7 @@ ${params.stackTrace?.callFrames.map((f) => {
       return;
     const callFrame = params.stackTrace?.callFrames[0];
     const location = callFrame ?? { url: "", lineNumber: 1, columnNumber: 1 };
-    this._page.addConsoleMessage(null, entry.method, entry.args.map((arg) => (0, import_bidiExecutionContext.createHandle)(context, arg)), location, params.text || void 0);
+    this._page.addConsoleMessage(null, entry.method, entry.args.map((arg) => (0, import_bidiExecutionContext.createHandle)(context, arg)), location);
   }
   async _onFileDialogOpened(params) {
     if (!params.element)
@@ -272,8 +274,11 @@ ${params.stackTrace?.callFrames.map((f) => {
     if (!frame)
       return;
     const executionContext = await frame._mainContext();
-    const handle = await toBidiExecutionContext(executionContext).remoteObjectForNodeId(executionContext, { sharedId: params.element.sharedId });
-    await this._page._onFileChooserOpened(handle);
+    try {
+      const handle = await toBidiExecutionContext(executionContext).remoteObjectForNodeId(executionContext, { sharedId: params.element.sharedId });
+      await this._page._onFileChooserOpened(handle);
+    } catch {
+    }
   }
   async navigateFrame(frame, url, referrer) {
     const { navigation } = await this._session.send("browsingContext.navigate", {
@@ -306,6 +311,7 @@ ${params.stackTrace?.callFrames.map((f) => {
     const emulatedSize = this._page.emulatedSize();
     if (!emulatedSize)
       return;
+    const screenSize = emulatedSize.screen;
     const viewportSize = emulatedSize.viewport;
     await Promise.all([
       this._session.send("browsingContext.setViewport", {
@@ -318,12 +324,19 @@ ${params.stackTrace?.callFrames.map((f) => {
       }),
       this._session.send("emulation.setScreenOrientationOverride", {
         contexts: [this._session.sessionId],
-        screenOrientation: (0, import_bidiBrowser.getScreenOrientation)(!!options.isMobile, viewportSize)
+        screenOrientation: (0, import_bidiBrowser.getScreenOrientation)(!!options.isMobile, screenSize)
+      }),
+      this._session.send("emulation.setScreenSettingsOverride", {
+        contexts: [this._session.sessionId],
+        screenArea: {
+          width: screenSize.width,
+          height: screenSize.height
+        }
       })
     ]);
   }
   async updateRequestInterception() {
-    await this._networkManager.setRequestInterception(this._page.needsRequestInterception());
+    await this._networkManager.setRequestInterception(this._page.requestInterceptors.length > 0);
   }
   async updateOffline() {
   }
@@ -482,7 +495,9 @@ ${params.stackTrace?.callFrames.map((f) => {
       throw e;
     });
   }
-  async setScreencastOptions(options) {
+  async startScreencast(options) {
+  }
+  async stopScreencast() {
   }
   rafCountForStablePosition() {
     return 1;
@@ -537,26 +552,22 @@ ${params.stackTrace?.callFrames.map((f) => {
     const parent = frame.parentFrame();
     if (!parent)
       throw new Error("Frame has been detached.");
-    const parentContext = await parent._mainContext();
-    const list = await parentContext.evaluateHandle(() => {
-      return [...document.querySelectorAll("iframe,frame")];
-    });
-    const length = await list.evaluate((list2) => list2.length);
-    let foundElement = null;
-    for (let i = 0; i < length; i++) {
-      const element = await list.evaluateHandle((list2, i2) => list2[i2], i);
-      const candidate = await element.contentFrame();
-      if (frame === candidate) {
-        foundElement = element;
-        break;
-      } else {
-        element.dispose();
-      }
-    }
-    list.dispose();
-    if (!foundElement)
+    const node = await this._getFrameNode(frame);
+    if (!node?.sharedId)
       throw new Error("Frame has been detached.");
-    return foundElement;
+    const parentFrameExecutionContext = await parent._mainContext();
+    return await toBidiExecutionContext(parentFrameExecutionContext).remoteObjectForNodeId(parentFrameExecutionContext, { sharedId: node.sharedId });
+  }
+  async _getFrameNode(frame) {
+    const parent = frame.parentFrame();
+    if (!parent)
+      return void 0;
+    const result = await this._session.send("browsingContext.locateNodes", {
+      context: parent._id,
+      locator: { type: "context", value: { context: frame._id } }
+    });
+    const node = result.nodes[0];
+    return node;
   }
   shouldToggleStyleSheetToSyncAnimations() {
     return true;

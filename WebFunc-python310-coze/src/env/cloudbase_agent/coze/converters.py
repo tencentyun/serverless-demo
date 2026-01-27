@@ -77,15 +77,33 @@ def coze_prepare_inputs(run_input: RunAgentInput) -> Dict[str, Any]:
     Parameters
     ----------
     run_input : RunAgentInput
-        The Cloudbase Agent run agent input containing messages, tools, and state.
+        The Cloudbase Agent run agent input containing messages, tools, state, and forwarded_props.
 
     Returns
     -------
     dict
         A dictionary containing:
         - additional_messages: List of Coze Message objects
-        - conversation_id: Optional conversation ID for continuing a conversation
         - tools: Optional list of Coze API tool dictionaries
+        - parameters: Optional Coze custom user variables (from forwarded_props.parameters)
+    
+    Notes
+    -----
+    Coze's ``parameters`` field is used for custom user variables in workflow/dialog
+    flow start nodes. Use ``forwarded_props.parameters`` to pass custom variables to Coze.
+    
+    Example::
+    
+        run_input = RunAgentInput(
+            messages=[...],
+            forwarded_props={
+                "parameters": {
+                    "user": [{"user_id": "123456", "user_name": "John"}]
+                }
+            }
+        )
+    
+    See: https://www.coze.cn/open/docs/developer_guides/chat_v3
     """
     # Extract the latest user message
     user_message = None
@@ -98,22 +116,27 @@ def coze_prepare_inputs(run_input: RunAgentInput) -> Dict[str, Any]:
     additional_messages: List[CozeMessage] = []
     if user_message:
         additional_messages.append(CozeMessage.build_user_question_text(user_message))
-
-    # Get conversation_id from state if available
-    conversation_id = run_input.state.get("conversation_id") if run_input.state else None
     
     # Convert tools from AG-UI format to Coze API format
     tools = None
     if run_input.tools:
         tools = ag_ui_tools_to_coze_tools(run_input.tools)
+    
+    # Extract parameters from forwarded_props.parameters for Coze custom user variables
+    # This enables passthrough of custom variables for Coze workflow/dialog flow start nodes
+    coze_parameters = None
+    if run_input.forwarded_props and isinstance(run_input.forwarded_props, dict):
+        coze_parameters = run_input.forwarded_props.get("parameters")
 
     result = {
         "additional_messages": additional_messages,
-        "conversation_id": conversation_id,
     }
     
     if tools:
         result["tools"] = tools
+    
+    if coze_parameters:
+        result["parameters"] = coze_parameters
     
     return result
 

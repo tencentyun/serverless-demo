@@ -62,11 +62,9 @@ class Browser extends import_channelOwner.ChannelOwner {
     context._onClose();
     await this._channel.disconnectFromReusedContext({ reason });
   }
-  async _innerNewContext(options = {}, forReuse) {
-    options = this._browserType._playwright.selectors._withSelectorOptions({
-      ...this._browserType._playwright._defaultContextOptions,
-      ...options
-    });
+  async _innerNewContext(userOptions = {}, forReuse) {
+    const options = this._browserType._playwright.selectors._withSelectorOptions(userOptions);
+    await this._instrumentation.runBeforeCreateBrowserContext(options);
     const contextOptions = await (0, import_browserContext.prepareBrowserContextParams)(this._platform, options);
     const response = forReuse ? await this._channel.newContextForReuse(contextOptions) : await this._channel.newContext(contextOptions);
     const context = import_browserContext.BrowserContext.from(response.context);

@@ -321,8 +321,7 @@ const defaultLaunchOptions = {
   handleSIGINT: false,
   handleSIGTERM: false,
   handleSIGHUP: false,
-  headless: true,
-  devtools: false
+  headless: true
 };
 const optionsThatAllowBrowserReuse = [
   "headless",

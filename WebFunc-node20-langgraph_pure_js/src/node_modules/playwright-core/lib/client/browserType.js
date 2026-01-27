@@ -73,13 +73,13 @@ class BrowserType extends import_channelOwner.ChannelOwner {
     return await this._serverLauncher.launchServer(options);
   }
   async launchPersistentContext(userDataDir, options = {}) {
-    const logger = options.logger || this._playwright._defaultLaunchOptions?.logger;
     (0, import_assert.assert)(!options.port, "Cannot specify a port without launching as a server.");
     options = this._playwright.selectors._withSelectorOptions({
       ...this._playwright._defaultLaunchOptions,
-      ...this._playwright._defaultContextOptions,
       ...options
     });
+    await this._instrumentation.runBeforeCreateBrowserContext(options);
+    const logger = options.logger || this._playwright._defaultLaunchOptions?.logger;
     const contextParams = await (0, import_browserContext.prepareBrowserContextParams)(this._platform, options);
     const persistentParams = {
       ...contextParams,
@@ -169,7 +169,8 @@ class BrowserType extends import_channelOwner.ChannelOwner {
       endpointURL,
       headers,
       slowMo: params.slowMo,
-      timeout: new import_timeoutSettings.TimeoutSettings(this._platform).timeout(params)
+      timeout: new import_timeoutSettings.TimeoutSettings(this._platform).timeout(params),
+      isLocal: params.isLocal
     });
     const browser = import_browser.Browser.from(result.browser);
     browser._connectToBrowserType(this, {}, params.logger);

@@ -22,6 +22,7 @@ __export(network_exports, {
   Response: () => Response,
   Route: () => Route,
   WebSocket: () => WebSocket,
+  applyHeadersOverrides: () => applyHeadersOverrides,
   filterCookies: () => filterCookies,
   isLocalHostname: () => isLocalHostname,
   kMaxCookieExpiresDateInSeconds: () => kMaxCookieExpiresDateInSeconds,
@@ -61,6 +62,48 @@ function filterCookies(cookies, urls) {
 function isLocalHostname(hostname) {
   return hostname === "localhost" || hostname.endsWith(".localhost");
 }
+const FORBIDDEN_HEADER_NAMES = /* @__PURE__ */ new Set([
+  "accept-charset",
+  "accept-encoding",
+  "access-control-request-headers",
+  "access-control-request-method",
+  "connection",
+  "content-length",
+  "cookie",
+  "date",
+  "dnt",
+  "expect",
+  "host",
+  "keep-alive",
+  "origin",
+  "referer",
+  "set-cookie",
+  "te",
+  "trailer",
+  "transfer-encoding",
+  "upgrade",
+  "via"
+]);
+const FORBIDDEN_METHODS = /* @__PURE__ */ new Set(["CONNECT", "TRACE", "TRACK"]);
+function isForbiddenHeader(name, value) {
+  const lowerName = name.toLowerCase();
+  if (FORBIDDEN_HEADER_NAMES.has(lowerName))
+    return true;
+  if (lowerName.startsWith("proxy-"))
+    return true;
+  if (lowerName.startsWith("sec-"))
+    return true;
+  if (lowerName === "x-http-method" || lowerName === "x-http-method-override" || lowerName === "x-method-override") {
+    if (value && FORBIDDEN_METHODS.has(value.toUpperCase()))
+      return true;
+  }
+  return false;
+}
+function applyHeadersOverrides(original, overrides) {
+  const forbiddenHeaders = original.filter((header) => isForbiddenHeader(header.name, header.value));
+  const allowedHeaders = overrides.filter((header) => !isForbiddenHeader(header.name, header.value));
+  return mergeHeaders([allowedHeaders, forbiddenHeaders]);
+}
 const kMaxCookieExpiresDateInSeconds = 253402300799;
 function rewriteCookies(cookies) {
   return cookies.map((c) => {
@@ -99,7 +142,6 @@ class Request extends import_instrumentation.SdkObject {
     this._response = null;
     this._redirectedTo = null;
     this._failureText = null;
-    this._headersMap = /* @__PURE__ */ new Map();
     this._frame = null;
     this._serviceWorker = null;
     this._rawRequestHeadersPromise = new import_manualPromise.ManualPromise();
@@ -118,7 +160,6 @@ class Request extends import_instrumentation.SdkObject {
     this._method = method;
     this._postData = postData;
     this._headers = headers;
-    this._updateHeadersMap();
     this._isFavicon = url.endsWith("/favicon.ico") || !!redirectedFrom?._isFavicon;
   }
   static {
@@ -132,12 +173,7 @@ class Request extends import_instrumentation.SdkObject {
   }
   _applyOverrides(overrides) {
     this._overrides = { ...this._overrides, ...overrides };
-    this._updateHeadersMap();
     return this._overrides;
-  }
-  _updateHeadersMap() {
-    for (const { name, value } of this.headers())
-      this._headersMap.set(name.toLowerCase(), value);
   }
   overrides() {
     return this._overrides;
@@ -158,7 +194,8 @@ class Request extends import_instrumentation.SdkObject {
     return this._overrides?.headers || this._headers;
   }
   headerValue(name) {
-    return this._headersMap.get(name);
+    const lowerCaseName = name.toLowerCase();
+    return this.headers().find((h) => h.name.toLowerCase() === lowerCaseName)?.value;
   }
   // "null" means no raw headers available - we'll use provisional headers as raw headers.
   setRawRequestHeaders(headers) {
@@ -309,10 +346,7 @@ class Route extends import_instrumentation.SdkObject {
         throw new Error("New URL must have same protocol as overridden URL");
     }
     if (overrides.headers) {
-      overrides.headers = overrides.headers?.filter((header) => {
-        const headerName = header.name.toLowerCase();
-        return headerName !== "cookie" && headerName !== "host";
-      });
+      overrides.headers = applyHeadersOverrides(this._request._headers, overrides.headers);
     }
     overrides = this._request._applyOverrides(overrides);
     const nextHandler = this._futureHandlers.shift();
@@ -435,6 +469,9 @@ class Response extends import_instrumentation.SdkObject {
   }
   request() {
     return this._request;
+  }
+  finished() {
+    return this._finishedPromise;
   }
   frame() {
     return this._request.frame();
@@ -617,6 +654,7 @@ function mergeHeaders(headers) {
   Response,
   Route,
   WebSocket,
+  applyHeadersOverrides,
   filterCookies,
   isLocalHostname,
   kMaxCookieExpiresDateInSeconds,

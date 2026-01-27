@@ -128,6 +128,7 @@ var Network;
 ((Network2) => {
   let DataType;
   ((DataType2) => {
+    DataType2["Request"] = "request";
     DataType2["Response"] = "response";
   })(DataType = Network2.DataType || (Network2.DataType = {}));
 })(Network || (Network = {}));

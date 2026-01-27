@@ -78,6 +78,9 @@ const Events = {
     WebSocket: "websocket",
     Worker: "worker"
   },
+  PageAgent: {
+    Turn: "turn"
+  },
   WebSocket: {
     Close: "close",
     Error: "socketerror",

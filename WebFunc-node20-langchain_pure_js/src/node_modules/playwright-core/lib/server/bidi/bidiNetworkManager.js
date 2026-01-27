@@ -342,7 +342,7 @@ function resourceTypeFromBidi(requestDestination, requestInitiatorType, eventIni
     case "image":
       return "image";
     case "object":
-      return "object";
+      return "other";
     case "paintworklet":
       return "script";
     case "script":

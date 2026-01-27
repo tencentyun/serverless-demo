@@ -35,22 +35,20 @@ __export(network_exports, {
   createProxyAgent: () => createProxyAgent,
   fetchData: () => fetchData,
   httpRequest: () => httpRequest,
-  isURLAvailable: () => isURLAvailable
+  isURLAvailable: () => isURLAvailable,
+  startHttpServer: () => startHttpServer
 });
 module.exports = __toCommonJS(network_exports);
 var import_http = __toESM(require("http"));
 var import_http2 = __toESM(require("http2"));
 var import_https = __toESM(require("https"));
-var import_url = __toESM(require("url"));
 var import_utilsBundle = require("../../utilsBundle");
 var import_happyEyeballs = require("./happyEyeballs");
 var import_manualPromise = require("../../utils/isomorphic/manualPromise");
 const NET_DEFAULT_TIMEOUT = 3e4;
 function httpRequest(params, onResponse, onError) {
-  const parsedUrl = import_url.default.parse(params.url);
-  let options = {
-    ...parsedUrl,
-    agent: parsedUrl.protocol === "https:" ? import_happyEyeballs.httpsHappyEyeballsAgent : import_happyEyeballs.httpHappyEyeballsAgent,
+  let url = new URL(params.url);
+  const options = {
     method: params.method || "GET",
     headers: params.headers
   };
@@ -58,21 +56,16 @@ function httpRequest(params, onResponse, onError) {
     options.rejectUnauthorized = params.rejectUnauthorized;
   const proxyURL = (0, import_utilsBundle.getProxyForUrl)(params.url);
   if (proxyURL) {
+    const parsedProxyURL = normalizeProxyURL(proxyURL);
     if (params.url.startsWith("http:")) {
-      const parsedProxyURL = import_url.default.parse(proxyURL);
-      options = {
-        path: parsedUrl.href,
-        host: parsedProxyURL.hostname,
-        port: parsedProxyURL.port,
-        protocol: parsedProxyURL.protocol || "http:",
-        headers: options.headers,
-        method: options.method
-      };
+      parsedProxyURL.pathname = url.toString();
+      url = parsedProxyURL;
     } else {
-      options.agent = new import_utilsBundle.HttpsProxyAgent(normalizeProxyURL(proxyURL));
+      options.agent = new import_utilsBundle.HttpsProxyAgent(parsedProxyURL);
       options.rejectUnauthorized = false;
     }
   }
+  options.agent ??= url.protocol === "https:" ? import_happyEyeballs.httpsHappyEyeballsAgent : import_happyEyeballs.httpHappyEyeballsAgent;
   let cancelRequest;
   const requestCallback = (res) => {
     const statusCode = res.statusCode || 0;
@@ -83,7 +76,7 @@ function httpRequest(params, onResponse, onError) {
       onResponse(res);
     }
   };
-  const request = options.protocol === "https:" ? import_https.default.request(options, requestCallback) : import_http.default.request(options, requestCallback);
+  const request = url.protocol === "https:" ? import_https.default.request(url, options, requestCallback) : import_http.default.request(url, options, requestCallback);
   request.on("error", onError);
   if (params.socketTimeout !== void 0) {
     request.setTimeout(params.socketTimeout, () => {
@@ -122,7 +115,7 @@ async function fetchData(progress, params, onError) {
     throw error;
   }
 }
-function shouldBypassProxy(url2, bypass) {
+function shouldBypassProxy(url, bypass) {
   if (!bypass)
     return false;
   const domains = bypass.split(",").map((s) => {
@@ -131,7 +124,7 @@ function shouldBypassProxy(url2, bypass) {
       s = "." + s;
     return s;
   });
-  const domain = "." + url2.hostname;
+  const domain = "." + url.hostname;
   return domains.some((d) => domain.endsWith(d));
 }
 function normalizeProxyURL(proxy) {
@@ -177,20 +170,35 @@ function createHttp2Server(...args) {
   decorateServer(server);
   return server;
 }
-async function isURLAvailable(url2, ignoreHTTPSErrors, onLog, onStdErr) {
-  let statusCode = await httpStatusCode(url2, ignoreHTTPSErrors, onLog, onStdErr);
-  if (statusCode === 404 && url2.pathname === "/") {
-    const indexUrl = new URL(url2);
+async function startHttpServer(server, options) {
+  const { host = "localhost", port = 0 } = options;
+  const errorPromise = new import_manualPromise.ManualPromise();
+  const errorListener = (error) => errorPromise.reject(error);
+  server.on("error", errorListener);
+  try {
+    server.listen(port, host);
+    await Promise.race([
+      new Promise((cb) => server.once("listening", cb)),
+      errorPromise
+    ]);
+  } finally {
+    server.removeListener("error", errorListener);
+  }
+}
+async function isURLAvailable(url, ignoreHTTPSErrors, onLog, onStdErr) {
+  let statusCode = await httpStatusCode(url, ignoreHTTPSErrors, onLog, onStdErr);
+  if (statusCode === 404 && url.pathname === "/") {
+    const indexUrl = new URL(url);
     indexUrl.pathname = "/index.html";
     statusCode = await httpStatusCode(indexUrl, ignoreHTTPSErrors, onLog, onStdErr);
   }
   return statusCode >= 200 && statusCode < 404;
 }
-async function httpStatusCode(url2, ignoreHTTPSErrors, onLog, onStdErr) {
+async function httpStatusCode(url, ignoreHTTPSErrors, onLog, onStdErr) {
   return new Promise((resolve) => {
-    onLog?.(`HTTP GET: ${url2}`);
+    onLog?.(`HTTP GET: ${url}`);
     httpRequest({
-      url: url2.toString(),
+      url: url.toString(),
       headers: { Accept: "*/*" },
       rejectUnauthorized: !ignoreHTTPSErrors
     }, (res) => {
@@ -201,7 +209,7 @@ async function httpStatusCode(url2, ignoreHTTPSErrors, onLog, onStdErr) {
     }, (error) => {
       if (error.code === "DEPTH_ZERO_SELF_SIGNED_CERT")
         onStdErr?.(`[WebServer] Self-signed certificate detected. Try adding ignoreHTTPSErrors: true to config.webServer.`);
-      onLog?.(`Error while checking if ${url2} is available: ${error.message}`);
+      onLog?.(`Error while checking if ${url} is available: ${error.message}`);
       resolve(0);
     });
   });
@@ -229,5 +237,6 @@ function decorateServer(server) {
   createProxyAgent,
   fetchData,
   httpRequest,
-  isURLAvailable
+  isURLAvailable,
+  startHttpServer
 });

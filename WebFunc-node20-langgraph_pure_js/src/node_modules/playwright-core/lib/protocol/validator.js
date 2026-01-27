@@ -512,7 +512,6 @@ import_validatorPrimitives.scheme.BrowserTypeLaunchParams = (0, import_validator
   timeout: import_validatorPrimitives.tFloat,
   env: (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tArray)((0, import_validatorPrimitives.tType)("NameValue"))),
   headless: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tBoolean),
-  devtools: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tBoolean),
   proxy: (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tObject)({
     server: import_validatorPrimitives.tString,
     bypass: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tString),
@@ -542,7 +541,6 @@ import_validatorPrimitives.scheme.BrowserTypeLaunchPersistentContextParams = (0,
   timeout: import_validatorPrimitives.tFloat,
   env: (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tArray)((0, import_validatorPrimitives.tType)("NameValue"))),
   headless: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tBoolean),
-  devtools: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tBoolean),
   proxy: (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tObject)({
     server: import_validatorPrimitives.tString,
     bypass: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tString),
@@ -621,7 +619,8 @@ import_validatorPrimitives.scheme.BrowserTypeConnectOverCDPParams = (0, import_v
   endpointURL: import_validatorPrimitives.tString,
   headers: (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tArray)((0, import_validatorPrimitives.tType)("NameValue"))),
   slowMo: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tFloat),
-  timeout: import_validatorPrimitives.tFloat
+  timeout: import_validatorPrimitives.tFloat,
+  isLocal: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tBoolean)
 });
 import_validatorPrimitives.scheme.BrowserTypeConnectOverCDPResult = (0, import_validatorPrimitives.tObject)({
   browser: (0, import_validatorPrimitives.tChannel)(["Browser"]),
@@ -821,6 +820,7 @@ import_validatorPrimitives.scheme.WorkerWaitForEventInfoParams = (0, import_vali
 import_validatorPrimitives.scheme.WebSocketWaitForEventInfoParams = (0, import_validatorPrimitives.tType)("EventTargetWaitForEventInfoParams");
 import_validatorPrimitives.scheme.ElectronApplicationWaitForEventInfoParams = (0, import_validatorPrimitives.tType)("EventTargetWaitForEventInfoParams");
 import_validatorPrimitives.scheme.AndroidDeviceWaitForEventInfoParams = (0, import_validatorPrimitives.tType)("EventTargetWaitForEventInfoParams");
+import_validatorPrimitives.scheme.PageAgentWaitForEventInfoParams = (0, import_validatorPrimitives.tType)("EventTargetWaitForEventInfoParams");
 import_validatorPrimitives.scheme.EventTargetWaitForEventInfoResult = (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tObject)({}));
 import_validatorPrimitives.scheme.BrowserContextWaitForEventInfoResult = (0, import_validatorPrimitives.tType)("EventTargetWaitForEventInfoResult");
 import_validatorPrimitives.scheme.PageWaitForEventInfoResult = (0, import_validatorPrimitives.tType)("EventTargetWaitForEventInfoResult");
@@ -828,6 +828,7 @@ import_validatorPrimitives.scheme.WorkerWaitForEventInfoResult = (0, import_vali
 import_validatorPrimitives.scheme.WebSocketWaitForEventInfoResult = (0, import_validatorPrimitives.tType)("EventTargetWaitForEventInfoResult");
 import_validatorPrimitives.scheme.ElectronApplicationWaitForEventInfoResult = (0, import_validatorPrimitives.tType)("EventTargetWaitForEventInfoResult");
 import_validatorPrimitives.scheme.AndroidDeviceWaitForEventInfoResult = (0, import_validatorPrimitives.tType)("EventTargetWaitForEventInfoResult");
+import_validatorPrimitives.scheme.PageAgentWaitForEventInfoResult = (0, import_validatorPrimitives.tType)("EventTargetWaitForEventInfoResult");
 import_validatorPrimitives.scheme.BrowserContextInitializer = (0, import_validatorPrimitives.tObject)({
   isChromium: import_validatorPrimitives.tBoolean,
   requestContext: (0, import_validatorPrimitives.tChannel)(["APIRequestContext"]),
@@ -1075,6 +1076,8 @@ import_validatorPrimitives.scheme.BrowserContextEnableRecorderParams = (0, impor
 import_validatorPrimitives.scheme.BrowserContextEnableRecorderResult = (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tObject)({}));
 import_validatorPrimitives.scheme.BrowserContextDisableRecorderParams = (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tObject)({}));
 import_validatorPrimitives.scheme.BrowserContextDisableRecorderResult = (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tObject)({}));
+import_validatorPrimitives.scheme.BrowserContextExposeConsoleApiParams = (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tObject)({}));
+import_validatorPrimitives.scheme.BrowserContextExposeConsoleApiResult = (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tObject)({}));
 import_validatorPrimitives.scheme.BrowserContextNewCDPSessionParams = (0, import_validatorPrimitives.tObject)({
   page: (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tChannel)(["Page"])),
   frame: (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tChannel)(["Frame"]))
@@ -1490,6 +1493,25 @@ import_validatorPrimitives.scheme.PageUpdateSubscriptionParams = (0, import_vali
   enabled: import_validatorPrimitives.tBoolean
 });
 import_validatorPrimitives.scheme.PageUpdateSubscriptionResult = (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tObject)({}));
+import_validatorPrimitives.scheme.PageAgentParams = (0, import_validatorPrimitives.tObject)({
+  api: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tString),
+  apiKey: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tString),
+  apiEndpoint: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tString),
+  apiTimeout: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tInt),
+  apiCacheFile: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tString),
+  cacheFile: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tString),
+  cacheOutFile: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tString),
+  doNotRenderActive: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tBoolean),
+  maxActions: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tInt),
+  maxActionRetries: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tInt),
+  maxTokens: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tInt),
+  model: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tString),
+  secrets: (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tArray)((0, import_validatorPrimitives.tType)("NameValue"))),
+  systemPrompt: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tString)
+});
+import_validatorPrimitives.scheme.PageAgentResult = (0, import_validatorPrimitives.tObject)({
+  agent: (0, import_validatorPrimitives.tChannel)(["PageAgent"])
+});
 import_validatorPrimitives.scheme.FrameInitializer = (0, import_validatorPrimitives.tObject)({
   url: import_validatorPrimitives.tString,
   name: import_validatorPrimitives.tString,
@@ -2881,6 +2903,63 @@ import_validatorPrimitives.scheme.JsonPipeSendParams = (0, import_validatorPrimi
 import_validatorPrimitives.scheme.JsonPipeSendResult = (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tObject)({}));
 import_validatorPrimitives.scheme.JsonPipeCloseParams = (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tObject)({}));
 import_validatorPrimitives.scheme.JsonPipeCloseResult = (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tObject)({}));
+import_validatorPrimitives.scheme.PageAgentInitializer = (0, import_validatorPrimitives.tObject)({
+  page: (0, import_validatorPrimitives.tChannel)(["Page"])
+});
+import_validatorPrimitives.scheme.PageAgentTurnEvent = (0, import_validatorPrimitives.tObject)({
+  role: import_validatorPrimitives.tString,
+  message: import_validatorPrimitives.tString,
+  usage: (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tObject)({
+    inputTokens: import_validatorPrimitives.tInt,
+    outputTokens: import_validatorPrimitives.tInt
+  }))
+});
+import_validatorPrimitives.scheme.PageAgentPerformParams = (0, import_validatorPrimitives.tObject)({
+  task: import_validatorPrimitives.tString,
+  maxActions: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tInt),
+  maxActionRetries: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tInt),
+  maxTokens: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tInt),
+  cacheKey: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tString),
+  timeout: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tInt)
+});
+import_validatorPrimitives.scheme.PageAgentPerformResult = (0, import_validatorPrimitives.tObject)({
+  usage: (0, import_validatorPrimitives.tType)("AgentUsage")
+});
+import_validatorPrimitives.scheme.PageAgentExpectParams = (0, import_validatorPrimitives.tObject)({
+  expectation: import_validatorPrimitives.tString,
+  maxActions: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tInt),
+  maxActionRetries: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tInt),
+  maxTokens: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tInt),
+  cacheKey: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tString),
+  timeout: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tInt)
+});
+import_validatorPrimitives.scheme.PageAgentExpectResult = (0, import_validatorPrimitives.tObject)({
+  usage: (0, import_validatorPrimitives.tType)("AgentUsage")
+});
+import_validatorPrimitives.scheme.PageAgentExtractParams = (0, import_validatorPrimitives.tObject)({
+  query: import_validatorPrimitives.tString,
+  schema: import_validatorPrimitives.tAny,
+  maxActions: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tInt),
+  maxActionRetries: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tInt),
+  maxTokens: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tInt),
+  cacheKey: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tString),
+  timeout: (0, import_validatorPrimitives.tOptional)(import_validatorPrimitives.tInt)
+});
+import_validatorPrimitives.scheme.PageAgentExtractResult = (0, import_validatorPrimitives.tObject)({
+  result: import_validatorPrimitives.tAny,
+  usage: (0, import_validatorPrimitives.tType)("AgentUsage")
+});
+import_validatorPrimitives.scheme.PageAgentDisposeParams = (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tObject)({}));
+import_validatorPrimitives.scheme.PageAgentDisposeResult = (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tObject)({}));
+import_validatorPrimitives.scheme.PageAgentUsageParams = (0, import_validatorPrimitives.tOptional)((0, import_validatorPrimitives.tObject)({}));
+import_validatorPrimitives.scheme.PageAgentUsageResult = (0, import_validatorPrimitives.tObject)({
+  usage: (0, import_validatorPrimitives.tType)("AgentUsage")
+});
+import_validatorPrimitives.scheme.AgentUsage = (0, import_validatorPrimitives.tObject)({
+  turns: import_validatorPrimitives.tInt,
+  inputTokens: import_validatorPrimitives.tInt,
+  outputTokens: import_validatorPrimitives.tInt
+});
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   ValidationError,

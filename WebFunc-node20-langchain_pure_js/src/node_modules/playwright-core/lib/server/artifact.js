@@ -103,7 +103,7 @@ class Artifact extends import_instrumentation.SdkObject {
     if (!this._unaccessibleErrorMessage)
       await import_fs.default.promises.unlink(this._localPath).catch((e) => {
       });
-    await this.reportFinished(new import_errors.TargetClosedError());
+    await this.reportFinished(new import_errors.TargetClosedError(this.closeReason()));
   }
   async reportFinished(error) {
     if (this._finished)

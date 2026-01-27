@@ -158,8 +158,8 @@ class Electron extends import_instrumentation.SdkObject {
     let shell = false;
     if (process.platform === "win32") {
       shell = true;
-      command = `"${command}"`;
-      electronArguments = electronArguments.map((arg) => `"${arg}"`);
+      command = [command, ...electronArguments].map((arg) => `"${escapeDoubleQuotes(arg)}"`).join(" ");
+      electronArguments = [];
     }
     delete env.NODE_OPTIONS;
     const { launchedProcess, gracefullyClose, kill } = await (0, import_processLauncher.launchProcess)({
@@ -262,6 +262,9 @@ async function waitForLine(progress, process2, regex) {
   } finally {
     import_eventsHelper.eventsHelper.removeEventListeners(listeners);
   }
+}
+function escapeDoubleQuotes(str) {
+  return str.replace(/"/g, '\\"');
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

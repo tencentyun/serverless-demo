@@ -89,11 +89,6 @@ class WKSession extends import_events.EventEmitter {
     this.connection = connection;
     this.sessionId = sessionId;
     this._rawSend = rawSend;
-    this.on = super.on;
-    this.off = super.removeListener;
-    this.addListener = super.addListener;
-    this.removeListener = super.removeListener;
-    this.once = super.once;
   }
   async send(method, params) {
     if (this._crashed || this._disposed || this.connection._browserDisconnectedLogs)
@@ -134,7 +129,7 @@ class WKSession extends import_events.EventEmitter {
         callback.resolve(object.result);
       }
     } else if (object.id && !object.error) {
-      (0, import_utils.assert)(this.isDisposed());
+      (0, import_utils.assert)(this.isDisposed(), JSON.stringify(object));
     } else {
       Promise.resolve().then(() => this.emit(object.method, object.params));
     }

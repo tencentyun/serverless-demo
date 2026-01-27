@@ -44,8 +44,6 @@ class CRDevTools {
         return;
       const parsed = JSON.parse(event.payload);
       let result = void 0;
-      if (this.__testHookOnBinding)
-        this.__testHookOnBinding(parsed);
       if (parsed.method === "getPreferences") {
         if (this._prefs === void 0) {
           try {

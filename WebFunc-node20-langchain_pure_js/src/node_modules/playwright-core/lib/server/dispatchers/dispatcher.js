@@ -85,11 +85,7 @@ class Dispatcher extends import_events.EventEmitter {
     this.connection.sendAdopt(this, child);
   }
   async _runCommand(callMetadata, method, validParams) {
-    const controller = new import_progress.ProgressController(callMetadata, (message) => {
-      const logName = this._object.logName || "api";
-      import_utils.debugLogger.log(logName, message);
-      this._object.instrumentation.onCallLog(this._object, callMetadata, logName, message);
-    });
+    const controller = import_progress.ProgressController.createForSdkObject(this._object, callMetadata);
     this._activeProgressControllers.add(controller);
     try {
       return await controller.run((progress) => this[method](validParams, progress), validParams?.timeout);
@@ -106,7 +102,7 @@ class Dispatcher extends import_events.EventEmitter {
     this.connection.sendEvent(this, method, params);
   }
   _dispose(reason) {
-    this._disposeRecursively(new import_errors.TargetClosedError());
+    this._disposeRecursively(new import_errors.TargetClosedError(this._object.closeReason()));
     this.connection.sendDispose(this, reason);
   }
   _onDispose() {
@@ -257,7 +253,7 @@ class DispatcherConnection {
     const { id, guid, method, params, metadata } = message;
     const dispatcher = this._dispatcherByGuid.get(guid);
     if (!dispatcher) {
-      this.onmessage({ id, error: (0, import_errors.serializeError)(new import_errors.TargetClosedError()) });
+      this.onmessage({ id, error: (0, import_errors.serializeError)(new import_errors.TargetClosedError(void 0)) });
       return;
     }
     let validParams;
@@ -325,19 +321,19 @@ class DispatcherConnection {
     const response = { id };
     try {
       if (this._dispatcherByGuid.get(guid) !== dispatcher)
-        throw new import_errors.TargetClosedError(closeReason(sdkObject));
+        throw new import_errors.TargetClosedError(sdkObject.closeReason());
       const result = await dispatcher._runCommand(callMetadata, method, validParams);
       const validator = (0, import_validator.findValidator)(dispatcher._type, method, "Result");
       response.result = validator(result, "", this._validatorToWireContext());
       callMetadata.result = result;
     } catch (e) {
       if ((0, import_errors.isTargetClosedError)(e)) {
-        const reason = closeReason(sdkObject);
+        const reason = sdkObject.closeReason();
         if (reason)
           (0, import_utils.rewriteErrorMessage)(e, reason);
       } else if ((0, import_protocolError.isProtocolError)(e)) {
         if (e.type === "closed")
-          e = new import_errors.TargetClosedError(closeReason(sdkObject), e.browserLogMessage());
+          e = new import_errors.TargetClosedError(sdkObject.closeReason(), e.browserLogMessage());
         else if (e.type === "crashed")
           (0, import_utils.rewriteErrorMessage)(e, "Target crashed " + e.browserLogMessage());
       }
@@ -358,9 +354,6 @@ class DispatcherConnection {
     if (slowMo)
       await new Promise((f) => setTimeout(f, slowMo));
   }
-}
-function closeReason(sdkObject) {
-  return sdkObject.attribution.page?.closeReason || sdkObject.attribution.context?._closeReason || sdkObject.attribution.browser?._closeReason;
 }
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

@@ -34,19 +34,35 @@ class ProgressController {
     this.metadata = metadata || { id: "", startTime: 0, endTime: 0, type: "Internal", method: "", params: {}, log: [], internal: true };
     this._onCallLog = onCallLog;
     this._forceAbortPromise.catch((e) => null);
+    this._controller = new AbortController();
+  }
+  static createForSdkObject(sdkObject, callMetadata) {
+    const logName = sdkObject.logName || "api";
+    return new ProgressController(callMetadata, (message) => {
+      import_utils.debugLogger.log(logName, message);
+      sdkObject.instrumentation.onCallLog(sdkObject, callMetadata, logName, message);
+    });
   }
   async abort(error) {
     if (this._state === "running") {
       error[kAbortErrorSymbol] = true;
       this._state = { error };
       this._forceAbortPromise.reject(error);
+      this._controller.abort(error);
     }
     await this._donePromise;
   }
   async run(task, timeout) {
+    const deadline = timeout ? (0, import_utils.monotonicTime)() + timeout : 0;
     (0, import_utils.assert)(this._state === "before");
     this._state = "running";
+    let timer;
     const progress = {
+      timeout: timeout ?? 0,
+      deadline,
+      disableTimeout: () => {
+        clearTimeout(timer);
+      },
       log: (message) => {
         if (this._state === "running")
           this.metadata.log.push(message);
@@ -55,24 +71,28 @@ class ProgressController {
       metadata: this.metadata,
       race: (promise) => {
         const promises = Array.isArray(promise) ? promise : [promise];
+        if (!promises.length)
+          return Promise.resolve();
         return Promise.race([...promises, this._forceAbortPromise]);
       },
       wait: async (timeout2) => {
         let timer2;
         const promise = new Promise((f) => timer2 = setTimeout(f, timeout2));
         return progress.race(promise).finally(() => clearTimeout(timer2));
-      }
+      },
+      signal: this._controller.signal
     };
-    let timer;
-    if (timeout) {
+    if (deadline) {
       const timeoutError = new import_errors.TimeoutError(`Timeout ${timeout}ms exceeded.`);
       timer = setTimeout(() => {
+        if (this.metadata.pauseStartTime && !this.metadata.pauseEndTime)
+          return;
         if (this._state === "running") {
-          timeoutError[kAbortErrorSymbol] = true;
           this._state = { error: timeoutError };
           this._forceAbortPromise.reject(timeoutError);
+          this._controller.abort(timeoutError);
         }
-      }, timeout);
+      }, deadline - (0, import_utils.monotonicTime)());
     }
     try {
       const result = await task(progress);
@@ -89,7 +109,7 @@ class ProgressController {
 }
 const kAbortErrorSymbol = Symbol("kAbortError");
 function isAbortError(error) {
-  return !!error[kAbortErrorSymbol];
+  return error instanceof import_errors.TimeoutError || !!error[kAbortErrorSymbol];
 }
 async function raceUncancellableOperationWithCleanup(progress, run, cleanup) {
   let aborted = false;

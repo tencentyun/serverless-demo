@@ -36,6 +36,7 @@ var import_networkDispatchers3 = require("./networkDispatchers");
 var import_webSocketRouteDispatcher = require("./webSocketRouteDispatcher");
 var import_instrumentation = require("../instrumentation");
 var import_urlMatch = require("../../utils/isomorphic/urlMatch");
+var import_pageAgentDispatcher = require("./pageAgentDispatcher");
 class PageDispatcher extends import_dispatcher.Dispatcher {
   constructor(parentScope, page) {
     const mainFrame = import_frameDispatcher.FrameDispatcher.from(parentScope, page.mainFrame());
@@ -287,6 +288,9 @@ class PageDispatcher extends import_dispatcher.Dispatcher {
     this._cssCoverageActive = false;
     const coverage = this._page.coverage;
     return await coverage.stopCSSCoverage();
+  }
+  async agent(params, progress) {
+    return { agent: new import_pageAgentDispatcher.PageAgentDispatcher(this, params) };
   }
   _onFrameAttached(frame) {
     this._dispatchEvent("frameAttached", { frame: import_frameDispatcher.FrameDispatcher.from(this.parentScope(), frame) });

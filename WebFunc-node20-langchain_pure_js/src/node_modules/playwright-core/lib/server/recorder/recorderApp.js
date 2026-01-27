@@ -53,6 +53,7 @@ class RecorderApp {
     this._recorderSources = [];
     this._page = page;
     this._recorder = recorder;
+    this._frontend = createRecorderFrontend(page);
     this.wsEndpointForTest = wsEndpointForTest;
     this._languageGeneratorOptions = {
       browserName: params.browserName,
@@ -64,6 +65,10 @@ class RecorderApp {
     this._throttledOutputFile = params.outputFile ? new import_throttledFile.ThrottledFile(params.outputFile) : null;
     this._primaryGeneratorId = process.env.TEST_INSPECTOR_LANGUAGE || params.language || determinePrimaryGeneratorId(params.sdkLanguage);
     this._selectedGeneratorId = this._primaryGeneratorId;
+    for (const languageGenerator of (0, import_languages.languageSet)()) {
+      if (languageGenerator.id === this._primaryGeneratorId)
+        this._recorder.setLanguage(languageGenerator.highlighter);
+    }
   }
   async _init(inspectedContext) {
     await (0, import_launchApp.syncLocalStorageWithSettings)(this._page, "recorder");
@@ -89,7 +94,7 @@ class RecorderApp {
           });
         });
       });
-      await this._page.exposeBinding(progress, "dispatch", false, (_, data) => this._handleUIEvent(data));
+      await this._createDispatcher(progress);
       this._page.once("close", () => {
         this._recorder.close();
         this._page.browserContext.close({ reason: "Recorder window closed" }).catch(() => {
@@ -100,59 +105,56 @@ class RecorderApp {
     });
     const url = this._recorder.url();
     if (url)
-      this._onPageNavigated(url);
-    this._onModeChanged(this._recorder.mode());
-    this._onPausedStateChanged(this._recorder.paused());
+      this._frontend.pageNavigated({ url });
+    this._frontend.modeChanged({ mode: this._recorder.mode() });
+    this._frontend.pauseStateChanged({ paused: this._recorder.paused() });
     this._updateActions("reveal");
     this._onUserSourcesChanged(this._recorder.userSources(), this._recorder.pausedSourceId());
-    this._onCallLogsUpdated(this._recorder.callLog());
+    this._frontend.callLogsUpdated({ callLogs: this._recorder.callLog() });
     this._wireListeners(this._recorder);
   }
-  _handleUIEvent(data) {
-    if (data.event === "clear") {
-      this._actions = [];
-      this._updateActions("reveal");
-      this._recorder.clear();
-      return;
-    }
-    if (data.event === "fileChanged") {
-      const source = [...this._recorderSources, ...this._userSources].find((s) => s.id === data.params.fileId);
-      if (source) {
-        if (source.isRecorded)
-          this._selectedGeneratorId = source.id;
-        this._recorder.setLanguage(source.language);
+  async _createDispatcher(progress) {
+    const dispatcher = {
+      clear: async () => {
+        this._actions = [];
+        this._updateActions("reveal");
+        this._recorder.clear();
+      },
+      fileChanged: async (params) => {
+        const source = [...this._recorderSources, ...this._userSources].find((s) => s.id === params.fileId);
+        if (source) {
+          if (source.isRecorded)
+            this._selectedGeneratorId = source.id;
+          this._recorder.setLanguage(source.language);
+        }
+      },
+      setAutoExpect: async (params) => {
+        this._languageGeneratorOptions.generateAutoExpect = params.autoExpect;
+        this._updateActions();
+      },
+      setMode: async (params) => {
+        this._recorder.setMode(params.mode);
+      },
+      resume: async () => {
+        this._recorder.resume();
+      },
+      pause: async () => {
+        this._recorder.pause();
+      },
+      step: async () => {
+        this._recorder.step();
+      },
+      highlightRequested: async (params) => {
+        if (params.selector)
+          this._recorder.setHighlightedSelector(params.selector);
+        if (params.ariaTemplate)
+          this._recorder.setHighlightedAriaTemplate(params.ariaTemplate);
       }
-      return;
-    }
-    if (data.event === "setAutoExpect") {
-      this._languageGeneratorOptions.generateAutoExpect = data.params.autoExpect;
-      this._updateActions();
-      return;
-    }
-    if (data.event === "setMode") {
-      this._recorder.setMode(data.params.mode);
-      return;
-    }
-    if (data.event === "resume") {
-      this._recorder.resume();
-      return;
-    }
-    if (data.event === "pause") {
-      this._recorder.pause();
-      return;
-    }
-    if (data.event === "step") {
-      this._recorder.step();
-      return;
-    }
-    if (data.event === "highlightRequested") {
-      if (data.params.selector)
-        this._recorder.setHighlightedSelector(data.params.selector);
-      if (data.params.ariaTemplate)
-        this._recorder.setHighlightedAriaTemplate(data.params.ariaTemplate);
-      return;
-    }
-    throw new Error(`Unknown event: ${data.event}`);
+    };
+    await this._page.exposeBinding(progress, "sendCommand", false, async (_, data) => {
+      const { method, params } = data;
+      return await dispatcher[method].call(dispatcher, params);
+    });
   }
   static async show(context, params) {
     if (process.env.PW_CODEGEN_NO_INSPECTOR)
@@ -220,25 +222,29 @@ class RecorderApp {
       this._onSignalAdded(signal);
     });
     recorder.on(import_recorder.RecorderEvent.PageNavigated, (url) => {
-      this._onPageNavigated(url);
+      this._frontend.pageNavigated({ url });
     });
     recorder.on(import_recorder.RecorderEvent.ContextClosed, () => {
-      this._onContextClosed();
+      this._throttledOutputFile?.flush();
+      this._page.browserContext.close({ reason: "Recorder window closed" }).catch(() => {
+      });
     });
     recorder.on(import_recorder.RecorderEvent.ModeChanged, (mode) => {
-      this._onModeChanged(mode);
+      this._frontend.modeChanged({ mode });
     });
     recorder.on(import_recorder.RecorderEvent.PausedStateChanged, (paused) => {
-      this._onPausedStateChanged(paused);
+      this._frontend.pauseStateChanged({ paused });
     });
     recorder.on(import_recorder.RecorderEvent.UserSourcesChanged, (sources, pausedSourceId) => {
       this._onUserSourcesChanged(sources, pausedSourceId);
     });
     recorder.on(import_recorder.RecorderEvent.ElementPicked, (elementInfo, userGesture) => {
-      this._onElementPicked(elementInfo, userGesture);
+      if (userGesture)
+        this._page.bringToFront();
+      this._frontend.elementPicked({ elementInfo, userGesture });
     });
     recorder.on(import_recorder.RecorderEvent.CallLogsUpdated, (callLogs) => {
-      this._onCallLogsUpdated(callLogs);
+      this._frontend.callLogsUpdated({ callLogs });
     });
   }
   _onActionAdded(action) {
@@ -251,29 +257,6 @@ class RecorderApp {
       lastAction.action.signals.push(signal.signal);
     this._updateActions();
   }
-  _onPageNavigated(url) {
-    this._page.mainFrame().evaluateExpression((({ url: url2 }) => {
-      window.playwrightSetPageURL(url2);
-    }).toString(), { isFunction: true }, { url }).catch(() => {
-    });
-  }
-  _onContextClosed() {
-    this._throttledOutputFile?.flush();
-    this._page.browserContext.close({ reason: "Recorder window closed" }).catch(() => {
-    });
-  }
-  _onModeChanged(mode) {
-    this._page.mainFrame().evaluateExpression(((mode2) => {
-      window.playwrightSetMode(mode2);
-    }).toString(), { isFunction: true }, mode).catch(() => {
-    });
-  }
-  _onPausedStateChanged(paused) {
-    this._page.mainFrame().evaluateExpression(((paused2) => {
-      window.playwrightSetPaused(paused2);
-    }).toString(), { isFunction: true }, paused).catch(() => {
-    });
-  }
   _onUserSourcesChanged(sources, pausedSourceId) {
     if (!sources.length && !this._userSources.length)
       return;
@@ -281,34 +264,14 @@ class RecorderApp {
     this._pushAllSources();
     this._revealSource(pausedSourceId);
   }
-  _onElementPicked(elementInfo, userGesture) {
-    if (userGesture)
-      this._page.bringToFront();
-    this._page.mainFrame().evaluateExpression(((param) => {
-      window.playwrightElementPicked(param.elementInfo, param.userGesture);
-    }).toString(), { isFunction: true }, { elementInfo, userGesture }).catch(() => {
-    });
-  }
-  _onCallLogsUpdated(callLogs) {
-    this._page.mainFrame().evaluateExpression(((callLogs2) => {
-      window.playwrightUpdateLogs(callLogs2);
-    }).toString(), { isFunction: true }, callLogs).catch(() => {
-    });
-  }
   _pushAllSources() {
     const sources = [...this._userSources, ...this._recorderSources];
-    this._page.mainFrame().evaluateExpression((({ sources: sources2 }) => {
-      window.playwrightSetSources(sources2);
-    }).toString(), { isFunction: true }, { sources }).catch(() => {
-    });
+    this._frontend.sourcesUpdated({ sources });
   }
   _revealSource(sourceId) {
     if (!sourceId)
       return;
-    this._page.mainFrame().evaluateExpression((({ sourceId: sourceId2 }) => {
-      window.playwrightSelectSource(sourceId2);
-    }).toString(), { isFunction: true }, { sourceId }).catch(() => {
-    });
+    this._frontend.sourceRevealRequested({ sourceId });
   }
   _updateActions(reveal) {
     const recorderSources = [];
@@ -372,12 +335,28 @@ class ProgrammaticRecorderApp {
     });
     recorder.on(import_recorder.RecorderEvent.SignalAdded, (signal) => {
       const page = findPageByGuid(inspectedContext, signal.frame.pageGuid);
+      if (!page)
+        return;
       inspectedContext.emit(import_browserContext.BrowserContext.Events.RecorderEvent, { event: "signalAdded", data: signal, page, code: "" });
     });
   }
 }
 function findPageByGuid(context, guid) {
   return context.pages().find((p) => p.guid === guid);
+}
+function createRecorderFrontend(page) {
+  return new Proxy({}, {
+    get: (_target, prop) => {
+      if (typeof prop !== "string")
+        return void 0;
+      return (params) => {
+        page.mainFrame().evaluateExpression(((event) => {
+          window.dispatch(event);
+        }).toString(), { isFunction: true }, { method: prop, params }).catch(() => {
+        });
+      };
+    }
+  });
 }
 const recorderAppSymbol = Symbol("recorderApp");
 // Annotate the CommonJS export names for ESM import in node:

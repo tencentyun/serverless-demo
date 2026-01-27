@@ -19,6 +19,7 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var serializers_exports = {};
 __export(serializers_exports, {
   parseSerializedValue: () => parseSerializedValue,
+  serializePlainValue: () => serializePlainValue,
   serializeValue: () => serializeValue
 });
 module.exports = __toCommonJS(serializers_exports);
@@ -89,6 +90,9 @@ function innerParseSerializedValue(value, handles, refs, accessChain) {
 }
 function serializeValue(value, handleSerializer) {
   return innerSerializeValue(value, handleSerializer, { lastId: 0, visited: /* @__PURE__ */ new Map() }, []);
+}
+function serializePlainValue(arg) {
+  return serializeValue(arg, (value) => ({ fallThrough: value }));
 }
 function innerSerializeValue(value, handleSerializer, visitorInfo, accessChain) {
   const handle = handleSerializer(value);
@@ -188,5 +192,6 @@ const constructorToTypedArrayKind = new Map(Object.entries(typedArrayKindToConst
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   parseSerializedValue,
+  serializePlainValue,
   serializeValue
 });
