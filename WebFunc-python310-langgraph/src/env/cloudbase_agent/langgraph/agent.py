@@ -12,6 +12,7 @@ library, particularly around message regeneration and streaming event handling.
 
 from typing import AsyncGenerator
 
+import logging
 from ag_ui.core import BaseEvent, RunAgentInput
 from ag_ui_langgraph import LangGraphAgent as AGUILangGraphAgent
 from langgraph.graph.state import CompiledStateGraph
@@ -19,6 +20,7 @@ from langgraph.graph.state import CompiledStateGraph
 from ..base_agent import BaseAgent
 from .ag_ui_langgraph_patch import apply_monkey_patch
 
+logger = logging.getLogger(__name__)
 
 class LangGraphAgent(BaseAgent):
     """LangGraph Agent implementation extending BaseAgent.
@@ -118,6 +120,35 @@ class LangGraphAgent(BaseAgent):
         self._use_callbacks = use_callbacks
         self._should_fix_event_ids = fix_event_ids
 
+        # Observability support (lazy loaded)
+        self._observability_callback: Optional[Any] = None
+        self._observability_load_attempted = False
+
+    def _load_observability_callback(self) -> None:
+        """Lazy load the observability CallbackHandler.
+
+        This method attempts to import and create the CallbackHandler from
+        cloudbase_agent.observability.langchain. If the package is not available or
+        import fails, the callback remains None and agent continues normally.
+        """
+        if self._observability_load_attempted:
+            return
+
+        self._observability_load_attempted = True
+
+        try:
+            from cloudbase_agent.observability.langchain import CallbackHandler
+            from cloudbase_agent.langgraph.observability_patch import apply_observability_patch
+
+            # Apply the observability patch to LangGraph
+            apply_observability_patch()
+
+            self._observability_callback = CallbackHandler(adapter_name="LangGraph")
+        except ImportError:
+            pass
+        except Exception as e:
+            logger.debug(f"Observability not available: {e}")
+
     async def run(self, run_input: RunAgentInput) -> AsyncGenerator[BaseEvent, None]:
         """Execute the LangGraph agent with the given input.
 
@@ -153,6 +184,42 @@ class LangGraphAgent(BaseAgent):
                 async for event in agent.run(run_input):
                     print(f"Event: {event.type}")
         """
+        # Lazy load observability callback (first run only)
+        if not self._observability_load_attempted:
+            self._load_observability_callback()
+
+        # Check if we have server context from forwardedProps
+        if (
+            self._observability_callback
+            and run_input.forwarded_props
+            and "__agui_server_context" in run_input.forwarded_props
+        ):
+            server_context_data = run_input.forwarded_props["__agui_server_context"]
+
+            # Convert dict to proper SpanContext
+            from opentelemetry.trace import SpanContext, TraceFlags
+            server_span_context = SpanContext(
+                trace_id=int(server_context_data["trace_id"], 16),
+                span_id=int(server_context_data["span_id"], 16),
+                is_remote=False,
+                trace_flags=TraceFlags(server_context_data.get("trace_flags", 1)),
+            )
+
+            # Set the external parent context to link to Cloudbase Agent.Server span
+            self._observability_callback.set_external_parent_context(server_span_context)
+
+        # Store observability callback on self._agent for monkey patch to pick up
+        # This avoids context variable propagation issues and serialization problems
+        if self._observability_callback:
+            self._agent._observability_callback = self._observability_callback
+
+            # Set the callback in the ContextVar for the observability patch
+            # This makes the callback available to all LangChain runnables during graph execution
+            from cloudbase_agent.langgraph.observability_patch import set_observability_callback
+            set_observability_callback(self._observability_callback)
+
+        # Use original run_input (don't inject callback into forwarded_props)
+
         if self._use_callbacks or self._should_fix_event_ids:
             # Enhanced processing with callbacks and/or event ID fixing
             async for event in self._agent.run(run_input):

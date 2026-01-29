@@ -524,11 +524,13 @@ def parse_sequence(source, info):
                 else:
                     # It's not a quantifier. Maybe it's a fuzzy constraint.
                     constraints = parse_fuzzy(source, info, ch, case_flags)
+
                     if constraints:
                         # It _is_ a fuzzy constraint.
-                        apply_constraint(source, info, constraints, case_flags,
-                          saved_pos, sequence)
-                        sequence.append(None)
+                        if is_actually_fuzzy(constraints):
+                            apply_constraint(source, info, constraints, case_flags,
+                              saved_pos, sequence)
+                            sequence.append(None)
                     else:
                         # The element was just a literal.
                         sequence.append(Character(ord(ch),
@@ -542,6 +544,16 @@ def parse_sequence(source, info):
 
     sequence = [item for item in sequence if item is not None]
     return Sequence(sequence)
+
+def is_actually_fuzzy(constraints):
+    "Checks whether a fuzzy constraint is actually fuzzy."
+    if constraints.get("e") == (0, 0):
+        return False
+
+    if (constraints.get("s"), constraints.get("i"), constraints.get("d")) == ((0, 0), (0, 0), (0, 0)):
+        return False
+
+    return True
 
 def apply_quantifier(source, info, counts, case_flags, ch, saved_pos,
   sequence):

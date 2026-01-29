@@ -661,6 +661,7 @@ class Client:
         "_otel_trace",
         "_set_span_in_context",
         "_max_batch_size_bytes",
+        "_use_daemon_threads",
         "_tracing_error_callback",
         "_multipart_disabled",
         "_cache",
@@ -806,7 +807,7 @@ class Client:
                 These headers will be merged with the default headers (User-Agent,
                 Accept, x-api-key, etc.). Custom headers will not override the default
                 required headers.
-            tracing_error_callback: Optional callback function to handle errors.
+            tracing_error_callback (Optional[Callable[[Exception], None]]): Optional callback function to handle errors.
 
                 Called when exceptions occur during tracing operations.
             cache: Configuration for caching.
@@ -895,6 +896,7 @@ class Client:
         self.otel_exporter: Optional[OTELExporter] = None
         self._max_batch_size_bytes = max_batch_size_bytes
         self._multipart_disabled: bool = False
+        self._use_daemon_threads = ls_utils.get_env_var("USE_DAEMON") == "true"
 
         # Initialize auto batching
         if auto_batch_tracing:
@@ -905,6 +907,7 @@ class Client:
                 # arg must be a weakref to self to avoid the Thread object
                 # preventing garbage collection of the Client object
                 args=(weakref.ref(self),),
+                daemon=self._use_daemon_threads,
             ).start()
         else:
             self.tracing_queue = None
@@ -1564,7 +1567,7 @@ class Client:
 
     def upload_csv(
         self,
-        csv_file: Union[str, tuple[str, io.BytesIO]],
+        csv_file: Union[str, tuple[str, io.BytesIO], tuple[str, io.BytesIO, str]],
         input_keys: Sequence[str],
         output_keys: Sequence[str],
         *,
@@ -1627,7 +1630,7 @@ class Client:
         data["id"] = str(uuid.uuid4())
         if isinstance(csv_file, str):
             with open(csv_file, "rb") as f:
-                file_ = {"file": f}
+                file_ = {"file": (Path(csv_file).name, f, "text/csv")}
                 response = self.request_with_retries(
                     "POST",
                     "/datasets/upload",
@@ -1635,11 +1638,14 @@ class Client:
                     files=file_,
                 )
         elif isinstance(csv_file, tuple):
+            file_tuple = csv_file
+            if len(csv_file) == 2:
+                file_tuple = (csv_file[0], csv_file[1], "text/csv")
             response = self.request_with_retries(
                 "POST",
                 "/datasets/upload",
                 data=data,
-                files={"file": csv_file},
+                files={"file": file_tuple},
             )
         else:
             raise ValueError("csv_file must be a string or tuple")
@@ -5447,7 +5453,11 @@ class Client:
             ]
 
         if not uploads:
-            return ls_schemas.UpsertExamplesResponse(example_ids=[], count=0)
+            return ls_schemas.UpsertExamplesResponse(
+                example_ids=[],
+                count=0,
+                as_of=None,
+            )
 
         # Use size-aware batching to prevent payload limit errors
         batches = self._batch_examples_by_size(uploads)
@@ -5461,6 +5471,7 @@ class Client:
     ):
         all_examples_ids = []
         total_count = 0
+        latest_as_of = None
         from langsmith.utils import ContextThreadPoolExecutor
 
         with ContextThreadPoolExecutor(max_workers=max_concurrency) as executor:
@@ -5479,9 +5490,14 @@ class Client:
                 response = future.result()
                 all_examples_ids.extend(response.get("example_ids", []))
                 total_count += response.get("count", 0)
+                # Track the latest as_of timestamp across all batches
+                # Each batch gets its own timestamp when processed
+                as_of = response.get("as_of")
+                if as_of and (latest_as_of is None or as_of > latest_as_of):
+                    latest_as_of = as_of
 
         return ls_schemas.UpsertExamplesResponse(
-            example_ids=all_examples_ids, count=total_count
+            example_ids=all_examples_ids, count=total_count, as_of=latest_as_of
         )
 
     def _upload_single_batch(self, batch, dataset_id, dangerously_allow_filesystem):
@@ -5494,10 +5510,7 @@ class Client:
                 uploads=batch,  # batch is a list of ExampleCreate objects
                 dangerously_allow_filesystem=dangerously_allow_filesystem,
             )
-            return {
-                "example_ids": response.get("example_ids", []),
-                "count": response.get("count", 0),
-            }
+            return response
         else:
             # Strip attachments for legacy endpoint
             for upload in batch:
@@ -5526,6 +5539,7 @@ class Client:
             return {
                 "example_ids": [data["id"] for data in response_data],
                 "count": len(response_data),
+                "as_of": None,
             }
 
     @ls_utils.xor_args(("dataset_id", "dataset_name"))

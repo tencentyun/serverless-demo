@@ -68,8 +68,8 @@ class Files(SyncAPIResource):
         """Upload a file that can be used across various endpoints.
 
         Individual files can be
-        up to 512 MB, and the size of all files uploaded by one organization can be up
-        to 1 TB.
+        up to 512 MB, and each project can store up to 2.5 TB of files in total. There
+        is no organization-wide storage limit.
 
         - The Assistants API supports files up to 2 million tokens and of specific file
           types. See the
@@ -91,10 +91,15 @@ class Files(SyncAPIResource):
         Args:
           file: The File object (not file name) to be uploaded.
 
-          purpose: The intended purpose of the uploaded file. One of: - `assistants`: Used in the
-              Assistants API - `batch`: Used in the Batch API - `fine-tune`: Used for
-              fine-tuning - `vision`: Images used for vision fine-tuning - `user_data`:
-              Flexible file type for any purpose - `evals`: Used for eval data sets
+          purpose:
+              The intended purpose of the uploaded file. One of:
+
+              - `assistants`: Used in the Assistants API
+              - `batch`: Used in the Batch API
+              - `fine-tune`: Used for fine-tuning
+              - `vision`: Images used for vision fine-tuning
+              - `user_data`: Flexible file type for any purpose
+              - `evals`: Used for eval data sets
 
           expires_after: The expiration policy for a file. By default, files with `purpose=batch` expire
               after 30 days and all other files are persisted until they are manually deleted.
@@ -384,8 +389,8 @@ class AsyncFiles(AsyncAPIResource):
         """Upload a file that can be used across various endpoints.
 
         Individual files can be
-        up to 512 MB, and the size of all files uploaded by one organization can be up
-        to 1 TB.
+        up to 512 MB, and each project can store up to 2.5 TB of files in total. There
+        is no organization-wide storage limit.
 
         - The Assistants API supports files up to 2 million tokens and of specific file
           types. See the
@@ -407,10 +412,15 @@ class AsyncFiles(AsyncAPIResource):
         Args:
           file: The File object (not file name) to be uploaded.
 
-          purpose: The intended purpose of the uploaded file. One of: - `assistants`: Used in the
-              Assistants API - `batch`: Used in the Batch API - `fine-tune`: Used for
-              fine-tuning - `vision`: Images used for vision fine-tuning - `user_data`:
-              Flexible file type for any purpose - `evals`: Used for eval data sets
+          purpose:
+              The intended purpose of the uploaded file. One of:
+
+              - `assistants`: Used in the Assistants API
+              - `batch`: Used in the Batch API
+              - `fine-tune`: Used for fine-tuning
+              - `vision`: Images used for vision fine-tuning
+              - `user_data`: Flexible file type for any purpose
+              - `evals`: Used for eval data sets
 
           expires_after: The expiration policy for a file. By default, files with `purpose=batch` expire
               after 30 days and all other files are persisted until they are manually deleted.

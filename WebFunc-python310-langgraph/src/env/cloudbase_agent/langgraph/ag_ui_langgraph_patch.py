@@ -143,12 +143,25 @@ async def patched_prepare_stream(
     logger.info("🔧 MONKEY PATCHED prepare_stream called for thread %s", input.thread_id)
     logger.info("🔧 PATCH: input.forwarded_props = %s", input.forwarded_props)
 
-    state_input = input.state or {}
     messages = input.messages or []
     forwarded_props = input.forwarded_props or {}
     thread_id = input.thread_id
 
+    # FIX: Restore all fields from checkpoint first, then override with new values
+    # This ensures custom state fields (like user_id, token, etc.) are preserved
+    # across conversation turns when client doesn't send them again
+    state_input = agent_state.values.copy()  # Start with all checkpoint fields
+    
+    logger.info("🔧 PATCH: Restored state from checkpoint: %s", list(state_input.keys()))
+    
+    # Override with client-provided state if present
+    if input.state:
+        logger.info("🔧 PATCH: Client provided state fields: %s", list(input.state.keys()))
+        state_input.update(input.state)
+    
+    # Always update messages from checkpoint (will be merged in langgraph_default_merge_state)
     state_input["messages"] = agent_state.values.get("messages", [])
+    
     self.active_run["current_graph_state"] = agent_state.values.copy()
 
     # Import the utility function
@@ -157,7 +170,26 @@ async def patched_prepare_stream(
 
     state = self.langgraph_default_merge_state(state_input, langchain_messages, input)
     self.active_run["current_graph_state"].update(state)
+    
+    # FIX: Inject all RunAgentInput metadata into config so nodes can access them
+    # This makes all request-level data available in agent nodes via config["configurable"]
+    # without polluting the persistent state
+    
+    # Basic identifiers
     config["configurable"]["thread_id"] = thread_id
+    config["configurable"]["run_id"] = input.run_id
+    if input.parent_run_id:
+        config["configurable"]["parent_run_id"] = input.parent_run_id
+    
+    # Context data
+    if input.context:
+        config["configurable"]["context"] = input.context
+        logger.info("🔧 PATCH: Injected context to config: %d items", len(input.context))
+    
+    # Forwarded properties (user-defined metadata)
+    if forwarded_props:
+        config["configurable"].update(forwarded_props)
+        logger.info("🔧 PATCH: Injected forwarded_props to config: %s", list(forwarded_props.keys()))
 
     interrupts = agent_state.tasks[0].interrupts if agent_state.tasks and len(agent_state.tasks) > 0 else []
     has_active_interrupts = len(interrupts) > 0
@@ -254,12 +286,53 @@ async def patched_prepare_stream(
 
     subgraphs_stream_enabled = input.forwarded_props.get("stream_subgraphs") if input.forwarded_props else False
 
+    # Get observability callback from agent instance (set by LangGraphAgent.run())
+    callbacks = None
+    observability_callback = getattr(self, '_observability_callback', None)
+    if observability_callback:
+        callbacks = [observability_callback]
+
     kwargs = self.get_stream_kwargs(
         input=stream_input,
         config=config,
         subgraphs=bool(subgraphs_stream_enabled),
         version="v2",
     )
+
+    # Add callbacks if observability callback is available
+    # Pass callbacks through config, not kwargs (LangChain expects callbacks in config)
+    if callbacks:
+        from langchain_core.runnables.config import RunnableConfig
+        existing_config = kwargs.get('config')
+
+        if existing_config is not None:
+            # Convert dict to RunnableConfig if needed
+            if isinstance(existing_config, dict):
+                kwargs['config'] = RunnableConfig(
+                    callbacks=callbacks,
+                    tags=existing_config.get('tags'),
+                    metadata=existing_config.get('metadata'),
+                    run_name=existing_config.get('run_name'),
+                    max_concurrency=existing_config.get('max_concurrency'),
+                    recursion_limit=existing_config.get('recursion_limit', 25),
+                    configurable=existing_config.get('configurable'),
+                    run_id=existing_config.get('run_id'),
+                )
+            else:
+                # It's already a RunnableConfig, update callbacks
+                kwargs['config'] = RunnableConfig(
+                    callbacks=callbacks,
+                    tags=existing_config.tags,
+                    metadata=existing_config.metadata,
+                    run_name=existing_config.run_name,
+                    max_concurrency=existing_config.max_concurrency,
+                    recursion_limit=existing_config.recursion_limit,
+                    configurable=existing_config.configurable,
+                    run_id=existing_config.run_id,
+                )
+        else:
+            # Create new config with callbacks
+            kwargs['config'] = RunnableConfig(callbacks=callbacks)
 
     stream = self.graph.astream_events(**kwargs)
 
@@ -339,6 +412,12 @@ async def patched_prepare_regenerate_stream(
         subgraphs=bool(subgraphs_stream_enabled),
         version="v2",
     )
+
+    # Get observability callback from agent instance
+    observability_callback = getattr(self, '_observability_callback', None)
+    if observability_callback:
+        kwargs["callbacks"] = [observability_callback]
+
     stream = self.graph.astream_events(**kwargs)
 
     return {"stream": stream, "state": time_travel_checkpoint.values, "config": config}
