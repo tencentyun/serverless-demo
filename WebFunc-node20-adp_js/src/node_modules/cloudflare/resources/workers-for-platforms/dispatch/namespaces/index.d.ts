@@ -1,3 +1,0 @@
-export { NamespaceListResponsesSinglePage, Namespaces, type NamespaceCreateResponse, type NamespaceListResponse, type NamespaceDeleteResponse, type NamespaceGetResponse, type NamespaceCreateParams, type NamespaceListParams, type NamespaceDeleteParams, type NamespaceGetParams, } from "./namespaces.js";
-export { Scripts, type Script, type ScriptUpdateResponse, type ScriptDeleteResponse, type ScriptUpdateParams, type ScriptDeleteParams, type ScriptGetParams, } from "./scripts/index.js";
-//# sourceMappingURL=index.d.ts.map

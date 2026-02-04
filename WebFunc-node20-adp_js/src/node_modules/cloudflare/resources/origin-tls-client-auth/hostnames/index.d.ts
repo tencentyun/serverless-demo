@@ -1,3 +1,0 @@
-export { CertificateListResponsesSinglePage, Certificates, type Certificate, type CertificateCreateResponse, type CertificateListResponse, type CertificateDeleteResponse, type CertificateGetResponse, type CertificateCreateParams, type CertificateListParams, type CertificateDeleteParams, type CertificateGetParams, } from "./certificates.js";
-export { HostnameUpdateResponsesSinglePage, Hostnames, type AuthenticatedOriginPull, type HostnameUpdateResponse, type HostnameUpdateParams, type HostnameGetParams, } from "./hostnames.js";
-//# sourceMappingURL=index.d.ts.map

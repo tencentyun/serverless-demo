@@ -1,3 +1,0 @@
-// File generated from our OpenAPI spec by Stainless. See CONTRIBUTING.md for details.
-export * from "./zones/index.mjs";
-//# sourceMappingURL=zones.mjs.map

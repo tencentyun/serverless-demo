@@ -1,16 +1,16 @@
 {
     "serverless-cloud-function-application": {
         "Chinese": {
-            "name": "Node20 腾讯云智能体开发平台 Javascript 模版",
-            "description": "基于 Node.js 20 的 腾讯云智能体开发平台 Javascript 示例项目",
+            "name": "Node20 腾讯元器 Javascript 模版",
+            "description": "基于 Node.js 20 的 腾讯元器 Javascript 示例项目",
             "attention": "无",
             "author": {
                 "name": "云开发 CloudBase"
             }
         },
         "English": {
-            "name": "Node20-ADP-Javascript-Demo",
-            "description": "A Tencent ADP demo for node Web Function",
+            "name": "Node20-YuanQi-Javascript-Demo",
+            "description": "A Tencent YuanQi demo for node Web Function",
             "attention": "None",
             "author": {
                 "name": "Tencent CloudBase"
@@ -18,8 +18,8 @@
         },
         "runtime": "Nodejs20.19",
         "type": "web",
-        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/WebFunc-node20-adp_js",
-        "version": "1.0.1",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/WebFunc-node20-yuanqi_js",
+        "version": "1.0.0",
         "tags": [
             "CloudBase",
             "Nodejs20.19"
