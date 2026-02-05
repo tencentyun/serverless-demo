@@ -1,0 +1,28 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "Python3.10 Dify 函数模版",
+            "description": "基于 Python3.10，使用 函数URL和 Web 函数，快速部署 Dify 示例项目",
+            "attention": "无",
+            "author": {
+                "name": "云开发 CloudBase"
+            }
+        },
+        "English": {
+            "name": "Python310-Dify-WebDemo",
+            "description": "A Dify demo for python Web Function",
+            "attention": "None",
+            "author": {
+                "name": "CloudBase"
+            }
+        },
+        "runtime": "Python3.10",
+        "type": "web",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Webfunc-python310-dify",
+        "version": "1.0.0",
+        "tags": [
+            "CloudBase",
+            "Python3.10"
+        ]
+    }
+}

@@ -1,0 +1,21 @@
+component: scf
+name: ap-shanghai_dify_demo_py310
+inputs:
+  name: dify_demo_py310
+  src:
+    src: ./src
+  type: web
+  runtime: Python3.10
+  namespace: default
+  region: ap-shanghai
+  memorySize: 512
+  timeout: 60
+  events:
+      - http:
+          parameters:
+            name: url-trigger
+            netConfig:
+              enableIntranet: false
+              enableExtranet: true
+            qualifier: $DEFAULT
+            authType: NONE

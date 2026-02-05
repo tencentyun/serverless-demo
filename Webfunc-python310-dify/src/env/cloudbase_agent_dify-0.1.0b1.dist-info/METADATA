@@ -1,0 +1,64 @@
+Metadata-Version: 2.4
+Name: cloudbase-agent-dify
+Version: 0.1.0b1
+Summary: Cloudbase Agent Python SDK - Dify framework integration
+Author-email: Cloudbase Agent Team <ag-kit@example.com>
+License: Apache-2.0
+Keywords: Cloudbase Agent,agent,ai,dify,llm
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: Apache Software License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Requires-Python: >=3.10
+Requires-Dist: cloudbase-agent-core
+Requires-Dist: httpx>=0.28.1
+Provides-Extra: dev
+Requires-Dist: mypy>=1.0.0; extra == 'dev'
+Requires-Dist: pytest-asyncio>=0.21.0; extra == 'dev'
+Requires-Dist: pytest>=7.0.0; extra == 'dev'
+Requires-Dist: ruff>=0.12.0; extra == 'dev'
+Provides-Extra: observability
+Requires-Dist: cloudbase-agent-observability; extra == 'observability'
+Description-Content-Type: text/markdown
+
+# cloudbase-agent-dify
+
+Cloudbase Agent Python SDK - Dify framework integration
+
+This package provides Dify-specific agent implementations for Cloudbase Agent, enabling seamless integration with Dify platform's chat API.
+
+## Installation
+
+```bash
+pip install -e .
+```
+
+## Usage
+
+See examples in `python-sdk/examples/dify/` for usage examples.
+
+## Configuration
+
+Set the following environment variables:
+
+- `DIFY_API_KEY`: Dify API key (required)
+- `DIFY_API_BASE`: Dify API base URL (optional, defaults to `https://api.dify.ai/v1`)
+
+## Implementation Details
+
+This adapter uses **direct HTTP requests** via `httpx` instead of relying on third-party SDKs:
+
+- **Why direct HTTP?** The official `dify-client` package on PyPI hasn't been updated since 2023 and may be outdated
+- **Benefits**: Full control over API calls, easier to maintain, no dependency on potentially outdated SDKs
+- **API Reference**: Implementation follows the official Dify API documentation: https://docs.dify.ai/api-reference/chat/send-chat-message
+
+## Features
+
+- **Strict mode**: Only `user` role messages are accepted in a single request (prevents semantic inconsistencies)
+- **Automatic conversation management**: Uses `conversation_id` from Dify responses as `thread_id`
+- **Intelligent retry**: Automatically retries once without `conversation_id` if format error occurs
+- **Streaming & Blocking**: Support for both `streaming` (SSE) and `blocking` response modes
+- **Tool call mapping**: Complete support for Dify Agent mode tool calls via `agent_thought` events
