@@ -1,0 +1,1 @@
+{"version":3,"sources":["../../src/types/copilot-cloud-config.ts"],"sourcesContent":["export interface CopilotCloudConfig {\n  guardrails: {\n    input: {\n      restrictToTopic: {\n        enabled: boolean;\n        validTopics: string[];\n        invalidTopics: string[];\n      };\n    };\n  };\n}\n"],"mappings":";;;;;;;;;;;;;;;;AAAA;AAAA;","names":[]}

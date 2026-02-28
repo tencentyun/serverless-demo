@@ -19,6 +19,12 @@ test('stringify()', function (t) {
         st.end();
     });
 
+    t.test('correctly encodes low-byte characters', function (st) {
+        st.equal(qs.stringify({ a: String.fromCharCode(1) }), 'a=%01', 'encodes 0x01');
+        st.equal(qs.stringify({ a: String.fromCharCode(15) }), 'a=%0F', 'encodes 0x0F');
+        st.end();
+    });
+
     t.test('stringifies falsy values', function (st) {
         st.equal(qs.stringify(undefined), '');
         st.equal(qs.stringify(null), '');
