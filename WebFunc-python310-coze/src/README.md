@@ -10,6 +10,7 @@
 - ✅ **`app.py`** - 应用入口和服务启动（基于 `AgentServiceApp`）
 - ✅ **`auth.py`** - JWT 认证辅助模块（从 Authorization header 提取 user_id）
 - ✅ **`scf_bootstrap`** - SCF 云函数启动脚本
+- ✅ **`Dockerfile`** - 生产级容器化部署配置，便于在云环境或本地通过 Docker 直接运行本项目。
 - ✅ 支持 Coze Chat V3 API
 - ✅ 支持流式响应（streaming）
 - ✅ 支持推理内容（reasoning content）
@@ -57,6 +58,7 @@ COZE_BOT_ID=your_bot_id_here
 | `COZE_API_TOKEN` | Coze 平台的 API Token | ✅ 必填 |
 | `COZE_BOT_ID` | Coze 平台的 Bot ID | ✅ 必填 |
 | `COZE_API_BASE` | Coze API 基础 URL（默认: https://api.coze.cn） | ⭕ 可选 |
+| `AUTO_TRACES_STDOUT` | 是否将 trace 输出到 stdout（默认: true，设 false/0 关闭） | ⭕ 可选 |
 
 **动态 User ID（每请求用户身份）**：
 
@@ -79,22 +81,23 @@ Adapter 支持每个请求使用不同的 `user_id`，允许多个用户使用�
    - 支持 base64url 解码和 padding 处理
    - 包含完整的错误处理和日志记录
 
-2. **`agent.py`** - JWT 请求预处理器：
-   - `create_jwt_request_preprocessor()` - 创建 JWT 认证预处理器
-   - 自动从 Authorization header 提取 user_id
-   - 将 user_id 写入 `request.forwarded_props.user_id`，供 Coze SDK 使用
+2. **`agent.py`** - JWT 认证中间件：
+   - `jwt_middleware(input_data, request)` - JWT 认证中间件（生成器）
+   - 从 Authorization header 解析 JWT，将 user_id 写入 `forwarded_props.user_id`
+   - 将 `state.__request_context__.user` 写入完整用户信息（含 jwt payload）供工作流使用
 
 **使用方式**：
 
 ```python
 from cloudbase_agent.server import AgentServiceApp
-from agent import build_coze_agent, create_jwt_request_preprocessor
+from cloudbase_agent.observability.server import ConsoleTraceConfig
+from agent import build_coze_agent, jwt_middleware
 
 agent = build_coze_agent()
-AgentServiceApp().run(
-    lambda: {"agent": agent},
-    request_preprocessor=create_jwt_request_preprocessor(),
-)
+observability = ConsoleTraceConfig() if is_observability_enabled() else None
+app = AgentServiceApp(observability=observability)
+app.use(jwt_middleware)
+app.run(lambda: {"agent": agent})
 ```
 
 **JWT Token 格式要求**：
@@ -177,6 +180,7 @@ coze-python/
 ├── auth.py               # ✅ 已实现：JWT 认证辅助模块
 ├── scf_bootstrap         # ✅ 已实现：SCF 启动脚本
 ├── requirements.txt      # 依赖列表
+├── Dockerfile            # ✅ 已实现：容器化部署配置
 ├── .env.example          # 环境变量示例
 ├── .env                  # 环境变量配置（需创建）
 └── env/                  # 依赖包目录（自动生成）
@@ -208,21 +212,9 @@ def build_coze_agent():
     )
 ```
 
-**2. `create_jwt_request_preprocessor()` - JWT 认证预处理器**
+**2. `jwt_middleware(input_data, request)` - JWT 认证中间件**
 
-```python
-from auth import extract_user_id_from_request
-
-def create_jwt_request_preprocessor():
-    """创建 JWT 认证预处理器，从 Authorization header 提取 user_id"""
-    def jwt_preprocessor(request, http_context):
-        user_id = extract_user_id_from_request(http_context)
-        if user_id:
-            if not request.forwarded_props:
-                request.forwarded_props = {}
-            request.forwarded_props["user_id"] = user_id
-    return jwt_preprocessor
-```
+从 Authorization header 解析 JWT，写入 `forwarded_props.user_id` 与 `state.__request_context__.user`（供工作流使用）。使用生成器模式，通过 `yield` 传递控制流。
 
 ### `auth.py` - JWT 认证辅助模块
 
@@ -230,13 +222,14 @@ def create_jwt_request_preprocessor():
 
 **核心函数**：
 
-1. **`extract_user_id_from_jwt(token)`** - 从 JWT token 提取 user_id
-   - 解析 JWT 格式（header.payload.signature）
-   - 解码 base64url 编码的 payload
-   - 从 `sub` 字段提取用户身份
+1. **`decode_jwt(token)`** - 解码 JWT，返回 `(user_id, payload)`
+   - 供 `jwt_middleware` 使用，用于写入 `forwarded_props.user_id` 和 `state.__request_context__.user.jwt`
+
+2. **`extract_user_id_from_jwt(token)`** - 从 JWT token 提取 user_id
+   - 内部调用 `decode_jwt`，返回 user_id
    - 包含完整的错误处理和日志记录
 
-2. **`extract_user_id_from_request(http_context)`** - 从 HTTP 请求提取 user_id
+3. **`extract_user_id_from_request(http_context)`** - 从 HTTP 请求提取 user_id
    - 从 Authorization header 读取 Bearer token
    - 调用 `extract_user_id_from_jwt()` 解析 token
    - 返回 user_id 或 None（如果解析失败）
@@ -253,18 +246,21 @@ def create_jwt_request_preprocessor():
 
 ```python
 from cloudbase_agent.server import AgentServiceApp
-from agent import build_coze_agent, create_jwt_request_preprocessor
+from cloudbase_agent.observability.server import ConsoleTraceConfig
+from agent import build_coze_agent, jwt_middleware
 
 agent = build_coze_agent()
-AgentServiceApp().run(
-    lambda: {"agent": agent},
-    request_preprocessor=create_jwt_request_preprocessor(),
-)
+observability = ConsoleTraceConfig() if is_observability_enabled() else None
+app = AgentServiceApp(observability=observability)
+app.use(jwt_middleware)
+app.run(lambda: {"agent": agent})
 ```
 
 **服务端口**：默认 9000（由 `cloudbase_agent.server` 管理）
 
-**JWT 认证**：通过 `request_preprocessor` 参数自动启用，从 Authorization header 提取 user_id
+**JWT 认证**：通过 `app.use(jwt_middleware)` 启用，从 Authorization header 提取 user_id 并注入 state
+
+**可观测性**：通过 `AUTO_TRACES_STDOUT` 环境变量控制是否将 trace 输出到 stdout
 
 ### `scf_bootstrap` - SCF 启动脚本
 

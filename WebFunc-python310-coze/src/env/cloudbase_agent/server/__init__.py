@@ -46,6 +46,28 @@ Example:
 
         AgentServiceApp().run(create_agent, port=8000)
 
+    With middleware::
+
+        from cloudbase_agent.server import AgentServiceApp
+
+        def jwt_middleware(input_data, request):
+            auth_header = request.headers.get("Authorization")
+            if auth_header and auth_header.startswith("Bearer "):
+                token = auth_header[7:]
+                user_id = extract_user_id_from_jwt(token)
+                if user_id:
+                    if not input_data.forwarded_props:
+                        input_data.forwarded_props = {}
+                    input_data.forwarded_props["user_id"] = user_id
+            yield
+
+        def create_agent():
+            return {"agent": MyAgent()}
+
+        app = AgentServiceApp()
+        app.use(jwt_middleware)
+        app.run(create_agent, port=8000)
+
     With resource cleanup::
 
         from cloudbase_agent.server import AgentServiceApp, AgentCreatorResult
@@ -73,7 +95,7 @@ from .openai.server import create_adapter as create_openai_adapter
 # Data models
 from .send_message.models import RunAgentInput
 from .send_message.server import create_adapter as create_send_message_adapter
-from .utils.types import AgentCreator, AgentCreatorResult
+from .utils.types import AgentCreator, AgentCreatorResult, MiddlewareFunction
 
 __all__ = [
     # Core capabilities (primary)
@@ -88,4 +110,5 @@ __all__ = [
     "HealthzResponse",
     "AgentCreatorResult",
     "AgentCreator",
+    "MiddlewareFunction",
 ]

@@ -7,23 +7,116 @@ and AG-UI protocol events, as well as preparing inputs for Coze chat API.
 import json
 import uuid
 from typing import Any, Dict, List, Optional
+from urllib.parse import urlsplit
 
 from ag_ui.core import EventType, Message, RunAgentInput
 from ag_ui.core.events import (
     TextMessageContentEvent,
     TextMessageStartEvent,
-    TextMessageEndEvent,
     ThinkingTextMessageContentEvent,
-    ToolCallStartEvent,
     ToolCallArgsEvent,
     ToolCallEndEvent,
     ToolCallResultEvent,
+    ToolCallStartEvent,
 )
-from cozepy import ChatEventType, Message as CozeMessage
+from cozepy import ChatEventType
+from cozepy import Message as CozeMessage
+from cozepy.chat import MessageObjectString
 
 # Global buffers to track cumulative content and message state
 _content_buffer: Dict[str, str] = {}
 _message_started: Dict[str, bool] = {}
+
+
+def _validate_http_url(file_url: str) -> None:
+    """Validate that a URL is a public HTTP(S) URL."""
+    parsed = urlsplit(file_url)
+    scheme = parsed.scheme.lower()
+
+    if scheme == "data":
+        raise ValueError("Data URLs are not supported by the Coze adapter.")
+    if scheme not in {"http", "https"} or not parsed.netloc:
+        raise ValueError("Only HTTP(S) URLs are supported by the Coze adapter.")
+
+
+def _coze_object_from_part(part: Any) -> MessageObjectString:
+    """Convert one AG-UI content part into a Coze object string item."""
+    if isinstance(part, dict):
+        part_data = part
+    elif hasattr(part, "model_dump"):
+        part_data = part.model_dump(by_alias=True)
+    else:
+        raise ValueError("AG-UI content parts must be dictionaries.")
+
+    part_type = part_data.get("type")
+    if part_type == "text":
+        text = part_data.get("text")
+        if not isinstance(text, str) or not text:
+            raise ValueError("Text parts must include non-empty text.")
+        return MessageObjectString.build_text(text)
+
+    # Legacy AG-UI binary format: {type: "binary", mimeType, url|data|id}
+    if part_type == "binary":
+        if part_data.get("data") is not None:
+            raise ValueError("Binary data payloads are not supported by the Coze adapter.")
+        if part_data.get("id") is not None:
+            raise ValueError("Binary IDs cannot be mapped to Coze file IDs.")
+
+        file_url = part_data.get("url")
+        if not isinstance(file_url, str) or not file_url:
+            raise ValueError("Binary parts currently support only non-empty URLs.")
+        _validate_http_url(file_url)
+
+        mime_type = part_data.get("mimeType")
+        if not isinstance(mime_type, str) or not mime_type:
+            raise ValueError("Binary URL parts must include a mimeType.")
+
+        if mime_type.startswith("image/"):
+            return MessageObjectString.build_image(file_url=file_url)
+        if mime_type.startswith("audio/"):
+            return MessageObjectString.build_audio(file_url=file_url)
+        if mime_type.startswith("video/"):
+            raise ValueError("Video inputs are not supported by the Coze adapter.")
+        return MessageObjectString.build_file(file_url=file_url)
+
+    raise ValueError(f"Unsupported AG-UI content part type: {part_type}")
+
+
+def _coze_message_from_user_content(content: Any, has_existing_text_context: bool = False) -> CozeMessage:
+    """Convert AG-UI user content to a Coze message."""
+    if isinstance(content, str):
+        return CozeMessage.build_user_question_text(content)
+
+    if isinstance(content, list):
+        if not content:
+            raise ValueError("User content parts cannot be empty.")
+
+        objects = [_coze_object_from_part(part) for part in content]
+        text_objects = [obj for obj in objects if getattr(obj.type, "value", obj.type) == "text"]
+        non_text_objects = [obj for obj in objects if getattr(obj.type, "value", obj.type) != "text"]
+        image_or_file_objects = [
+            obj
+            for obj in non_text_objects
+            if getattr(obj.type, "value", obj.type) in {"image", "file"}
+        ]
+
+        if len(text_objects) > 1:
+            raise ValueError("Coze object_string messages can include at most one text part.")
+
+        if len(text_objects) == 1 and not non_text_objects:
+            return CozeMessage.build_user_question_text(text_objects[0].text or "")
+
+        if len(text_objects) == 1 and not image_or_file_objects:
+            raise ValueError(
+                "Coze object_string messages with text must also include at least one image or file part."
+            )
+
+        if not text_objects and not has_existing_text_context:
+            raise ValueError("Pure Coze object_string attachment messages require existing text context.")
+
+        return CozeMessage.build_user_question_objects(objects)
+
+    raise ValueError("User content must be a string or a list of multimodal parts.")
 
 
 def ag_ui_tools_to_coze_tools(tools: List[Any]) -> List[Dict[str, Any]]:
@@ -43,8 +136,12 @@ def ag_ui_tools_to_coze_tools(tools: List[Any]) -> List[Dict[str, Any]]:
     for tool in tools:
         # Extract tool information
         name = getattr(tool, "name", None) or (tool.get("name") if isinstance(tool, dict) else None)
-        description = getattr(tool, "description", None) or (tool.get("description") if isinstance(tool, dict) else None)
-        parameters = getattr(tool, "parameters", None) or (tool.get("parameters") if isinstance(tool, dict) else None)
+        description = getattr(tool, "description", None) or (
+            tool.get("description") if isinstance(tool, dict) else None
+        )
+        parameters = getattr(tool, "parameters", None) or (
+            tool.get("parameters") if isinstance(tool, dict) else None
+        )
         
         if not name:
             continue
@@ -115,7 +212,12 @@ def coze_prepare_inputs(run_input: RunAgentInput) -> Dict[str, Any]:
     # Convert to Coze Message format
     additional_messages: List[CozeMessage] = []
     if user_message:
-        additional_messages.append(CozeMessage.build_user_question_text(user_message))
+        additional_messages.append(
+            _coze_message_from_user_content(
+                user_message,
+                has_existing_text_context=bool(getattr(run_input, "thread_id", None)),
+            )
+        )
     
     # Convert tools from AG-UI format to Coze API format
     tools = None
@@ -289,7 +391,7 @@ def coze_events_to_ag_ui_events(
                 # Log on first reasoning content (for DeepSeek-R1 debugging)
                 if debug_mode and not previous_reasoning:
                     logger = logging.getLogger(__name__)
-                    logger.debug(f"[Converter] Detected reasoning_content (DeepSeek-R1 model)")
+                    logger.debug("[Converter] Detected reasoning_content (DeepSeek-R1 model)")
                     preview = current_reasoning[:50] + "..." if len(current_reasoning) > 50 else current_reasoning
                     logger.debug(f"  Reasoning preview: {preview}")
                 
@@ -434,7 +536,7 @@ def coze_events_to_ag_ui_events(
                 content = getattr(message, "content", "")
                 
                 if debug_mode:
-                    logger.debug(f"[Converter] Converting tool_response to ToolCallResultEvent")
+                    logger.debug("[Converter] Converting tool_response to ToolCallResultEvent")
                     logger.debug(f"  tool_call_id: {tool_call_id}")
                     logger.debug(f"  content type: {type(content)}, length: {len(content) if content else 0}")
                     logger.debug(f"  content preview: {content[:100] if content else 'empty'}...")
@@ -443,7 +545,7 @@ def coze_events_to_ag_ui_events(
                 # Content must not be empty - this is a required field
                 if not content:
                     if debug_mode:
-                        logger.warning(f"[Converter] tool_response has empty content, skipping ToolCallResultEvent")
+                        logger.warning("[Converter] tool_response has empty content, skipping ToolCallResultEvent")
                     return None
                 
                 # Emit TOOL_CALL_RESULT event
@@ -501,8 +603,8 @@ def ag_ui_messages_to_coze_messages(messages: List[Message]) -> List[CozeMessage
             continue
 
         if role == "user":
-            coze_messages.append(CozeMessage.build_user_question_text(content))
-        elif role == "assistant":
+            coze_messages.append(_coze_message_from_user_content(content))
+        elif role == "assistant" and isinstance(content, str):
             # Coze SDK might have different methods for assistant messages
             # For now, we'll use user question format as a fallback
             coze_messages.append(CozeMessage.build_user_question_text(content))

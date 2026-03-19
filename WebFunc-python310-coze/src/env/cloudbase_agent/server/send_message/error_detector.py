@@ -105,14 +105,24 @@ def _check_state_snapshot(event: Event) -> Tuple[bool, Optional[str], Optional[s
         (has_error, error_message, error_code) tuple
     """
     snapshot = getattr(event, 'snapshot', {})
-    messages = snapshot.get("messages", [])
+    
+    # Handle both dict and object types (e.g., CopilotKitState Pydantic model)
+    if isinstance(snapshot, dict):
+        messages = snapshot.get("messages", [])
+    else:
+        messages = getattr(snapshot, "messages", [])
     
     if not messages:
         return False, None, None
     
     # Check last message (most likely to contain error)
     last_msg = messages[-1]
-    content = getattr(last_msg, "content", None) or last_msg.get("content")
+    
+    # Handle both dict and object types
+    if isinstance(last_msg, dict):
+        content = last_msg.get("content")
+    else:
+        content = getattr(last_msg, "content", None)
     
     return _analyze_content(content)
 
@@ -135,7 +145,12 @@ def _check_messages_snapshot(event: Event) -> Tuple[bool, Optional[str], Optiona
     
     # Check last message
     last_msg = messages[-1]
-    content = getattr(last_msg, "content", None) or last_msg.get("content")
+    
+    # Handle both dict and object types
+    if isinstance(last_msg, dict):
+        content = last_msg.get("content")
+    else:
+        content = getattr(last_msg, "content", None)
     
     return _analyze_content(content)
 

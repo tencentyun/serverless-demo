@@ -27,7 +27,7 @@ from uvicorn.protocols.http.flow_control import CLOSE_HEADER, HIGH_WATER_LIMIT, 
 from uvicorn.protocols.utils import get_client_addr, get_local_addr, get_path_with_query_string, get_remote_addr, is_ssl
 from uvicorn.server import ServerState
 
-HEADER_RE = re.compile(b'[\x00-\x1f\x7f()<>@,;:[]={} \t\\"]')
+HEADER_RE = re.compile(b'[\x00-\x1f\x7f()<>@,;:\\[\\]={} \t\\\\"]')
 HEADER_VALUE_RE = re.compile(b"[\x00-\x08\x0a-\x1f\x7f]")
 
 
@@ -85,7 +85,7 @@ class HttpToolsProtocol(asyncio.Protocol):
         # Per-connection state
         self.transport: asyncio.Transport = None  # type: ignore[assignment]
         self.flow: FlowControl = None  # type: ignore[assignment]
-        self.server: tuple[str, int] | None = None
+        self.server: tuple[str, int | None] | None = None
         self.client: tuple[str, int] | None = None
         self.scheme: Literal["http", "https"] | None = None
         self.pipeline: deque[tuple[RequestResponseCycle, ASGI3Application]] = deque()
@@ -401,7 +401,7 @@ class RequestResponseCycle:
         self.waiting_for_100_continue = expect_100_continue
 
         # Request state
-        self.body = b""
+        self.body = bytearray()
         self.more_body = True
 
         # Response state
@@ -572,6 +572,6 @@ class RequestResponseCycle:
 
         if self.disconnected or self.response_complete:
             return {"type": "http.disconnect"}
-        message: HTTPRequestEvent = {"type": "http.request", "body": self.body, "more_body": self.more_body}
-        self.body = b""
+        message: HTTPRequestEvent = {"type": "http.request", "body": bytes(self.body), "more_body": self.more_body}
+        self.body = bytearray()
         return message

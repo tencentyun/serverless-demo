@@ -114,7 +114,13 @@ def list_values(ctx: click.Context, output_format: str) -> None:
 @click.argument("key", required=True)
 @click.argument("value", required=True)
 def set_value(ctx: click.Context, key: Any, value: Any) -> None:
-    """Store the given key/value."""
+    """
+    Store the given key/value.
+
+    This doesn't follow symlinks, to avoid accidentally modifying a file at a
+    potentially untrusted path.
+    """
+
     file = ctx.obj["FILE"]
     quote = ctx.obj["QUOTE"]
     export = ctx.obj["EXPORT"]
@@ -146,7 +152,12 @@ def get(ctx: click.Context, key: Any) -> None:
 @click.pass_context
 @click.argument("key", required=True)
 def unset(ctx: click.Context, key: Any) -> None:
-    """Removes the given key."""
+    """
+    Removes the given key.
+
+    This doesn't follow symlinks, to avoid accidentally modifying a file at a
+    potentially untrusted path.
+    """
     file = ctx.obj["FILE"]
     quote = ctx.obj["QUOTE"]
     success, key = unset_key(file, key, quote)
@@ -156,7 +167,13 @@ def unset(ctx: click.Context, key: Any) -> None:
         sys.exit(1)
 
 
-@cli.command(context_settings={"ignore_unknown_options": True})
+@cli.command(
+    context_settings={
+        "allow_extra_args": True,
+        "allow_interspersed_args": False,
+        "ignore_unknown_options": True,
+    }
+)
 @click.pass_context
 @click.option(
     "--override/--no-override",
@@ -164,7 +181,7 @@ def unset(ctx: click.Context, key: Any) -> None:
     help="Override variables from the environment file with those from the .env file.",
 )
 @click.argument("commandline", nargs=-1, type=click.UNPROCESSED)
-def run(ctx: click.Context, override: bool, commandline: List[str]) -> None:
+def run(ctx: click.Context, override: bool, commandline: tuple[str, ...]) -> None:
     """Run command with environment variables present."""
     file = ctx.obj["FILE"]
     if not os.path.isfile(file):
@@ -180,7 +197,8 @@ def run(ctx: click.Context, override: bool, commandline: List[str]) -> None:
     if not commandline:
         click.echo("No command given.")
         sys.exit(1)
-    run_command(commandline, dotenv_as_dict)
+
+    run_command([*commandline, *ctx.args], dotenv_as_dict)
 
 
 def run_command(command: List[str], env: Dict[str, str]) -> None:

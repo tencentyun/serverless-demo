@@ -115,7 +115,8 @@ class InvalidRequestError(AgentServiceError):
             message: Description of what is invalid
             details: Optional field-level validation errors
         """
-        super().__init__(message=message, status_code=400, details=details)
+        # Use INVALID_REQUEST as error_type (matches TypeScript implementation and documentation)
+        super().__init__(message=message, status_code=400, error_type="INVALID_REQUEST", details=details)
 
 
 class AuthenticationError(AgentServiceError):

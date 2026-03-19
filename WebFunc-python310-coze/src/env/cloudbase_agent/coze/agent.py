@@ -15,14 +15,84 @@ import uuid
 from typing import Any, AsyncGenerator, Dict, Optional
 
 from ag_ui.core import BaseEvent, EventType, RunAgentInput
-from ag_ui.core.events import RunErrorEvent, RunFinishedEvent, RunStartedEvent
-from cozepy import ChatEventType, Coze, COZE_CN_BASE_URL, TokenAuth, ToolOutput
+from ag_ui.core.events import RunErrorEvent, RunFinishedEvent, RunStartedEvent, TextMessageEndEvent
+from cozepy import ChatEventType, Coze, COZE_CN_BASE_URL, Message as CozeMessage, TokenAuth, ToolOutput
 
 from cloudbase_agent.base_agent import BaseAgent
 from .converters import coze_events_to_ag_ui_events, coze_prepare_inputs
 
+# Optional observability support
+try:
+    from cloudbase_agent.observability.coze import CozeEventHandler
+    OBSERVABILITY_AVAILABLE = True
+except ImportError:
+    OBSERVABILITY_AVAILABLE = False
+    CozeEventHandler = None  # type: ignore
+
 # Configure logging
 logger = logging.getLogger(__name__)
+
+
+def _serialize_coze_debug_value(value: Any) -> Any:
+    """Serialize Coze SDK values into JSON-safe debug output."""
+    if hasattr(value, "model_dump"):
+        return _serialize_coze_debug_value(value.model_dump(mode="json", by_alias=True))
+    if isinstance(value, dict):
+        return {key: _serialize_coze_debug_value(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_serialize_coze_debug_value(item) for item in value]
+    return value
+
+
+def _normalize_forwarded_props_overrides(forwarded_props: Any) -> dict[str, Any]:
+    """Normalize forwarded_props into safe Coze top-level overrides."""
+    if not isinstance(forwarded_props, dict):
+        return {}
+
+    # Filter internal fields injected by server/framework.
+    overrides: dict[str, Any] = {
+        key: value for key, value in forwarded_props.items() if isinstance(key, str) and not key.startswith("__")
+    }
+
+    # Coze SDK expects a list[Message] and calls model_dump() internally.
+    if "additional_messages" in overrides:
+        additional_messages = overrides["additional_messages"]
+        if additional_messages is None:
+            overrides["additional_messages"] = []
+        elif isinstance(additional_messages, list):
+            normalized_messages: list[CozeMessage] = []
+            for item in additional_messages:
+                if isinstance(item, dict):
+                    normalized_messages.append(CozeMessage.model_validate(item))
+                elif hasattr(item, "model_dump"):
+                    normalized_messages.append(CozeMessage.model_validate(item.model_dump()))
+                else:
+                    raise ValueError(
+                        "forwarded_props.additional_messages must be a list of Coze message objects or dictionaries."
+                    )
+            overrides["additional_messages"] = normalized_messages
+        else:
+            raise ValueError("forwarded_props.additional_messages must be a list.")
+
+    # Defensive validation for common Coze top-level fields.
+    if "bot_id" in overrides and not isinstance(overrides["bot_id"], str):
+        raise ValueError("forwarded_props.bot_id must be a string.")
+    if "user_id" in overrides and not isinstance(overrides["user_id"], str):
+        raise ValueError("forwarded_props.user_id must be a string.")
+    if "conversation_id" in overrides and not isinstance(overrides["conversation_id"], str):
+        raise ValueError("forwarded_props.conversation_id must be a string.")
+    if "parameters" in overrides and not isinstance(overrides["parameters"], dict):
+        raise ValueError("forwarded_props.parameters must be a dictionary.")
+    if "custom_variables" in overrides and not isinstance(overrides["custom_variables"], dict):
+        raise ValueError("forwarded_props.custom_variables must be a dictionary.")
+    if "meta_data" in overrides and not isinstance(overrides["meta_data"], dict):
+        raise ValueError("forwarded_props.meta_data must be a dictionary.")
+    if "auto_save_history" in overrides and not isinstance(overrides["auto_save_history"], bool):
+        raise ValueError("forwarded_props.auto_save_history must be a boolean.")
+    if "enable_card" in overrides and not isinstance(overrides["enable_card"], bool):
+        raise ValueError("forwarded_props.enable_card must be a boolean.")
+
+    return overrides
 
 
 class CozeAgent(BaseAgent):
@@ -60,21 +130,21 @@ class CozeAgent(BaseAgent):
         Enable debug logging for troubleshooting.
 
     **Custom User Variables (via forwarded_props):**
-    
+
     Coze supports custom user variables that can be passed dynamically via
     ``forwarded_props`` in the run input. The entire ``forwarded_props`` dict
     is passed directly to Coze as ``parameters``, enabling transparent passthrough
     of custom variables for workflow/dialog flow start nodes.
-    
+
     Example::
-    
+
         run_input = RunAgentInput(
             messages=[...],
             forwarded_props={
                 "user": [{"user_id": "123456", "user_name": "John"}]
             }
         )
-    
+
     See: https://www.coze.cn/open/docs/developer_guides/chat_v3
 
     Raises
@@ -151,7 +221,7 @@ class CozeAgent(BaseAgent):
         ------
         ValueError
             If api_token or bot_id are missing or invalid.
-        
+
         Note
         ----
         user_id must be provided per-request via forwarded_props.user_id.
@@ -208,6 +278,11 @@ class CozeAgent(BaseAgent):
                 ))
                 logger.addHandler(handler)
 
+        # Initialize observability handler if available
+        self._observability_handler: Optional[CozeEventHandler] = None
+        if OBSERVABILITY_AVAILABLE:
+            self._observability_handler = CozeEventHandler(adapter_name="Coze")
+
     async def run(self, run_input: RunAgentInput) -> AsyncGenerator[BaseEvent, None]:
         """Execute the Coze agent with the given input.
 
@@ -254,15 +329,15 @@ class CozeAgent(BaseAgent):
 
     def _get_user_id(self, run_input: RunAgentInput) -> str:
         """Get user_id from run_input.forwarded_props.user_id.
-        
-        Gateway extracts user_id from Authorization header (JWT `sub` field) and writes to 
-        forwarded_props.user_id. Gateway value is trusted and should override client-provided 
+
+        Gateway extracts user_id from Authorization header (JWT `sub` field) and writes to
+        forwarded_props.user_id. Gateway value is trusted and should override client-provided
         value (client value may be forged).
-        
+
         This method validates user_id before calling Coze SDK to provide clear error messages.
         If user_id is missing or empty, Coze SDK would also raise an error, but our validation
         provides more helpful error messages.
-        
+
         :param run_input: Input data for the agent execution
         :type run_input: RunAgentInput
         :return: User ID to use for Coze API
@@ -270,7 +345,7 @@ class CozeAgent(BaseAgent):
         :raises ValueError: If user_id is not provided in forwarded_props.user_id or is empty string
         """
         forwarded_props = run_input.forwarded_props or {}
-        
+
         # Get user_id from forwarded_props.user_id (from gateway JWT or request)
         if "user_id" not in forwarded_props:
             raise ValueError(
@@ -279,9 +354,9 @@ class CozeAgent(BaseAgent):
                 "forwarded_props.user_id, or provide it in the request. "
                 f"Refer to: {self._DOCS_URL}"
             )
-        
+
         user_id = forwarded_props["user_id"]
-        
+
         # Validate user_id is not empty
         if not user_id or not isinstance(user_id, str) or not user_id.strip():
             raise ValueError(
@@ -290,10 +365,10 @@ class CozeAgent(BaseAgent):
                 "Please ensure JWT 'sub' field is not empty or provide a valid user_id. "
                 f"Refer to: {self._DOCS_URL}"
             )
-        
+
         if self._debug_mode:
             logger.debug(f"[CozeAgent] Using user_id from forwarded_props.user_id: {user_id.strip()}")
-        
+
         return user_id.strip()
 
     async def _run_internal(self, run_input: RunAgentInput) -> AsyncGenerator[BaseEvent, None]:
@@ -309,20 +384,42 @@ class CozeAgent(BaseAgent):
         :yield: Events from the chat execution
         :rtype: AsyncGenerator[BaseEvent, None]
         """
-        # Get dynamic user_id from run_input (supports per-request user identity)
-        dynamic_user_id = self._get_user_id(run_input)
-        
+        # Get dynamic user_id from run_input (supports per-request user identity).
+        # If it's missing/invalid, emit RUN_ERROR and stop here to avoid server-side
+        # exception wrapping that would produce duplicate RUN_ERROR events.
+        try:
+            dynamic_user_id = self._get_user_id(run_input)
+        except Exception as e:
+            # Pre-session validation error: use client-provided thread_id if available, otherwise empty string
+            yield RunErrorEvent(
+                type=EventType.RUN_ERROR,
+                thread_id=run_input.thread_id or "",
+                run_id=run_input.run_id or "",
+                message=str(e),
+            )
+            return
+
+        otel_context, run_id_str = self._setup_observability_for_run(run_input)
+
         # Check if this is a tool output submission (local plugin flow)
         # If messages contain ToolMessage, it means client has executed the tool
         # and we need to submit the result to Coze via submit_tool_outputs API
         tool_messages = [
-            msg for msg in run_input.messages 
+            msg for msg in run_input.messages
             if getattr(msg, "role", None) == "tool" and hasattr(msg, "tool_call_id")
         ]
-        
+
         if tool_messages:
-            # For tool output submission, use original thread_id
-            # Emit run started event
+            # Tool output submission requires thread_id (conversation_id from previous run).
+            # Do not emit RUN_STARTED when we have no real thread; report error and return.
+            if not run_input.thread_id:
+                yield RunErrorEvent(
+                    type=EventType.RUN_ERROR,
+                    thread_id="",
+                    run_id=run_input.run_id or "",
+                    message="thread_id (conversation_id) is required for tool output submission. Pass the conversation_id from the previous run.",
+                )
+                return
             yield RunStartedEvent(
                 type=EventType.RUN_STARTED,
                 thread_id=run_input.thread_id,
@@ -341,23 +438,33 @@ class CozeAgent(BaseAgent):
             return
 
         # Prepare inputs for Coze API (normal chat flow)
-        coze_inputs = coze_prepare_inputs(run_input)
+        # Coze-local validation errors should be emitted here directly instead of
+        # bubbling up into the shared server layer, which would duplicate RUN_ERROR.
+        try:
+            coze_inputs = coze_prepare_inputs(run_input)
+            # Forwarded props can override any top-level Coze request fields.
+            # This enables AG-UI clients to pass through Coze-specific options directly.
+            coze_top_level_overrides = _normalize_forwarded_props_overrides(run_input.forwarded_props)
+        except Exception as e:
+            yield RunErrorEvent(
+                type=EventType.RUN_ERROR,
+                thread_id=run_input.thread_id or "",
+                run_id=run_input.run_id or "",
+                message=str(e),
+            )
+            return
 
         additional_messages = coze_inputs.get("additional_messages", [])
         # Get custom user variables (forwarded_props.parameters)
         coze_parameters = coze_inputs.get("parameters")
 
         if not additional_messages:
-            # No user message to send
-            yield RunStartedEvent(
-                type=EventType.RUN_STARTED,
-                thread_id=run_input.thread_id,
-                run_id=run_input.run_id,
-            )
-            yield RunFinishedEvent(
-                type=EventType.RUN_FINISHED,
-                thread_id=run_input.thread_id,
-                run_id=run_input.run_id,
+            # No user message to send: pre-session validation error
+            yield RunErrorEvent(
+                type=EventType.RUN_ERROR,
+                thread_id=run_input.thread_id or "",
+                run_id=run_input.run_id or "",
+                message="No user message to send. At least one user message is required for the Coze chat API.",
             )
             return
 
@@ -375,9 +482,15 @@ class CozeAgent(BaseAgent):
             
             Uses cozepy SDK's chat.stream() for Coze Chat V3 API.
             Reference: https://www.coze.cn/open/docs/developer_guides/chat_v3
-            
+
             :param conversation_id_to_use: The conversation_id to use, or None to create new
             """
+            # Attach OpenTelemetry context in worker thread for observability
+            context_token = None
+            if otel_context is not None:
+                from opentelemetry import context as otel_context_module
+                context_token = otel_context_module.attach(otel_context)
+
             try:
                 # Call Coze Chat V3 stream API via cozepy SDK
                 # Use dynamic user_id from run_input (supports per-request user identity)
@@ -391,15 +504,29 @@ class CozeAgent(BaseAgent):
                 # Pass custom user variables to Coze
                 if coze_parameters:
                     stream_kwargs["parameters"] = coze_parameters
-                
-                # Debug: Log the full request parameters
+                # Apply forwarded_props overrides last so user-provided values win.
+                if coze_top_level_overrides:
+                    stream_kwargs.update(coze_top_level_overrides)
+
+                # Debug: Log all request parameters (Coze API args + run_input state/forwarded_props)
                 if self._debug_mode:
-                    logger.debug(f"[CozeAgent] Coze API request parameters:")
-                    logger.debug(f"  bot_id: {self._bot_id}")
-                    logger.debug(f"  user_id: {dynamic_user_id} (from forwarded_props.user_id)")
-                    logger.debug(f"  conversation_id: {conversation_id_to_use}")
-                    logger.debug(f"  parameters (from forwarded_props.parameters): {coze_parameters}")
-                
+                    logger.debug("[CozeAgent] Coze API request parameters (chat.stream):")
+                    for key, value in stream_kwargs.items():
+                        if key == "additional_messages":
+                            logger.debug("  additional_messages: count=%s", len(value) if value else 0)
+                            for i, msg in enumerate(value or []):
+                                role = getattr(msg, "role", getattr(msg, "content_type", "?"))
+                                content = getattr(msg, "content", str(msg))[:80]
+                                logger.debug("    [%s] role=%s content_preview=%s", i, role, content)
+                        else:
+                            logger.debug("  %s: %s", key, value)
+                    logger.debug(
+                        "  request_body=%s",
+                        json.dumps(_serialize_coze_debug_value(stream_kwargs), ensure_ascii=False, indent=2),
+                    )
+                    logger.debug("  [run_input.state]: %s", run_input.state)
+                    logger.debug("  [run_input.forwarded_props]: %s", run_input.forwarded_props)
+
                 stream = self._coze_client.chat.stream(**stream_kwargs)
                 
                 # Log logid if available (useful for debugging)
@@ -416,10 +543,10 @@ class CozeAgent(BaseAgent):
                     agui_event_counter = {}
                     last_agui_event_type = None
                     text_content_batch_start = False
-                
+
                 # Flag to track if we've sent the actual_thread_id
                 actual_thread_id_sent = False
-                
+
                 for coze_event in stream:
                     # Handle CONVERSATION_CHAT_CREATED event to get the actual conversation_id
                     # This is the first event in the stream and contains the Coze-generated conversation_id
@@ -496,7 +623,13 @@ class CozeAgent(BaseAgent):
                                     logger.debug("  Message completed")
                             
                             last_event_type = event_type
-                    
+
+                    # ========== Observability Integration ==========
+                    # Unified observability event handling
+                    if self._observability_handler:
+                        self._observability_handler.handle(coze_event, run_id_str)
+                    # ==============================================
+
                     # Convert Coze event to AG-UI event(s)
                     # Note: coze_events_to_ag_ui_events may return a list of events
                     # Use actual_thread_id if available (from shared_state)
@@ -598,7 +731,7 @@ class CozeAgent(BaseAgent):
                                 logger.debug(f"  ... ({thinking_count} total THINKING_TEXT_MESSAGE_CONTENT events)")
                         
                         # Emit TEXT_MESSAGE_END event before completion
-                        from .converters import _message_started, TextMessageEndEvent
+                        from .converters import _message_started
                         current_thread_id = shared_state.get("thread_id", run_input.thread_id)
                         buffer_key = f"{current_thread_id}:{run_input.run_id}"
                         if _message_started.get(buffer_key, False):
@@ -650,13 +783,12 @@ class CozeAgent(BaseAgent):
                     # Handle chat failed event
                     if hasattr(coze_event, "event") and coze_event.event == ChatEventType.CONVERSATION_CHAT_FAILED:
                         # Clear message started flag on error
-                        from .converters import _message_started
+                        from .converters import _message_started, _content_buffer
                         current_thread_id = shared_state.get("thread_id", run_input.thread_id)
                         buffer_key = f"{current_thread_id}:{run_input.run_id}"
                         _message_started[buffer_key] = False
                         
                         # Clear content buffer on error
-                        from .converters import _content_buffer
                         buffer_prefix = f"{current_thread_id}:{run_input.run_id}"
                         keys_to_remove = [k for k in list(_content_buffer.keys()) if k.startswith(buffer_prefix)]
                         for k in keys_to_remove:
@@ -671,7 +803,7 @@ class CozeAgent(BaseAgent):
             except Exception as exc:
                 # Check if this is an invalid conversation_id error that should trigger retry
                 # We must be strict: require BOTH error code AND error message to match
-                # 
+                #
                 # Retry conditions (must satisfy ALL):
                 # 1. Error code is 4000 (format error only)
                 # 2. Error message mentions "conversation_id"
@@ -699,21 +831,21 @@ class CozeAgent(BaseAgent):
                 # - 401/403 (Unauthorized/Forbidden): Get fresh credentials - permission errors should fail
                 # - 404 (Not Found): Resource doesn't exist - should fail unless resource may appear later
                 error_str = str(exc).lower()
-                
+
                 # Check error code (only 4000 for format errors)
                 has_code_4000 = "code: 4000" in error_str or "code=4000" in error_str
-                
+
                 # Check if error mentions conversation_id field
                 mentions_conversation_id = "conversation_id" in error_str
-                
+
                 # Check for specific error messages (format errors only)
                 has_int64_error = "not a valid int64" in error_str
                 has_range_error = "must be greater than 0" in error_str
-                
+
                 # Determine if should retry: only format errors (4000) should retry
                 # Permission errors (4101) and not found errors (4200) should fail immediately
                 should_retry = mentions_conversation_id and has_code_4000 and (has_int64_error or has_range_error)
-                
+
                 if should_retry:
                     # Signal that we need to retry without conversation_id
                     if self._debug_mode:
@@ -721,23 +853,28 @@ class CozeAgent(BaseAgent):
                     loop.call_soon_threadsafe(queue.put_nowait, ("retry_without_conversation_id", exc))
                 else:
                     loop.call_soon_threadsafe(queue.put_nowait, ("error", exc))
+            finally:
+                # Detach OpenTelemetry context in worker thread
+                if context_token is not None:
+                    from opentelemetry import context as otel_context_module
+                    otel_context_module.detach(context_token)
 
         # Track the actual thread_id (from Coze's conversation_id)
         actual_thread_id: str | None = None
         run_started_emitted = False
         retry_count = 0  # Track retry attempts (max 1 retry allowed)
-        
+
         # Use thread-safe dict to share actual_thread_id with worker thread
         # This allows message_id to be updated when actual_thread_id is received
         shared_state: dict[str, Any] = {"thread_id": run_input.thread_id}
-        
+
         # Generate consistent message ID for this response
         # Will be updated when actual_thread_id is received
         def get_message_id() -> str:
             """Get message_id using actual_thread_id if available, otherwise use run_input.thread_id."""
             thread_id = shared_state.get("thread_id", run_input.thread_id)
             return f"{thread_id}:{run_input.run_id}"
-        
+
         message_id = get_message_id()
 
         def start_worker(conv_id: str | None):
@@ -766,7 +903,7 @@ class CozeAgent(BaseAgent):
                     if self._debug_mode:
                         logger.debug(f"[CozeAgent] Using actual_thread_id: {actual_thread_id}")
                         logger.debug(f"[CozeAgent] Updated message_id: {message_id}")
-                    
+
                     # Now we can emit RUN_STARTED with the correct thread_id
                     if not run_started_emitted:
                         yield RunStartedEvent(
@@ -781,7 +918,7 @@ class CozeAgent(BaseAgent):
                             step_name="chat",
                         )
                         run_started_emitted = True
-                
+
                 elif kind == "retry_without_conversation_id":
                     # Invalid conversation_id, retry without it (max 1 retry)
                     if retry_count >= 1:
@@ -790,13 +927,13 @@ class CozeAgent(BaseAgent):
                         if self._debug_mode:
                             logger.debug(f"[CozeAgent] Max retry reached, raising error")
                         raise original_error if original_error else Exception("conversation_id retry failed")
-                    
+
                     retry_count += 1
                     if self._debug_mode:
                         logger.debug(f"[CozeAgent] Invalid conversation_id, retrying without it (attempt {retry_count})...")
                     # Start fresh without conversation_id
                     start_worker(None)
-                
+
                 elif kind == "event":
                     # Ensure RUN_STARTED was emitted before any other events
                     if not run_started_emitted and actual_thread_id:
@@ -812,20 +949,20 @@ class CozeAgent(BaseAgent):
                         )
                         run_started_emitted = True
                     yield payload
-                
+
                 elif kind == "conversation_id":
                     # This is the conversation_id from completed/requires_action events
                     # We already have actual_thread_id from chat.created
                     pass
-                
+
                 elif kind == "chat_id":
                     # Store chat_id in state for tool output submission
                     pass
-                
+
                 elif kind == "done":
-                    # Use actual_thread_id if available, otherwise fall back to run_input.thread_id
+                    # RUN_STARTED was already emitted with valid thread_id; use same source here
                     final_thread_id = actual_thread_id or run_input.thread_id
-                    
+
                     # Emit STEP_FINISHED (AG-UI protocol standard event)
                     from ag_ui.core.events import StepFinishedEvent
                     yield StepFinishedEvent(
@@ -841,21 +978,23 @@ class CozeAgent(BaseAgent):
                     )
                     
                     break
-                
+
                 elif kind == "error":
                     raise payload
 
         except Exception as e:
-            # Use actual_thread_id if available for error event
-            final_thread_id = actual_thread_id or run_input.thread_id
-            # Emit error event
+            # Pre-session or mid-run error: use actual_thread_id if session was created,
+            # otherwise use client-provided thread_id (or empty string if none)
+            final_thread_id = actual_thread_id or run_input.thread_id or ""
             yield RunErrorEvent(
                 type=EventType.RUN_ERROR,
                 thread_id=final_thread_id,
-                run_id=run_input.run_id,
+                run_id=run_input.run_id or "",
                 message=str(e),
             )
-            raise
+            # Do not re-raise: we already emitted RUN_ERROR.
+            # Re-raising will cause the HTTP/SSE server layer to emit a duplicate RUN_ERROR.
+            return
 
     async def _handle_tool_outputs_submission(
         self, 
@@ -877,6 +1016,8 @@ class CozeAgent(BaseAgent):
         :yield: Events from the tool output submission
         :rtype: AsyncGenerator[BaseEvent, None]
         """
+        otel_context, run_id_str = self._setup_observability_for_tool_submission(run_input, tool_messages)
+
         # Get conversation_id and chat_id from state
         # These should have been stored from the previous CONVERSATION_CHAT_REQUIRES_ACTION event
         state = run_input.state or {}
@@ -887,8 +1028,8 @@ class CozeAgent(BaseAgent):
             # Missing required IDs for tool output submission
             yield RunErrorEvent(
                 type=EventType.RUN_ERROR,
-                thread_id=run_input.thread_id,
-                run_id=run_input.run_id,
+                thread_id=run_input.thread_id or "",
+                run_id=run_input.run_id or "",
                 message="Missing conversation_id or chat_id in state. These should be stored from the previous CONVERSATION_CHAT_REQUIRES_ACTION event.",
             )
             return
@@ -913,8 +1054,8 @@ class CozeAgent(BaseAgent):
         if not tool_outputs:
             yield RunErrorEvent(
                 type=EventType.RUN_ERROR,
-                thread_id=run_input.thread_id,
-                run_id=run_input.run_id,
+                thread_id=run_input.thread_id or "",
+                run_id=run_input.run_id or "",
                 message="No valid tool outputs found in ToolMessage objects.",
             )
             return
@@ -930,7 +1071,40 @@ class CozeAgent(BaseAgent):
         
         def worker():
             """Worker thread to handle Coze SDK submit_tool_outputs call."""
+            # Attach OpenTelemetry context in worker thread for observability
+            context_token = None
+            if otel_context is not None:
+                from opentelemetry import context as otel_context_module
+                context_token = otel_context_module.attach(otel_context)
+
             try:
+                # Debug: Log all request parameters for submit_tool_outputs
+                if self._debug_mode:
+                    logger.debug("[CozeAgent] Coze API request parameters (chat.submit_tool_outputs):")
+                    logger.debug("  conversation_id: %s", conversation_id)
+                    logger.debug("  chat_id: %s", chat_id)
+                    logger.debug("  tool_outputs: count=%s", len(tool_outputs))
+                    for i, to in enumerate(tool_outputs):
+                        out_preview = (getattr(to, "output", "") or str(to))[:100]
+                        logger.debug("    [%s] tool_call_id=%s output_preview=%s", i, getattr(to, "tool_call_id", "?"), out_preview)
+                    logger.debug(
+                        "  request_body=%s",
+                        json.dumps(
+                            _serialize_coze_debug_value(
+                                {
+                                    "conversation_id": conversation_id,
+                                    "chat_id": chat_id,
+                                    "tool_outputs": tool_outputs,
+                                    "stream": True,
+                                }
+                            ),
+                            ensure_ascii=False,
+                            indent=2,
+                        ),
+                    )
+                    logger.debug("  [run_input.state]: %s", run_input.state)
+                    logger.debug("  [run_input.forwarded_props]: %s", run_input.forwarded_props)
+
                 # Call submit_tool_outputs API with streaming
                 # Reference: https://docs.coze.cn/guides/use_local_plugin
                 stream = self._coze_client.chat.submit_tool_outputs(
@@ -939,7 +1113,7 @@ class CozeAgent(BaseAgent):
                     tool_outputs=tool_outputs,
                     stream=True,
                 )
-                
+
                 # Process stream events (same as chat.stream())
                 for coze_event in stream:
                     # Convert Coze event to AG-UI event(s)
@@ -961,7 +1135,7 @@ class CozeAgent(BaseAgent):
                     
                     # Check if conversation is completed
                     if hasattr(coze_event, "event") and coze_event.event == ChatEventType.CONVERSATION_CHAT_COMPLETED:
-                        from .converters import _message_started, TextMessageEndEvent
+                        from .converters import _message_started
                         buffer_key = f"{actual_thread_id}:{run_input.run_id}"
                         if _message_started.get(buffer_key, False):
                             msg_id = message_id
@@ -1014,7 +1188,12 @@ class CozeAgent(BaseAgent):
                         
             except Exception as exc:
                 loop.call_soon_threadsafe(queue.put_nowait, ("error", exc))
-        
+            finally:
+                # Detach OpenTelemetry context in worker thread
+                if context_token is not None:
+                    from opentelemetry import context as otel_context_module
+                    otel_context_module.detach(context_token)
+
         # Start worker thread
         thread = threading.Thread(target=worker, daemon=True)
         thread.start()
@@ -1055,15 +1234,100 @@ class CozeAgent(BaseAgent):
                     raise payload
                     
         except Exception as e:
-            # Use actual_thread_id if available, otherwise fall back to run_input.thread_id
-            error_thread_id = actual_thread_id or run_input.thread_id
+            # Use actual_thread_id if session was created, otherwise use client-provided thread_id (or empty string)
             yield RunErrorEvent(
                 type=EventType.RUN_ERROR,
-                thread_id=error_thread_id,
-                run_id=run_input.run_id,
+                thread_id=actual_thread_id or run_input.thread_id or "",
+                run_id=run_input.run_id or "",
                 message=str(e),
             )
-            raise
+            # Do not re-raise: we already emitted RUN_ERROR.
+            # Re-raising will cause the HTTP/SSE server layer to emit a duplicate RUN_ERROR.
+            return
+
+    def _setup_observability_for_run(
+        self, run_input: RunAgentInput
+    ) -> tuple[Optional[Any], str]:
+        """Setup observability for normal run execution.
+
+        :param run_input: Input data for the agent execution
+        :return: Tuple of (otel_context, run_id_str)
+        """
+        run_id_str = f"{run_input.thread_id}:{run_input.run_id}"
+
+        # Capture current OpenTelemetry context for worker thread propagation
+        otel_context = None
+        if self._observability_handler:
+            from opentelemetry import context as otel_context_module
+            otel_context = otel_context_module.get_current()
+
+        # Restore server context and start observability tracking
+        if self._observability_handler and hasattr(run_input, "forwarded_props"):
+            if "__agui_server_context" in run_input.forwarded_props:
+                server_context_data = run_input.forwarded_props["__agui_server_context"]
+                from opentelemetry.trace import SpanContext, TraceFlags
+                server_span_context = SpanContext(
+                    trace_id=int(server_context_data["trace_id"], 16),
+                    span_id=int(server_context_data["span_id"], 16),
+                    trace_flags=TraceFlags(server_context_data["trace_flags"]),
+                    is_remote=False,
+                )
+                self._observability_handler.set_external_parent_context(
+                    server_span_context,
+                    metadata={
+                        "thread_id": run_input.thread_id,
+                        "run_id": run_input.run_id,
+                    }
+                )
+            self._observability_handler.on_chat_start(run_input)
+
+        return otel_context, run_id_str
+
+    def _setup_observability_for_tool_submission(
+        self, run_input: RunAgentInput, tool_messages: list
+    ) -> tuple[Optional[Any], str]:
+        """Setup observability for tool output submission.
+
+        :param run_input: Input data for the agent execution
+        :param tool_messages: List of ToolMessage objects from client
+        :return: Tuple of (otel_context, run_id_str)
+        """
+        run_id_str = f"{run_input.thread_id}:{run_input.run_id}"
+
+        # Restore server context and start observability tracking
+        if self._observability_handler and hasattr(run_input, "forwarded_props"):
+            if "__agui_server_context" in run_input.forwarded_props:
+                server_context_data = run_input.forwarded_props["__agui_server_context"]
+                from opentelemetry.trace import SpanContext, TraceFlags
+                server_span_context = SpanContext(
+                    trace_id=int(server_context_data["trace_id"], 16),
+                    span_id=int(server_context_data["span_id"], 16),
+                    trace_flags=TraceFlags(server_context_data["trace_flags"]),
+                    is_remote=False,
+                )
+                self._observability_handler.set_external_parent_context(
+                    server_span_context,
+                    metadata={
+                        "thread_id": run_input.thread_id,
+                        "run_id": run_input.run_id,
+                    }
+                )
+            self._observability_handler.on_chat_start(run_input)
+
+        # End tool spans when tool outputs are submitted
+        if self._observability_handler:
+            for tool_msg in tool_messages:
+                tool_name = getattr(tool_msg, "name", "unknown")
+                tool_output = getattr(tool_msg, "content", "")
+                self._observability_handler.on_tool_call_end(tool_name, tool_output, run_id_str)
+
+        # Capture current OpenTelemetry context for worker thread propagation
+        otel_context = None
+        if self._observability_handler:
+            from opentelemetry import context as otel_context_module
+            otel_context = otel_context_module.get_current()
+
+        return otel_context, run_id_str
 
     def destroy(self) -> None:
         """Clean up resources used by the agent.
@@ -1076,4 +1340,3 @@ class CozeAgent(BaseAgent):
 
         # Coze client doesn't need explicit cleanup
         # but we can add it here if needed in the future
-

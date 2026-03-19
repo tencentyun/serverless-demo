@@ -7,8 +7,8 @@ responses across all Cloudbase Agent servers. The handlers:
 
 1. Catch all exceptions to prevent service crashes (inspired by AWS Bedrock)
 2. Log structured logs with requestId, threadId, runId
-3. Return AG-UI compatible error events
-4. Support both JSON and Server-Sent Events (SSE) responses
+3. Return HTTP JSON error responses with INVALID_REQUEST or INTERNAL_ERROR codes
+4. Only handle errors BEFORE SSE stream is established
 
 The exception handlers are automatically installed by AgentServiceApp and
 can be manually installed for custom FastAPI applications.
@@ -30,15 +30,12 @@ Example:
 """
 
 import logging
-from typing import Optional, Union
 
 from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, StreamingResponse
-from pydantic import ValidationError
+from fastapi.responses import JSONResponse
 
 from .exceptions import AgentServiceError
-from .formatters import format_agui_error, format_sse_error
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +58,26 @@ def _extract_request_context(request: Request) -> dict:
         "run_id": getattr(request.state, "run_id", "unknown"),
         "request_id": request.headers.get("X-Request-ID", "unknown"),
     }
+
+
+def _set_span_error(message: str) -> None:
+    """Set the current span status to ERROR for observability.
+    
+    This function gracefully handles missing opentelemetry dependency
+    to avoid forcing server package to depend on observability.
+    
+    Args:
+        message: Error description message
+    """
+    try:
+        from opentelemetry import trace
+        from opentelemetry.trace import Status, StatusCode
+        current_span = trace.get_current_span()
+        if current_span and current_span.is_recording():
+            current_span.set_status(Status(StatusCode.ERROR, message))
+    except Exception:
+        # Silently ignore if opentelemetry is not available
+        pass
 
 
 def _log_error(error: Exception, request: Request, level: str = "error") -> None:
@@ -90,6 +107,9 @@ def _log_error(error: Exception, request: Request, level: str = "error") -> None
     if isinstance(error, AgentServiceError):
         log_data["statusCode"] = error.status_code
     
+    # Set span status to ERROR for observability
+    _set_span_error(str(error))
+    
     # Log with appropriate level
     if level == "warning":
         logger.warning("Request failed with client error", extra=log_data)
@@ -97,73 +117,48 @@ def _log_error(error: Exception, request: Request, level: str = "error") -> None
         logger.exception("Request failed with server error", extra=log_data)
 
 
-def _is_sse_request(request: Request) -> bool:
-    """Check if the request expects Server-Sent Events response.
-    
-    Args:
-        request: FastAPI request object
-        
-    Returns:
-        True if SSE response is expected, False otherwise
-    """
-    return request.headers.get("Accept") == "text/event-stream"
-
-
 def _create_error_response(
-    error: Exception,
+    error_code: str,
+    error_message: str,
     status_code: int,
-    context: dict,
-) -> Union[JSONResponse, StreamingResponse]:
-    """Create appropriate error response based on request type.
+    request_id: str = "unknown",
+) -> JSONResponse:
+    """Create HTTP JSON error response.
+    
+    Returns HTTP JSON format as specified in the documentation:
+    {
+      "error": {
+        "code": "INVALID_REQUEST" | "INTERNAL_ERROR",
+        "message": "..."
+      },
+      "requestId": "..."
+    }
+    
+    Note: This is ONLY used for errors that occur BEFORE SSE stream is established.
+          Errors during SSE streaming are handled in the event generator.
     
     Args:
-        error: The exception to format
-        status_code: HTTP status code
-        context: Request context with threadId, runId
+        error_code: Error code (INVALID_REQUEST or INTERNAL_ERROR)
+        error_message: Human-readable error message
+        status_code: HTTP status code (400 or 500)
+        request_id: Request ID for tracking
         
     Returns:
-        JSONResponse or StreamingResponse with AG-UI formatted error
+        JSONResponse with HTTP JSON formatted error
     """
-    # Format error as AG-UI event
-    error_data = format_agui_error(
-        error,
-        context["thread_id"],
-        context["run_id"],
-    )
-    
-    # Return JSON response
     return JSONResponse(
         status_code=status_code,
-        content=error_data,
+        content={
+            "error": {
+                "code": error_code,
+                "message": error_message,
+            },
+            "requestId": request_id,
+        },
     )
 
 
-def _create_sse_error_response(
-    error: Exception,
-    context: dict,
-) -> StreamingResponse:
-    """Create SSE error response.
-    
-    Args:
-        error: The exception to format
-        context: Request context with threadId, runId
-        
-    Returns:
-        StreamingResponse with AG-UI formatted error in SSE format
-    """
-    sse_data = format_sse_error(
-        error,
-        context["thread_id"],
-        context["run_id"],
-    )
-    
-    return StreamingResponse(
-        iter([sse_data]),
-        media_type="text/event-stream",
-    )
-
-
-def _extract_validation_error_message(error: Union[RequestValidationError, ValidationError]) -> str:
+def _extract_validation_error_message(error: RequestValidationError) -> str:
     """Extract user-friendly message from Pydantic validation error.
     
     Pydantic validation errors contain technical details that are not
@@ -191,11 +186,13 @@ def install_exception_handlers(app: FastAPI) -> None:
     """Install global exception handlers for Cloudbase Agent server.
     
     This function registers exception handlers that:
-    - Catch AgentServiceError and return appropriate responses
-    - Catch Pydantic validation errors with user-friendly messages
-    - Catch all other exceptions to prevent service crashes
-    - Support both JSON and SSE response formats
-    - Log all errors with structured context
+    - Catch InvalidRequestError and return HTTP 400 with INVALID_REQUEST code
+    - Catch Pydantic validation errors and return HTTP 400 with INVALID_REQUEST code
+    - Catch all other exceptions and return HTTP 500 with INTERNAL_ERROR code
+    - All handlers return HTTP JSON format (never SSE format)
+    
+    Note: These handlers ONLY handle errors that occur BEFORE SSE stream is established.
+          Errors during SSE streaming are handled by the event generator in server.py.
     
     The handlers are automatically called by AgentServiceApp.build() and
     AgentServiceApp.run(). For Method 1 (core adapters), users must call
@@ -215,7 +212,7 @@ def install_exception_handlers(app: FastAPI) -> None:
             @app.post("/send-message")
             async def send_message(request: RunAgentInput):
                 # Exceptions are automatically handled
-                raise ResourceNotFoundError("agent", "gpt-4")
+                raise InvalidRequestError("Invalid parameters")
                 
         Method 2/3 (automatic installation)::
         
@@ -228,7 +225,11 @@ def install_exception_handlers(app: FastAPI) -> None:
         """Handle known Cloudbase Agent errors.
         
         This handler catches all AgentServiceError subclasses and returns
-        appropriate HTTP responses with AG-UI formatted error events.
+        HTTP JSON responses with appropriate error codes.
+        
+        Error code mapping:
+        - InvalidRequestError → INVALID_REQUEST (HTTP 400)
+        - Other AgentServiceError → INTERNAL_ERROR (HTTP 4xx/5xx)
         """
         context = _extract_request_context(request)
         
@@ -236,11 +237,20 @@ def install_exception_handlers(app: FastAPI) -> None:
         log_level = "warning" if exc.status_code < 500 else "error"
         _log_error(exc, request, level=log_level)
         
-        # Return SSE or JSON response based on request type
-        if _is_sse_request(request):
-            return _create_sse_error_response(exc, context)
+        # Determine error code based on exception type
+        from .exceptions import InvalidRequestError
+        if isinstance(exc, InvalidRequestError):
+            error_code = "INVALID_REQUEST"
+        else:
+            # Other AgentServiceError types → INTERNAL_ERROR
+            error_code = "INTERNAL_ERROR"
         
-        return _create_error_response(exc, exc.status_code, context)
+        return _create_error_response(
+            error_code=error_code,
+            error_message=exc.message,
+            status_code=exc.status_code,
+            request_id=context["request_id"],
+        )
 
     @app.exception_handler(RequestValidationError)
     async def handle_validation_error(request: Request, exc: RequestValidationError):
@@ -248,28 +258,21 @@ def install_exception_handlers(app: FastAPI) -> None:
         
         This handler catches FastAPI's RequestValidationError (raised when
         request body, query params, or path params fail validation) and
-        returns user-friendly error messages.
+        returns HTTP 400 with INVALID_REQUEST code.
         """
         context = _extract_request_context(request)
         
         # Extract user-friendly message
         friendly_message = _extract_validation_error_message(exc)
         
-        # Create a temporary InvalidRequestError for consistent formatting
-        from .exceptions import InvalidRequestError
-
-        temp_error = InvalidRequestError(
-            message=friendly_message,
-            details={"validation_errors": exc.errors()},
+        _log_error(exc, request, level="warning")
+        
+        return _create_error_response(
+            error_code="INVALID_REQUEST",
+            error_message=friendly_message,
+            status_code=400,
+            request_id=context["request_id"],
         )
-        
-        _log_error(temp_error, request, level="warning")
-        
-        # Return SSE or JSON response based on request type
-        if _is_sse_request(request):
-            return _create_sse_error_response(temp_error, context)
-        
-        return _create_error_response(temp_error, 400, context)
 
     @app.exception_handler(Exception)
     async def handle_generic_error(request: Request, exc: Exception):
@@ -277,7 +280,7 @@ def install_exception_handlers(app: FastAPI) -> None:
         
         This is the catch-all handler that prevents service crashes by
         catching any unhandled exceptions. It logs the full stack trace
-        and returns a generic error response to the client.
+        and returns HTTP 500 with INTERNAL_ERROR code.
         
         Inspired by AWS Bedrock AgentCore's approach to resilient error handling.
         """
@@ -286,67 +289,12 @@ def install_exception_handlers(app: FastAPI) -> None:
         # Always log full stack trace for unknown errors
         _log_error(exc, request, level="error")
         
-        # Return SSE or JSON response based on request type
-        if _is_sse_request(request):
-            return _create_sse_error_response(exc, context)
-        
-        return _create_error_response(exc, 500, context)
+        return _create_error_response(
+            error_code="INTERNAL_ERROR",
+            error_message=str(exc),
+            status_code=500,
+            request_id=context["request_id"],
+        )
 
 
-# Legacy compatibility functions (for backwards compatibility with existing code)
-def classify_exception(error: Exception) -> AgentServiceError:
-    """Classify a generic exception into an AgentServiceError.
-    
-    This function is provided for backwards compatibility. New code should
-    use install_exception_handlers() instead.
-    
-    Args:
-        error: Exception to classify
-        
-    Returns:
-        Classified AgentServiceError
-    """
-    if isinstance(error, AgentServiceError):
-        return error
-    
-    from .exceptions import InvalidRequestError
 
-    return InvalidRequestError(str(error))
-
-
-def create_error_response(error: Exception, request_id: Optional[str] = None) -> dict:
-    """Create error response dictionary.
-    
-    This function is provided for backwards compatibility. New code should
-    use install_exception_handlers() instead.
-    
-    Args:
-        error: Exception to format
-        request_id: Optional request ID
-        
-    Returns:
-        Error response dictionary
-    """
-    return format_agui_error(error, "unknown", "unknown")
-
-
-def handle_agent_error(error: Exception, request_id: Optional[str] = None):
-    """Handle agent error and return appropriate response.
-    
-    This function is provided for backwards compatibility. New code should
-    use install_exception_handlers() instead.
-    
-    Args:
-        error: Exception to handle
-        request_id: Optional request ID
-        
-    Returns:
-        JSONResponse with error details
-    """
-    classified_error = classify_exception(error)
-    error_data = create_error_response(classified_error, request_id)
-    
-    return JSONResponse(
-        status_code=getattr(classified_error, "status_code", 500),
-        content=error_data,
-    )

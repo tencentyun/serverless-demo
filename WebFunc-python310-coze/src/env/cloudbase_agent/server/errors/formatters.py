@@ -86,6 +86,28 @@ def _safe_serialize_context(context: Optional[dict]) -> Optional[dict]:
         }
 
 
+def _extract_error_code(error: Exception) -> Optional[str]:
+    """Extract error code from exception attributes.
+    
+    Attempts to extract code from various common attribute names:
+    - code / error_code / errCode / status_code
+    
+    Args:
+        error: Exception to extract code from
+        
+    Returns:
+        Extracted code as string, or None if not found
+    """
+    # Try different attribute names (in priority order)
+    for attr_name in ["code", "error_code", "errCode", "status_code"]:
+        if hasattr(error, attr_name):
+            value = getattr(error, attr_name)
+            if value is not None:
+                return str(value)
+    
+    return None
+
+
 def format_agui_error(
     error: Exception,
     thread_id: str,
@@ -97,6 +119,11 @@ def format_agui_error(
     This function converts any Python exception into an AG-UI compatible
     RunErrorEvent structure. It handles both Cloudbase Agent custom exceptions
     (AgentServiceError) and standard Python exceptions.
+    
+    Error code filling strategy (按文档规范):
+    1. Priority 1: Use user-provided code from AgentServiceError
+    2. Priority 2: Extract from exception attributes (code/error_code/errCode/status_code)
+    3. Priority 3: Fallback to INTERNAL_ERROR for unknown errors
     
     Args:
         error: The exception to format
@@ -122,7 +149,21 @@ def format_agui_error(
             #     "timestamp": 1705651200000
             # }
             
-        Standard Python exception::
+        Standard Python exception with code attribute::
+        
+            error = Exception("Rate limited")
+            error.status_code = 429
+            result = format_agui_error(error, "thread_1", "run_1")
+            # {
+            #     "type": "RUN_ERROR",
+            #     "threadId": "thread_1",
+            #     "runId": "run_1",
+            #     "message": "Rate limited",
+            #     "code": "429",
+            #     "timestamp": 1705651200000
+            # }
+            
+        Standard Python exception without code::
         
             error = ValueError("Invalid input")
             result = format_agui_error(error, "thread_1", "run_1")
@@ -131,7 +172,7 @@ def format_agui_error(
             #     "threadId": "thread_1",
             #     "runId": "run_1",
             #     "message": "Invalid parameter value. Please check your input.",
-            #     "code": "VALUEERROR",
+            #     "code": "INTERNAL_ERROR",
             #     "timestamp": 1705651200000
             # }
     """
@@ -143,7 +184,12 @@ def format_agui_error(
     else:
         # Handle generic Python exceptions
         message = _get_friendly_message(error)
-        code = type(error).__name__.upper()
+        
+        # Priority 2: Try to extract code from exception attributes
+        extracted_code = _extract_error_code(error)
+        
+        # Priority 3: Fallback to INTERNAL_ERROR if no code found
+        code = extracted_code if extracted_code else "INTERNAL_ERROR"
         context = None
     
     # Create AG-UI RunErrorEvent

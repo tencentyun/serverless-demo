@@ -7,10 +7,10 @@ offering both quick one-line startup and advanced customization options.
 """
 
 import os
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, Union, List, TYPE_CHECKING, Generator
 from uuid import uuid4
 
-from fastapi import FastAPI, Request
+from fastapi import APIRouter, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from .send_message.models import RunAgentInput
@@ -21,7 +21,18 @@ from .healthz.models import HealthzConfig
 from .openai.models import OpenAIChatCompletionRequest
 from .openai.server import create_adapter as create_openai_adapter
 from .send_message.server import create_adapter as create_send_message_adapter
-from .utils.types import AgentCreator
+from .utils.types import AgentCreator, MiddlewareFunction
+
+# Import observability types for type checking only (not at runtime)
+if TYPE_CHECKING:
+    from cloudbase_agent.observability.server import ObservabilityConfig
+
+# Try to import observability configuration (optional)
+try:
+    from cloudbase_agent.observability.server import setup_observability
+    OBSERVABILITY_AVAILABLE = True
+except ImportError:
+    OBSERVABILITY_AVAILABLE = False
 
 
 class AgentServiceApp:
@@ -35,7 +46,7 @@ class AgentServiceApp:
         - One-line server startup with run()
         - Flexible configuration with method chaining
         - Advanced customization with build()
-        - Automatic environment detection (e.g., Tencent Cloud SCF)
+        - Dual route support (long route with agent_id + short route)
         - Resource cleanup support
 
     Example:
@@ -64,25 +75,47 @@ class AgentServiceApp:
             uvicorn.run(fastapi_app, port=8000)
     """
 
-    def __init__(self, auto_detect_env: bool = True):
+    def __init__(
+        self,
+        observability: Optional[Union["ObservabilityConfig", List["ObservabilityConfig"]]] = None,
+    ):
         """Initialize the Cloudbase Agent API application.
 
-        :param auto_detect_env: Automatically detect runtime environment
-                               (e.g., Tencent Cloud SCF) and configure accordingly
-        :type auto_detect_env: bool
+        :param observability: Optional observability configuration for trace exporters
+        :type observability: Optional[Union[ObservabilityConfig, List[ObservabilityConfig]]]
         """
         self._cors_config: Optional[dict[str, Any]] = None
-        self._base_path: str = ""
+        self._observability: Optional[Union["ObservabilityConfig", List["ObservabilityConfig"]]] = observability
+        self._middlewares: List[MiddlewareFunction] = []
 
-        # Auto-detect environment if enabled
-        if auto_detect_env:
-            self._detect_environment()
+        # Auto-configure observability from environment and parameters
+        self._setup_observability()
 
-    def _detect_environment(self) -> None:
-        """Detect runtime environment and apply environment-specific configuration."""
-        # Tencent Cloud SCF
-        if os.getenv("TENCENTCLOUD_RUNENV") == "SCF":
-            self._base_path = "/v1/aibot/bots"
+    def _setup_observability(self) -> None:
+        """Setup observability from environment variable and/or parameter configuration.
+
+        Merges AUTO_TRACES_STDOUT environment variable with parameter configs:
+        - AUTO_TRACES_STDOUT env can enable a console exporter (default: disabled)
+        - Parameter configs override/extend env configs
+
+        If the setup_observability API is available, it will be used.
+        Otherwise, do nothing (observability remains optional and should not
+        require OpenTelemetry packages from the server package).
+        """
+        import logging
+
+        logger = logging.getLogger(__name__)
+
+        # Try to use the unified setup API if available
+        if OBSERVABILITY_AVAILABLE:
+            try:
+                setup_observability(self._observability)
+                return
+            except Exception as e:
+                logger.warning(f"[Server] Failed to setup observability via new API: {e}")
+                # Fall through to legacy implementation
+
+        return
 
     def set_cors_config(
         self,
@@ -126,6 +159,86 @@ class AgentServiceApp:
         }
         return self
 
+    def use(self, middleware: MiddlewareFunction) -> "AgentServiceApp":
+        """Register a middleware function.
+        
+        Middleware functions are executed in registration order (FIFO) for pre-processing,
+        and in reverse order for post-processing (onion model).
+        
+        :param middleware: Middleware function that uses generator pattern with yield
+        :type middleware: MiddlewareFunction
+        :return: Self for method chaining
+        :rtype: AgentServiceApp
+        
+        Example:
+            Register single middleware::
+            
+                app = AgentServiceApp()
+                app.use(jwt_middleware)
+                app.run(create_agent)
+            
+            Register multiple middlewares with chaining::
+            
+                app = AgentServiceApp()
+                app.use(logging_middleware) \
+                   .use(jwt_middleware) \
+                   .use(rate_limit_middleware) \
+                   .run(create_agent)
+        """
+        self._middlewares.append(middleware)
+        return self
+
+    def _execute_middlewares(self, input_data: RunAgentInput, request: Request) -> Generator[None, None, None]:
+        """Execute middleware chain using generator pattern.
+        
+        This method implements the onion model:
+        1. Pre-processing: Execute middlewares in registration order (FIFO)
+        2. Agent execution: Yield control to agent
+        3. Post-processing: Execute middlewares in reverse order
+        
+        :param input_data: Request input data that middlewares can modify
+        :type input_data: RunAgentInput
+        :param request: HTTP request context
+        :type request: Request
+        :yields: Control to next middleware or agent
+        """
+        generators = []
+        
+        # Start all middleware generators (pre-processing phase)
+        for middleware in self._middlewares:
+            try:
+                gen = middleware(input_data, request)
+                next(gen)  # Execute up to yield point
+                generators.append(gen)
+            except StopIteration:
+                # Middleware completed without yielding (no post-processing)
+                pass
+            except Exception as e:
+                # Middleware error during pre-processing
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Middleware error during pre-processing: {e}", exc_info=True)
+                # Continue with remaining middlewares
+                pass
+        
+        try:
+            # Yield control to agent execution
+            yield
+        finally:
+            # Execute post-processing in reverse order (onion model)
+            for gen in reversed(generators):
+                try:
+                    next(gen)
+                except StopIteration:
+                    # Normal completion of middleware post-processing
+                    pass
+                except Exception as e:
+                    # Middleware error during post-processing
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Middleware error during post-processing: {e}", exc_info=True)
+                    # Continue with remaining middlewares
+
     def build(
         self,
         create_agent: AgentCreator,
@@ -134,7 +247,6 @@ class AgentServiceApp:
         enable_openai_endpoint: bool = False,
         enable_healthz: bool = True,
         healthz_config: Optional[HealthzConfig] = None,
-        request_preprocessor: Optional[Callable[[RunAgentInput, Request], None]] = None,
         **fastapi_kwargs: Any,
     ) -> FastAPI:
         """Build and return a configured FastAPI application.
@@ -143,9 +255,16 @@ class AgentServiceApp:
         configured. Use this when you need to customize the application before
         running it (e.g., adding custom routes, middleware, or event handlers).
 
+        Routes behavior:
+            - If base_path is empty (default):
+                * Registers /v1/aibot/bots/{agent_id}/send-message (long route with agent_id)
+                * Registers /send-message (short route without agent_id)
+            - If base_path is provided:
+                * Only registers {base_path}/send-message (custom route without agent_id)
+
         :param create_agent: Function that creates and returns agent with optional cleanup
         :type create_agent: AgentCreator
-        :param base_path: Base path for agent routes (overrides environment-detected path)
+        :param base_path: Custom base path for routes. Empty = dual routes, Non-empty = single custom route
         :type base_path: str
         :param enable_cors: Whether to enable CORS middleware
         :type enable_cors: bool
@@ -155,10 +274,6 @@ class AgentServiceApp:
         :type enable_healthz: bool
         :param healthz_config: Optional health check configuration
         :type healthz_config: Optional[HealthzConfig]
-        :param request_preprocessor: Optional function to preprocess request before agent execution.
-                                   Called with (request, http_request) and can modify request in-place.
-                                   Useful for extracting user_id from JWT and adding to forwarded_props.
-        :type request_preprocessor: Optional[Callable[[RunAgentInput, Request], None]]
         :param fastapi_kwargs: Additional keyword arguments to pass to FastAPI constructor
                               (e.g., title, description, version)
         :type fastapi_kwargs: Any
@@ -166,38 +281,31 @@ class AgentServiceApp:
         :rtype: FastAPI
 
         Example:
-            Build and customize::
+            Default dual routes::
 
                 app = AgentServiceApp()
-                fastapi_app = app.build(
-                    create_agent,
-                    base_path="/api",
-                    title="My Agent API",
-                    version="1.0.0"
-                )
+                fastapi_app = app.build(create_agent)
+                # Registers: /v1/aibot/bots/{agent_id}/send-message
+                #            /send-message
 
-                # Add custom routes
-                @fastapi_app.get("/custom")
-                def custom_route():
-                    return {"custom": "data"}
+            Custom single route::
 
-                # Add custom middleware
-                @fastapi_app.middleware("http")
-                async def add_custom_header(request, call_next):
-                    response = await call_next(request)
-                    response.headers["X-Custom-Header"] = "value"
-                    return response
+                app = AgentServiceApp()
+                fastapi_app = app.build(create_agent, base_path="/api")
+                # Registers: /api/send-message
 
-                # Run the application
-                import uvicorn
-                uvicorn.run(fastapi_app, host="0.0.0.0", port=8000)
+            With middleware::
+
+                app = AgentServiceApp()
+                app.use(jwt_middleware)
+                app.use(logging_middleware)
+                fastapi_app = app.build(create_agent)
 
             With custom health check::
 
                 from cloudbase_agent.server import HealthzConfig
 
                 def check_database():
-                    # Perform database health check
                     if not db.is_connected():
                         raise Exception("Database not connected")
                     return {"database": "connected"}
@@ -212,19 +320,11 @@ class AgentServiceApp:
                     create_agent,
                     healthz_config=config
                 )
-
-            Disable health check::
-
-                fastapi_app = AgentServiceApp().build(
-                    create_agent,
-                    enable_healthz=False  # No /healthz endpoint
-                )
         """
         # Create FastAPI instance
         app = FastAPI(**fastapi_kwargs)
 
-        # Install global exception handlers (automatic for Method 2/3)
-        # This ensures all exceptions are caught and formatted as AG-UI error events
+        # Install global exception handlers
         install_exception_handlers(app)
 
         # Apply CORS middleware if enabled
@@ -237,107 +337,184 @@ class AgentServiceApp:
             }
             app.add_middleware(CORSMiddleware, **cors_config)
 
-        # Determine final path (environment base path + user base path)
-        final_path = self._base_path + base_path
-
-        # Register send_message endpoint
-        @app.post(f"{final_path}/{{agent_id}}/send-message")
-        async def send_message_endpoint(
-            agent_id: str, 
-            http_context: Request,  # HTTP request context (for headers, IP, etc.)
-        ):
-            """Main agent endpoint for processing messages with Cloudbase Agent native format.
+        # Shared handler for send-message endpoint
+        async def send_message_handler(http_context: Request, agent_id: Optional[str] = None):
+            """Shared handler for send-message endpoint.
+            
+            This handler validates incoming requests, executes middlewares, and ensures proper error handling:
+            1. Validates JSON format
+            2. Validates required fields (messages)
+            3. Auto-generates missing IDs (runId, message.id)
+            4. Applies default values for optional fields
+            5. Executes middleware chain
+            6. Calls agent with processed request
             
             Args:
-                agent_id: Agent identifier (reserved for future use)
                 http_context: HTTP request context for accessing headers, IP, etc.
+                agent_id: Optional agent identifier (reserved for future use, currently ignored)
+                
+            Returns:
+                StreamingResponse with AG-UI formatted events
+                
+            Raises:
+                InvalidRequestError: If JSON is invalid or required fields are missing
             """
-            # Parse request body and provide default values (matches TypeScript server behavior)
-            body = await http_context.json()
-            request_data = {
-                "tools": [],
-                "context": [],
-                "state": {},
-                "forwarded_props": {},
-                **body,
-            }
+            from pydantic import ValidationError
+            from fastapi.exceptions import RequestValidationError
+            from .errors.exceptions import InvalidRequestError
             
-            # Auto-generate runId if missing (matches TypeScript behavior)
-            # Pydantic will automatically convert camelCase (runId) to snake_case (run_id) via populate_by_name
-            run_id = request_data.get("runId")
-            if not run_id or (isinstance(run_id, str) and not run_id.strip()):
-                request_data["runId"] = str(uuid4())
+            body = None
             
-            # Auto-generate message.id if missing (matches TypeScript behavior)
-            # TypeScript server generates UUID for each message if id is not provided
-            if "messages" in request_data and isinstance(request_data["messages"], list):
-                for message in request_data["messages"]:
-                    if isinstance(message, dict):
-                        # Generate id if missing, None, or empty string
-                        message_id = message.get("id")
-                        if not message_id or (isinstance(message_id, str) and not message_id.strip()):
-                            message["id"] = str(uuid4())
-            
-            # Parse as RunAgentInput
-            request = RunAgentInput(**request_data)
-            
-            return await create_send_message_adapter(
-                create_agent, 
-                request, 
-                http_context,
-                request_preprocessor=request_preprocessor,
-            )
+            try:
+                # Step 1: Parse JSON and catch parsing errors
+                try:
+                    body = await http_context.json()
+                except Exception as json_error:
+                    raise InvalidRequestError(
+                        message=f"Invalid JSON format: {str(json_error)}",
+                        details={"parse_error": str(json_error)}
+                    )
+                
+                # Step 2: Add default values (matches TypeScript server behavior)
+                request_data = {
+                    "tools": [],
+                    "context": [],
+                    "state": {},
+                    "forwarded_props": {},
+                    **body,
+                }
 
-        # Register health check endpoint if enabled
+                # Step 3: Auto-generate runId if missing (matches TypeScript behavior)
+                run_id = request_data.get("runId")
+                if not run_id or (isinstance(run_id, str) and not run_id.strip()):
+                    request_data["runId"] = str(uuid4())
+
+                # Step 4: Auto-generate message.id if missing (matches TypeScript behavior)
+                if "messages" in request_data and isinstance(request_data["messages"], list):
+                    for message in request_data["messages"]:
+                        if isinstance(message, dict):
+                            message_id = message.get("id")
+                            if not message_id or (isinstance(message_id, str) and not message_id.strip()):
+                                message["id"] = str(uuid4())
+
+                # Step 5: Validate with Pydantic
+                request = RunAgentInput(**request_data)
+                
+                # Step 6: Execute middleware chain
+                middleware_executor = self._execute_middlewares(request, http_context)
+                next(middleware_executor)
+                
+                try:
+                    # Step 7: Execute agent with processed request
+                    return await create_send_message_adapter(
+                        create_agent,
+                        request,
+                        http_context,
+                    )
+                finally:
+                    # Step 8: Execute middleware post-processing
+                    try:
+                        next(middleware_executor)
+                    except StopIteration:
+                        pass
+                
+            except ValidationError as e:
+                # Convert Pydantic ValidationError to FastAPI RequestValidationError
+                # This ensures proper handling by handle_validation_error handler
+                raise RequestValidationError(errors=e.errors(), body=body or {})
+
+        # Shared healthz handler
+        healthz_handler = None
         if enable_healthz:
             healthz_handler = create_healthz_handler(
                 config=healthz_config,
-                base_path=final_path,
+                base_path=base_path,
             )
 
-            @app.get(f"{final_path}/healthz")
-            def healthz_endpoint() -> dict[str, Any]:
-                """Health check endpoint.
+        # Shared OpenAI handler
+        async def openai_handler(request: OpenAIChatCompletionRequest):
+            """Shared handler for OpenAI-compatible endpoint."""
+            return await create_openai_adapter(create_agent, request)
 
-                Returns server status and metadata for monitoring and diagnostics.
-                This endpoint is automatically added to all Cloudbase Agent servers and can
-                be used by load balancers, monitoring systems, and orchestration
-                platforms to verify service health.
+        # Register routes based on base_path
+        if base_path:
+            # Case B: Custom base_path - only register custom route (no agent_id)
+            custom_router = APIRouter(prefix=base_path, tags=["Custom"])
 
-                The response includes:
-                - Service status (healthy/unhealthy)
-                - Timestamp of the check
-                - Service name and version
-                - Python runtime version
-                - Base path configuration
-                - Optional custom check results
+            @custom_router.post("/send-message")
+            async def custom_send_message(http_context: Request):
+                """Custom route for send-message endpoint (no agent_id parameter)."""
+                return await send_message_handler(http_context)
 
-                Returns:
-                    dict: Health check response with status and metadata
+            if enable_healthz and healthz_handler:
+                custom_router.add_api_route(
+                    path="/healthz",
+                    endpoint=healthz_handler,
+                    methods=["GET"],
+                    summary="Health check endpoint"
+                )
 
-                Example Response:
-                    {
-                        "status": "healthy",
-                        "timestamp": "2024-01-01T00:00:00.000Z",
-                        "service": "Cloudbase Agent-python-server",
-                        "version": "1.0.0",
-                        "python_version": "3.11.0",
-                        "base_path": "/"
-                    }
+            if enable_openai_endpoint:
+                @custom_router.post("/chat/completions")
+                async def custom_chat_completions(request: OpenAIChatCompletionRequest):
+                    """OpenAI-compatible chat completions endpoint (custom route)."""
+                    return await openai_handler(request)
+
+            app.include_router(custom_router)
+
+        else:
+            # Case A: Default - register both long route (with agent_id) and short route
+
+            # Long route: /v1/aibot/bots/{agent_id}/*
+            long_router = APIRouter(prefix="/v1/aibot/bots", tags=["Tencent Cloud SCF"])
+
+            @long_router.post("/{agent_id}/send-message")
+            async def long_send_message(agent_id: str, http_context: Request):
+                """Long route for Tencent Cloud SCF (with agent_id parameter).
+                
+                Note: agent_id is currently reserved for future use and not validated.
                 """
-                return healthz_handler()
+                return await send_message_handler(http_context, agent_id)
 
-        # Register OpenAI-compatible endpoint if enabled
-        if enable_openai_endpoint:
+            if enable_healthz and healthz_handler:
+                long_router.add_api_route(
+                    path="/healthz",
+                    endpoint=healthz_handler,
+                    methods=["GET"],
+                    summary="Health check endpoint (long route)"
+                )
 
-            @app.post(f"{final_path}/chat/completions")
-            async def chat_completions_endpoint(request: OpenAIChatCompletionRequest):
-                """OpenAI-compatible chat completions endpoint.
+            if enable_openai_endpoint:
+                @long_router.post("/chat/completions")
+                async def long_chat_completions(request: OpenAIChatCompletionRequest):
+                    """OpenAI-compatible chat completions endpoint (long route)."""
+                    return await openai_handler(request)
 
-                This endpoint provides compatibility with OpenAI's chat completion API,
-                allowing Cloudbase Agent agents to be used as drop-in replacements for OpenAI models.
-                """
-                return await create_openai_adapter(create_agent, request)
+            # Short route: /*
+            short_router = APIRouter(tags=["General"])
+
+            @short_router.post("/send-message")
+            async def short_send_message(http_context: Request):
+                """Short route for general use (no agent_id parameter)."""
+                return await send_message_handler(http_context)
+
+            if enable_healthz and healthz_handler:
+                short_router.add_api_route(
+                    path="/healthz",
+                    endpoint=healthz_handler,
+                    methods=["GET"],
+                    summary="Health check endpoint (short route)"
+                )
+
+            if enable_openai_endpoint:
+                @short_router.post("/chat/completions")
+                async def short_chat_completions(request: OpenAIChatCompletionRequest):
+                    """OpenAI-compatible chat completions endpoint (short route)."""
+                    return await openai_handler(request)
+
+            # Register both routers
+            app.include_router(long_router)
+            app.include_router(short_router)
 
         return app
 
@@ -350,7 +527,6 @@ class AgentServiceApp:
         enable_openai_endpoint: bool = False,
         enable_healthz: bool = True,
         healthz_config: Optional[HealthzConfig] = None,
-        request_preprocessor: Optional[Callable[[RunAgentInput, Request], None]] = None,
         **uvicorn_kwargs: Any,
     ) -> None:
         r"""Build and run the FastAPI application (one-line startup).
@@ -372,10 +548,6 @@ class AgentServiceApp:
         :type enable_healthz: bool
         :param healthz_config: Optional health check configuration
         :type healthz_config: Optional[HealthzConfig]
-        :param request_preprocessor: Optional function to preprocess request before agent execution.
-                                   Called with (request, http_request) and can modify request in-place.
-                                   Useful for extracting user_id from JWT and adding to forwarded_props.
-        :type request_preprocessor: Optional[Callable[[RunAgentInput, Request], None]]
         :param uvicorn_kwargs: Additional keyword arguments to pass to uvicorn.run
                               Examples: reload=True, workers=4, log_level="debug"
         :type uvicorn_kwargs: Any
@@ -385,20 +557,18 @@ class AgentServiceApp:
 
                 AgentServiceApp().run(create_agent, port=8000)
 
-            With JWT authentication::
+            With middleware::
 
-                from agent import create_jwt_request_preprocessor
-                
-                AgentServiceApp().run(
-                    create_agent,
-                    port=8000,
-                    request_preprocessor=create_jwt_request_preprocessor()
-                )
+                app = AgentServiceApp()
+                app.use(jwt_middleware)
+                app.use(logging_middleware)
+                app.run(create_agent, port=8000)
 
             With configuration::
 
                 AgentServiceApp() \
                     .set_cors_config(allow_origins=["https://example.com"]) \
+                    .use(jwt_middleware) \
                     .run(create_agent, port=8000, reload=True)
 
             Development mode::
@@ -426,7 +596,6 @@ class AgentServiceApp:
             enable_openai_endpoint=enable_openai_endpoint,
             enable_healthz=enable_healthz,
             healthz_config=healthz_config,
-            request_preprocessor=request_preprocessor,
         )
 
         # Run the server
