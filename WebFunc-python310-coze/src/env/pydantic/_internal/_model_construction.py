@@ -41,6 +41,7 @@ if TYPE_CHECKING:
     from ..fields import FieldInfo, ModelPrivateAttr
     from ..fields import PrivateAttr as PydanticModelPrivateAttr
     from ..main import BaseModel
+    from ._fields import PydanticExtraInfo
 else:
     PydanticModelField = object()
     PydanticModelPrivateAttr = object()
@@ -135,7 +136,7 @@ class ModelMetaclass(ABCMeta):
             if private_attributes or base_private_attributes:
                 original_model_post_init = get_model_post_init(namespace, bases)
                 if original_model_post_init is not None:
-                    # if there are private_attributes and a model_post_init function, we handle both
+                    # if there are private attributes and a model_post_init function, we handle both
 
                     @wraps(original_model_post_init)
                     def wrapped_model_post_init(self: BaseModel, context: Any, /) -> None:
@@ -172,7 +173,7 @@ class ModelMetaclass(ABCMeta):
 
             cls.__pydantic_setattr_handlers__ = {}
 
-            cls.__pydantic_decorators__ = DecoratorInfos.build(cls)
+            cls.__pydantic_decorators__ = DecoratorInfos.build(cls, replace_wrapped_methods=True)
             cls.__pydantic_decorators__.update_from_config(config_wrapper)
 
             # Use the getattr below to grab the __parameters__ from the `typing.Generic` parent class
@@ -186,7 +187,7 @@ class ModelMetaclass(ABCMeta):
 
                     missing_parameters = tuple(x for x in parameters if x not in parent_parameters)
                     if RootModelRootType in parent_parameters and RootModelRootType not in parameters:
-                        # This is a special case where the user has subclassed `RootModel`, but has not parametrized
+                        # This is a special case where the user has subclassed RootModel, but has not parameterized
                         # RootModel with the generic type identifiers being used. Ex:
                         # class MyModel(RootModel, Generic[T]):
                         #    root: T
@@ -294,7 +295,7 @@ class ModelMetaclass(ABCMeta):
 
     # Due to performance and memory issues, in the ABCMeta.__subclasscheck__ implementation, we don't support
     # registered virtual subclasses. See https://github.com/python/cpython/issues/92810#issuecomment-2762454345.
-    # This may change once the CPython gets fixed (possibly in 3.15), in which case we should conditionally
+    # This may change once CPython is fixed (possibly in 3.15), in which case we should conditionally
     # define `register()`.
     def register(self, subclass: type[_T]) -> type[_T]:
         warnings.warn(
@@ -336,7 +337,7 @@ class ModelMetaclass(ABCMeta):
 
     @property
     def __pydantic_fields_complete__(self) -> bool:
-        """Whether the fields where successfully collected (i.e. type hints were successfully resolves).
+        """Whether the fields were successfully collected (i.e. type hints were successfully resolved).
 
         This is a private attribute, not meant to be used outside Pydantic.
         """
@@ -345,7 +346,13 @@ class ModelMetaclass(ABCMeta):
 
         field_infos = cast('dict[str, FieldInfo]', self.__pydantic_fields__)  # pyright: ignore[reportAttributeAccessIssue]
 
-        return all(field_info._complete for field_info in field_infos.values())
+        pydantic_extra_info = cast('PydanticExtraInfo | None', self.__pydantic_extra_info__)  # pyright: ignore[reportAttributeAccessIssue]
+        if pydantic_extra_info is not None:
+            extra_complete = pydantic_extra_info.complete
+        else:
+            extra_complete = True
+
+        return all(field_info._complete for field_info in field_infos.values()) and extra_complete
 
     def __dir__(self) -> list[str]:
         attributes = list(super().__dir__())
@@ -355,7 +362,7 @@ class ModelMetaclass(ABCMeta):
 
 
 def init_private_attributes(self: BaseModel, context: Any, /) -> None:
-    """This function is meant to behave like a BaseModel method to initialise private attributes.
+    """This function is meant to behave like a BaseModel method to initialize private attributes.
 
     It takes context as an argument since that's what pydantic-core passes when calling it.
 
@@ -366,7 +373,13 @@ def init_private_attributes(self: BaseModel, context: Any, /) -> None:
     if getattr(self, '__pydantic_private__', None) is None:
         pydantic_private = {}
         for name, private_attr in self.__private_attributes__.items():
-            default = private_attr.get_default()
+            # Avoid needlessly creating a new dict for the validated data:
+            if private_attr.default_factory_takes_validated_data:
+                default = private_attr.get_default(
+                    call_default_factory=True, validated_data={**self.__dict__, **pydantic_private}
+                )
+            else:
+                default = private_attr.get_default(call_default_factory=True)
             if default is not PydanticUndefined:
                 pydantic_private[name] = default
         object_setattr(self, '__pydantic_private__', pydantic_private)
@@ -403,7 +416,7 @@ def inspect_namespace(  # noqa C901
         base_class_fields: A set of base class fields.
 
     Returns:
-        A dict contains private attributes info.
+        A dict containing private attributes info.
 
     Raises:
         TypeError: If there is a `__root__` field in model.
@@ -553,7 +566,7 @@ def make_hash_func(cls: type[BaseModel]) -> Any:
 def set_model_fields(
     cls: type[BaseModel],
     config_wrapper: ConfigWrapper,
-    ns_resolver: NsResolver | None,
+    ns_resolver: NsResolver,
 ) -> None:
     """Collect and set `cls.__pydantic_fields__` and `cls.__class_vars__`.
 
@@ -563,9 +576,12 @@ def set_model_fields(
         ns_resolver: Namespace resolver to use when getting model annotations.
     """
     typevars_map = get_model_typevars_map(cls)
-    fields, class_vars = collect_model_fields(cls, config_wrapper, ns_resolver, typevars_map=typevars_map)
+    fields, pydantic_extra_info, class_vars = collect_model_fields(
+        cls, config_wrapper, ns_resolver, typevars_map=typevars_map
+    )
 
     cls.__pydantic_fields__ = fields
+    cls.__pydantic_extra_info__ = pydantic_extra_info
     cls.__class_vars__.update(class_vars)
 
     for k in class_vars:
@@ -589,6 +605,7 @@ def complete_model_class(
     raise_errors: bool = True,
     call_on_complete_hook: bool = True,
     create_model_module: str | None = None,
+    is_force_rebuild: bool = False,
 ) -> bool:
     """Finish building a model class.
 
@@ -602,25 +619,27 @@ def complete_model_class(
         raise_errors: Whether to raise errors.
         call_on_complete_hook: Whether to call the `__pydantic_on_complete__` hook.
         create_model_module: The module of the class to be created, if created by `create_model`.
+        is_force_rebuild: Whether the model is being force-rebuilt (if True, pre-built serializers and
+                          validators are not used, to avoid stale references).
 
     Returns:
         `True` if the model is successfully completed, else `False`.
 
     Raises:
-        PydanticUndefinedAnnotation: If `PydanticUndefinedAnnotation` occurs in`__get_pydantic_core_schema__`
+        PydanticUndefinedAnnotation: If PydanticUndefinedAnnotation occurs in __get_pydantic_core_schema__
             and `raise_errors=True`.
     """
     typevars_map = get_model_typevars_map(cls)
 
     if not cls.__pydantic_fields_complete__:
         # Note: when coming from `ModelMetaclass.__new__()`, this results in fields being built twice.
-        # We do so a second time here so that we can get the `NameError` for the specific undefined annotation.
+        # We do so a second time here so that we can get the ``NameError`` for the specific undefined annotation.
         # Alternatively, we could let `GenerateSchema()` raise the error, but there are cases where incomplete
         # fields are inherited in `collect_model_fields()` and can actually have their annotation resolved in the
         # generate schema process. As we want to avoid having `__pydantic_fields_complete__` set to `False`
         # when `__pydantic_complete__` is `True`, we rebuild here:
         try:
-            cls.__pydantic_fields__ = rebuild_model_fields(
+            cls.__pydantic_fields__, cls.__pydantic_extra_info__ = rebuild_model_fields(
                 cls,
                 config_wrapper=config_wrapper,
                 ns_resolver=ns_resolver,
@@ -660,7 +679,7 @@ def complete_model_class(
         set_model_mocks(cls)
         return False
 
-    # This needs to happen *after* model schema generation, as the return type
+    # This needs to happen *after* model schema generation, as the return types
     # of the properties are evaluated and the `ComputedFieldInfo` are recreated:
     cls.__pydantic_computed_fields__ = {k: v.info for k, v in cls.__pydantic_decorators__.computed_fields.items()}
 
@@ -676,8 +695,9 @@ def complete_model_class(
         'create_model' if create_model_module else 'BaseModel',
         core_config,
         config_wrapper.plugin_settings,
+        _use_prebuilt=not is_force_rebuild,
     )
-    cls.__pydantic_serializer__ = SchemaSerializer(schema, core_config)
+    cls.__pydantic_serializer__ = SchemaSerializer(schema, core_config, _use_prebuilt=not is_force_rebuild)
 
     # set __signature__ attr only for model class, but not for its instances
     # (because instances can define `__call__`, and `inspect.signature` shouldn't
@@ -760,7 +780,7 @@ class _DeprecatedFieldDescriptor:
 class _PydanticWeakRef:
     """Wrapper for `weakref.ref` that enables `pickle` serialization.
 
-    Cloudpickle fails to serialize `weakref.ref` objects due to an arcane error related
+    Cloudpickle fails to serialize weakref.ref objects due to an arcane error related to
     to abstract base classes (`abc.ABC`). This class works around the issue by wrapping
     `weakref.ref` instead of subclassing it.
 

@@ -183,7 +183,7 @@ def dataclass(
         # if config is not explicitly provided, try to read it from the type
         config_dict = config if config is not None else getattr(cls, '__pydantic_config__', None)
         config_wrapper = _config.ConfigWrapper(config_dict)
-        decorators = _decorators.DecoratorInfos.build(cls)
+        decorators = _decorators.DecoratorInfos.build(cls, replace_wrapped_methods=True)
         decorators.update_from_config(config_wrapper)
 
         # Keep track of the original __doc__ so that we can restore it after applying the dataclasses decorator
@@ -314,9 +314,9 @@ def dataclass(
 
 
 def _pydantic_fields_complete(cls: type[PydanticDataclass]) -> bool:
-    """Return whether the fields where successfully collected (i.e. type hints were successfully resolves).
+    """Return whether the fields were successfully collected (i.e. type hints were successfully resolved).
 
-    This is a private property, not meant to be used outside Pydantic.
+    This is a private helper, not meant to be used outside Pydantic.
     """
     return all(field_info._complete for field_info in cls.__pydantic_fields__.values())
 

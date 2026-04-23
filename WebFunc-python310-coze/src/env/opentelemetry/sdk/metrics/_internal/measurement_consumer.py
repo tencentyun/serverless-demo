@@ -17,7 +17,7 @@
 from abc import ABC, abstractmethod
 from threading import Lock
 from time import time_ns
-from typing import Iterable, List, Mapping, Optional
+from typing import List, Mapping, Optional
 
 # This kind of import is needed to avoid Sphinx errors.
 import opentelemetry.sdk.metrics
@@ -29,7 +29,7 @@ from opentelemetry.sdk.metrics._internal.measurement import Measurement
 from opentelemetry.sdk.metrics._internal.metric_reader_storage import (
     MetricReaderStorage,
 )
-from opentelemetry.sdk.metrics._internal.point import Metric
+from opentelemetry.sdk.metrics._internal.point import MetricsData
 
 
 class MeasurementConsumer(ABC):
@@ -41,7 +41,7 @@ class MeasurementConsumer(ABC):
     def register_asynchronous_instrument(
         self,
         instrument: (
-            "opentelemetry.sdk.metrics._internal.instrument_Asynchronous"
+            "opentelemetry.sdk.metrics._internal.instrument._Asynchronous"
         ),
     ):
         pass
@@ -49,9 +49,9 @@ class MeasurementConsumer(ABC):
     @abstractmethod
     def collect(
         self,
-        metric_reader: "opentelemetry.sdk.metrics.MetricReader",
+        metric_reader: "opentelemetry.sdk.metrics.export.MetricReader",
         timeout_millis: float = 10_000,
-    ) -> Optional[Iterable[Metric]]:
+    ) -> Optional[MetricsData]:
         pass
 
 
@@ -64,7 +64,7 @@ class SynchronousMeasurementConsumer(MeasurementConsumer):
         self._sdk_config = sdk_config
         # should never be mutated
         self._reader_storages: Mapping[
-            "opentelemetry.sdk.metrics.MetricReader", MetricReaderStorage
+            opentelemetry.sdk.metrics.export.MetricReader, MetricReaderStorage
         ] = {
             reader: MetricReaderStorage(
                 sdk_config,
@@ -74,7 +74,7 @@ class SynchronousMeasurementConsumer(MeasurementConsumer):
             for reader in sdk_config.metric_readers
         }
         self._async_instruments: List[
-            "opentelemetry.sdk.metrics._internal.instrument._Asynchronous"
+            opentelemetry.sdk.metrics._internal.instrument._Asynchronous
         ] = []
 
     def consume_measurement(self, measurement: Measurement) -> None:
@@ -102,9 +102,9 @@ class SynchronousMeasurementConsumer(MeasurementConsumer):
 
     def collect(
         self,
-        metric_reader: "opentelemetry.sdk.metrics.MetricReader",
+        metric_reader: "opentelemetry.sdk.metrics.export.MetricReader",
         timeout_millis: float = 10_000,
-    ) -> Optional[Iterable[Metric]]:
+    ) -> Optional[MetricsData]:
         with self._lock:
             metric_reader_storage = self._reader_storages[metric_reader]
             # for now, just use the defaults

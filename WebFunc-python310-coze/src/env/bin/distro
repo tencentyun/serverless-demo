@@ -1,7 +1,6 @@
-#!/Users/grey/.pyenv/versions/3.10.15/bin/python3.10
+#!/bin/python3.11
 import sys
 from distro.distro import main
 if __name__ == '__main__':
-    if sys.argv[0].endswith('.exe'):
-        sys.argv[0] = sys.argv[0][:-4]
+    sys.argv[0] = sys.argv[0].removesuffix('.exe')
     sys.exit(main())

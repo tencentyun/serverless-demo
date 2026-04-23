@@ -706,14 +706,14 @@ class Context:
             Added the ``call`` parameter.
         """
         if self.default_map is not None:
-            value = self.default_map.get(name, UNSET)
+            value = self.default_map.get(name)
 
             if call and callable(value):
                 return value()
 
             return value
 
-        return UNSET
+        return None
 
     def fail(self, message: str) -> t.NoReturn:
         """Aborts the execution of the program with a specific error
@@ -2278,9 +2278,12 @@ class Parameter:
         .. versionchanged:: 8.0
             Added the ``call`` parameter.
         """
-        value = ctx.lookup_default(self.name, call=False)  # type: ignore
+        name = self.name
+        value = ctx.lookup_default(name, call=False) if name is not None else None
 
-        if value is UNSET:
+        if value is None and not (
+            ctx.default_map is not None and name is not None and name in ctx.default_map
+        ):
             value = self.default
 
         if call and callable(value):
@@ -2321,8 +2324,10 @@ class Parameter:
                 source = ParameterSource.ENVIRONMENT
 
         if value is UNSET:
-            default_map_value = ctx.lookup_default(self.name)  # type: ignore
-            if default_map_value is not UNSET:
+            default_map_value = ctx.lookup_default(self.name)  # type: ignore[arg-type]
+            if default_map_value is not None or (
+                ctx.default_map is not None and self.name in ctx.default_map
+            ):
                 value = default_map_value
                 source = ParameterSource.DEFAULT_MAP
 
@@ -2777,10 +2782,13 @@ class Option(Parameter):
             # Implicitly a flag because secondary options names were given.
             elif self.secondary_opts:
                 is_flag = True
-        # The option is explicitly not a flag. But we do not know yet if it needs a
-        # value or not. So we look at the default value to determine it.
+
+        # The option is explicitly not a flag, but to determine whether or not it needs
+        # value, we need to check if `flag_value` or `default` was set. Either one is
+        # sufficient.
+        # Ref: https://github.com/pallets/click/issues/3084
         elif is_flag is False and not self._flag_needs_value:
-            self._flag_needs_value = self.default is UNSET
+            self._flag_needs_value = flag_value is not UNSET or self.default is UNSET
 
         if is_flag:
             # Set missing default for flags if not explicitly required or prompted.
@@ -2811,14 +2819,12 @@ class Option(Parameter):
             if self.default is UNSET and not self.required:
                 self.default = False
 
-        # Support the special case of aligning the default value with the flag_value
-        # for flags whose default is explicitly set to True. Note that as long as we
-        # have this condition, there is no way a flag can have a default set to True,
-        # and a flag_value set to something else. Refs:
+        # The alignement of default to the flag_value is resolved lazily in
+        # get_default() to prevent callable flag_values (like classes) from
+        # being instantiated. Refs:
+        # https://github.com/pallets/click/issues/3121
         # https://github.com/pallets/click/issues/3024#issuecomment-3146199461
         # https://github.com/pallets/click/pull/3030/commits/06847da
-        if self.default is True and self.flag_value is not UNSET:
-            self.default = self.flag_value
 
         # Set the default flag_value if it is not set.
         if self.flag_value is UNSET:
@@ -2881,6 +2887,22 @@ class Option(Parameter):
             hidden=self.hidden,
         )
         return info_dict
+
+    def get_default(
+        self, ctx: Context, call: bool = True
+    ) -> t.Any | t.Callable[[], t.Any] | None:
+        value = super().get_default(ctx, call=False)
+
+        # Lazily resolve default=True to flag_value. Doing this here
+        # (instead of eagerly in __init__) prevents callable flag_values
+        # (like classes) from being instantiated by the callable check below.
+        # https://github.com/pallets/click/issues/3121
+        if value is True and self.is_flag:
+            value = self.flag_value
+        elif call and callable(value):
+            value = value()
+
+        return value
 
     def get_error_hint(self, ctx: Context) -> str:
         result = super().get_error_hint(ctx)

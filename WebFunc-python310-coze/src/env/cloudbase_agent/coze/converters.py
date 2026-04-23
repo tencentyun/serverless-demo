@@ -329,8 +329,9 @@ def coze_events_to_ag_ui_events(
     
     # Handle message delta events (streaming text and tool calls)
     # Reference: https://github.com/coze-dev/coze-py/blob/main/examples/chat_stream.py
-    # Note: According to Coze SDK docs, message.content is cumulative (full content so far)
-    # We need to calculate delta by comparing with previous content
+    # Note: Coze `conversation.message.delta` events carry TRUE incremental content
+    # (per cozepy SDK: "Incremental message, usually an incremental message when type=answer"),
+    # so message.content is the delta chunk itself — do NOT treat it as cumulative.
     if event_type == ChatEventType.CONVERSATION_MESSAGE_DELTA:
         if hasattr(coze_event, "message"):
             message = coze_event.message
@@ -381,50 +382,35 @@ def coze_events_to_ag_ui_events(
             
             # Handle reasoning_content (thinking process) - use ThinkingTextMessageContentEvent
             # This is used by models like DeepSeek-R1 that return reasoning/thinking process
+            # Coze delta events carry true incremental reasoning chunks, forward them as-is.
             if hasattr(message, "reasoning_content") and message.reasoning_content:
                 import logging
-                
+
                 reasoning_key = f"{buffer_key}:reasoning"
-                current_reasoning = message.reasoning_content
-                previous_reasoning = _content_buffer.get(reasoning_key, "")
-                
+                delta = message.reasoning_content
+
                 # Log on first reasoning content (for DeepSeek-R1 debugging)
-                if debug_mode and not previous_reasoning:
+                if debug_mode and not _content_buffer.get(reasoning_key):
                     logger = logging.getLogger(__name__)
                     logger.debug("[Converter] Detected reasoning_content (DeepSeek-R1 model)")
-                    preview = current_reasoning[:50] + "..." if len(current_reasoning) > 50 else current_reasoning
+                    preview = delta[:50] + "..." if len(delta) > 50 else delta
                     logger.debug(f"  Reasoning preview: {preview}")
-                
-                # Calculate delta (new content since last event)
-                if current_reasoning.startswith(previous_reasoning):
-                    delta = current_reasoning[len(previous_reasoning):]
-                else:
-                    # If not cumulative, use the whole content (fallback)
-                    delta = current_reasoning
-                
+
                 if delta:
-                    _content_buffer[reasoning_key] = current_reasoning
+                    _content_buffer[reasoning_key] = _content_buffer.get(reasoning_key, "") + delta
                     events.append(ThinkingTextMessageContentEvent(
                         type=EventType.THINKING_TEXT_MESSAGE_CONTENT,
                         delta=delta,
                     ))
-            
+
             # Handle regular content
+            # Coze delta events carry true incremental chunks, forward them as-is.
             if hasattr(message, "content") and message.content:
                 content_key = f"{buffer_key}:content"
-                current_content = message.content
-                previous_content = _content_buffer.get(content_key, "")
-                
-                # Calculate delta (new content since last event)
-                # Coze SDK sends cumulative content, so we extract only the new part
-                if current_content.startswith(previous_content):
-                    delta = current_content[len(previous_content):]
-                else:
-                    # If not cumulative (shouldn't happen), use the whole content
-                    delta = current_content
-                
+                delta = message.content
+
                 if delta:
-                    _content_buffer[content_key] = current_content
+                    _content_buffer[content_key] = _content_buffer.get(content_key, "") + delta
                     # Use TEXT_MESSAGE_CONTENT (standard AG-UI event) instead of TEXT_MESSAGE_CHUNK
                     # TEXT_MESSAGE_CONTENT is the standard event type for streaming text content
                     events.append(TextMessageContentEvent(
