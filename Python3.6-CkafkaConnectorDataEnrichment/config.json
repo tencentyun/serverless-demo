@@ -1,0 +1,32 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "Ckafka 连接器数据富化",
+            "description": "使用Ckafka 连接器+云函数，提供数据富化能力，示例代码演示了数据反序列化、数据库实时查询数据进行数据富化的实现，支持功能自定义。",
+            "attention": "",
+            "tutorial":"",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "CkafkaConnectorETL",
+            "description": "This demo will receive Ckafka Connector's messages and do data enrichment job at real time.",
+            "attention": "",
+            "tutorial":" ",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Python3.6",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-CkafkaConnectorETL",
+        "version": "1.0.0",
+        "tags": [
+            "Python3.6",
+            "Ckafka",
+            "Connector",
+            "ETL",
+            "MySQL"
+        ]
+    }
+}
