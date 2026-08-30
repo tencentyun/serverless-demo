@@ -47,7 +47,9 @@ class ScfSdk {
       if (parseInt(TotalCount, 10) === list.length) {
         break;
       } else {
-        Offset += Limit;
+       
+      // Offset += Limit;
+         Offset += 1
       }
     }
     return list;
