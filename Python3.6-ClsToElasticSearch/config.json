@@ -1,0 +1,32 @@
+{
+    "serverless-cloud-function-application": {
+        "Chinese": {
+            "name": "CLS 消息转储至 ES",
+            "description": "使用CLS+云函数+ES+Kibana，提供日志转存能力，替代Logstash，成本更低，支持功能自定义。代码里面可以添加日志清洗、转换等功能",
+            "attention": "在使用本示例代码时需要在函数配置里添加环境变量和VPC配置；环境变量：ES_ADDRESS，ES_USER，ES_PASSWORD，ES_API_KEY，ES_INDEX。本示例代码仅供参考，如需用于生产请根据自身业务进行相应的评估。",
+            "tutorial":"https://cloud.tencent.com/document/product/583/51597",
+            "author": {
+                "name": "腾讯云"
+            }
+        },
+        "English": {
+            "name": "CLSToElasticsearch",
+            "description": "This demo will connect CLS and consume message automatically.",
+            "attention": "When using this demo, you need to add environment variables and VPC configuration in the function configuration; environment variables: ES_ADDRESS, ES_USER, ES_PASSWORD, ES_API_KEY, ES_INDEX.",
+            "tutorial":" ",
+            "author": {
+                "name": "Tencent Cloud"
+            }
+        },
+        "runtime": "Python3.6",
+        "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.6-ClsToElasticSearch",
+        "version": "1.10.4",
+        "tags": [
+            "Python3.6",
+            "CLS",
+            "ES",
+            "Logstash",
+            "ETL"
+        ]
+    }
+}
