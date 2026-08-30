@@ -197,9 +197,19 @@ exports.main_handler = async (event, context) => {
             };
           }
         }
+        const hostName = new URL(callbackUrl).host.split(':')[0];
+        const headers = {};
+        if (
+          !/^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/.test(hostName)
+        ) {
+          Object.assign(headers, {
+            Host: hostName,
+          });
+        }
         await requestPromiseRetry({
           uri: callbackUrl,
           method: 'POST',
+          headers,
           json: {
             code: status === 'success' ? 0 : -1,
             message: `cos unzip file ${status}`,
