@@ -1,0 +1,2 @@
+#!/bin/bash
+exec java -jar /var/user/Java17-webhello.jar
