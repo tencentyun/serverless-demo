@@ -1,0 +1,28 @@
+{
+  "serverless-cloud-function-application": {
+    "Chinese": {
+      "name": "webhello",
+      "description": "helloworld 空白模板函数",
+      "attention": "无",
+      "author": {
+        "name": "腾讯云社区开发者"
+      }
+    },
+    "English": {
+      "name": "webhello",
+      "description": "This is helloworld function",
+      "attention": "None",
+      "author": {
+        "name": "Tencent Cloud Community"
+      }
+    },
+    "runtime": "Java21",
+    "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Java21-webhello",
+    "version": "1.0.0",
+    "tags": [
+      "Java21",
+      "webhello",
+      "web"
+    ]
+  }
+}

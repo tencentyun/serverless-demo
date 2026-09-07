@@ -1,0 +1,20 @@
+component: scf
+name: ap-guangzhou_default_webhello
+inputs:
+  name: webhello
+  src:
+    src: ./src
+  type: web
+  runtime: Python3.11
+  namespace: default
+  region: ap-guangzhou
+  memorySize: 128
+  timeout: 30
+  events:
+    - apigw:
+        parameters:
+          protocols: [http, https]
+          environment: release
+          endpoints:
+            - path: /
+              method: ANY
