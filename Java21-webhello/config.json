@@ -18,11 +18,12 @@
     },
     "runtime": "Java21",
     "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Java21-webhello",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "tags": [
       "Java21",
       "webhello",
       "web"
-    ]
+    ],
+    "type": "web"
   }
 }

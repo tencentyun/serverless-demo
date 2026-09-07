@@ -18,11 +18,12 @@
     },
     "runtime": "Java17",
     "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Java17-webhello",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "tags": [
       "Java17",
       "webhello",
       "web"
-    ]
+    ],
+    "type": "web"
   }
 }

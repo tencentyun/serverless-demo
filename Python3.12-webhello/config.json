@@ -18,11 +18,12 @@
     },
     "runtime": "Python3.12",
     "readme": "https://github.com/tencentyun/serverless-demo/tree/master/Python3.12-webhello",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "tags": [
       "Python3.12",
       "webhello",
       "web"
-    ]
+    ],
+    "type": "web"
   }
 }
