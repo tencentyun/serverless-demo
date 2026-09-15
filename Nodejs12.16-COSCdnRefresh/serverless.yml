@@ -11,3 +11,6 @@ inputs:
   asyncRunEnable: TRUE
   traceEnable: TRUE
   timeout: 86400
+  environment:
+    variables:
+      cdnHosts1: cdnHosts1.example.com

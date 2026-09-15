@@ -2,7 +2,7 @@
 	"serverless-cloud-function-application": {
 		"Chinese": {
 			"name": "CDN缓存刷新",
-			"description": "本示例使用COS触发器，完成CDN缓存刷新",
+			"description": "本示例使用COS触发器，完成CDN缓存刷新，CDN 域名可通过环境变量 cdnHosts* 批量指定",
 			"attention": "",
 			"author": {
 				"name": "腾讯云社区开发者"
